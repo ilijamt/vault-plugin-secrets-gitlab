@@ -1,0 +1,36 @@
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        go: [ '1.20', '1.21' ]
+        os: [ ubuntu-latest ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Go ${{ matrix.go }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go }}
+          go-version-file: 'go.mod'
+      - name: Display Go version
+        run: go version
+      - name: Build
+        run: go build -v ./cmd/vault-plugin-secrets-gitlab
+      - name: Test
+        run: go test -cover -coverprofile=coverage.out -v
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: ./coverage.out
+          flags: unittests
