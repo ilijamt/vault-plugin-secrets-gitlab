@@ -16,9 +16,6 @@ const (
 	PathConfigStorage = "config"
 )
 
-/*
-AutoRotateBefore time.Duration `json:"auto_rotate_before" structs:"auto_rotate_before" mapstructure:"auto_rotate_before"`
-*/
 var (
 	fieldSchemaConfig = map[string]*framework.FieldSchema{
 		"token": {
@@ -52,6 +49,9 @@ var (
 			Type:        framework.TypeDurationSecond,
 			Description: `How much time should be remaining on the token validity before we should rotate it?`,
 			Default:     DefaultConfigFieldAccessTokenRotate,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Auto rotate before",
+			},
 		},
 	}
 )
