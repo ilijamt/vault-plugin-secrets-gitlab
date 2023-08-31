@@ -25,7 +25,7 @@ func TestPathConfig(t *testing.T) {
 		require.EqualValues(t, resp.Error(), gitlab.ErrBackendNotConfigured)
 	})
 
-	t.Run("write and then read config", func(t *testing.T) {
+	t.Run("write, read, delete and read config", func(t *testing.T) {
 		b, l, events, err := getBackendWithEvents()
 		require.NoError(t, err)
 
@@ -55,9 +55,28 @@ func TestPathConfig(t *testing.T) {
 		assert.EqualValues(t, int((32 * time.Hour).Seconds()), resp.Data["max_ttl"])
 		require.Len(t, events.eventsProcessed, 1)
 
+		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+			Operation: logical.DeleteOperation,
+			Path:      gitlab.PathConfigStorage, Storage: l,
+		})
+		require.NoError(t, err)
+		require.Nil(t, resp)
+		require.Len(t, events.eventsProcessed, 2)
+
+		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      gitlab.PathConfigStorage, Storage: l,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.Error(t, resp.Error())
+
 		events.expectEvents(t, []expectedEvent{
 			{
 				eventType: "gitlab/config-write",
+			},
+			{
+				eventType: "gitlab/config-delete",
 			},
 		})
 	})

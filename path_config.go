@@ -3,12 +3,13 @@ package gitlab
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/vault/sdk/framework"
-	"github.com/hashicorp/vault/sdk/logical"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/vault/sdk/framework"
+	"github.com/hashicorp/vault/sdk/logical"
 )
 
 const (
@@ -38,6 +39,30 @@ var (
 		},
 	}
 )
+
+func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+	b.lockClientMutex.RLock()
+	defer b.lockClientMutex.RUnlock()
+
+	config, err := getConfig(ctx, req.Storage)
+	if err != nil {
+		return nil, err
+	}
+
+	if config == nil {
+		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+	}
+
+	if err = req.Storage.Delete(ctx, PathConfigStorage); err != nil {
+		return nil, err
+	}
+
+	event(ctx, b.Backend, "config-delete", map[string]string{
+		"path": "config",
+	})
+
+	return nil, nil
+}
 
 func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	b.lockClientMutex.RLock()
@@ -153,6 +178,19 @@ func pathConfig(b *Backend) *framework.Path {
 					http.StatusOK: {{
 						Description: http.StatusText(http.StatusOK),
 						Fields:      fieldSchemaConfig,
+					}},
+				},
+			},
+			logical.DeleteOperation: &framework.PathOperation{
+				Callback: b.pathConfigDelete,
+				DisplayAttrs: &framework.DisplayAttributes{
+					OperationVerb:   "delete",
+					OperationSuffix: "configuration",
+				},
+				Summary: "Delete the Backend level settings.",
+				Responses: map[int][]framework.Response{
+					http.StatusNoContent: {{
+						Description: http.StatusText(http.StatusNoContent),
 					}},
 				},
 			},

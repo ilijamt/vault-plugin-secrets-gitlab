@@ -166,7 +166,7 @@ var _ Client = new(gitlabClient)
 
 func NewGitlabClient(config *entryConfig) (client Client, err error) {
 	if config == nil {
-		return nil, fmt.Errorf("config: %w", ErrNilValue)
+		return nil, fmt.Errorf("configure the backend first, config: %w", ErrNilValue)
 	}
 
 	var gc *g.Client
