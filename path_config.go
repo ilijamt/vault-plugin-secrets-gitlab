@@ -16,6 +16,9 @@ const (
 	PathConfigStorage = "config"
 )
 
+/*
+AutoRotateBefore time.Duration `json:"auto_rotate_before" structs:"auto_rotate_before" mapstructure:"auto_rotate_before"`
+*/
 var (
 	fieldSchemaConfig = map[string]*framework.FieldSchema{
 		"token": {
@@ -36,6 +39,19 @@ var (
 			Type:        framework.TypeDurationSecond,
 			Description: `Maximum lifetime expected generated token will be valid for. If set to 0 it will be set for maximum 8670 hours`,
 			Default:     DefaultConfigFieldAccessTokenMaxTTL,
+		},
+		"auto_rotate_token": {
+			Type:        framework.TypeBool,
+			Default:     false,
+			Description: `Should we autorotate the token when it's close to expiry?`,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Auto rotate token",
+			},
+		},
+		"auto_rotate_before": {
+			Type:        framework.TypeDurationSecond,
+			Description: `How much time should be remaining on the token validity before we should rotate it?`,
+			Default:     DefaultConfigFieldAccessTokenRotate,
 		},
 	}
 )

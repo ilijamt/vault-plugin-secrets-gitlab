@@ -7,16 +7,20 @@ import (
 )
 
 type entryConfig struct {
-	BaseURL string        `json:"base_url" structs:"base_url" mapstructure:"base_url"`
-	Token   string        `json:"token" structs:"token" mapstructure:"token"`
-	MaxTTL  time.Duration `json:"max_ttl" structs:"max_ttl" mapstructure:"max_ttl"`
+	BaseURL          string        `json:"base_url" structs:"base_url" mapstructure:"base_url"`
+	Token            string        `json:"token" structs:"token" mapstructure:"token"`
+	MaxTTL           time.Duration `json:"max_ttl" structs:"max_ttl" mapstructure:"max_ttl"`
+	AutoRotateToken  bool          `json:"auto_rotate_token" structs:"auto_rotate_token" mapstructure:"auto_rotate_token"`
+	AutoRotateBefore time.Duration `json:"auto_rotate_before" structs:"auto_rotate_before" mapstructure:"auto_rotate_before"`
 }
 
 func (e entryConfig) LogicalResponseData() map[string]interface{} {
 	return map[string]interface{}{
-		"max_ttl":  int64(e.MaxTTL / time.Second),
-		"base_url": e.BaseURL,
-		"token":    e.Token,
+		"max_ttl":            int64(e.MaxTTL / time.Second),
+		"base_url":           e.BaseURL,
+		"token":              e.Token,
+		"auto_rotate_token":  e.AutoRotateToken,
+		"auto_rotate_before": int64(e.AutoRotateBefore / time.Second),
 	}
 }
 
