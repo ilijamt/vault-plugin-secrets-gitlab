@@ -10,7 +10,8 @@ This is a standalone backend plugin for use with Hashicorp Vault. This plugin al
 ## Quick Links
 
 - Vault Website: [https://www.vaultproject.io]
-- Gitlab Private Access Tokens: [https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html]
+- Gitlab Personal Access Tokens: [https://docs.gitlab.com/ee/api/personal_access_tokens.html]
+- Gitlab Project Access Tokens: [https://docs.gitlab.com/ee/api/project_access_tokens.html]
 - Gitlab Group Access Tokens: [https://docs.gitlab.com/ee/api/group_access_tokens.html]
 
 ## Getting Started
