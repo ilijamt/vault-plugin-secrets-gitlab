@@ -99,34 +99,77 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 	}, nil
 }
 
+func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *entryConfig) error {
+	var client Client
+	var err error
+
+	if client, err = b.getClient(ctx, request.Storage); err != nil {
+		return err
+	}
+
+	if config.TokenExpiresAt.IsZero() {
+		var entryToken *EntryToken
+		// we need to fetch the token expiration information
+		entryToken, err = client.MainTokenInfo()
+		if err != nil {
+			return err
+		}
+		// and update the information so we can do the checks
+		config.TokenExpiresAt = *entryToken.ExpiresAt
+		b.lockClientMutex.Lock()
+		err = saveConfig(ctx, *config, request.Storage)
+		b.lockClientMutex.Unlock()
+	}
+
+	if config.TokenExpiresAt.Sub(time.Now()) > config.AutoRotateBefore {
+		b.Logger().Debug("Nothing to do it's not yet time to rotate the token")
+		return nil
+	}
+
+	return b.rotateConfigToken(ctx, request)
+}
+
 func (b *Backend) rotateConfigToken(ctx context.Context, request *logical.Request) error {
 	if !b.WriteSafeReplicationState() {
 		return nil
 	}
 
-	b.lockClientMutex.RLock()
-	defer b.lockClientMutex.RUnlock()
+	b.lockClientMutex.Lock()
+	defer b.lockClientMutex.Unlock()
 
 	var config *entryConfig
 	var client Client
 	var err error
 
-	// check if the configuration has the expiry information and if not retrieve it.
 	if config, err = getConfig(ctx, request.Storage); err != nil {
 		return err
 	}
-
 	if config == nil {
 		// no configuration yet so we don't need to rotate anything
 		return nil
 	}
 
-	// rotate the main config token if it is time to rotate it
 	if client, err = b.getClient(ctx, request.Storage); err != nil {
 		return err
 	}
 
-	client.Valid()
+	var entryToken *EntryToken
+	entryToken, err = client.RotateMainToken()
+	if err != nil {
+		return nil
+	}
+
+	config.Token = entryToken.Token
+
+	err = saveConfig(ctx, *config, request.Storage)
+	if err != nil {
+		return err
+	}
+
+	event(ctx, b.Backend, "config-token-rotate", map[string]string{
+		"path": "config",
+	})
+
 	return nil
 }
 
@@ -188,12 +231,8 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()
 
-	entry, err := logical.StorageEntryJSON(PathConfigStorage, config)
+	err = saveConfig(ctx, config, req.Storage)
 	if err != nil {
-		return nil, err
-	}
-
-	if err := req.Storage.Put(ctx, entry); err != nil {
 		return nil, err
 	}
 

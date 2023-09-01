@@ -2,6 +2,7 @@ package gitlab
 
 import (
 	"context"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
@@ -59,11 +60,8 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 	}
 
 	b.SetClient(nil)
-	if err := b.Setup(ctx, conf); err != nil {
-		return nil, err
-	}
-
-	return b, nil
+	var err = b.Setup(ctx, conf)
+	return b, err
 }
 
 type Backend struct {
@@ -82,7 +80,27 @@ type Backend struct {
 
 func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) error {
 	b.Logger().Debug("Periodic action executing")
-	return b.rotateConfigToken(ctx, request)
+
+	var config *entryConfig
+	var err error
+
+	b.lockClientMutex.Lock()
+	if config, err = getConfig(ctx, request.Storage); err != nil {
+		b.lockClientMutex.Unlock()
+		return err
+	}
+	b.lockClientMutex.Unlock()
+
+	if config == nil {
+		return nil
+	}
+
+	var errs = new(multierror.Error)
+	if config.AutoRotateToken {
+		err = multierror.Append(err, b.checkAndRotateConfigToken(ctx, request, config))
+	}
+
+	return errs.ErrorOrNil()
 }
 
 // Invalidate invalidates the key if required

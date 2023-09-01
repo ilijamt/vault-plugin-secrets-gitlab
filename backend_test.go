@@ -40,20 +40,9 @@ func (m *mockEventsSender) Send(ctx context.Context, eventType logical.EventType
 func (m *mockEventsSender) expectEvents(t *testing.T, expectedEvents []expectedEvent) {
 	t.Helper()
 	require.EqualValuesf(t, len(m.eventsProcessed), len(expectedEvents), "Expected events: %v\nEvents processed: %v", expectedEvents, m.eventsProcessed)
-	//if len(m.eventsProcessed) != len(expectedEvents) {
-	//	t.Fatalf("Expected events: %v\nEvents processed: %v", expectedEvents, m.eventsProcessed)
-	//}
 	for i, expected := range expectedEvents {
 		actual := m.eventsProcessed[i]
 		require.EqualValuesf(t, expected.eventType, actual.EventType, "Mismatched event type at index %d. Expected %s, got %s\n%v", i, expected.eventType, actual.EventType, m.eventsProcessed)
-		//if expected.eventType != actual.EventType {
-		//	t.Fatalf("Mismatched event type at index %d. Expected %s, got %s\n%v", i, expected.eventType, actual.EventType, m.eventsProcessed)
-		//}
-		//actualPath := actual.Event.Metadata.Fields["path"].GetStringValue()
-		//require.EqualValuesf(t, expected.path, actualPath, "Mismatched path at index %d. Expected %s, got %s\n%v", i, expected.path, actualPath, m.eventsProcessed)
-		//if expected.path != actualPath {
-		//	t.Fatalf("Mismatched path at index %d. Expected %s, got %s\n%v", i, expected.path, actualPath, m.eventsProcessed)
-		//}
 	}
 }
 
@@ -129,6 +118,9 @@ func newInMemoryClient(valid bool) *inMemoryClient {
 		users:        make([]string, 0),
 		valid:        valid,
 		accessTokens: make(map[string]gitlab.EntryToken),
+
+		mainTokenInfo:   gitlab.EntryToken{CreatedAt: g.Time(time.Now()), ExpiresAt: g.Time(time.Now())},
+		rotateMainToken: gitlab.EntryToken{CreatedAt: g.Time(time.Now()), ExpiresAt: g.Time(time.Now())},
 	}
 }
 
@@ -145,10 +137,34 @@ type inMemoryClient struct {
 	groupAccessTokenCreateError    bool
 	projectAccessTokenCreateError  bool
 
+	calledMainToken       int
+	calledRotateMainToken int
+	calledValid           int
+
+	mainTokenInfo   gitlab.EntryToken
+	rotateMainToken gitlab.EntryToken
+
 	accessTokens map[string]gitlab.EntryToken
 }
 
+func (i *inMemoryClient) MainTokenInfo() (*gitlab.EntryToken, error) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	i.calledMainToken++
+	return &i.mainTokenInfo, nil
+}
+
+func (i *inMemoryClient) RotateMainToken() (*gitlab.EntryToken, error) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	i.calledRotateMainToken++
+	return &i.rotateMainToken, nil
+}
+
 func (i *inMemoryClient) Valid() bool {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	i.calledValid++
 	return i.valid
 }
 

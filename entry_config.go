@@ -12,15 +12,23 @@ type entryConfig struct {
 	MaxTTL           time.Duration `json:"max_ttl" structs:"max_ttl" mapstructure:"max_ttl"`
 	AutoRotateToken  bool          `json:"auto_rotate_token" structs:"auto_rotate_token" mapstructure:"auto_rotate_token"`
 	AutoRotateBefore time.Duration `json:"auto_rotate_before" structs:"auto_rotate_before" mapstructure:"auto_rotate_before"`
+	TokenExpiresAt   time.Time     `json:"token_expires_at" structs:"token_expires_at" mapstructure:"token_expires_at"`
 }
 
 func (e entryConfig) LogicalResponseData() map[string]interface{} {
+
+	var tokenExpiresAt = ""
+	if !e.TokenExpiresAt.IsZero() {
+		tokenExpiresAt = e.TokenExpiresAt.Format(time.RFC3339)
+	}
+
 	return map[string]interface{}{
 		"max_ttl":            int64(e.MaxTTL / time.Second),
 		"base_url":           e.BaseURL,
 		"token":              e.Token,
 		"auto_rotate_token":  e.AutoRotateToken,
 		"auto_rotate_before": e.AutoRotateBefore.String(),
+		"token_expires_at":   tokenExpiresAt,
 	}
 }
 
@@ -39,4 +47,15 @@ func getConfig(ctx context.Context, s logical.Storage) (*entryConfig, error) {
 		return nil, err
 	}
 	return cfg, nil
+}
+
+func saveConfig(ctx context.Context, config entryConfig, s logical.Storage) error {
+	var err error
+	var storageEntry *logical.StorageEntry
+	storageEntry, err = logical.StorageEntryJSON(PathConfigStorage, config)
+	if err != nil {
+		return nil
+	}
+
+	return s.Put(ctx, storageEntry)
 }

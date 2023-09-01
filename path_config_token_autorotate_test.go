@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
 )
 
 func TestPathConfig_AutoRotate(t *testing.T) {
@@ -92,4 +93,94 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		assert.NotEmpty(t, resp.Data["auto_rotate_before"])
 		assert.EqualValues(t, "10h0m0s", resp.Data["auto_rotate_before"])
 	})
+}
+
+func TestPathConfig_AutoRotateToken(t *testing.T) {
+
+	t.Run("no error when auto rotate is disabled and config is not set", func(t *testing.T) {
+		b, l, err := getBackend()
+		require.NoError(t, err)
+
+		err = b.PeriodicFunc(context.Background(), &logical.Request{Storage: l})
+		require.NoError(t, err)
+	})
+
+	t.Run("no error when auto rotate is disabled and config is set", func(t *testing.T) {
+		b, l, err := getBackendWithConfig(map[string]any{"token": "token"})
+		require.NoError(t, err)
+
+		err = b.PeriodicFunc(context.Background(), &logical.Request{Storage: l})
+		require.NoError(t, err)
+	})
+
+	t.Run("call auto rotate the main token and rotate the token", func(t *testing.T) {
+		b, l, err := getBackendWithConfig(map[string]any{"token": "token", "auto_rotate_token": true})
+		require.NoError(t, err)
+
+		var client = newInMemoryClient(true)
+		client.rotateMainToken.Token = "new token"
+		b.SetClient(client)
+
+		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      gitlab.PathConfigStorage, Storage: l,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NoError(t, resp.Error())
+		require.NotEmpty(t, resp.Data)
+		require.Empty(t, resp.Data["token_expires_at"])
+
+		err = b.PeriodicFunc(context.Background(), &logical.Request{Storage: l})
+		require.NoError(t, err)
+		assert.Greater(t, client.calledMainToken, 0)
+		assert.Greater(t, client.calledRotateMainToken, 0)
+
+		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      gitlab.PathConfigStorage, Storage: l,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NoError(t, resp.Error())
+		require.NotEmpty(t, resp.Data)
+		require.EqualValues(t, "new token", resp.Data["token"])
+		require.NotEmpty(t, resp.Data["token_expires_at"])
+	})
+
+	t.Run("call auto rotate the main token but the token is still valid", func(t *testing.T) {
+		b, l, err := getBackendWithConfig(map[string]any{"token": "token", "auto_rotate_token": true})
+		require.NoError(t, err)
+
+		var client = newInMemoryClient(true)
+		var expiresAt = time.Now().Add(100 * 24 * time.Hour)
+		client.mainTokenInfo.ExpiresAt = &expiresAt
+		b.SetClient(client)
+
+		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      gitlab.PathConfigStorage, Storage: l,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NoError(t, resp.Error())
+		require.NotEmpty(t, resp.Data)
+		require.Empty(t, resp.Data["token_expires_at"])
+
+		err = b.PeriodicFunc(context.Background(), &logical.Request{Storage: l})
+		require.NoError(t, err)
+		assert.Greater(t, client.calledMainToken, 0)
+		assert.EqualValues(t, client.calledRotateMainToken, 0)
+
+		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      gitlab.PathConfigStorage, Storage: l,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NoError(t, resp.Error())
+		require.NotEmpty(t, resp.Data)
+		require.NotEmpty(t, resp.Data["token_expires_at"])
+	})
+
 }

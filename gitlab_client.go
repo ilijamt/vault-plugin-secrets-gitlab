@@ -17,6 +17,8 @@ var (
 type Client interface {
 	Valid() bool
 
+	MainTokenInfo() (*EntryToken, error)
+	RotateMainToken() (*EntryToken, error)
 	CreatePersonalAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	CreateGroupAccessToken(groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
 	CreateProjectAccessToken(projectId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
@@ -29,6 +31,53 @@ type Client interface {
 type gitlabClient struct {
 	client *g.Client
 	config *entryConfig
+}
+
+func (gc *gitlabClient) MainTokenInfo() (*EntryToken, error) {
+	var pat, _, err = gc.client.PersonalAccessTokens.GetSinglePersonalAccessToken()
+	if err != nil {
+		return nil, err
+	}
+	return &EntryToken{
+		TokenID:     pat.ID,
+		UserID:      pat.UserID,
+		ParentID:    "",
+		Path:        "",
+		Name:        pat.Name,
+		Token:       pat.Token,
+		TokenType:   TokenTypePersonal,
+		CreatedAt:   pat.CreatedAt,
+		ExpiresAt:   (*time.Time)(pat.ExpiresAt),
+		Scopes:      pat.Scopes,
+		AccessLevel: "",
+	}, nil
+}
+
+func (gc *gitlabClient) RotateMainToken() (*EntryToken, error) {
+	if gc.client == nil {
+		return nil, fmt.Errorf("client: %w", ErrNilValue)
+	}
+
+	var currentEntryToken, err = gc.MainTokenInfo()
+	if err != nil {
+		return nil, err
+	}
+	var expiresAt = *currentEntryToken.ExpiresAt
+	var durationTTL = currentEntryToken.CreatedAt.Sub(expiresAt)
+
+	var token *EntryToken
+	token, err = gc.CreatePersonalAccessToken(
+		"",
+		currentEntryToken.UserID,
+		currentEntryToken.Name,
+		time.Now().Add(durationTTL),
+		currentEntryToken.Scopes,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return token, nil
 }
 
 func (gc *gitlabClient) GetUserIdByUsername(username string) (int, error) {
