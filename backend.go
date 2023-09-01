@@ -49,6 +49,7 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 		Paths: framework.PathAppend(
 			[]*framework.Path{
 				pathConfig(b),
+				pathConfigTokenRotate(b),
 				pathListRoles(b),
 				pathRoles(b),
 				pathTokenRoles(b),
@@ -79,6 +80,10 @@ type Backend struct {
 
 func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) error {
 	b.Logger().Debug("Periodic action executing")
+
+	if !b.WriteSafeReplicationState() {
+		return nil
+	}
 
 	var config *entryConfig
 	var err error
