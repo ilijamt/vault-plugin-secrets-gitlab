@@ -25,6 +25,20 @@ func TestPathConfig(t *testing.T) {
 		require.EqualValues(t, resp.Error(), gitlab.ErrBackendNotConfigured)
 	})
 
+	t.Run("deleting uninitialized config should return error", func(t *testing.T) {
+		b, l, err := getBackend()
+		require.NoError(t, err)
+		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			Operation: logical.DeleteOperation,
+			Path:      gitlab.PathConfigStorage, Storage: l,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.Error(t, resp.Error())
+		require.True(t, resp.IsError())
+		require.EqualValues(t, resp.Error(), gitlab.ErrBackendNotConfigured)
+	})
+
 	t.Run("write, read, delete and read config", func(t *testing.T) {
 		b, l, events, err := getBackendWithEvents()
 		require.NoError(t, err)
