@@ -116,12 +116,17 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 		}
 		// and update the information so we can do the checks
 		config.TokenExpiresAt = *entryToken.ExpiresAt
-		b.lockClientMutex.Lock()
-		err = saveConfig(ctx, *config, request.Storage)
-		b.lockClientMutex.Unlock()
+		err = func() error {
+			b.lockClientMutex.Lock()
+			defer b.lockClientMutex.Unlock()
+			return saveConfig(ctx, *config, request.Storage)
+		}()
+		if err != nil {
+			return err
+		}
 	}
 
-	if config.TokenExpiresAt.Sub(time.Now()) > config.AutoRotateBefore {
+	if time.Until(config.TokenExpiresAt) > config.AutoRotateBefore {
 		b.Logger().Debug("Nothing to do it's not yet time to rotate the token")
 		return nil
 	}

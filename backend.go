@@ -2,7 +2,6 @@ package gitlab
 
 import (
 	"context"
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
@@ -95,12 +94,11 @@ func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) er
 		return nil
 	}
 
-	var errs = new(multierror.Error)
-	if config.AutoRotateToken {
-		err = multierror.Append(err, b.checkAndRotateConfigToken(ctx, request, config))
+	if !config.AutoRotateToken {
+		return nil
 	}
 
-	return errs.ErrorOrNil()
+	return b.checkAndRotateConfigToken(ctx, request, config)
 }
 
 // Invalidate invalidates the key if required
