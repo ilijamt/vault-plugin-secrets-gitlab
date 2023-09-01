@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -98,9 +99,41 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 	}, nil
 }
 
+func (b *Backend) rotateConfigToken(ctx context.Context, request *logical.Request) error {
+	if !b.WriteSafeReplicationState() {
+		return nil
+	}
+
+	b.lockClientMutex.RLock()
+	defer b.lockClientMutex.RUnlock()
+
+	var config *entryConfig
+	var client Client
+	var err error
+
+	// check if the configuration has the expiry information and if not retrieve it.
+	if config, err = getConfig(ctx, request.Storage); err != nil {
+		return err
+	}
+
+	if config == nil {
+		// no configuration yet so we don't need to rotate anything
+		return nil
+	}
+
+	// rotate the main config token if it is time to rotate it
+	if client, err = b.getClient(ctx, request.Storage); err != nil {
+		return err
+	}
+
+	client.Valid()
+	return nil
+}
+
 func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var warnings []string
 	var maxTtlRaw, maxTtlOk = data.GetOk("max_ttl")
+	var autoTokenRotateRaw, autoTokenRotateTtlOk = data.GetOk("auto_rotate_before")
 	var token, tokenOk = data.GetOk("token")
 	var err error
 
@@ -109,7 +142,8 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	}
 
 	var config = entryConfig{
-		BaseURL: data.Get("base_url").(string),
+		BaseURL:         data.Get("base_url").(string),
+		AutoRotateToken: data.Get("auto_rotate_token").(bool),
 	}
 
 	if maxTtlOk {
@@ -131,6 +165,20 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		config.MaxTTL = DefaultAccessTokenMaxPossibleTTL
 	}
 
+	if autoTokenRotateTtlOk {
+		atr, _ := convertToInt(autoTokenRotateRaw)
+		if atr > int(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMaxFraction) {
+			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be bigger than %d%% (max: %s) of %s: %w", int(DefaultAutoRotateBeforeMaxFraction*100), time.Duration(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMaxFraction)*time.Second, config.MaxTTL.String(), ErrInvalidValue))
+		} else if atr <= int(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMinFraction) {
+			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be less than %d%% (max: %s) of %s: %w", int(DefaultAutoRotateBeforeMinFraction*100), time.Duration(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMinFraction)*time.Second, config.MaxTTL.String(), ErrInvalidValue))
+		} else {
+			config.AutoRotateBefore = time.Duration(atr) * time.Second
+		}
+	} else {
+		config.AutoRotateBefore = time.Duration(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMinFraction) * time.Second
+		warnings = append(warnings, fmt.Sprintf("auto_rotate_token not specified setting to %v (%d%% of %s)", config.AutoRotateBefore.String(), int(DefaultAutoRotateBeforeMinFraction*100), config.MaxTTL.String()))
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -150,9 +198,11 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	}
 
 	event(ctx, b.Backend, "config-write", map[string]string{
-		"path":     "config",
-		"max_ttl":  config.MaxTTL.String(),
-		"base_url": config.BaseURL,
+		"path":               "config",
+		"max_ttl":            config.MaxTTL.String(),
+		"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
+		"auto_rotate_before": config.AutoRotateBefore.String(),
+		"base_url":           config.BaseURL,
 	})
 
 	b.Logger().Debug("Wrote new config", "base_url", config.BaseURL, "max_ttl", config.MaxTTL)

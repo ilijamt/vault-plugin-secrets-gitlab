@@ -194,7 +194,6 @@ func TestPathConfig(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
-		require.Empty(t, resp.Warnings)
 
 		assert.EqualValues(t, (14 * 24 * time.Hour).Seconds(), resp.Data["max_ttl"])
 	})

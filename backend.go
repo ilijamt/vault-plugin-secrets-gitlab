@@ -54,6 +54,8 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 				pathTokenRoles(b),
 			},
 		),
+
+		PeriodicFunc: b.periodicFunc,
 	}
 
 	b.SetClient(nil)
@@ -76,6 +78,11 @@ type Backend struct {
 
 	// roleLocks to protect access for roles, during modifications, deletion
 	roleLocks []*locksutil.LockEntry
+}
+
+func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) error {
+	b.Logger().Debug("Periodic action executed")
+	return b.rotateConfigToken(ctx, request)
 }
 
 // Invalidate invalidates the key if required

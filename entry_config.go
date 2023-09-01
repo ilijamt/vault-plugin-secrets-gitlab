@@ -20,7 +20,7 @@ func (e entryConfig) LogicalResponseData() map[string]interface{} {
 		"base_url":           e.BaseURL,
 		"token":              e.Token,
 		"auto_rotate_token":  e.AutoRotateToken,
-		"auto_rotate_before": int64(e.AutoRotateBefore / time.Second),
+		"auto_rotate_before": e.AutoRotateBefore.String(),
 	}
 }
 
