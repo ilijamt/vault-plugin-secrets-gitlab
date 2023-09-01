@@ -114,7 +114,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 	})
 
 	t.Run("call auto rotate the main token and rotate the token", func(t *testing.T) {
-		b, l, err := getBackendWithConfig(map[string]any{"token": "token", "auto_rotate_token": true})
+		b, l, events, err := getBackendWithEventsAndConfig(map[string]any{"token": "token", "revoke_auto_rotated_token": true, "auto_rotate_token": true})
 		require.NoError(t, err)
 
 		var client = newInMemoryClient(true)
@@ -146,6 +146,19 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		require.NotEmpty(t, resp.Data)
 		require.EqualValues(t, "new token", resp.Data["token"])
 		require.NotEmpty(t, resp.Data["token_expires_at"])
+
+		events.expectEvents(t, []expectedEvent{
+			{
+				eventType: "gitlab/config-write",
+			},
+			{
+				eventType: "gitlab/config-token-rotate",
+			},
+			{
+				eventType: "gitlab/config-token-revoke",
+			},
+		})
+
 	})
 
 	t.Run("call auto rotate the main token but the token is still valid", func(t *testing.T) {

@@ -141,6 +141,15 @@ All revocation operations queued successfully!
 $ vault lease revoke -prefix gitlab/
 All revocation operations queued successfully!
 ```
+
+### Force rotation of the main token
+If the original token that has been supplied to the backend is not expired. We can use the endpoint bellow
+to force a rotation of the main token.
+
+```shell
+vault put gitlab/config/rotate
+```
+
 ## TODO
 
 * [ ] Implement autorotation of the main token

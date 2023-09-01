@@ -20,7 +20,7 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 			OperationPrefix: operationPrefixGitlabAccessTokens,
 		},
 		Operations: map[logical.Operation]framework.OperationHandler{
-			logical.UpdateOperation: &framework.PathOperation{
+			logical.ReadOperation: &framework.PathOperation{
 				Callback:     b.pathConfigTokenRotate,
 				DisplayAttrs: &framework.DisplayAttributes{OperationVerb: "configure"},
 				Summary:      "Rotate the main Gitlab Access Token.",
@@ -71,16 +71,17 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 }
 
 func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	b.lockClientMutex.Lock()
-	defer b.lockClientMutex.Unlock()
-
 	var config *entryConfig
 	var client Client
 	var err error
 
+	b.lockClientMutex.RLock()
 	if config, err = getConfig(ctx, request.Storage); err != nil {
+		b.lockClientMutex.RUnlock()
 		return nil, err
 	}
+	b.lockClientMutex.RUnlock()
+
 	if config == nil {
 		// no configuration yet so we don't need to rotate anything
 		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
@@ -91,13 +92,17 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	}
 
 	var entryToken *EntryToken
-	entryToken, err = client.RotateMainToken()
+	entryToken, err = client.RotateMainToken(config.RevokeAutoRotatedToken)
 	if err != nil {
 		return nil, err
 	}
 
 	config.Token = entryToken.Token
-
+	if entryToken.ExpiresAt != nil {
+		config.TokenExpiresAt = *entryToken.ExpiresAt
+	}
+	b.lockClientMutex.Lock()
+	defer b.lockClientMutex.Unlock()
 	err = saveConfig(ctx, *config, request.Storage)
 	if err != nil {
 		return nil, err
@@ -107,5 +112,14 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		"path": "config",
 	})
 
-	return nil, nil
+	if config.RevokeAutoRotatedToken {
+		event(ctx, b.Backend, "config-token-revoke", map[string]string{
+			"path": "config",
+		})
+	}
+
+	b.SetClient(nil)
+	return &logical.Response{
+		Data: config.LogicalResponseData(),
+	}, nil
 }

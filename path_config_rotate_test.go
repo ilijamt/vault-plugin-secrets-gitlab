@@ -14,7 +14,7 @@ func TestPathConfigRotate(t *testing.T) {
 		b, l, err := getBackend()
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
-			Operation: logical.UpdateOperation,
+			Operation: logical.ReadOperation,
 			Path:      fmt.Sprintf("%s/rotate", gitlab.PathConfigStorage), Storage: l,
 		})
 		require.NoError(t, err)

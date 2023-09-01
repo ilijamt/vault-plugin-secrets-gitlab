@@ -73,6 +73,11 @@ func writeBackendConfig(b *gitlab.Backend, l logical.Storage, config map[string]
 	return err
 }
 
+func getBackendWithEventsAndConfig(config map[string]any) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
+	var b, storage, events, _ = getBackendWithEvents()
+	return b, storage, events, writeBackendConfig(b, storage, config)
+}
+
 func getBackendWithConfig(config map[string]any) (*gitlab.Backend, logical.Storage, error) {
 	var b, storage, _, _ = getBackendWithEvents()
 	return b, storage, writeBackendConfig(b, storage, config)
@@ -154,7 +159,7 @@ func (i *inMemoryClient) MainTokenInfo() (*gitlab.EntryToken, error) {
 	return &i.mainTokenInfo, nil
 }
 
-func (i *inMemoryClient) RotateMainToken() (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) RotateMainToken(revokeOldToken bool) (*gitlab.EntryToken, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	i.calledRotateMainToken++

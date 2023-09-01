@@ -46,6 +46,14 @@ var (
 				Name: "Auto rotate token",
 			},
 		},
+		"revoke_auto_rotated_token": {
+			Type:        framework.TypeBool,
+			Default:     false,
+			Description: `Should we revoke the autorotated token after a new one has been generated?`,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Revoke auto rotated token",
+			},
+		},
 		"auto_rotate_before": {
 			Type:        framework.TypeDurationSecond,
 			Description: `How much time should be remaining on the token validity before we should rotate it?`,
@@ -111,8 +119,9 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	}
 
 	var config = entryConfig{
-		BaseURL:         data.Get("base_url").(string),
-		AutoRotateToken: data.Get("auto_rotate_token").(bool),
+		BaseURL:                data.Get("base_url").(string),
+		AutoRotateToken:        data.Get("auto_rotate_token").(bool),
+		RevokeAutoRotatedToken: data.Get("revoke_auto_rotated_token").(bool),
 	}
 
 	if maxTtlOk {
@@ -163,13 +172,15 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	}
 
 	event(ctx, b.Backend, "config-write", map[string]string{
-		"path":               "config",
-		"max_ttl":            config.MaxTTL.String(),
-		"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
-		"auto_rotate_before": config.AutoRotateBefore.String(),
-		"base_url":           config.BaseURL,
+		"path":                      "config",
+		"max_ttl":                   config.MaxTTL.String(),
+		"auto_rotate_token":         strconv.FormatBool(config.AutoRotateToken),
+		"auto_rotate_before":        config.AutoRotateBefore.String(),
+		"base_url":                  config.BaseURL,
+		"revoke_auto_rotated_token": strconv.FormatBool(config.RevokeAutoRotatedToken),
 	})
 
+	b.SetClient(nil)
 	b.Logger().Debug("Wrote new config", "base_url", config.BaseURL, "max_ttl", config.MaxTTL)
 	return &logical.Response{
 		Data:     config.LogicalResponseData(),
