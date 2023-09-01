@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 	g "github.com/xanzy/go-gitlab"
 	"golang.org/x/exp/slices"
+	"reflect"
 	"sync"
 	"testing"
 	"time"
@@ -95,8 +96,18 @@ func getBackend() (*gitlab.Backend, logical.Storage, error) {
 
 func TestBackend(t *testing.T) {
 	var err error
-	_, _, err = getBackend()
+	var b *gitlab.Backend
+	b, _, err = getBackend()
 	require.NoError(t, err)
+	require.NotNil(t, b)
+	fv := reflect.ValueOf(b).Elem().FieldByName("client")
+	require.True(t, fv.IsNil())
+	b.SetClient(&inMemoryClient{})
+	require.False(t, fv.IsNil())
+	b.Invalidate(context.Background(), gitlab.PathConfigStorage)
+	require.True(t, fv.IsNil())
+	b.SetClient(&inMemoryClient{})
+	require.False(t, fv.IsNil())
 }
 
 func countErrByName(err *multierror.Error) map[string]int {

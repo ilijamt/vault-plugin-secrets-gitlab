@@ -81,7 +81,7 @@ type Backend struct {
 }
 
 func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) error {
-	b.Logger().Debug("Periodic action executed")
+	b.Logger().Debug("Periodic action executing")
 	return b.rotateConfigToken(ctx, request)
 }
 
