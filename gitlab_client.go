@@ -6,6 +6,7 @@ import (
 	g "github.com/xanzy/go-gitlab"
 	"golang.org/x/time/rate"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -17,6 +18,8 @@ var (
 type Client interface {
 	Valid() bool
 
+	CurrentTokenInfo() (*EntryToken, error)
+	RotateCurrentToken(revokeOldToken bool) (newToken *EntryToken, oldToken *EntryToken, err error)
 	CreatePersonalAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	CreateGroupAccessToken(groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
 	CreateProjectAccessToken(projectId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
@@ -28,7 +31,66 @@ type Client interface {
 
 type gitlabClient struct {
 	client *g.Client
-	config *entryConfig
+	config *EntryConfig
+}
+
+func (gc *gitlabClient) CurrentTokenInfo() (*EntryToken, error) {
+	var pat, _, err = gc.client.PersonalAccessTokens.GetSinglePersonalAccessToken()
+	if err != nil {
+		return nil, err
+	}
+	return &EntryToken{
+		TokenID:     pat.ID,
+		UserID:      pat.UserID,
+		ParentID:    "",
+		Path:        "",
+		Name:        pat.Name,
+		Token:       pat.Token,
+		TokenType:   TokenTypePersonal,
+		CreatedAt:   pat.CreatedAt,
+		ExpiresAt:   (*time.Time)(pat.ExpiresAt),
+		Scopes:      pat.Scopes,
+		AccessLevel: "",
+	}, nil
+}
+
+func (gc *gitlabClient) RotateCurrentToken(revokeOldToken bool) (*EntryToken, *EntryToken, error) {
+	var currentEntryToken, err = gc.CurrentTokenInfo()
+	if err != nil {
+		return nil, nil, err
+	}
+	var expiresAt = *currentEntryToken.ExpiresAt
+	var durationTTL = expiresAt.Sub(*currentEntryToken.CreatedAt)
+
+	var usr *g.User
+	usr, _, err = gc.client.Users.GetUser(currentEntryToken.UserID, g.GetUsersOptions{})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var token *EntryToken
+	token, err = gc.CreatePersonalAccessToken(
+		usr.Username,
+		currentEntryToken.UserID,
+		fmt.Sprintf("%s-%d", currentEntryToken.Name, time.Now().Unix()),
+		time.Now().Add(durationTTL),
+		currentEntryToken.Scopes,
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	gc.config.Token = token.Token
+	if token.ExpiresAt != nil {
+		gc.config.TokenExpiresAt = *token.ExpiresAt
+	}
+
+	if revokeOldToken {
+		_, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(currentEntryToken.TokenID)
+	}
+
+	gc.client = nil
+	return token, currentEntryToken, err
 }
 
 func (gc *gitlabClient) GetUserIdByUsername(username string) (int, error) {
@@ -38,10 +100,10 @@ func (gc *gitlabClient) GetUserIdByUsername(username string) (int, error) {
 
 	u, _, err := gc.client.Users.ListUsers(l)
 	if err != nil {
-		return fmt.Printf("%v", err)
+		return 0, fmt.Errorf("%v", err)
 	}
 	if username != u[0].Username {
-		return fmt.Printf("%v", username)
+		return 0, fmt.Errorf("%v does not match with %s: %w", u[0].Username, username, ErrInvalidValue)
 	}
 
 	return u[0].ID, nil
@@ -164,18 +226,26 @@ func (gc *gitlabClient) Valid() bool {
 
 var _ Client = new(gitlabClient)
 
-func NewGitlabClient(config *entryConfig) (client Client, err error) {
+func NewGitlabClient(config *EntryConfig, httpClient *http.Client) (client Client, err error) {
 	if config == nil {
 		return nil, fmt.Errorf("configure the backend first, config: %w", ErrNilValue)
 	}
 
-	var gc *g.Client
-	if gc, err = g.NewClient(config.Token,
-		g.WithBaseURL(fmt.Sprintf("%s/api/v4", config.BaseURL)),
-		g.WithCustomLimiter(rate.NewLimiter(rate.Inf, 0)),
-	); err != nil {
-		return nil, err
+	if "" == strings.TrimSpace(config.BaseURL) || "" == strings.TrimSpace(config.Token) {
+		return nil, fmt.Errorf("base url or token is empty: %w", ErrInvalidValue)
 	}
 
-	return &gitlabClient{client: gc, config: config}, nil
+	var opts = []g.ClientOptionFunc{
+		g.WithBaseURL(fmt.Sprintf("%s/api/v4", config.BaseURL)),
+		g.WithCustomLimiter(rate.NewLimiter(rate.Inf, 0)),
+	}
+
+	if httpClient != nil {
+		opts = append(opts, g.WithHTTPClient(httpClient))
+	}
+
+	var gc *g.Client
+	gc, err = g.NewClient(config.Token, opts...)
+
+	return &gitlabClient{client: gc, config: config}, err
 }

@@ -184,7 +184,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		return logical.ErrorResponse("Unable to write, missing role name"), nil
 	}
 
-	var config *entryConfig
+	var config *EntryConfig
 	var err error
 	var warnings []string
 	var tokenType TokenType

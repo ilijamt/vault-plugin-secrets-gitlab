@@ -49,19 +49,19 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 		Paths: framework.PathAppend(
 			[]*framework.Path{
 				pathConfig(b),
+				pathConfigTokenRotate(b),
 				pathListRoles(b),
 				pathRoles(b),
 				pathTokenRoles(b),
 			},
 		),
+
+		PeriodicFunc: b.periodicFunc,
 	}
 
 	b.SetClient(nil)
-	if err := b.Setup(ctx, conf); err != nil {
-		return nil, err
-	}
-
-	return b, nil
+	var err = b.Setup(ctx, conf)
+	return b, err
 }
 
 type Backend struct {
@@ -76,6 +76,34 @@ type Backend struct {
 
 	// roleLocks to protect access for roles, during modifications, deletion
 	roleLocks []*locksutil.LockEntry
+}
+
+func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) error {
+	b.Logger().Debug("Periodic action executing")
+
+	if !b.WriteSafeReplicationState() {
+		return nil
+	}
+
+	var config *EntryConfig
+	var err error
+
+	b.lockClientMutex.Lock()
+	if config, err = getConfig(ctx, request.Storage); err != nil {
+		b.lockClientMutex.Unlock()
+		return err
+	}
+	b.lockClientMutex.Unlock()
+
+	if config == nil {
+		return nil
+	}
+
+	if !config.AutoRotateToken {
+		return nil
+	}
+
+	return b.checkAndRotateConfigToken(ctx, request, config)
 }
 
 // Invalidate invalidates the key if required
@@ -105,7 +133,7 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage) (Client, err
 		return nil, err
 	}
 
-	client, err := NewGitlabClient(config)
+	client, err := NewGitlabClient(config, nil)
 	if err == nil {
 		b.SetClient(client)
 	}

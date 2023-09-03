@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -36,6 +37,30 @@ var (
 			Type:        framework.TypeDurationSecond,
 			Description: `Maximum lifetime expected generated token will be valid for. If set to 0 it will be set for maximum 8670 hours`,
 			Default:     DefaultConfigFieldAccessTokenMaxTTL,
+		},
+		"auto_rotate_token": {
+			Type:        framework.TypeBool,
+			Default:     false,
+			Description: `Should we autorotate the token when it's close to expiry?`,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Auto rotate token",
+			},
+		},
+		"revoke_auto_rotated_token": {
+			Type:        framework.TypeBool,
+			Default:     false,
+			Description: `Should we revoke the autorotated token after a new one has been generated?`,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Revoke auto rotated token",
+			},
+		},
+		"auto_rotate_before": {
+			Type:        framework.TypeDurationSecond,
+			Description: `How much time should be remaining on the token validity before we should rotate it?`,
+			Default:     DefaultConfigFieldAccessTokenRotate,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Auto rotate before",
+			},
 		},
 	}
 )
@@ -85,6 +110,7 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var warnings []string
 	var maxTtlRaw, maxTtlOk = data.GetOk("max_ttl")
+	var autoTokenRotateRaw, autoTokenRotateTtlOk = data.GetOk("auto_rotate_before")
 	var token, tokenOk = data.GetOk("token")
 	var err error
 
@@ -92,8 +118,10 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		err = multierror.Append(err, fmt.Errorf("token: %w", ErrFieldRequired))
 	}
 
-	var config = entryConfig{
-		BaseURL: data.Get("base_url").(string),
+	var config = EntryConfig{
+		BaseURL:                data.Get("base_url").(string),
+		AutoRotateToken:        data.Get("auto_rotate_token").(bool),
+		RevokeAutoRotatedToken: data.Get("revoke_auto_rotated_token").(bool),
 	}
 
 	if maxTtlOk {
@@ -115,6 +143,20 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		config.MaxTTL = DefaultAccessTokenMaxPossibleTTL
 	}
 
+	if autoTokenRotateTtlOk {
+		atr, _ := convertToInt(autoTokenRotateRaw)
+		if atr > int(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMaxFraction) {
+			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be bigger than %d%% (max: %s) of %s: %w", int(DefaultAutoRotateBeforeMaxFraction*100), time.Duration(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMaxFraction)*time.Second, config.MaxTTL.String(), ErrInvalidValue))
+		} else if atr <= int(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMinFraction) {
+			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be less than %d%% (max: %s) of %s: %w", int(DefaultAutoRotateBeforeMinFraction*100), time.Duration(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMinFraction)*time.Second, config.MaxTTL.String(), ErrInvalidValue))
+		} else {
+			config.AutoRotateBefore = time.Duration(atr) * time.Second
+		}
+	} else {
+		config.AutoRotateBefore = time.Duration(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMinFraction) * time.Second
+		warnings = append(warnings, fmt.Sprintf("auto_rotate_token not specified setting to %v (%d%% of %s)", config.AutoRotateBefore.String(), int(DefaultAutoRotateBeforeMinFraction*100), config.MaxTTL.String()))
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -124,21 +166,21 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()
 
-	entry, err := logical.StorageEntryJSON(PathConfigStorage, config)
+	err = saveConfig(ctx, config, req.Storage)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := req.Storage.Put(ctx, entry); err != nil {
-		return nil, err
-	}
-
 	event(ctx, b.Backend, "config-write", map[string]string{
-		"path":     "config",
-		"max_ttl":  config.MaxTTL.String(),
-		"base_url": config.BaseURL,
+		"path":                      "config",
+		"max_ttl":                   config.MaxTTL.String(),
+		"auto_rotate_token":         strconv.FormatBool(config.AutoRotateToken),
+		"auto_rotate_before":        config.AutoRotateBefore.String(),
+		"base_url":                  config.BaseURL,
+		"revoke_auto_rotated_token": strconv.FormatBool(config.RevokeAutoRotatedToken),
 	})
 
+	b.SetClient(nil)
 	b.Logger().Debug("Wrote new config", "base_url", config.BaseURL, "max_ttl", config.MaxTTL)
 	return &logical.Response{
 		Data:     config.LogicalResponseData(),

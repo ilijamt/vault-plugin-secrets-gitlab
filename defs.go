@@ -14,8 +14,11 @@ var (
 )
 
 const (
-	DefaultConfigFieldAccessTokenMaxTTL = time.Duration(0)
+	DefaultConfigFieldAccessTokenMaxTTL = 7 * 24 * time.Hour
+	DefaultConfigFieldAccessTokenRotate = 2 * 24 * time.Hour
 	DefaultRoleFieldAccessTokenMaxTTL   = 24 * time.Hour
 	DefaultAccessTokenMinTTL            = 24 * time.Hour
 	DefaultAccessTokenMaxPossibleTTL    = 365 * 24 * time.Hour
+	DefaultAutoRotateBeforeMinFraction  = 0.1
+	DefaultAutoRotateBeforeMaxFraction  = 0.5
 )
