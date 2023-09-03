@@ -103,7 +103,7 @@ func (gc *gitlabClient) GetUserIdByUsername(username string) (int, error) {
 		return 0, fmt.Errorf("%v", err)
 	}
 	if username != u[0].Username {
-		return 0, fmt.Errorf("%v", username)
+		return 0, fmt.Errorf("%v does not match with %s: %w", u[0].Username, username, ErrInvalidValue)
 	}
 
 	return u[0].ID, nil
@@ -245,9 +245,7 @@ func NewGitlabClient(config *EntryConfig, httpClient *http.Client) (client Clien
 	}
 
 	var gc *g.Client
-	if gc, err = g.NewClient(config.Token, opts...); err != nil {
-		return nil, err
-	}
+	gc, err = g.NewClient(config.Token, opts...)
 
-	return &gitlabClient{client: gc, config: config}, nil
+	return &gitlabClient{client: gc, config: config}, err
 }
