@@ -17,7 +17,6 @@ type entryConfig struct {
 }
 
 func (e entryConfig) LogicalResponseData() map[string]interface{} {
-
 	var tokenExpiresAt = ""
 	if !e.TokenExpiresAt.IsZero() {
 		tokenExpiresAt = e.TokenExpiresAt.Format(time.RFC3339)

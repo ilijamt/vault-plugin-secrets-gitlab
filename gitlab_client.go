@@ -18,7 +18,7 @@ type Client interface {
 	Valid() bool
 
 	MainTokenInfo() (*EntryToken, error)
-	RotateMainToken(revokeOldToken bool) (*EntryToken, error)
+	RotateMainToken(revokeOldToken bool) (newToken *EntryToken, oldToken *EntryToken, err error)
 	CreatePersonalAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	CreateGroupAccessToken(groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
 	CreateProjectAccessToken(projectId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
@@ -53,22 +53,22 @@ func (gc *gitlabClient) MainTokenInfo() (*EntryToken, error) {
 	}, nil
 }
 
-func (gc *gitlabClient) RotateMainToken(revokeOldToken bool) (*EntryToken, error) {
+func (gc *gitlabClient) RotateMainToken(revokeOldToken bool) (*EntryToken, *EntryToken, error) {
 	if gc.client == nil {
-		return nil, fmt.Errorf("client: %w", ErrNilValue)
+		return nil, nil, fmt.Errorf("client: %w", ErrNilValue)
 	}
 
 	var currentEntryToken, err = gc.MainTokenInfo()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	var expiresAt = *currentEntryToken.ExpiresAt
-	var durationTTL = currentEntryToken.CreatedAt.Sub(expiresAt)
+	var durationTTL = expiresAt.Sub(*currentEntryToken.CreatedAt)
 
 	var usr *g.User
 	usr, _, err = gc.client.Users.GetUser(currentEntryToken.UserID, g.GetUsersOptions{})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var token *EntryToken
@@ -80,7 +80,7 @@ func (gc *gitlabClient) RotateMainToken(revokeOldToken bool) (*EntryToken, error
 		currentEntryToken.Scopes,
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	gc.config.Token = token.Token
@@ -92,7 +92,8 @@ func (gc *gitlabClient) RotateMainToken(revokeOldToken bool) (*EntryToken, error
 		_, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(currentEntryToken.TokenID)
 	}
 
-	return token, err
+	gc.client = nil
+	return token, currentEntryToken, err
 }
 
 func (gc *gitlabClient) GetUserIdByUsername(username string) (int, error) {

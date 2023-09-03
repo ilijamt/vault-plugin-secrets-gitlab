@@ -159,11 +159,11 @@ func (i *inMemoryClient) MainTokenInfo() (*gitlab.EntryToken, error) {
 	return &i.mainTokenInfo, nil
 }
 
-func (i *inMemoryClient) RotateMainToken(revokeOldToken bool) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) RotateMainToken(revokeOldToken bool) (*gitlab.EntryToken, *gitlab.EntryToken, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	i.calledRotateMainToken++
-	return &i.rotateMainToken, nil
+	return &i.rotateMainToken, &i.mainTokenInfo, nil
 }
 
 func (i *inMemoryClient) Valid() bool {

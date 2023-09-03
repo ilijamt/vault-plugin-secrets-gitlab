@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
-	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -24,11 +24,6 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 				Callback:     b.pathConfigTokenRotate,
 				DisplayAttrs: &framework.DisplayAttributes{OperationVerb: "configure"},
 				Summary:      "Rotate the main Gitlab Access Token.",
-				Responses: map[int][]framework.Response{
-					http.StatusNoContent: {{
-						Description: http.StatusText(http.StatusNoContent),
-					}},
-				},
 			},
 		},
 	}
@@ -91,9 +86,10 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		return nil, err
 	}
 
-	var entryToken *EntryToken
-	entryToken, err = client.RotateMainToken(config.RevokeAutoRotatedToken)
+	var entryToken, oldToken *EntryToken
+	entryToken, oldToken, err = client.RotateMainToken(config.RevokeAutoRotatedToken)
 	if err != nil {
+		b.Logger().Error("failed to rotate main token", "err", err)
 		return nil, err
 	}
 
@@ -105,16 +101,27 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	defer b.lockClientMutex.Unlock()
 	err = saveConfig(ctx, *config, request.Storage)
 	if err != nil {
+		b.Logger().Error("failed to store configuration for revocation", "err", err)
 		return nil, err
 	}
 
 	event(ctx, b.Backend, "config-token-rotate", map[string]string{
-		"path": "config",
+		"path":       "config",
+		"expires_at": entryToken.ExpiresAt.Format(time.RFC3339),
+		"created_at": entryToken.CreatedAt.Format(time.RFC3339),
+		"scopes":     strings.Join(entryToken.Scopes, ", "),
+		"token_id":   strconv.Itoa(entryToken.TokenID),
+		"name":       entryToken.Name,
 	})
 
 	if config.RevokeAutoRotatedToken {
 		event(ctx, b.Backend, "config-token-revoke", map[string]string{
-			"path": "config",
+			"path":       "config",
+			"expires_at": oldToken.ExpiresAt.Format(time.RFC3339),
+			"created_at": oldToken.CreatedAt.Format(time.RFC3339),
+			"scopes":     strings.Join(oldToken.Scopes, ", "),
+			"token_id":   strconv.Itoa(oldToken.TokenID),
+			"name":       oldToken.Name,
 		})
 	}
 
