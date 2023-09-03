@@ -29,9 +29,10 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 	}
 
 	b.Backend = &framework.Backend{
-		BackendType: logical.TypeLogical,
-		Help:        strings.TrimSpace(backendHelp),
-		Invalidate:  b.Invalidate,
+		BackendType:    logical.TypeLogical,
+		Help:           strings.TrimSpace(backendHelp),
+		RunningVersion: RunningVersion,
+		Invalidate:     b.Invalidate,
 
 		PathsSpecial: &logical.Paths{
 			LocalStorage: []string{
