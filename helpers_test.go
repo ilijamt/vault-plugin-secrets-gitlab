@@ -11,7 +11,7 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/stretchr/testify/require"
 	g "github.com/xanzy/go-gitlab"
-	"slices"
+	"golang.org/x/exp/slices"
 	"sync"
 	"testing"
 	"time"

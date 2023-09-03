@@ -64,6 +64,5 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230731193218-e0aa005b6bdf // indirect
 	google.golang.org/grpc v1.57.0 // indirect
-	gopkg.in/dnaeon/go-vcr.v3 v3.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

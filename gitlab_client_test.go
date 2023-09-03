@@ -241,3 +241,33 @@ func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 	require.NotNil(t, token)
 	assert.EqualValues(t, gitlab.TokenTypePersonal, token.TokenType)
 }
+
+func TestGitlabClient_CreateAccessToken(t *testing.T) {
+	var err error
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.RequestURI == "/api/v4/personal_access_tokens/self" {
+			w.WriteHeader(http.StatusOK)
+			data, _ := os.ReadFile("testdata/personal_access_tokens_self.json")
+			_, _ = w.Write(data)
+
+		} else {
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+
+	var client gitlab.Client
+	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
+		Token:   "super-secret-token",
+		BaseURL: server.URL,
+	}, nil)
+	require.NoError(t, err)
+	require.NotNil(t, client)
+	require.True(t, client.Valid())
+
+	token, err := client.CurrentTokenInfo()
+	require.NoError(t, err)
+	require.NotNil(t, token)
+	assert.EqualValues(t, gitlab.TokenTypePersonal, token.TokenType)
+}
