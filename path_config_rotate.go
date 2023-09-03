@@ -40,7 +40,7 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 	if config.TokenExpiresAt.IsZero() {
 		var entryToken *EntryToken
 		// we need to fetch the token expiration information
-		entryToken, err = client.MainTokenInfo()
+		entryToken, err = client.CurrentTokenInfo()
 		if err != nil {
 			return err
 		}
@@ -87,7 +87,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	}
 
 	var entryToken, oldToken *EntryToken
-	entryToken, oldToken, err = client.RotateMainToken(config.RevokeAutoRotatedToken)
+	entryToken, oldToken, err = client.RotateCurrentToken(config.RevokeAutoRotatedToken)
 	if err != nil {
 		b.Logger().Error("failed to rotate main token", "err", err)
 		return nil, err

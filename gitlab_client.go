@@ -17,8 +17,8 @@ var (
 type Client interface {
 	Valid() bool
 
-	MainTokenInfo() (*EntryToken, error)
-	RotateMainToken(revokeOldToken bool) (newToken *EntryToken, oldToken *EntryToken, err error)
+	CurrentTokenInfo() (*EntryToken, error)
+	RotateCurrentToken(revokeOldToken bool) (newToken *EntryToken, oldToken *EntryToken, err error)
 	CreatePersonalAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	CreateGroupAccessToken(groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
 	CreateProjectAccessToken(projectId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
@@ -33,7 +33,7 @@ type gitlabClient struct {
 	config *entryConfig
 }
 
-func (gc *gitlabClient) MainTokenInfo() (*EntryToken, error) {
+func (gc *gitlabClient) CurrentTokenInfo() (*EntryToken, error) {
 	var pat, _, err = gc.client.PersonalAccessTokens.GetSinglePersonalAccessToken()
 	if err != nil {
 		return nil, err
@@ -53,12 +53,12 @@ func (gc *gitlabClient) MainTokenInfo() (*EntryToken, error) {
 	}, nil
 }
 
-func (gc *gitlabClient) RotateMainToken(revokeOldToken bool) (*EntryToken, *EntryToken, error) {
+func (gc *gitlabClient) RotateCurrentToken(revokeOldToken bool) (*EntryToken, *EntryToken, error) {
 	if gc.client == nil {
 		return nil, nil, fmt.Errorf("client: %w", ErrNilValue)
 	}
 
-	var currentEntryToken, err = gc.MainTokenInfo()
+	var currentEntryToken, err = gc.CurrentTokenInfo()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -229,16 +229,22 @@ func (gc *gitlabClient) Valid() bool {
 
 var _ Client = new(gitlabClient)
 
-func NewGitlabClient(config *entryConfig) (client Client, err error) {
+func NewGitlabClient(config *entryConfig, httpClient *http.Client) (client Client, err error) {
 	if config == nil {
 		return nil, fmt.Errorf("configure the backend first, config: %w", ErrNilValue)
 	}
 
-	var gc *g.Client
-	if gc, err = g.NewClient(config.Token,
+	var opts = []g.ClientOptionFunc{
 		g.WithBaseURL(fmt.Sprintf("%s/api/v4", config.BaseURL)),
 		g.WithCustomLimiter(rate.NewLimiter(rate.Inf, 0)),
-	); err != nil {
+	}
+
+	if httpClient != nil {
+		opts = append(opts, g.WithHTTPClient(httpClient))
+	}
+
+	var gc *g.Client
+	if gc, err = g.NewClient(config.Token, opts...); err != nil {
 		return nil, err
 	}
 

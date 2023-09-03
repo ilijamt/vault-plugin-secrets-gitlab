@@ -133,7 +133,7 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage) (Client, err
 		return nil, err
 	}
 
-	client, err := NewGitlabClient(config)
+	client, err := NewGitlabClient(config, nil)
 	if err == nil {
 		b.SetClient(client)
 	}
