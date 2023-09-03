@@ -11,27 +11,25 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/stretchr/testify/require"
 	g "github.com/xanzy/go-gitlab"
-	"gopkg.in/dnaeon/go-vcr.v3/cassette"
-	"gopkg.in/dnaeon/go-vcr.v3/recorder"
 	"slices"
 	"sync"
 	"testing"
 	"time"
 )
 
-func getVcr(name string) (*recorder.Recorder, error) {
-	r, err := recorder.New(name)
-	if err != nil {
-		return nil, err
-	}
-
-	r.AddHook(func(i *cassette.Interaction) error {
-		delete(i.Request.Headers, "Authorization")
-		return nil
-	}, recorder.AfterCaptureHook)
-
-	return r, nil
-}
+//func getVcr(name string) (*recorder.Recorder, error) {
+//	r, err := recorder.New(name)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	r.AddHook(func(i *cassette.Interaction) error {
+//		delete(i.Request.Headers, "Authorization")
+//		return nil
+//	}, recorder.AfterCaptureHook)
+//
+//	return r, nil
+//}
 
 func countErrByName(err *multierror.Error) map[string]int {
 	var data = make(map[string]int)
