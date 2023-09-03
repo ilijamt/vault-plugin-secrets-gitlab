@@ -118,7 +118,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		err = multierror.Append(err, fmt.Errorf("token: %w", ErrFieldRequired))
 	}
 
-	var config = entryConfig{
+	var config = EntryConfig{
 		BaseURL:                data.Get("base_url").(string),
 		AutoRotateToken:        data.Get("auto_rotate_token").(bool),
 		RevokeAutoRotatedToken: data.Get("revoke_auto_rotated_token").(bool),

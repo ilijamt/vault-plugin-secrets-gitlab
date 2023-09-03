@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type entryConfig struct {
+type EntryConfig struct {
 	BaseURL                string        `json:"base_url" structs:"base_url" mapstructure:"base_url"`
 	Token                  string        `json:"token" structs:"token" mapstructure:"token"`
 	MaxTTL                 time.Duration `json:"max_ttl" structs:"max_ttl" mapstructure:"max_ttl"`
@@ -16,7 +16,7 @@ type entryConfig struct {
 	RevokeAutoRotatedToken bool          `json:"revoke_auto_rotated_token" structs:"revoke_auto_rotated_token" mapstructure:"revoke_auto_rotated_token"`
 }
 
-func (e entryConfig) LogicalResponseData() map[string]interface{} {
+func (e EntryConfig) LogicalResponseData() map[string]interface{} {
 	var tokenExpiresAt = ""
 	if !e.TokenExpiresAt.IsZero() {
 		tokenExpiresAt = e.TokenExpiresAt.Format(time.RFC3339)
@@ -33,7 +33,7 @@ func (e entryConfig) LogicalResponseData() map[string]interface{} {
 	}
 }
 
-func getConfig(ctx context.Context, s logical.Storage) (*entryConfig, error) {
+func getConfig(ctx context.Context, s logical.Storage) (*EntryConfig, error) {
 	entry, err := s.Get(ctx, PathConfigStorage)
 	if err != nil {
 		return nil, err
@@ -43,14 +43,14 @@ func getConfig(ctx context.Context, s logical.Storage) (*entryConfig, error) {
 		return nil, nil
 	}
 
-	cfg := new(entryConfig)
+	cfg := new(EntryConfig)
 	if err := entry.DecodeJSON(cfg); err != nil {
 		return nil, err
 	}
 	return cfg, nil
 }
 
-func saveConfig(ctx context.Context, config entryConfig, s logical.Storage) error {
+func saveConfig(ctx context.Context, config EntryConfig, s logical.Storage) error {
 	var err error
 	var storageEntry *logical.StorageEntry
 	storageEntry, err = logical.StorageEntryJSON(PathConfigStorage, config)

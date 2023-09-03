@@ -29,7 +29,7 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 	}
 }
 
-func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *entryConfig) error {
+func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *EntryConfig) error {
 	var client Client
 	var err error
 
@@ -66,7 +66,7 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 }
 
 func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	var config *entryConfig
+	var config *EntryConfig
 	var client Client
 	var err error
 

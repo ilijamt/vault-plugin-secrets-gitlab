@@ -85,7 +85,7 @@ func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) er
 		return nil
 	}
 
-	var config *entryConfig
+	var config *EntryConfig
 	var err error
 
 	b.lockClientMutex.Lock()

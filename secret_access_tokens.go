@@ -51,7 +51,7 @@ func secretAccessTokens(b *Backend) *framework.Secret {
 }
 
 func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
-	var config *entryConfig
+	var config *EntryConfig
 	var err error
 	config, err = getConfig(ctx, req.Storage)
 	if err != nil {

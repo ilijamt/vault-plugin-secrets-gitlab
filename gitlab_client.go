@@ -6,6 +6,7 @@ import (
 	g "github.com/xanzy/go-gitlab"
 	"golang.org/x/time/rate"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -30,7 +31,7 @@ type Client interface {
 
 type gitlabClient struct {
 	client *g.Client
-	config *entryConfig
+	config *EntryConfig
 }
 
 func (gc *gitlabClient) CurrentTokenInfo() (*EntryToken, error) {
@@ -54,10 +55,6 @@ func (gc *gitlabClient) CurrentTokenInfo() (*EntryToken, error) {
 }
 
 func (gc *gitlabClient) RotateCurrentToken(revokeOldToken bool) (*EntryToken, *EntryToken, error) {
-	if gc.client == nil {
-		return nil, nil, fmt.Errorf("client: %w", ErrNilValue)
-	}
-
 	var currentEntryToken, err = gc.CurrentTokenInfo()
 	if err != nil {
 		return nil, nil, err
@@ -103,10 +100,10 @@ func (gc *gitlabClient) GetUserIdByUsername(username string) (int, error) {
 
 	u, _, err := gc.client.Users.ListUsers(l)
 	if err != nil {
-		return fmt.Printf("%v", err)
+		return 0, fmt.Errorf("%v", err)
 	}
 	if username != u[0].Username {
-		return fmt.Printf("%v", username)
+		return 0, fmt.Errorf("%v", username)
 	}
 
 	return u[0].ID, nil
@@ -229,9 +226,13 @@ func (gc *gitlabClient) Valid() bool {
 
 var _ Client = new(gitlabClient)
 
-func NewGitlabClient(config *entryConfig, httpClient *http.Client) (client Client, err error) {
+func NewGitlabClient(config *EntryConfig, httpClient *http.Client) (client Client, err error) {
 	if config == nil {
 		return nil, fmt.Errorf("configure the backend first, config: %w", ErrNilValue)
+	}
+
+	if "" == strings.TrimSpace(config.BaseURL) || "" == strings.TrimSpace(config.Token) {
+		return nil, fmt.Errorf("base url or token is empty: %w", ErrInvalidValue)
 	}
 
 	var opts = []g.ClientOptionFunc{
