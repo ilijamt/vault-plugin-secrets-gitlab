@@ -17,20 +17,6 @@ import (
 	"time"
 )
 
-//func getVcr(name string) (*recorder.Recorder, error) {
-//	r, err := recorder.New(name)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	r.AddHook(func(i *cassette.Interaction) error {
-//		delete(i.Request.Headers, "Authorization")
-//		return nil
-//	}, recorder.AfterCaptureHook)
-//
-//	return r, nil
-//}
-
 func countErrByName(err *multierror.Error) map[string]int {
 	var data = make(map[string]int)
 
