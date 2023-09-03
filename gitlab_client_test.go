@@ -4,6 +4,7 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/stretchr/testify/require"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 )
@@ -28,24 +29,19 @@ func TestGitlabClient(t *testing.T) {
 	})
 }
 
-func TestGitlabClient_InvalidTokenAndUrl(t *testing.T) {
+func TestGitlabClient_InvalidToken(t *testing.T) {
 	var err error
-	var httpClient *http.Client
 
-	//var r *recorder.Recorder
-	//r, err = getVcr("fixtures/gitlab-client-invalid-credentials")
-	//require.NoError(t, err)
-	//require.NotNil(t, r)
-	//defer func() {
-	//	require.NoError(t, r.Stop())
-	//}()
-	//httpClient = r.GetDefaultClient()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	}))
+	defer server.Close()
 
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 		Token:   "super-secret-token",
-		BaseURL: "https://git.example.com",
-	}, httpClient)
+		BaseURL: server.URL,
+	}, nil)
 	require.NoError(t, err)
 	require.NotNil(t, client)
 
