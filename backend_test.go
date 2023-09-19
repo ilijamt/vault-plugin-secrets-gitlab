@@ -22,5 +22,5 @@ func TestBackend(t *testing.T) {
 	require.True(t, fv.IsNil())
 	b.SetClient(newInMemoryClient(true))
 	require.False(t, fv.IsNil())
-	require.EqualValues(t, gitlab.RunningVersion, b.PluginVersion().Version)
+	require.EqualValues(t, gitlab.Version, b.PluginVersion().Version)
 }
