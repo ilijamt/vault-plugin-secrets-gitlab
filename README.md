@@ -67,8 +67,11 @@ $ vault write gitlab/config max_ttl=48h base_url=https://gitlab.example.com toke
 This will create three roles, one of each type.
 
 ```shell
+# personal access tokens can only be created by Gitlab Administrators (see https://docs.gitlab.com/ee/api/users.html#create-a-personal-access-token)
 $ vault write gitlab/roles/personal name=personal-token-name path=username scopes="read_api" token_type=personal token_ttl=24h
+
 $ vault write gitlab/roles/project name=project-token-name path=group/project scopes="read_api" access_level=guest token_type=project token_ttl=24h
+
 $ vault write gitlab/roles/group name=group-token-name path=group/subgroup scopes="read_api" access_level=developer token_type=group token_ttl=24h
 ```
 
