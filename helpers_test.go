@@ -39,7 +39,7 @@ type mockEventsSender struct {
 	eventsProcessed []*logical.EventReceived
 }
 
-func (m *mockEventsSender) Send(ctx context.Context, eventType logical.EventType, event *logical.EventData) error {
+func (m *mockEventsSender) SendEvent(ctx context.Context, eventType logical.EventType, event *logical.EventData) error {
 	if m == nil {
 		return nil
 	}
