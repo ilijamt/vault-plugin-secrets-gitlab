@@ -59,7 +59,7 @@ Since Gitlab 16.0 the ability to create non expiring token has been removed.
 The command bellow will set up the config backend with a max TTL of 48h.
 
 ```shell
-$ vault write gitlab/config max_ttl=48h base_url=gitlab.example.com token=gitlab-super-secret-token
+$ vault write gitlab/config max_ttl=48h base_url=https://gitlab.example.com token=gitlab-super-secret-token
 ```
 
 ### Roles
