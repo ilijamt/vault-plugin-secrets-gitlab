@@ -52,12 +52,44 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Data: map[string]interface{}{
 				"token":              "super-secret-token",
 				"max_ttl":            "48h",
+				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMaxTTL + time.Hour).String(),
+			},
+		})
+		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.Nil(t, resp)
+	})
+
+	t.Run("auto_rotate_before should be set to correct value", func(t *testing.T) {
+		b, l, err := getBackend()
+		require.NoError(t, err)
+		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			Operation: logical.UpdateOperation,
+			Path:      gitlab.PathConfigStorage, Storage: l,
+			Data: map[string]interface{}{
+				"token":              "super-secret-token",
+				"max_ttl":            "48h",
 				"auto_rotate_before": "48h",
 			},
 		})
-		require.Error(t, err)
-		require.Nil(t, resp)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.EqualValues(t, "48h0m0s", resp.Data["auto_rotate_before"])
+	})
+
+	t.Run("auto_rotate_before should be more than the minimal limit", func(t *testing.T) {
+		b, l, err := getBackend()
+		require.NoError(t, err)
+		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			Operation: logical.UpdateOperation,
+			Path:      gitlab.PathConfigStorage, Storage: l,
+			Data: map[string]interface{}{
+				"token":              "super-secret-token",
+				"max_ttl":            "48h",
+				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMinTTL - time.Hour).String(),
+			},
+		})
 		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.Nil(t, resp)
 	})
 
 	t.Run("auto_rotate_before should be set to min if not specified", func(t *testing.T) {
@@ -88,10 +120,8 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 				"auto_rotate_before": "10h",
 			},
 		})
-		require.NoError(t, err)
-		require.NotNil(t, resp)
-		assert.NotEmpty(t, resp.Data["auto_rotate_before"])
-		assert.EqualValues(t, "10h0m0s", resp.Data["auto_rotate_before"])
+		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.Nil(t, resp)
 	})
 }
 

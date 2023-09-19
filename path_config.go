@@ -49,14 +49,14 @@ var (
 		"revoke_auto_rotated_token": {
 			Type:        framework.TypeBool,
 			Default:     false,
-			Description: `Should we revoke the autorotated token after a new one has been generated?`,
+			Description: `Should we revoke the auto-rotated token after a new one has been generated?`,
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Revoke auto rotated token",
 			},
 		},
 		"auto_rotate_before": {
 			Type:        framework.TypeDurationSecond,
-			Description: `How much time should be remaining on the token validity before we should rotate it?`,
+			Description: `How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h`,
 			Default:     DefaultConfigFieldAccessTokenRotate,
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Auto rotate before",
@@ -145,16 +145,16 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 
 	if autoTokenRotateTtlOk {
 		atr, _ := convertToInt(autoTokenRotateRaw)
-		if atr > int(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMaxFraction) {
-			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be bigger than %d%% (max: %s) of %s: %w", int(DefaultAutoRotateBeforeMaxFraction*100), time.Duration(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMaxFraction)*time.Second, config.MaxTTL.String(), ErrInvalidValue))
-		} else if atr <= int(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMinFraction) {
-			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be less than %d%% (max: %s) of %s: %w", int(DefaultAutoRotateBeforeMinFraction*100), time.Duration(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMinFraction)*time.Second, config.MaxTTL.String(), ErrInvalidValue))
+		if atr > int(DefaultAutoRotateBeforeMaxTTL.Seconds()) {
+			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be bigger than %s: %w", DefaultAutoRotateBeforeMaxTTL, ErrInvalidValue))
+		} else if atr <= int(DefaultAutoRotateBeforeMinTTL.Seconds()) {
+			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be less than %s: %w", DefaultAutoRotateBeforeMinTTL, ErrInvalidValue))
 		} else {
 			config.AutoRotateBefore = time.Duration(atr) * time.Second
 		}
 	} else {
-		config.AutoRotateBefore = time.Duration(config.MaxTTL.Seconds()*DefaultAutoRotateBeforeMinFraction) * time.Second
-		warnings = append(warnings, fmt.Sprintf("auto_rotate_token not specified setting to %v (%d%% of %s)", config.AutoRotateBefore.String(), int(DefaultAutoRotateBeforeMinFraction*100), config.MaxTTL.String()))
+		config.AutoRotateBefore = DefaultAutoRotateBeforeMinTTL
+		warnings = append(warnings, fmt.Sprintf("auto_rotate_token not specified setting to %s", DefaultAutoRotateBeforeMinTTL))
 	}
 
 	if err != nil {
