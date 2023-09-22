@@ -97,6 +97,39 @@ token              7mbpSExz7ruyw1QgTjL-
 $ vault lease revoke gitlab/token/personal/0FrzLFkRKaUNZSfa6WfFqjWK
 All revocation operations queued successfully!
 ```
+##### Service accounts
+The service account users from Gitlab 16.1 are for all purposes users that don't use seats. So creating a service account and setting the path to the service account user would work the same as on a real user.
+```shell
+$ curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab/api/v4/service_accounts" | jq .
+{
+  "id": 2017,
+  "username": "service_account_00b069cb73a15d0a7ba8cd67a653599c",
+  "name": "Service account user",
+  "state": "active",
+  "avatar_url": "https://secure.gravatar.com/avatar/6faa2758127182d391be18b4c1e36630?s=80&d=identicon",
+  "web_url": "https://gitlab/service_account_00b069cb73a15d0a7ba8cd67a653599c"
+}
+```
+
+In this case you would create a role like
+```shell
+$ vault write gitlab/roles/sa name=sa-name path=service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=personal token_ttl=24h
+$ vault read gitlab/token/sa
+vault read gitlab/token/sa
+
+Key                Value
+---                -----
+lease_id           gitlab/token/sa/oFI2vpUdvykvMgNum6pZReYZ
+lease_duration     20h1m37s
+lease_renewable    false
+access_level       n/a
+created_at         2023-08-31T03:58:23.069Z
+expires_at         2023-09-01T00:00:00Z
+name               vault-generated-personal-access-token-f6417198
+path               service_account_00b069cb73a15d0a7ba8cd67a653599c
+scopes             [api read_api read_repository read_registry]
+token              -senkScjDo-SoGwST9PP
+```
 
 #### Group
 ```shell
