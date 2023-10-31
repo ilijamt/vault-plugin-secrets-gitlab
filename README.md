@@ -62,6 +62,14 @@ The command bellow will set up the config backend with a max TTL of 48h.
 $ vault write gitlab/config max_ttl=48h base_url=https://gitlab.example.com token=gitlab-super-secret-token
 ```
 
+You may also need to configure the Max TTL for a token that can be issued by setting:
+
+```shell
+$ vault secrets tune -max-lease-ttl=8784h gitlab/
+```
+
+Check https://developer.hashicorp.com/vault/docs/commands/secrets/tune for more information.
+
 ### Roles
 
 This will create three roles, one of each type.
