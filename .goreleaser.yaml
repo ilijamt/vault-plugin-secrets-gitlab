@@ -7,7 +7,7 @@ builds:
       - -trimpath
     ldflags:
       - '-s -w'
-      - "-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.Version={{ .Version }}'"
+      - "-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.Version=v{{ .Version }}'"
       - "-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.FullCommit={{ .FullCommit }}'"
       - "-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.BuildDate={{ .Date }}'"
     goos:
