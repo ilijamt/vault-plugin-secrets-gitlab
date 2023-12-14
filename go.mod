@@ -3,7 +3,7 @@ module github.com/ilijamt/vault-plugin-secrets-gitlab
 go 1.21
 
 require (
-	github.com/hashicorp/go-hclog v1.6.1
+	github.com/hashicorp/go-hclog v1.6.2
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/vault/api v1.10.0
 	github.com/hashicorp/vault/sdk v0.10.2
