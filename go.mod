@@ -11,7 +11,7 @@ require (
 	github.com/xanzy/go-gitlab v0.95.2
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
 	golang.org/x/time v0.5.0
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 )
 
 require (
