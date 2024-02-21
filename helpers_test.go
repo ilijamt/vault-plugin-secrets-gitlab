@@ -4,17 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	log "github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/vault/sdk/helper/logging"
-	"github.com/hashicorp/vault/sdk/logical"
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-	"github.com/stretchr/testify/require"
-	g "github.com/xanzy/go-gitlab"
 	"slices"
 	"sync"
 	"testing"
 	"time"
+
+	log "github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/vault/sdk/helper/logging"
+	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/stretchr/testify/require"
+	g "github.com/xanzy/go-gitlab"
+
+	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
 
 func countErrByName(err *multierror.Error) map[string]int {
@@ -107,8 +109,8 @@ func newInMemoryClient(valid bool) *inMemoryClient {
 		valid:        valid,
 		accessTokens: make(map[string]gitlab.EntryToken),
 
-		mainTokenInfo:   gitlab.EntryToken{CreatedAt: g.Time(time.Now()), ExpiresAt: g.Time(time.Now())},
-		rotateMainToken: gitlab.EntryToken{CreatedAt: g.Time(time.Now()), ExpiresAt: g.Time(time.Now())},
+		mainTokenInfo:   gitlab.EntryToken{CreatedAt: g.Ptr(time.Now()), ExpiresAt: g.Ptr(time.Now())},
+		rotateMainToken: gitlab.EntryToken{CreatedAt: g.Ptr(time.Now()), ExpiresAt: g.Ptr(time.Now())},
 	}
 }
 
@@ -172,7 +174,7 @@ func (i *inMemoryClient) CreatePersonalAccessToken(username string, userId int, 
 		Name:      name,
 		Token:     "",
 		TokenType: gitlab.TokenTypePersonal,
-		CreatedAt: g.Time(time.Now()),
+		CreatedAt: g.Ptr(time.Now()),
 		ExpiresAt: &expiresAt,
 		Scopes:    scopes,
 	}
@@ -196,7 +198,7 @@ func (i *inMemoryClient) CreateGroupAccessToken(groupId string, name string, exp
 		Name:        name,
 		Token:       "",
 		TokenType:   gitlab.TokenTypeGroup,
-		CreatedAt:   g.Time(time.Now()),
+		CreatedAt:   g.Ptr(time.Now()),
 		ExpiresAt:   &expiresAt,
 		Scopes:      scopes,
 		AccessLevel: accessLevel,
@@ -221,7 +223,7 @@ func (i *inMemoryClient) CreateProjectAccessToken(projectId string, name string,
 		Name:        name,
 		Token:       "",
 		TokenType:   gitlab.TokenTypeProject,
-		CreatedAt:   g.Time(time.Now()),
+		CreatedAt:   g.Ptr(time.Now()),
 		ExpiresAt:   &expiresAt,
 		Scopes:      scopes,
 		AccessLevel: accessLevel,
