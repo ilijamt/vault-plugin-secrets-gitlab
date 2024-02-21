@@ -17,7 +17,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token": "super-secret-token",
 			},
 		})
@@ -32,7 +32,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":              "super-secret-token",
 				"max_ttl":            "48h",
 				"auto_rotate_before": "2h",
@@ -49,7 +49,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":              "super-secret-token",
 				"max_ttl":            "48h",
 				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMaxTTL + time.Hour).String(),
@@ -65,7 +65,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":              "super-secret-token",
 				"max_ttl":            "48h",
 				"auto_rotate_before": "48h",
@@ -82,7 +82,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":              "super-secret-token",
 				"max_ttl":            "48h",
 				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMinTTL - time.Hour).String(),
@@ -98,7 +98,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":   "super-secret-token",
 				"max_ttl": "48h",
 			},
@@ -114,7 +114,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":              "super-secret-token",
 				"max_ttl":            "48h",
 				"auto_rotate_before": "10h",

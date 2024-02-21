@@ -16,8 +16,8 @@ type EntryToken struct {
 	AccessLevel AccessLevel `json:"access_level"` // not used for personal access tokens
 }
 
-func (e EntryToken) SecretResponse() (map[string]interface{}, map[string]interface{}) {
-	return map[string]interface{}{
+func (e EntryToken) SecretResponse() (map[string]any, map[string]any) {
+	return map[string]any{
 			"name":         e.Name,
 			"token":        e.Token,
 			"path":         e.Path,
@@ -26,7 +26,7 @@ func (e EntryToken) SecretResponse() (map[string]interface{}, map[string]interfa
 			"created_at":   e.CreatedAt,
 			"expires_at":   e.ExpiresAt,
 		},
-		map[string]interface{}{
+		map[string]any{
 			"path":         e.Path,
 			"name":         e.Name,
 			"user_id":      e.UserID,

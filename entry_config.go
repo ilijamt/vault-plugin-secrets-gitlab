@@ -16,13 +16,13 @@ type EntryConfig struct {
 	RevokeAutoRotatedToken bool          `json:"revoke_auto_rotated_token" structs:"revoke_auto_rotated_token" mapstructure:"revoke_auto_rotated_token"`
 }
 
-func (e EntryConfig) LogicalResponseData() map[string]interface{} {
+func (e EntryConfig) LogicalResponseData() map[string]any {
 	var tokenExpiresAt = ""
 	if !e.TokenExpiresAt.IsZero() {
 		tokenExpiresAt = e.TokenExpiresAt.Format(time.RFC3339)
 	}
 
-	return map[string]interface{}{
+	return map[string]any{
 		"max_ttl":                   int64(e.MaxTTL / time.Second),
 		"base_url":                  e.BaseURL,
 		"token":                     e.Token,

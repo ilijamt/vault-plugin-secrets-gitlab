@@ -10,7 +10,7 @@ import (
 )
 
 func TestPathTokenRoles(t *testing.T) {
-	var defaultConfig = map[string]interface{}{"token": "random-token"}
+	var defaultConfig = map[string]any{"token": "random-token"}
 
 	t.Run("role not found", func(t *testing.T) {
 		var b, l, err = getBackend()
@@ -41,7 +41,7 @@ func TestPathTokenRoles(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.CreateOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"path":         "user",
 				"name":         tokenType.String(),
 				"token_type":   tokenType.String(),

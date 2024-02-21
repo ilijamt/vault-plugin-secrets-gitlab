@@ -17,8 +17,8 @@ type entryRole struct {
 	TokenType   TokenType     `json:"token_type" structs:"token_type" mapstructure:"token_type"`
 }
 
-func (e entryRole) LogicalResponseData() map[string]interface{} {
-	return map[string]interface{}{
+func (e entryRole) LogicalResponseData() map[string]any {
+	return map[string]any{
 		"role_name":    e.RoleName,
 		"path":         e.Path,
 		"name":         e.Name,

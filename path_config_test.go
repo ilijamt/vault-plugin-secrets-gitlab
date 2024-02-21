@@ -46,7 +46,7 @@ func TestPathConfig(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":   "token",
 				"max_ttl": int((32 * time.Hour).Seconds()),
 			},
@@ -102,7 +102,7 @@ func TestPathConfig(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{},
+			Data: map[string]any{},
 		})
 
 		require.Error(t, err)
@@ -120,7 +120,7 @@ func TestPathConfig(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":   "token",
 				"max_ttl": time.Hour * 23,
 			},
@@ -140,7 +140,7 @@ func TestPathConfig(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":   "token",
 				"max_ttl": 0,
 			},
@@ -160,7 +160,7 @@ func TestPathConfig(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":   "token",
 				"max_ttl": 0,
 			},
@@ -180,7 +180,7 @@ func TestPathConfig(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":   "token",
 				"max_ttl": 366 * 24 * time.Hour,
 			},
@@ -200,7 +200,7 @@ func TestPathConfig(t *testing.T) {
 		resp, err := b.HandleRequest(context.Background(), &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"token":   "token",
 				"max_ttl": 14 * 24 * time.Hour,
 			},
