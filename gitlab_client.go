@@ -3,11 +3,12 @@ package gitlab
 import (
 	"errors"
 	"fmt"
-	g "github.com/xanzy/go-gitlab"
-	"golang.org/x/time/rate"
 	"net/http"
 	"strings"
 	"time"
+
+	g "github.com/xanzy/go-gitlab"
+	"golang.org/x/time/rate"
 )
 
 var (
@@ -95,7 +96,7 @@ func (gc *gitlabClient) RotateCurrentToken(revokeOldToken bool) (*EntryToken, *E
 
 func (gc *gitlabClient) GetUserIdByUsername(username string) (int, error) {
 	l := &g.ListUsersOptions{
-		Username: g.String(username),
+		Username: g.Ptr(username),
 	}
 
 	u, _, err := gc.client.Users.ListUsers(l)
@@ -111,7 +112,7 @@ func (gc *gitlabClient) GetUserIdByUsername(username string) (int, error) {
 
 func (gc *gitlabClient) CreatePersonalAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error) {
 	at, _, err := gc.client.Users.CreatePersonalAccessToken(userId, &g.CreatePersonalAccessTokenOptions{
-		Name:      g.String(name),
+		Name:      g.Ptr(name),
 		ExpiresAt: (*g.ISOTime)(&expiresAt),
 		Scopes:    &scopes,
 	})
@@ -137,7 +138,7 @@ func (gc *gitlabClient) CreateGroupAccessToken(groupId string, name string, expi
 	var al = new(g.AccessLevelValue)
 	*al = g.AccessLevelValue(accessLevel.Value())
 	at, _, err := gc.client.GroupAccessTokens.CreateGroupAccessToken(groupId, &g.CreateGroupAccessTokenOptions{
-		Name:        g.String(name),
+		Name:        g.Ptr(name),
 		Scopes:      &scopes,
 		ExpiresAt:   (*g.ISOTime)(&expiresAt),
 		AccessLevel: al,
@@ -164,7 +165,7 @@ func (gc *gitlabClient) CreateProjectAccessToken(projectId string, name string, 
 	var al = new(g.AccessLevelValue)
 	*al = g.AccessLevelValue(accessLevel.Value())
 	at, _, err := gc.client.ProjectAccessTokens.CreateProjectAccessToken(projectId, &g.CreateProjectAccessTokenOptions{
-		Name:        g.String(name),
+		Name:        g.Ptr(name),
 		Scopes:      &scopes,
 		ExpiresAt:   (*g.ISOTime)(&expiresAt),
 		AccessLevel: al,
