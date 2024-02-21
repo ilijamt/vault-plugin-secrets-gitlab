@@ -3,8 +3,9 @@ package gitlab
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/vault/sdk/logical"
 	"time"
+
+	"github.com/hashicorp/vault/sdk/logical"
 )
 
 type entryRole struct {

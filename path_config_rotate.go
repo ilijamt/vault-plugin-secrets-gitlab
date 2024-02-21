@@ -3,11 +3,12 @@ package gitlab
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/vault/sdk/framework"
-	"github.com/hashicorp/vault/sdk/logical"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/vault/sdk/framework"
+	"github.com/hashicorp/vault/sdk/logical"
 )
 
 func pathConfigTokenRotate(b *Backend) *framework.Path {

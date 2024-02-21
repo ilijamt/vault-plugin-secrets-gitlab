@@ -2,13 +2,14 @@ package gitlab_test
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/logical"
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 func TestPathConfig(t *testing.T) {

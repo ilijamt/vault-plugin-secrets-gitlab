@@ -3,14 +3,15 @@ package gitlab
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
 	"golang.org/x/exp/slices"
-	"net/http"
-	"strings"
-	"time"
 )
 
 const (

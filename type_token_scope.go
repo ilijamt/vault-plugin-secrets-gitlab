@@ -3,6 +3,7 @@ package gitlab
 import (
 	"errors"
 	"fmt"
+
 	"golang.org/x/exp/slices"
 )
 

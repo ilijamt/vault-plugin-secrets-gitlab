@@ -2,8 +2,9 @@ package gitlab
 
 import (
 	"context"
-	"github.com/hashicorp/vault/sdk/logical"
 	"time"
+
+	"github.com/hashicorp/vault/sdk/logical"
 )
 
 type EntryConfig struct {
