@@ -2,10 +2,11 @@ package gitlab_test
 
 import (
 	"context"
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
+
+	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBackend(t *testing.T) {

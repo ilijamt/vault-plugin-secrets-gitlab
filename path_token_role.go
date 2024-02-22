@@ -4,13 +4,14 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
-	"github.com/hashicorp/vault/sdk/framework"
-	"github.com/hashicorp/vault/sdk/helper/locksutil"
-	"github.com/hashicorp/vault/sdk/logical"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/vault/sdk/framework"
+	"github.com/hashicorp/vault/sdk/helper/locksutil"
+	"github.com/hashicorp/vault/sdk/logical"
 )
 
 const (
@@ -85,6 +86,9 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	default:
 		return logical.ErrorResponse("invalid token type"), fmt.Errorf("%s: %w", role.TokenType.String(), ErrUnknownTokenType)
 	}
+
+	token.RoleName = role.RoleName
+	token.GitlabRevokesToken = role.GitlabRevokesTokens
 
 	var secretData, secretInternal = token.SecretResponse()
 	resp = b.Secret(secretAccessTokenType).Response(secretData, secretInternal)

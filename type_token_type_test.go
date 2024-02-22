@@ -1,9 +1,10 @@
 package gitlab_test
 
 import (
+	"testing"
+
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestTokenType(t *testing.T) {

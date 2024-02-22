@@ -3,10 +3,11 @@ package gitlab_test
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/vault/sdk/logical"
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestPathConfigRotate(t *testing.T) {

@@ -2,7 +2,7 @@ package gitlab
 
 import "fmt"
 
-func allowedValues(values ...string) (ret []interface{}) {
+func allowedValues(values ...string) (ret []any) {
 	for _, value := range values {
 		ret = append(ret, value)
 	}

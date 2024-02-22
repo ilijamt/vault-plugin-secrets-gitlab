@@ -3,14 +3,15 @@ package gitlab
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
 	"golang.org/x/exp/slices"
-	"net/http"
-	"strings"
-	"time"
 )
 
 const (
@@ -77,6 +78,15 @@ var (
 			AllowedValues: allowedValues(validTokenTypes...),
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Token Type",
+			},
+		},
+		"gitlab_revokes_token": {
+			Type:        framework.TypeBool,
+			Default:     false,
+			Required:    false,
+			Description: `Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires.`,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Gitlab revokes token.",
 			},
 		},
 	}
@@ -205,13 +215,14 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	accessLevel, _ = AccessLevelParse(data.Get("access_level").(string))
 
 	var role = entryRole{
-		RoleName:    roleName,
-		TokenTTL:    time.Duration(data.Get("token_ttl").(int)) * time.Second,
-		Path:        data.Get("path").(string),
-		Name:        data.Get("name").(string),
-		Scopes:      data.Get("scopes").([]string),
-		AccessLevel: accessLevel,
-		TokenType:   tokenType,
+		RoleName:            roleName,
+		TokenTTL:            time.Duration(data.Get("token_ttl").(int)) * time.Second,
+		Path:                data.Get("path").(string),
+		Name:                data.Get("name").(string),
+		Scopes:              data.Get("scopes").([]string),
+		AccessLevel:         accessLevel,
+		TokenType:           tokenType,
+		GitlabRevokesTokens: data.Get("gitlab_revokes_token").(bool),
 	}
 
 	// validate token type
@@ -232,6 +243,9 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		}
 	}
 
+	// @TODO: if gitlab_revokes_issued_tokens is false we can let Vault
+	//  revoke the tokens and the token can be less than 1h
+
 	// validate ttl to make sure it's less than max ttl in config, and above 24h
 	if role.TokenTTL > 0 && role.TokenTTL < DefaultAccessTokenMinTTL {
 		warnings = append(warnings, "token_ttl is set with less than 24 hours. With current token expiry limitation, this token_ttl is ignored, it will be set to 24 hours")
@@ -240,6 +254,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		warnings = append(warnings, fmt.Sprintf("token_ttl needs to be less than %s, setting 'token_ttl' to %s", config.MaxTTL, config.MaxTTL))
 		role.TokenTTL = config.MaxTTL
 	} else if role.TokenTTL <= 0 {
+		// @TODO: fix / should be set to default lease TTL instead of max
 		role.TokenTTL = config.MaxTTL
 		warnings = append(warnings, fmt.Sprintf("token_ttl is set to 0. Tokens without ttls are not supported since Gitlab 16.0 setting to %d based on config max_ttl", config.MaxTTL))
 	}

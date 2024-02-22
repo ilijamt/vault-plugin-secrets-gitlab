@@ -3,14 +3,15 @@ package gitlab_test
 import (
 	"encoding/json"
 	"fmt"
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
+
+	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGitlabClient(t *testing.T) {
