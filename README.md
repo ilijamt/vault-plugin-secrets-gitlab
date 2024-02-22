@@ -53,7 +53,6 @@ The current authentication model requires providing Vault with a Gitlab Token.
 |         path         |   yes    |      n/a      |    no     | Project/Group path to create an access token for. If the token type is set to personal then write the username here. |
 |         name         |   yes    |      n/a      |    no     | The name of the access token                                                                                         |
 |         ttl          |   yes    |      n/a      |    no     | The TTL of the token                                                                                                 |
-|       max_ttl        |   yes    |      n/a      |    no     | The MaxTTL of the token                                                                                              |
 |     access_level     |  no/yes  |      n/a      |    no     | Access level of access token (only required for Group and Project access tokens)                                     |
 |        scopes        |    no    |      []       |    no     | List of scopes                                                                                                       |
 |      token_type      |   yes    |      n/a      |    no     | Access token type                                                                                                    |
@@ -84,13 +83,16 @@ Since Gitlab 16.0 the ability to create non expiring token has been removed.
 The command bellow will set up the config backend with a max TTL of 48h.
 
 ```shell
-$ vault write gitlab/config max_ttl=48h base_url=https://gitlab.example.com token=gitlab-super-secret-token
+$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token
 ```
 
-You may also need to configure the Max TTL for a token that can be issued by setting:
+You may also need to configure the Max/Default TTL for a token that can be issued by setting:
+
+Max TTL: 1 year
+Default TTL: 1 week
 
 ```shell
-$ vault secrets tune -max-lease-ttl=8784h gitlab/
+$ vault secrets tune -max-lease-ttl=8784h -default-lease-ttl=168h gitlab/
 ```
 
 Check https://developer.hashicorp.com/vault/docs/commands/secrets/tune for more information.
@@ -101,11 +103,11 @@ This will create three roles, one of each type.
 
 ```shell
 # personal access tokens can only be created by Gitlab Administrators (see https://docs.gitlab.com/ee/api/users.html#create-a-personal-access-token)
-$ vault write gitlab/roles/personal name=personal-token-name path=username scopes="read_api" token_type=personal token_ttl=24h
+$ vault write gitlab/roles/personal name=personal-token-name path=username scopes="read_api" token_type=personal ttl=48h
 
-$ vault write gitlab/roles/project name=project-token-name path=group/project scopes="read_api" access_level=guest token_type=project token_ttl=24h
+$ vault write gitlab/roles/project name=project-token-name path=group/project scopes="read_api" access_level=guest token_type=project ttl=48h
 
-$ vault write gitlab/roles/group name=group-token-name path=group/subgroup scopes="read_api" access_level=developer token_type=group token_ttl=24h
+$ vault write gitlab/roles/group name=group-token-name path=group/subgroup scopes="read_api" access_level=developer token_type=group ttl=48h
 ```
 
 ### Get access tokens

@@ -41,10 +41,9 @@ func TestPathTokenRoles(t *testing.T) {
 		client := newInMemoryClient(true)
 		b.SetClient(client)
 
-		var ttl, maxTTL = "1h", "4h"
+		var ttl = "1h"
 		if gitlabRevokesToken {
 			ttl = "48h"
-			maxTTL = "96h"
 		}
 
 		// create a role
@@ -57,7 +56,6 @@ func TestPathTokenRoles(t *testing.T) {
 				"token_type":           tokenType.String(),
 				"access_level":         level,
 				"ttl":                  ttl,
-				"max_ttl":              maxTTL,
 				"gitlab_revokes_token": strconv.FormatBool(gitlabRevokesToken),
 			},
 		})

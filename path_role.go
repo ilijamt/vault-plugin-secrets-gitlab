@@ -61,14 +61,6 @@ var (
 				Name: "Token TTL",
 			},
 		},
-		"max_ttl": {
-			Type:        framework.TypeDurationSecond,
-			Description: "The MaxTTL of the token",
-			Required:    true,
-			DisplayAttrs: &framework.DisplayAttributes{
-				Name: "Token Max TTL",
-			},
-		},
 		"access_level": {
 			Type:        framework.TypeString,
 			Description: "access level of access token (only required for Group and Project access tokens)",
@@ -224,7 +216,6 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	var role = entryRole{
 		RoleName:            roleName,
 		TTL:                 time.Duration(data.Get("ttl").(int)) * time.Second,
-		MaxTTL:              time.Duration(data.Get("max_ttl").(int)) * time.Second,
 		Path:                data.Get("path").(string),
 		Name:                data.Get("name").(string),
 		Scopes:              data.Get("scopes").([]string),
@@ -252,16 +243,12 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		}
 	}
 
-	if role.MaxTTL > DefaultAccessTokenMaxPossibleTTL {
-		err = multierror.Append(err, fmt.Errorf("max_ttl='%s' [max_ttl <= %s]: %w", role.MaxTTL.String(), DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
-	}
-
-	if role.TTL > role.MaxTTL {
-		err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl <= max_ttl = %s]: %w", role.TTL.String(), role.MaxTTL.String(), ErrInvalidValue))
+	if role.TTL > DefaultAccessTokenMaxPossibleTTL {
+		err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl <= max_ttl = %s]: %w", role.TTL.String(), DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
 	}
 
 	if role.GitlabRevokesTokens && role.TTL < 24*time.Hour {
-		err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl >= %s and ttl <= %s]: %w", role.TTL, DefaultAccessTokenMinTTL, role.MaxTTL, ErrInvalidValue))
+		err = multierror.Append(err, fmt.Errorf("ttl = %s [%s <= ttl <= %s]: %w", role.TTL, DefaultAccessTokenMinTTL, DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
 	}
 
 	if !role.GitlabRevokesTokens && role.TTL < time.Hour {
