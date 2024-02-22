@@ -1,6 +1,9 @@
 package gitlab
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func allowedValues(values ...string) (ret []any) {
 	for _, value := range values {
@@ -27,4 +30,12 @@ func convertToInt(num any) (int, error) {
 		return int(val), nil
 	}
 	return 0, fmt.Errorf("%v: %w", num, ErrInvalidValue)
+}
+
+func calculateGitlabTTL(duration time.Duration, start time.Time) (ttl time.Duration, exp time.Time, err error) {
+	const D = 24 * time.Hour
+	var val = start.Add(duration).Round(0)
+	exp = val.AddDate(0, 0, 1).Truncate(D)
+	ttl = exp.Sub(start.Round(0))
+	return ttl, exp, nil
 }

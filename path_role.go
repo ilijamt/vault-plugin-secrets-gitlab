@@ -53,13 +53,20 @@ var (
 			},
 			AllowedValues: allowedValues(append(validTokenScopes, ValidPersonalTokenScopes...)...),
 		},
-		"token_ttl": {
+		"ttl": {
 			Type:        framework.TypeDurationSecond,
 			Description: "The TTL of the token",
-			Required:    false,
-			Default:     DefaultRoleFieldAccessTokenMaxTTL,
+			Required:    true,
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Token TTL",
+			},
+		},
+		"max_ttl": {
+			Type:        framework.TypeDurationSecond,
+			Description: "The MaxTTL of the token",
+			Required:    true,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Token Max TTL",
 			},
 		},
 		"access_level": {
@@ -216,7 +223,8 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	var role = entryRole{
 		RoleName:            roleName,
-		TokenTTL:            time.Duration(data.Get("token_ttl").(int)) * time.Second,
+		TTL:                 time.Duration(data.Get("ttl").(int)) * time.Second,
+		MaxTTL:              time.Duration(data.Get("max_ttl").(int)) * time.Second,
 		Path:                data.Get("path").(string),
 		Name:                data.Get("name").(string),
 		Scopes:              data.Get("scopes").([]string),
@@ -233,7 +241,8 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	// check if all required fields are set
 	for name, field := range fieldSchemaRoles {
 		val, ok, _ := data.GetOkErr(name)
-		if tokenType == TokenTypePersonal && name == "access_level" {
+		if (tokenType == TokenTypePersonal && name == "access_level") ||
+			name == "gitlab_revokes_token" {
 			continue
 		}
 		if field.Required && !ok {
@@ -243,20 +252,20 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		}
 	}
 
-	// @TODO: if gitlab_revokes_issued_tokens is false we can let Vault
-	//  revoke the tokens and the token can be less than 1h
+	if role.MaxTTL > DefaultAccessTokenMaxPossibleTTL {
+		err = multierror.Append(err, fmt.Errorf("max_ttl='%s' [max_ttl <= %s]: %w", role.MaxTTL.String(), DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
+	}
 
-	// validate ttl to make sure it's less than max ttl in config, and above 24h
-	if role.TokenTTL > 0 && role.TokenTTL < DefaultAccessTokenMinTTL {
-		warnings = append(warnings, "token_ttl is set with less than 24 hours. With current token expiry limitation, this token_ttl is ignored, it will be set to 24 hours")
-		role.TokenTTL = DefaultAccessTokenMinTTL
-	} else if role.TokenTTL > config.MaxTTL && config.MaxTTL > 0 {
-		warnings = append(warnings, fmt.Sprintf("token_ttl needs to be less than %s, setting 'token_ttl' to %s", config.MaxTTL, config.MaxTTL))
-		role.TokenTTL = config.MaxTTL
-	} else if role.TokenTTL <= 0 {
-		// @TODO: fix / should be set to default lease TTL instead of max
-		role.TokenTTL = config.MaxTTL
-		warnings = append(warnings, fmt.Sprintf("token_ttl is set to 0. Tokens without ttls are not supported since Gitlab 16.0 setting to %d based on config max_ttl", config.MaxTTL))
+	if role.TTL > role.MaxTTL {
+		err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl <= max_ttl = %s]: %w", role.TTL.String(), role.MaxTTL.String(), ErrInvalidValue))
+	}
+
+	if role.GitlabRevokesTokens && role.TTL < 24*time.Hour {
+		err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl >= %s and ttl <= %s]: %w", role.TTL, DefaultAccessTokenMinTTL, role.MaxTTL, ErrInvalidValue))
+	}
+
+	if !role.GitlabRevokesTokens && role.TTL < time.Hour {
+		err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl >= 1h]: %w", role.TTL, ErrInvalidValue))
 	}
 
 	// validate access level

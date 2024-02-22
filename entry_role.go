@@ -10,7 +10,8 @@ import (
 
 type entryRole struct {
 	RoleName            string        `json:"role_name" structs:"role_name" mapstructure:"role_name"`
-	TokenTTL            time.Duration `json:"token_ttl" structs:"token_ttl" mapstructure:"token_ttl"`
+	TTL                 time.Duration `json:"ttl" structs:"ttl" mapstructure:"ttl"`
+	MaxTTL              time.Duration `json:"max_ttl" structs:"max_ttl" mapstructure:"max_ttl"`
 	Path                string        `json:"path" structs:"path" mapstructure:"path"`
 	Name                string        `json:"name" structs:"name" mapstructure:"name"`
 	Scopes              []string      `json:"scopes" structs:"scopes" mapstructure:"scopes"`
@@ -26,7 +27,8 @@ func (e entryRole) LogicalResponseData() map[string]any {
 		"name":                 e.Name,
 		"scopes":               e.Scopes,
 		"access_level":         e.AccessLevel.String(),
-		"token_ttl":            int64(e.TokenTTL / time.Second),
+		"ttl":                  int64(e.TTL / time.Second),
+		"max_ttl":              int64(e.MaxTTL / time.Second),
 		"token_type":           e.TokenType.String(),
 		"gitlab_revokes_token": e.GitlabRevokesTokens,
 	}

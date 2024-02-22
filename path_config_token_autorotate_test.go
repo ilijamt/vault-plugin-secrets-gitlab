@@ -6,9 +6,10 @@ import (
 	"time"
 
 	"github.com/hashicorp/vault/sdk/logical"
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
 
 func TestPathConfig_AutoRotate(t *testing.T) {
@@ -35,7 +36,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
 				"token":              "super-secret-token",
-				"max_ttl":            "48h",
+				"base_url":           "https://gitlab.com",
 				"auto_rotate_before": "2h",
 			},
 		})
@@ -52,7 +53,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
 				"token":              "super-secret-token",
-				"max_ttl":            "48h",
+				"base_url":           "https://gitlab.com",
 				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMaxTTL + time.Hour).String(),
 			},
 		})
@@ -68,7 +69,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
 				"token":              "super-secret-token",
-				"max_ttl":            "48h",
+				"base_url":           "https://gitlab.com",
 				"auto_rotate_before": "48h",
 			},
 		})
@@ -85,7 +86,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
 				"token":              "super-secret-token",
-				"max_ttl":            "48h",
+				"base_url":           "https://gitlab.com",
 				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMinTTL - time.Hour).String(),
 			},
 		})
@@ -100,8 +101,8 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
-				"token":   "super-secret-token",
-				"max_ttl": "48h",
+				"token":    "super-secret-token",
+				"base_url": "https://gitlab.com",
 			},
 		})
 		require.NoError(t, err)
@@ -117,7 +118,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
 				"token":              "super-secret-token",
-				"max_ttl":            "48h",
+				"base_url":           "https://gitlab.com",
 				"auto_rotate_before": "10h",
 			},
 		})

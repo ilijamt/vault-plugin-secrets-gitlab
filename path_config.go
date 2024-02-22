@@ -30,8 +30,8 @@ var (
 		},
 		"base_url": {
 			Type:        framework.TypeString,
-			Description: `The address to access Gitlab. Default is "https://gitlab.com".`,
-			Default:     "https://gitlab.com",
+			Required:    true,
+			Description: `The address to access Gitlab.`,
 		},
 		"auto_rotate_token": {
 			Type:        framework.TypeBool,
@@ -117,26 +117,6 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		AutoRotateToken:        data.Get("auto_rotate_token").(bool),
 		RevokeAutoRotatedToken: data.Get("revoke_auto_rotated_token").(bool),
 	}
-
-	// var maxTtlRaw, maxTtlOk = data.GetOk("max_ttl")
-	// if maxTtlOk {
-	// 	maxTtl := maxTtlRaw.(int)
-	// 	switch {
-	// 	case maxTtl > 0 && maxTtl < int(DefaultAccessTokenMinTTL.Seconds()):
-	// 		warnings = append(warnings, "max_ttl is set with less than 24 hours. With current token expiry limitation, this max_ttl is ignored, it's set to 24 hours")
-	// 		config.MaxTTL = DefaultAccessTokenMinTTL
-	// 	case maxTtl <= 0:
-	// 		config.MaxTTL = DefaultAccessTokenMaxPossibleTTL
-	// 		warnings = append(warnings, "max_ttl is not set. Token wil be generated with expiration date of '8760 hours'")
-	// 	case maxTtl > int(DefaultAccessTokenMaxPossibleTTL.Seconds()):
-	// 		warnings = append(warnings, "max_ttl is set to more than '8760 hours'. Token wil be generated with expiration date of '8760 hours'")
-	// 		config.MaxTTL = DefaultAccessTokenMaxPossibleTTL
-	// 	default:
-	// 		config.MaxTTL = time.Duration(maxTtl) * time.Second
-	// 	}
-	// } else if config.MaxTTL == 0 {
-	// 	config.MaxTTL = DefaultAccessTokenMaxPossibleTTL
-	// }
 
 	if autoTokenRotateTtlOk {
 		atr, _ := convertToInt(autoTokenRotateRaw)
