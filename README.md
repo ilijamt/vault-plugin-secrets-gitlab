@@ -58,6 +58,41 @@ The current authentication model requires providing Vault with a Gitlab Token.
 |      token_type      |   yes    |      n/a      |    no     | Access token type                                                                                                    |
 | gitlab_revokes_token |    no    |      no       |    no     | Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires                      |
 
+#### ttl
+
+Depending on `gitlab_revokes_token` the TTL will change.
+
+* `true` - 24h <= ttl <= 365 days
+* `false` - 1h <= ttl <= 365 days
+
+#### access_level 
+
+It's not required if `token_type` is set to `personal`. 
+
+For a list of available roles check https://docs.gitlab.com/ee/user/permissions.html
+
+#### scopes
+
+Depending on the type of token you have different scopes:
+
+* `Personal` - https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#personal-access-token-scopes
+* `Project` - https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#scopes-for-a-project-access-token
+* `Group` - https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html#scopes-for-a-group-access-token
+
+#### token_types
+
+Can be 
+
+* personal
+* project
+* group
+
+#### gitlab_revokes_token
+
+This is a flag that doesn't expire the token when the token used to create the credentials expire.
+When the vault token used to create gitlab credentials with a TTL longer than the vault token, the new gitlab credentials will expire at the same time with the parent.
+Setting this up will not call the revoke endpoint on gitlab.
+
 ## Examples
 
 ### Setup
