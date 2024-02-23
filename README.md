@@ -34,6 +34,65 @@ Before we can use this plugin we need to create an access token that will have r
 
 The current authentication model requires providing Vault with a Gitlab Token. 
 
+## Configuration
+
+### Config
+
+|         Property          | Required | Default value | Sensitive | Description                                                                                                                       |
+|:-------------------------:|:--------:|:-------------:|:---------:|:----------------------------------------------------------------------------------------------------------------------------------|
+|           token           |   yes    |      n/a      |    yes    | The token to access Gitlab API                                                                                                    |
+|         base_url          |   yes    |      n/a      |    no     | The address to access Gitlab                                                                                                      |
+|     auto_rotate_token     |    no    |      no       |    no     | Should we autorotate the token when it's close to expiry? (Experimental)                                                          |
+| revoke_auto_rotated_token |    no    |      no       |    no     | Should we revoke the auto-rotated token after a new one has been generated?                                                       |
+|    auto_rotate_before     |    no    |      24h      |    no     | How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h |
+
+### Role
+
+|       Property       | Required | Default value | Sensitive | Description                                                                                                          |
+|:--------------------:|:--------:|:-------------:|:---------:|:---------------------------------------------------------------------------------------------------------------------|
+|         path         |   yes    |      n/a      |    no     | Project/Group path to create an access token for. If the token type is set to personal then write the username here. |
+|         name         |   yes    |      n/a      |    no     | The name of the access token                                                                                         |
+|         ttl          |   yes    |      n/a      |    no     | The TTL of the token                                                                                                 |
+|     access_level     |  no/yes  |      n/a      |    no     | Access level of access token (only required for Group and Project access tokens)                                     |
+|        scopes        |    no    |      []       |    no     | List of scopes                                                                                                       |
+|      token_type      |   yes    |      n/a      |    no     | Access token type                                                                                                    |
+| gitlab_revokes_token |    no    |      no       |    no     | Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires                      |
+
+#### ttl
+
+Depending on `gitlab_revokes_token` the TTL will change.
+
+* `true` - 24h <= ttl <= 365 days
+* `false` - 1h <= ttl <= 365 days
+
+#### access_level 
+
+It's not required if `token_type` is set to `personal`. 
+
+For a list of available roles check https://docs.gitlab.com/ee/user/permissions.html
+
+#### scopes
+
+Depending on the type of token you have different scopes:
+
+* `Personal` - https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#personal-access-token-scopes
+* `Project` - https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#scopes-for-a-project-access-token
+* `Group` - https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html#scopes-for-a-group-access-token
+
+#### token_types
+
+Can be 
+
+* personal
+* project
+* group
+
+#### gitlab_revokes_token
+
+This is a flag that doesn't expire the token when the token used to create the credentials expire.
+When the vault token used to create gitlab credentials with a TTL longer than the vault token, the new gitlab credentials will expire at the same time with the parent.
+Setting this up will not call the revoke endpoint on gitlab.
+
 ## Examples
 
 ### Setup
@@ -56,16 +115,21 @@ Due to how Gitlab manages expiration the minimum is 24h and maximum is 365 days.
 [Remove ability to create deprecated non-expiring access tokens](https://gitlab.com/gitlab-org/gitlab/-/issues/392855).
 Since Gitlab 16.0 the ability to create non expiring token has been removed.
 
+If you use Vault to manage the tokens the minimal TTL you can use is `1h`, by setting `gitlab_revokes_token=false`.
+
 The command bellow will set up the config backend with a max TTL of 48h.
 
 ```shell
-$ vault write gitlab/config max_ttl=48h base_url=https://gitlab.example.com token=gitlab-super-secret-token
+$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token
 ```
 
-You may also need to configure the Max TTL for a token that can be issued by setting:
+You may also need to configure the Max/Default TTL for a token that can be issued by setting:
+
+Max TTL: 1 year
+Default TTL: 1 week
 
 ```shell
-$ vault secrets tune -max-lease-ttl=8784h gitlab/
+$ vault secrets tune -max-lease-ttl=8784h -default-lease-ttl=168h gitlab/
 ```
 
 Check https://developer.hashicorp.com/vault/docs/commands/secrets/tune for more information.
@@ -76,11 +140,11 @@ This will create three roles, one of each type.
 
 ```shell
 # personal access tokens can only be created by Gitlab Administrators (see https://docs.gitlab.com/ee/api/users.html#create-a-personal-access-token)
-$ vault write gitlab/roles/personal name=personal-token-name path=username scopes="read_api" token_type=personal token_ttl=24h
+$ vault write gitlab/roles/personal name=personal-token-name path=username scopes="read_api" token_type=personal ttl=48h
 
-$ vault write gitlab/roles/project name=project-token-name path=group/project scopes="read_api" access_level=guest token_type=project token_ttl=24h
+$ vault write gitlab/roles/project name=project-token-name path=group/project scopes="read_api" access_level=guest token_type=project ttl=48h
 
-$ vault write gitlab/roles/group name=group-token-name path=group/subgroup scopes="read_api" access_level=developer token_type=group token_ttl=24h
+$ vault write gitlab/roles/group name=group-token-name path=group/subgroup scopes="read_api" access_level=developer token_type=group ttl=48h
 ```
 
 ### Get access tokens

@@ -57,8 +57,17 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	_, _ = rand.Read(buf)
 	var token *EntryToken
 	var name = strings.ToLower(fmt.Sprintf("vault-generated-%s-access-token-%x", role.TokenType.String(), buf))
-	var expiresAt = time.Now().Add(role.TokenTTL)
+	var expiresAt time.Time
+	var startTime = time.Now().UTC()
+
 	var client Client
+	var gitlabRevokesTokens = role.GitlabRevokesTokens
+	var vaultRevokesTokens = !role.GitlabRevokesTokens
+
+	expiresAt = startTime.Add(role.TTL)
+	if gitlabRevokesTokens {
+		_, expiresAt, _ = calculateGitlabTTL(role.TTL, startTime)
+	}
 
 	client, err = b.getClient(ctx, req.Storage)
 	if err != nil {
@@ -87,15 +96,27 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		return logical.ErrorResponse("invalid token type"), fmt.Errorf("%s: %w", role.TokenType.String(), ErrUnknownTokenType)
 	}
 
+	token.RoleName = role.RoleName
+	token.GitlabRevokesToken = role.GitlabRevokesTokens
+
+	if vaultRevokesTokens {
+		token.ExpiresAt = &expiresAt
+	}
+
 	var secretData, secretInternal = token.SecretResponse()
 	resp = b.Secret(secretAccessTokenType).Response(secretData, secretInternal)
-	resp.Secret.MaxTTL = role.TokenTTL
-	resp.Secret.TTL = token.ExpiresAt.Sub(*token.CreatedAt)
+
+	resp.Secret.MaxTTL = role.TTL
+	resp.Secret.TTL = role.TTL
+	if gitlabRevokesTokens {
+		resp.Secret.TTL = token.ExpiresAt.Sub(*token.CreatedAt)
+	}
 
 	event(ctx, b.Backend, "token-write", map[string]string{
 		"path":         fmt.Sprintf("%s/%s", PathRoleStorage, roleName),
 		"name":         name,
 		"parent_id":    role.Path,
+		"ttl":          resp.Secret.TTL.String(),
 		"role_name":    roleName,
 		"token_id":     strconv.Itoa(token.TokenID),
 		"token_type":   role.TokenType.String(),

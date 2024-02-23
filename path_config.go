@@ -30,13 +30,8 @@ var (
 		},
 		"base_url": {
 			Type:        framework.TypeString,
-			Description: `The address to access Gitlab. Default is "https://gitlab.com".`,
-			Default:     "https://gitlab.com",
-		},
-		"max_ttl": {
-			Type:        framework.TypeDurationSecond,
-			Description: `Maximum lifetime expected generated token will be valid for. If set to 0 it will be set for maximum 8670 hours`,
-			Default:     DefaultConfigFieldAccessTokenMaxTTL,
+			Required:    true,
+			Description: `The address to access Gitlab.`,
 		},
 		"auto_rotate_token": {
 			Type:        framework.TypeBool,
@@ -109,7 +104,6 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 
 func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var warnings []string
-	var maxTtlRaw, maxTtlOk = data.GetOk("max_ttl")
 	var autoTokenRotateRaw, autoTokenRotateTtlOk = data.GetOk("auto_rotate_before")
 	var token, tokenOk = data.GetOk("token")
 	var err error
@@ -122,25 +116,6 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		BaseURL:                data.Get("base_url").(string),
 		AutoRotateToken:        data.Get("auto_rotate_token").(bool),
 		RevokeAutoRotatedToken: data.Get("revoke_auto_rotated_token").(bool),
-	}
-
-	if maxTtlOk {
-		maxTtl := maxTtlRaw.(int)
-		switch {
-		case maxTtl > 0 && maxTtl < int(DefaultAccessTokenMinTTL.Seconds()):
-			warnings = append(warnings, "max_ttl is set with less than 24 hours. With current token expiry limitation, this max_ttl is ignored, it's set to 24 hours")
-			config.MaxTTL = DefaultAccessTokenMinTTL
-		case maxTtl <= 0:
-			config.MaxTTL = DefaultAccessTokenMaxPossibleTTL
-			warnings = append(warnings, "max_ttl is not set. Token wil be generated with expiration date of '8760 hours'")
-		case maxTtl > int(DefaultAccessTokenMaxPossibleTTL.Seconds()):
-			warnings = append(warnings, "max_ttl is set to more than '8760 hours'. Token wil be generated with expiration date of '8760 hours'")
-			config.MaxTTL = DefaultAccessTokenMaxPossibleTTL
-		default:
-			config.MaxTTL = time.Duration(maxTtl) * time.Second
-		}
-	} else if config.MaxTTL == 0 {
-		config.MaxTTL = DefaultAccessTokenMaxPossibleTTL
 	}
 
 	if autoTokenRotateTtlOk {
@@ -173,7 +148,6 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 
 	event(ctx, b.Backend, "config-write", map[string]string{
 		"path":                      "config",
-		"max_ttl":                   config.MaxTTL.String(),
 		"auto_rotate_token":         strconv.FormatBool(config.AutoRotateToken),
 		"auto_rotate_before":        config.AutoRotateBefore.String(),
 		"base_url":                  config.BaseURL,
@@ -181,7 +155,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	})
 
 	b.SetClient(nil)
-	b.Logger().Debug("Wrote new config", "base_url", config.BaseURL, "max_ttl", config.MaxTTL)
+	b.Logger().Debug("Wrote new config", "base_url", config.BaseURL)
 	return &logical.Response{
 		Data:     config.LogicalResponseData(),
 		Warnings: warnings,
