@@ -115,6 +115,8 @@ Due to how Gitlab manages expiration the minimum is 24h and maximum is 365 days.
 [Remove ability to create deprecated non-expiring access tokens](https://gitlab.com/gitlab-org/gitlab/-/issues/392855).
 Since Gitlab 16.0 the ability to create non expiring token has been removed.
 
+If you use Vault to manage the tokens the minimal TTL you can use is `1h`, by setting `gitlab_revokes_token=false`.
+
 The command bellow will set up the config backend with a max TTL of 48h.
 
 ```shell
