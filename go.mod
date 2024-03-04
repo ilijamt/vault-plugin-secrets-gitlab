@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/vault/api v1.12.0
 	github.com/hashicorp/vault/sdk v0.11.0
 	github.com/stretchr/testify v1.8.4
-	github.com/xanzy/go-gitlab v0.97.0
+	github.com/xanzy/go-gitlab v0.99.0
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
 	golang.org/x/time v0.5.0
 	google.golang.org/protobuf v1.32.0
