@@ -6,8 +6,9 @@ import (
 	"testing"
 
 	"github.com/hashicorp/vault/sdk/logical"
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/stretchr/testify/require"
+
+	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
 
 func TestPathConfigRotate(t *testing.T) {

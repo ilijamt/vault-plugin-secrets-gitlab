@@ -141,6 +141,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		b, l, err := getBackendWithConfig(map[string]any{"token": "token"})
 		require.NoError(t, err)
 
+		b.SetClient(newInMemoryClient(true))
 		err = b.PeriodicFunc(context.Background(), &logical.Request{Storage: l})
 		require.NoError(t, err)
 	})
@@ -176,7 +177,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
 		require.NotEmpty(t, resp.Data)
-		require.EqualValues(t, "new token", resp.Data["token"])
+		require.NotEmpty(t, resp.Data["token_sha1_hash"])
 		require.NotEmpty(t, resp.Data["token_expires_at"])
 
 		events.expectEvents(t, []expectedEvent{

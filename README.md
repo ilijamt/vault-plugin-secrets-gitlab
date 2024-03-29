@@ -38,13 +38,13 @@ The current authentication model requires providing Vault with a Gitlab Token.
 
 ### Config
 
-|         Property          | Required | Default value | Sensitive | Description                                                                                                                       |
-|:-------------------------:|:--------:|:-------------:|:---------:|:----------------------------------------------------------------------------------------------------------------------------------|
-|           token           |   yes    |      n/a      |    yes    | The token to access Gitlab API                                                                                                    |
-|         base_url          |   yes    |      n/a      |    no     | The address to access Gitlab                                                                                                      |
-|     auto_rotate_token     |    no    |      no       |    no     | Should we autorotate the token when it's close to expiry? (Experimental)                                                          |
-| revoke_auto_rotated_token |    no    |      no       |    no     | Should we revoke the auto-rotated token after a new one has been generated?                                                       |
-|    auto_rotate_before     |    no    |      24h      |    no     | How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h |
+|         Property          | Required | Default value | Sensitive | Description                                                                                                                                   |
+|:-------------------------:|:--------:|:-------------:|:---------:|:----------------------------------------------------------------------------------------------------------------------------------------------|
+|           token           |   yes    |      n/a      |    yes    | The token to access Gitlab API, it will not show when you do a read, as it's a sensitive value. Instead it will display it's SHA1 hash value. |
+|         base_url          |   yes    |      n/a      |    no     | The address to access Gitlab                                                                                                                  |
+|     auto_rotate_token     |    no    |      no       |    no     | Should we autorotate the token when it's close to expiry? (Experimental)                                                                      |
+| revoke_auto_rotated_token |    no    |      no       |    no     | Should we revoke the auto-rotated token after a new one has been generated?                                                                   |
+|    auto_rotate_before     |    no    |      24h      |    no     | How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h             |
 
 ### Role
 
@@ -120,19 +120,32 @@ If you use Vault to manage the tokens the minimal TTL you can use is `1h`, by se
 The command bellow will set up the config backend with a max TTL of 48h.
 
 ```shell
-$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token
+$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token auto_rotate_token=false revoke_auto_rotated_token=false auto_rotate_before=48h
+$ vault read gitlab/config
+Key                   Value
+---                   -----
+auto_rotate_before    48h0m0s
+auto_rotate_token     false
+base_url              https://gitlab.example.com
+token_id              107
+token_expires_at      2025-03-29T00:00:00Z
+token_sha1_hash       1014647cd9bbf359d926fcacdf78e184db9dbedc
 ```
 
 You may also need to configure the Max/Default TTL for a token that can be issued by setting:
 
-Max TTL: 1 year
-Default TTL: 1 week
+Max TTL: `1 year`
+Default TTL: `1 week`
 
 ```shell
 $ vault secrets tune -max-lease-ttl=8784h -default-lease-ttl=168h gitlab/
 ```
 
 Check https://developer.hashicorp.com/vault/docs/commands/secrets/tune for more information.
+
+There is a periodic func that runs that is responsible for autorotation and main token expiry time. 
+So in the beginning you may see  `token_expires_at n/a`. But when the function runs it will update itself 
+with the correct expiry date and the corresponding `token_id`.
 
 ### Roles
 
@@ -255,7 +268,15 @@ If the original token that has been supplied to the backend is not expired. We c
 to force a rotation of the main token. This would create a new token with the same expiration as the original token.
 
 ```shell
-vault put gitlab/config/rotate
+$ vault read gitlab/config/rotate
+Key                   Value
+---                   -----
+auto_rotate_before    48h0m0s
+auto_rotate_token     false
+base_url              https://gitlab.example.com
+token_expires_at      2025-03-29T00:00:00Z
+token_id              110
+token_sha1_hash       b8ff3f9e560f29d15f756fc92a3b1d6602aaae55
 ```
 
 ## TODO

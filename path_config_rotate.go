@@ -31,30 +31,11 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 }
 
 func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *EntryConfig) error {
-	var client Client
 	var err error
+	b.Logger().Debug("Running checkAndRotateConfigToken")
 
-	if client, err = b.getClient(ctx, request.Storage); err != nil {
+	if err = b.updateMainTokenExpiryTime(ctx, request, config); err != nil {
 		return err
-	}
-
-	if config.TokenExpiresAt.IsZero() {
-		var entryToken *EntryToken
-		// we need to fetch the token expiration information
-		entryToken, err = client.CurrentTokenInfo()
-		if err != nil {
-			return err
-		}
-		// and update the information so we can do the checks
-		config.TokenExpiresAt = *entryToken.ExpiresAt
-		err = func() error {
-			b.lockClientMutex.Lock()
-			defer b.lockClientMutex.Unlock()
-			return saveConfig(ctx, *config, request.Storage)
-		}()
-		if err != nil {
-			return err
-		}
 	}
 
 	if time.Until(config.TokenExpiresAt) > config.AutoRotateBefore {
@@ -67,6 +48,7 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 }
 
 func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+	b.Logger().Debug("Running pathConfigTokenRotate")
 	var config *EntryConfig
 	var client Client
 	var err error
@@ -74,6 +56,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	b.lockClientMutex.RLock()
 	if config, err = getConfig(ctx, request.Storage); err != nil {
 		b.lockClientMutex.RUnlock()
+		b.Logger().Error("Failed to fetch configuration", "error", err.Error())
 		return nil, err
 	}
 	b.lockClientMutex.RUnlock()
@@ -90,7 +73,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	var entryToken, oldToken *EntryToken
 	entryToken, oldToken, err = client.RotateCurrentToken(config.RevokeAutoRotatedToken)
 	if err != nil {
-		b.Logger().Error("failed to rotate main token", "err", err)
+		b.Logger().Error("Failed to rotate main token", "err", err)
 		return nil, err
 	}
 
@@ -98,6 +81,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	if entryToken.ExpiresAt != nil {
 		config.TokenExpiresAt = *entryToken.ExpiresAt
 	}
+	config.TokenId = entryToken.TokenID
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()
 	err = saveConfig(ctx, *config, request.Storage)

@@ -140,7 +140,6 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()
-
 	err = saveConfig(ctx, config, req.Storage)
 	if err != nil {
 		return nil, err
@@ -155,7 +154,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	})
 
 	b.SetClient(nil)
-	b.Logger().Debug("Wrote new config", "base_url", config.BaseURL)
+	b.Logger().Debug("Wrote new config", "base_url", config.BaseURL, "auto_rotate_token", config.AutoRotateToken, "revoke_auto_rotated_token", config.RevokeAutoRotatedToken, "auto_rotate_before", config.AutoRotateBefore)
 	return &logical.Response{
 		Data:     config.LogicalResponseData(),
 		Warnings: warnings,

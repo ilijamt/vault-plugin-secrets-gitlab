@@ -232,8 +232,16 @@ func NewGitlabClient(config *EntryConfig, httpClient *http.Client) (client Clien
 		return nil, fmt.Errorf("configure the backend first, config: %w", ErrNilValue)
 	}
 
-	if "" == strings.TrimSpace(config.BaseURL) || "" == strings.TrimSpace(config.Token) {
-		return nil, fmt.Errorf("base url or token is empty: %w", ErrInvalidValue)
+	if "" == strings.TrimSpace(config.BaseURL) {
+		err = errors.Join(err, fmt.Errorf("gitlab base url: %w", ErrInvalidValue))
+	}
+
+	if "" == strings.TrimSpace(config.Token) {
+		err = errors.Join(err, fmt.Errorf("gitlab token: %w", ErrInvalidValue))
+	}
+
+	if err != nil {
+		return nil, err
 	}
 
 	var opts = []g.ClientOptionFunc{

@@ -2,8 +2,10 @@ package gitlab
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
@@ -101,18 +103,57 @@ func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) er
 		return nil
 	}
 
-	if !config.AutoRotateToken {
-		return nil
+	// if there is no expiry date on the token fetch it
+	if config.TokenExpiresAt.IsZero() {
+		err = errors.Join(err, b.updateMainTokenExpiryTime(ctx, request, config))
 	}
 
-	return b.checkAndRotateConfigToken(ctx, request, config)
+	// If we need to autorotate the token, initiate the procedure to autorotate the token
+	if config.AutoRotateToken {
+		err = errors.Join(err, b.checkAndRotateConfigToken(ctx, request, config))
+	}
+
+	return err
+}
+
+func (b *Backend) updateMainTokenExpiryTime(ctx context.Context, request *logical.Request, config *EntryConfig) error {
+	b.Logger().Debug("Running updateMainTokenExpiryTime")
+	var client Client
+	var err error
+
+	if client, err = b.getClient(ctx, request.Storage); err != nil {
+		return err
+	}
+
+	if config.TokenExpiresAt.IsZero() {
+		b.Logger().Warn("Main token expiry information is empty, updating")
+		var entryToken *EntryToken
+		// we need to fetch the token expiration information
+		entryToken, err = client.CurrentTokenInfo()
+		if err != nil {
+			return err
+		}
+		// and update the information so we can do the checks
+		config.TokenExpiresAt = *entryToken.ExpiresAt
+		config.TokenId = entryToken.TokenID
+		err = func() error {
+			b.lockClientMutex.Lock()
+			defer b.lockClientMutex.Unlock()
+			return saveConfig(ctx, *config, request.Storage)
+		}()
+		if err != nil {
+			return err
+		}
+		b.Logger().Info("Main token expiry information updated", "token_id", entryToken.TokenID, "token_expires_at", entryToken.ExpiresAt.Format(time.RFC3339))
+	}
+	return err
 }
 
 // Invalidate invalidates the key if required
 func (b *Backend) Invalidate(ctx context.Context, key string) {
 	b.Logger().Debug("Backend invalidate", "key", key)
 	if key == PathConfigStorage {
-		b.Logger().Warn("gitlab config changed, reinitializing the gitlab client")
+		b.Logger().Warn("Gitlab config changed, reinitializing the gitlab client")
 		b.lockClientMutex.Lock()
 		defer b.lockClientMutex.Unlock()
 		b.client = nil
@@ -120,11 +161,17 @@ func (b *Backend) Invalidate(ctx context.Context, key string) {
 }
 
 func (b *Backend) SetClient(client Client) {
+	if client == nil {
+		b.Logger().Debug("Setting a nil client")
+		return
+	}
+	b.Logger().Debug("Setting a new client")
 	b.client = client
 }
 
 func (b *Backend) getClient(ctx context.Context, s logical.Storage) (Client, error) {
 	if b.client != nil && b.client.Valid() {
+		b.Logger().Debug("Returning existing gitlab client")
 		return b.client, nil
 	}
 
@@ -132,6 +179,7 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage) (Client, err
 	defer b.lockClientMutex.RUnlock()
 	config, err := getConfig(ctx, s)
 	if err != nil {
+		b.Logger().Error("Failed to retrieve configuration", "error", err.Error())
 		return nil, err
 	}
 

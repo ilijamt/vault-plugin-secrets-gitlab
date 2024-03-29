@@ -65,7 +65,7 @@ func TestPathConfig(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
-		assert.EqualValues(t, "token", resp.Data["token"])
+		assert.NotEmpty(t, resp.Data["token_sha1_hash"])
 		assert.NotEmpty(t, resp.Data["base_url"])
 		require.Len(t, events.eventsProcessed, 1)
 

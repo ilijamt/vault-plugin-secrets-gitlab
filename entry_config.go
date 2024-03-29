@@ -2,12 +2,15 @@ package gitlab
 
 import (
 	"context"
+	"crypto/sha1"
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/vault/sdk/logical"
 )
 
 type EntryConfig struct {
+	TokenId                int           `json:"token_id" yaml:"token_id" mapstructure:"token_id"`
 	BaseURL                string        `json:"base_url" structs:"base_url" mapstructure:"base_url"`
 	Token                  string        `json:"token" structs:"token" mapstructure:"token"`
 	AutoRotateToken        bool          `json:"auto_rotate_token" structs:"auto_rotate_token" mapstructure:"auto_rotate_token"`
@@ -24,10 +27,11 @@ func (e EntryConfig) LogicalResponseData() map[string]any {
 
 	return map[string]any{
 		"base_url":           e.BaseURL,
-		"token":              e.Token,
 		"auto_rotate_token":  e.AutoRotateToken,
 		"auto_rotate_before": e.AutoRotateBefore.String(),
+		"token_id":           e.TokenId,
 		"token_expires_at":   tokenExpiresAt,
+		"token_sha1_hash":    fmt.Sprintf("%x", sha1.Sum([]byte(e.Token))),
 	}
 }
 
