@@ -26,12 +26,13 @@ func (e EntryConfig) LogicalResponseData() map[string]any {
 	}
 
 	return map[string]any{
-		"base_url":           e.BaseURL,
-		"auto_rotate_token":  e.AutoRotateToken,
-		"auto_rotate_before": e.AutoRotateBefore.String(),
-		"token_id":           e.TokenId,
-		"token_expires_at":   tokenExpiresAt,
-		"token_sha1_hash":    fmt.Sprintf("%x", sha1.Sum([]byte(e.Token))),
+		"base_url":                  e.BaseURL,
+		"auto_rotate_token":         e.AutoRotateToken,
+		"auto_rotate_before":        e.AutoRotateBefore.String(),
+		"token_id":                  e.TokenId,
+		"token_expires_at":          tokenExpiresAt,
+		"token_sha1_hash":           fmt.Sprintf("%x", sha1.Sum([]byte(e.Token))),
+		"revoke_auto_rotated_token": e.RevokeAutoRotatedToken,
 	}
 }
 
