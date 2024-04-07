@@ -11,9 +11,10 @@ permissions:
 jobs:
   goreleaser:
     outputs:
-      hashes: ${{ steps.hash.outputs.hashes }}
+      hashes: ${{ steps.binary.outputs.hashes }}
     permissions:
       contents: write
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,38 +37,38 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION_LDFLAGS: ${{ steps.ldflags.outputs.version }}
-      - name: Generate subject
-        id: hash
+      - name: Generate binary hashes
+        id: binary
         env:
-          ARTIFACTS: "${{ steps.run-goreleaser.outputs.artifacts }}"
+          ARTIFACTS: "${{ steps.goreleaser.outputs.artifacts }}"
         run: |
           set -euo pipefail
 
           checksum_file=$(echo "$ARTIFACTS" | jq -r '.[] | select (.type=="Checksum") | .path')
           echo "hashes=$(cat $checksum_file | base64 -w0)" >> "$GITHUB_OUTPUT"
 
-  provenance:
+  binary-provenance:
     needs: [goreleaser]
     permissions:
-      actions: read # To read the workflow path.
-      id-token: write # To sign the provenance.
-      contents: write # To add assets to a release.
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.10.0
+      actions: read
+      id-token: write
+      contents: write
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.9.0
     with:
       base64-subjects: "${{ needs.goreleaser.outputs.hashes }}"
-      upload-assets: true # upload to a new release
-  verification:
-    needs: [goreleaser, provenance]
+      upload-assets: true
+
+  verification-with-slsa-verifier:
+    needs: [goreleaser, binary-provenance]
     runs-on: ubuntu-latest
     permissions: read-all
     steps:
       - name: Install the verifier
-        uses: slsa-framework/slsa-verifier/actions/installer@v2.5.1
-
+        uses: slsa-framework/slsa-verifier/actions/installer@v2.4.0
       - name: Download assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROVENANCE: "${{ needs.provenance.outputs.provenance-name }}"
+          PROVENANCE: "${{ needs.binary-provenance.outputs.provenance-name }}"
         run: |
           set -euo pipefail
           gh -R "$GITHUB_REPOSITORY" release download "$GITHUB_REF_NAME" -p "*.tar.gz"
@@ -76,7 +77,7 @@ jobs:
       - name: Verify assets
         env:
           CHECKSUMS: ${{ needs.goreleaser.outputs.hashes }}
-          PROVENANCE: "${{ needs.provenance.outputs.provenance-name }}"
+          PROVENANCE: "${{ needs.binary-provenance.outputs.provenance-name }}"
         run: |
           set -euo pipefail
           checksums=$(echo "$CHECKSUMS" | base64 -d)
