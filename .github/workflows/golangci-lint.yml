@@ -31,6 +31,6 @@ jobs:
       - name: Display Go version
         run: go version
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
           version: latest
