@@ -322,6 +322,38 @@ func TestGitlabClient_RotateCurrentToken(t *testing.T) {
 	require.NotNil(t, oldToken)
 }
 
+func TestGitlabClient_RotateCurrentToken_NonAdmin(t *testing.T) {
+	var err error
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		data, err := os.ReadFile("testdata/rotate_current_token_non_admin.json")
+		require.NoError(t, err)
+		var urlPayloads = make(map[string]json.RawMessage)
+		require.NoError(t, json.Unmarshal(data, &urlPayloads))
+		if payload, ok := urlPayloads[r.RequestURI]; ok {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(payload)
+		} else {
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+
+	var client gitlab.Client
+	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
+		Token:   "super-secret-token",
+		BaseURL: server.URL,
+	}, nil)
+	require.NoError(t, err)
+	require.NotNil(t, client)
+	require.True(t, client.Valid())
+
+	newToken, oldToken, err := client.RotateCurrentToken(true)
+	require.NoError(t, err)
+	require.NotNil(t, newToken)
+	require.NotNil(t, oldToken)
+}
+
 func TestGitlabClient_RotateCurrentToken_UserNotFound(t *testing.T) {
 	var err error
 

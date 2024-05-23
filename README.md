@@ -1,7 +1,7 @@
-Vault Plugin for Gitlab Access Token
-------------------------------------
+# Vault Secrets Plugin for Gitlab Access Token
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/ilijamt/vault-plugin-secrets-gitlab)](https://goreportcard.com/report/github.com/ilijamt/vault-plugin-secrets-gitlab)
-[![Codecov](https://img.shields.io/codecov/c/gh/ilijamt/vault-plugin-secrets-gitlab)](https://app.codecov.io/gh/ilijamt/vault-plugin-secrets-gitlab)
+[![Code Coverage](https://img.shields.io/codecov/c/gh/ilijamt/vault-plugin-secrets-gitlab)](https://app.codecov.io/gh/ilijamt/vault-plugin-secrets-gitlab)
 [![GitHub go.mod Go version (subdirectory of monorepo)](https://img.shields.io/github/go-mod/go-version/ilijamt/vault-plugin-secrets-gitlab)](go.mod)
 [![GitHub](https://img.shields.io/github/license/ilijamt/vault-plugin-secrets-gitlab)](LICENSE)
 
@@ -26,27 +26,31 @@ Otherwise, first read this guide on how to [get started with Vault](https://www.
 
 To learn specifically about how plugins work, see documentation on [Vault plugins](https://www.vaultproject.io/docs/plugins/plugin-architecture#plugin-catalog).
 
-### Setup
-
 Before we can use this plugin we need to create an access token that will have rights to do what we need to.
 
 ## Security Model
 
-The current authentication model requires providing Vault with a Gitlab Token. 
+The current authentication model requires providing Vault with a Gitlab Personal Access Token. The level of access that this token has in gitlab will determine what this plugin is capable of.
+
+For example, you could create a service account that only has access to one project sub-group in gitlab, or you could create a token for an admin user, and it will have access to anything in gitlab.
 
 ## Configuration
 
-### Config
+### gitlab/config
 
 |         Property          | Required | Default value | Sensitive | Description                                                                                                                                   |
 |:-------------------------:|:--------:|:-------------:|:---------:|:----------------------------------------------------------------------------------------------------------------------------------------------|
 |           token           |   yes    |      n/a      |    yes    | The token to access Gitlab API, it will not show when you do a read, as it's a sensitive value. Instead it will display it's SHA1 hash value. |
 |         base_url          |   yes    |      n/a      |    no     | The address to access Gitlab                                                                                                                  |
 |     auto_rotate_token     |    no    |      no       |    no     | Should we autorotate the token when it's close to expiry? (Experimental)                                                                      |
-| revoke_auto_rotated_token |    no    |      no       |    no     | Should we revoke the auto-rotated token after a new one has been generated?                                                                   |
+| revoke_auto_rotated_token |    no    |      no       |    no     | Should we revoke the auto-rotated token after a new one has been generated? (*)                                                                   |
 |    auto_rotate_before     |    no    |      24h      |    no     | How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h             |
 
-### Role
+#### revoke_auto_rotated_token
+
+Note, if you use a non-admin token for gitlab/config, it will be rotated using the Gitlab's token rotation API, which will automatically revoke the old token.
+
+### gitlab/role
 
 |       Property       | Required | Default value | Sensitive | Description                                                                                                          |
 |:--------------------:|:--------:|:-------------:|:---------:|:---------------------------------------------------------------------------------------------------------------------|
@@ -62,30 +66,30 @@ The current authentication model requires providing Vault with a Gitlab Token.
 
 Depending on `gitlab_revokes_token` the TTL will change.
 
-* `true` - 24h <= ttl <= 365 days
-* `false` - 1h <= ttl <= 365 days
+- `true` - 24h <= ttl <= 365 days
+- `false` - 1h <= ttl <= 365 days
 
-#### access_level 
+#### access_level
 
-It's not required if `token_type` is set to `personal`. 
+It's not required if `token_type` is set to `personal`.
 
-For a list of available roles check https://docs.gitlab.com/ee/user/permissions.html
+For a list of available roles check <https://docs.gitlab.com/ee/user/permissions.html>
 
 #### scopes
 
 Depending on the type of token you have different scopes:
 
-* `Personal` - https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#personal-access-token-scopes
-* `Project` - https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#scopes-for-a-project-access-token
-* `Group` - https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html#scopes-for-a-group-access-token
+- `Personal` - <https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#personal-access-token-scopes>
+- `Project` - <https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#scopes-for-a-project-access-token>
+- `Group` - <https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html#scopes-for-a-group-access-token>
 
 #### token_types
 
-Can be 
+Can be:
 
-* personal
-* project
-* group
+- `personal`
+- `project`
+- `group`
 
 #### gitlab_revokes_token
 
@@ -138,13 +142,13 @@ Max TTL: `1 year`
 Default TTL: `1 week`
 
 ```shell
-$ vault secrets tune -max-lease-ttl=8784h -default-lease-ttl=168h gitlab/
+vault secrets tune -max-lease-ttl=8784h -default-lease-ttl=168h gitlab/
 ```
 
-Check https://developer.hashicorp.com/vault/docs/commands/secrets/tune for more information.
+Check <https://developer.hashicorp.com/vault/docs/commands/secrets/tune> for more information.
 
-There is a periodic func that runs that is responsible for autorotation and main token expiry time. 
-So in the beginning you may see  `token_expires_at n/a`. But when the function runs it will update itself 
+There is a periodic func that runs that is responsible for autorotation and main token expiry time.
+So in the beginning you may see  `token_expires_at n/a`. But when the function runs it will update itself
 with the correct expiry date and the corresponding `token_id`.
 
 ### Roles
@@ -182,8 +186,11 @@ token              7mbpSExz7ruyw1QgTjL-
 $ vault lease revoke gitlab/token/personal/0FrzLFkRKaUNZSfa6WfFqjWK
 All revocation operations queued successfully!
 ```
-##### Service accounts
+
+#### Service Accounts
+
 The service account users from Gitlab 16.1 are for all purposes users that don't use seats. So creating a service account and setting the path to the service account user would work the same as on a real user.
+
 ```shell
 $ curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab/api/v4/service_accounts" | jq .
 {
@@ -197,6 +204,7 @@ $ curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab/ap
 ```
 
 In this case you would create a role like
+
 ```shell
 $ vault write gitlab/roles/sa name=sa-name path=service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=personal token_ttl=24h
 $ vault read gitlab/token/sa
@@ -217,6 +225,7 @@ token              -senkScjDo-SoGwST9PP
 ```
 
 #### Group
+
 ```shell
 $ vault read gitlab/token/group
 Key                Value
@@ -258,13 +267,15 @@ All revocation operations queued successfully!
 ```
 
 ### Revoke all created tokens by this plugin
+
 ```shell
 $ vault lease revoke -prefix gitlab/
 All revocation operations queued successfully!
 ```
 
 ### Force rotation of the main token
-If the original token that has been supplied to the backend is not expired. We can use the endpoint bellow
+
+If the original token that has been supplied to the backend is not expired. We can use the endpoint below
 to force a rotation of the main token. This would create a new token with the same expiration as the original token.
 
 ```shell
@@ -278,6 +289,7 @@ token_expires_at      2025-03-29T00:00:00Z
 token_id              110
 token_sha1_hash       b8ff3f9e560f29d15f756fc92a3b1d6602aaae55
 ```
+
 ## Upgrading
 
 ```shell
@@ -313,4 +325,4 @@ $ vault secrets list -detailed -format=json | jq '."gitlab/"'
 
 ## TODO
 
-* [ ] Add tests against real Gitlab instance
+- [ ] Add tests against real Gitlab instance

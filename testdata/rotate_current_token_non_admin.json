@@ -25,9 +25,9 @@
     "id": 1,
     "username": "ilijamt",
     "name": "Ilija Matoski",
-    "is_admin": true
+    "is_admin": false
   },
-  "/api/v4/users/1/personal_access_tokens": {
+  "/api/v4/personal_access_tokens/1/rotate": {
     "id": 3,
     "name": "mytoken",
     "revoked": false,
