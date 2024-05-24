@@ -24,6 +24,7 @@
   "/api/v4/users/1": {
     "id": 1,
     "username": "ilijamt",
-    "name": "Ilija Matoski"
+    "name": "Ilija Matoski",
+    "is_admin": true
   }
 }
