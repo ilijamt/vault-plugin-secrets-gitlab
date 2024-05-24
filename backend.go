@@ -17,10 +17,10 @@ const (
 	operationPrefixGitlabAccessTokens = "gitlab"
 
 	backendHelp = `
-The Gitlab Access token auth Backend dynamically generates private 
+The Gitlab Access token auth Backend dynamically generates private
 and group tokens.
 
-After mounting this Backend, credentials to manage Gitlab tokens must be configured 
+After mounting this Backend, credentials to manage Gitlab tokens must be configured
 with the "config/" endpoints.
 `
 )
@@ -101,11 +101,6 @@ func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) er
 
 	if config == nil {
 		return nil
-	}
-
-	// if there is no expiry date on the token fetch it
-	if config.TokenExpiresAt.IsZero() {
-		err = errors.Join(err, b.updateMainTokenExpiryTime(ctx, request, config))
 	}
 
 	// If we need to autorotate the token, initiate the procedure to autorotate the token

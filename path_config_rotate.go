@@ -34,8 +34,11 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 	var err error
 	b.Logger().Debug("Running checkAndRotateConfigToken")
 
-	if err = b.updateMainTokenExpiryTime(ctx, request, config); err != nil {
-		return err
+	// if there is no expiry date on the token fetch it
+	if config.TokenExpiresAt.IsZero() {
+		if err = b.updateMainTokenExpiryTime(ctx, request, config); err != nil {
+			return err
+		}
 	}
 
 	if time.Until(config.TokenExpiresAt) > config.AutoRotateBefore {
