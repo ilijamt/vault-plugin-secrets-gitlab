@@ -32,7 +32,7 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 
 func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *EntryConfig) error {
 	var err error
-	b.Logger().Debug("Running checkAndRotateConfigToken")
+	b.Logger().Trace("Running checkAndRotateConfigToken")
 
 	// if there is no expiry date on the token fetch it
 	if config.TokenExpiresAt.IsZero() {
@@ -42,7 +42,7 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 	}
 
 	if time.Until(config.TokenExpiresAt) > config.AutoRotateBefore {
-		b.Logger().Debug("Nothing to do it's not yet time to rotate the token")
+		b.Logger().Trace("Nothing to do it's not yet time to rotate the token")
 		return nil
 	}
 

@@ -84,7 +84,7 @@ type Backend struct {
 
 // This function runs every minute, use with caution
 func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) error {
-	// b.Logger().Debug("Periodic action executing")
+	// b.Logger().Trace("Periodic action executing")
 
 	if !b.WriteSafeReplicationState() {
 		return nil
@@ -122,7 +122,7 @@ func (b *Backend) updateMainTokenExpiryTime(ctx context.Context, request *logica
 	}
 
 	if config.TokenExpiresAt.IsZero() {
-		b.Logger().Debug("Main token expiry information is empty, updating")
+		// b.Logger().Warn("Main token expiry information is empty, updating")
 		var entryToken *EntryToken
 		// we need to fetch the token expiration information
 		entryToken, err = client.CurrentTokenInfo()
