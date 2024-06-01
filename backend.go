@@ -17,10 +17,10 @@ const (
 	operationPrefixGitlabAccessTokens = "gitlab"
 
 	backendHelp = `
-The Gitlab Access token auth Backend dynamically generates private 
+The Gitlab Access token auth Backend dynamically generates private
 and group tokens.
 
-After mounting this Backend, credentials to manage Gitlab tokens must be configured 
+After mounting this Backend, credentials to manage Gitlab tokens must be configured
 with the "config/" endpoints.
 `
 )
@@ -82,8 +82,9 @@ type Backend struct {
 	roleLocks []*locksutil.LockEntry
 }
 
+// This function runs every minute, use with caution
 func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) error {
-	b.Logger().Debug("Periodic action executing")
+	// b.Logger().Trace("Periodic action executing")
 
 	if !b.WriteSafeReplicationState() {
 		return nil
@@ -103,12 +104,7 @@ func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) er
 		return nil
 	}
 
-	// if there is no expiry date on the token fetch it
-	if config.TokenExpiresAt.IsZero() {
-		err = errors.Join(err, b.updateMainTokenExpiryTime(ctx, request, config))
-	}
-
-	// If we need to autorotate the token, initiate the procedure to autorotate the token
+	// If we need to auto-rotate the token, initiate the procedure to auto-rotate the token
 	if config.AutoRotateToken {
 		err = errors.Join(err, b.checkAndRotateConfigToken(ctx, request, config))
 	}
@@ -126,7 +122,7 @@ func (b *Backend) updateMainTokenExpiryTime(ctx context.Context, request *logica
 	}
 
 	if config.TokenExpiresAt.IsZero() {
-		b.Logger().Warn("Main token expiry information is empty, updating")
+		// b.Logger().Warn("Main token expiry information is empty, updating")
 		var entryToken *EntryToken
 		// we need to fetch the token expiration information
 		entryToken, err = client.CurrentTokenInfo()
@@ -153,7 +149,7 @@ func (b *Backend) updateMainTokenExpiryTime(ctx context.Context, request *logica
 func (b *Backend) Invalidate(ctx context.Context, key string) {
 	b.Logger().Debug("Backend invalidate", "key", key)
 	if key == PathConfigStorage {
-		b.Logger().Warn("Gitlab config changed, reinitializing the gitlab client")
+		b.Logger().Warn("Gitlab config changed, re-initializing the gitlab client")
 		b.lockClientMutex.Lock()
 		defer b.lockClientMutex.Unlock()
 		b.client = nil

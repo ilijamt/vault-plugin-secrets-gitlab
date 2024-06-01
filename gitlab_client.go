@@ -70,24 +70,29 @@ func (gc *gitlabClient) RotateCurrentToken(revokeOldToken bool) (*EntryToken, *E
 	}
 
 	var token *EntryToken
-	token, err = gc.CreatePersonalAccessToken(
-		usr.Username,
-		currentEntryToken.UserID,
-		fmt.Sprintf("%s-%d", currentEntryToken.Name, time.Now().Unix()),
-		time.Now().Add(durationTTL),
-		currentEntryToken.Scopes,
-	)
-	if err != nil {
-		return nil, nil, err
-	}
+	if usr.IsAdmin {
+		token, err = gc.CreatePersonalAccessToken(
+			usr.Username,
+			currentEntryToken.UserID,
+			fmt.Sprintf("%s-%d", currentEntryToken.Name, time.Now().Unix()),
+			time.Now().Add(durationTTL),
+			currentEntryToken.Scopes,
+		)
+		if err != nil {
+			return nil, nil, err
+		}
 
-	gc.config.Token = token.Token
-	if token.ExpiresAt != nil {
-		gc.config.TokenExpiresAt = *token.ExpiresAt
-	}
+		gc.config.Token = token.Token
+		if token.ExpiresAt != nil {
+			gc.config.TokenExpiresAt = *token.ExpiresAt
+		}
 
-	if revokeOldToken {
-		_, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(currentEntryToken.TokenID)
+		if revokeOldToken {
+			_, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(currentEntryToken.TokenID)
+		}
+	} else { // Non-Admin users must use the token rotation API
+		// TODO: Return Warning if revokeOldToken is false, as it will be revoked as part of the rotation API
+		token, err = gc.RotateTokenApi(usr.Username, currentEntryToken.TokenID, expiresAt)
 	}
 
 	gc.client = nil
@@ -130,6 +135,29 @@ func (gc *gitlabClient) CreatePersonalAccessToken(username string, userId int, n
 		CreatedAt:   at.CreatedAt,
 		ExpiresAt:   (*time.Time)(at.ExpiresAt),
 		Scopes:      scopes,
+		AccessLevel: AccessLevelUnknown,
+	}, nil
+}
+
+// RotateTokenApi will use the gitlab token rotation API, as documented https://docs.gitlab.com/ee/api/personal_access_tokens.html#rotate-a-personal-access-token
+func (gc *gitlabClient) RotateTokenApi(username string, tokenID int, expiresAt time.Time) (*EntryToken, error) {
+	at, _, err := gc.client.PersonalAccessTokens.RotatePersonalAccessToken(tokenID, &g.RotatePersonalAccessTokenOptions{
+		ExpiresAt: (*g.ISOTime)(&expiresAt),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &EntryToken{
+		TokenID:     at.ID,
+		UserID:      at.UserID,
+		ParentID:    "",
+		Path:        username,
+		Name:        at.Name,
+		Token:       at.Token,
+		TokenType:   TokenTypePersonal,
+		CreatedAt:   at.CreatedAt,
+		ExpiresAt:   (*time.Time)(at.ExpiresAt),
+		Scopes:      at.Scopes,
 		AccessLevel: AccessLevelUnknown,
 	}, nil
 }

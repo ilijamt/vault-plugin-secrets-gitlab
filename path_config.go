@@ -104,12 +104,13 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 
 func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var warnings []string
-	var autoTokenRotateRaw, autoTokenRotateTtlOk = data.GetOk("auto_rotate_before")
+	var autoRotateBefore, autoRotateBeforeOk = data.GetOk("auto_rotate_before")
 	var token, tokenOk = data.GetOk("token")
 	var err error
+	var errors error
 
 	if !tokenOk {
-		err = multierror.Append(err, fmt.Errorf("token: %w", ErrFieldRequired))
+		errors = multierror.Append(errors, fmt.Errorf("token: %w", ErrFieldRequired))
 	}
 
 	var config = EntryConfig{
@@ -118,12 +119,14 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		RevokeAutoRotatedToken: data.Get("revoke_auto_rotated_token").(bool),
 	}
 
-	if autoTokenRotateTtlOk {
-		atr, _ := convertToInt(autoTokenRotateRaw)
-		if atr > int(DefaultAutoRotateBeforeMaxTTL.Seconds()) {
-			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be bigger than %s: %w", DefaultAutoRotateBeforeMaxTTL, ErrInvalidValue))
-		} else if atr <= int(DefaultAutoRotateBeforeMinTTL.Seconds()) {
-			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be less than %s: %w", DefaultAutoRotateBeforeMinTTL, ErrInvalidValue))
+	if autoRotateBeforeOk {
+		atr, err := convertToInt(autoRotateBefore)
+		if err != nil {
+			errors = multierror.Append(errors, fmt.Errorf("auto_rotate_before conversion issue: %w", err))
+		} else if atr > int(DefaultAutoRotateBeforeMaxTTL.Seconds()) {
+			errors = multierror.Append(errors, fmt.Errorf("auto_rotate_token can not be bigger than %s: %w", DefaultAutoRotateBeforeMaxTTL, ErrInvalidValue))
+		} else if atr < int(DefaultAutoRotateBeforeMinTTL.Seconds()) {
+			errors = multierror.Append(errors, fmt.Errorf("auto_rotate_token can not be less than %s: %w", DefaultAutoRotateBeforeMinTTL, ErrInvalidValue))
 		} else {
 			config.AutoRotateBefore = time.Duration(atr) * time.Second
 		}
@@ -132,11 +135,23 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		warnings = append(warnings, fmt.Sprintf("auto_rotate_token not specified setting to %s", DefaultAutoRotateBeforeMinTTL))
 	}
 
-	if err != nil {
-		return nil, err
+	if errors != nil {
+		return nil, errors
 	}
 
+	// Validate Token
 	config.Token = token.(string)
+	var client Client
+	if client, err = NewGitlabClient(&config, nil); err != nil {
+		return nil, fmt.Errorf("error creating gitlab client: %w", err)
+	}
+	var newEntryToken *EntryToken
+	if newEntryToken, err = client.CurrentTokenInfo(); err != nil {
+		return nil, fmt.Errorf("the token provided was unable to be validated: %w", err)
+	}
+	if config.AutoRotateToken && (newEntryToken.ExpiresAt).Sub(*newEntryToken.CreatedAt) < config.AutoRotateBefore {
+		return nil, fmt.Errorf("token duration is less than auto_rotate_before, which would result in constant renewals")
+	}
 
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()

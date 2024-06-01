@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/vault/sdk/logical"
+	g "github.com/xanzy/go-gitlab"
 )
 
 type EntryConfig struct {
@@ -22,7 +23,7 @@ type EntryConfig struct {
 func (e EntryConfig) LogicalResponseData() map[string]any {
 	var tokenExpiresAt = ""
 	if !e.TokenExpiresAt.IsZero() {
-		tokenExpiresAt = e.TokenExpiresAt.Format(time.RFC3339)
+		tokenExpiresAt = (*g.ISOTime)(&(e.TokenExpiresAt)).String()
 	}
 
 	return map[string]any{
