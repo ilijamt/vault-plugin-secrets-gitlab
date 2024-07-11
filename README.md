@@ -267,7 +267,7 @@ If the original token that has been supplied to the backend is not expired. We c
 to force a rotation of the main token. This would create a new token with the same expiration as the original token.
 
 ```shell
-$ vault wrote -f gitlab/config/rotate
+$ vault write -f gitlab/config/rotate
 Key                   Value
 ---                   -----
 auto_rotate_before    48h0m0s
