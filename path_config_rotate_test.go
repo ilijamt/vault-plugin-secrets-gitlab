@@ -1,7 +1,6 @@
 package gitlab_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -12,11 +11,12 @@ import (
 )
 
 func TestPathConfigRotate(t *testing.T) {
-	t.Run("initial config should be empty", func(t *testing.T) {
-		b, l, err := getBackend()
+	t.Run("initial config should be empty fail with backend not configured", func(t *testing.T) {
+		ctx := getCtxGitlabClient(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
-			Operation: logical.ReadOperation,
+		resp, err := b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/rotate", gitlab.PathConfigStorage), Storage: l,
 		})
 		require.NoError(t, err)

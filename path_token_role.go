@@ -53,6 +53,9 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		return nil, fmt.Errorf("%s: %w", roleName, ErrRoleNotFound)
 	}
 
+	b.Logger().Debug("Creating token for role", "role_name", roleName, "token_type", role.TokenType.String())
+	defer b.Logger().Debug("Created token for role", "role_name", roleName, "token_type", role.TokenType.String())
+
 	buf := make([]byte, 4)
 	_, _ = rand.Read(buf)
 	var token *EntryToken
@@ -64,10 +67,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	var gitlabRevokesTokens = role.GitlabRevokesTokens
 	var vaultRevokesTokens = !role.GitlabRevokesTokens
 
-	expiresAt = startTime.Add(role.TTL)
-	if gitlabRevokesTokens {
-		_, expiresAt, _ = calculateGitlabTTL(role.TTL, startTime)
-	}
+	_, expiresAt, _ = calculateGitlabTTL(role.TTL, startTime)
 
 	client, err = b.getClient(ctx, req.Storage)
 	if err != nil {
@@ -76,10 +76,12 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 
 	switch role.TokenType {
 	case TokenTypeGroup:
+		b.Logger().Debug("Creating group access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
 		if token, err = client.CreateGroupAccessToken(role.Path, name, expiresAt, role.Scopes, role.AccessLevel); err != nil {
 			return nil, err
 		}
 	case TokenTypeProject:
+		b.Logger().Debug("Creating project access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
 		if token, err = client.CreateProjectAccessToken(role.Path, name, expiresAt, role.Scopes, role.AccessLevel); err != nil {
 			return nil, err
 		}
@@ -89,6 +91,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		if err != nil {
 			return nil, err
 		}
+		b.Logger().Debug("Creating personal access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 		if token, err = client.CreatePersonalAccessToken(role.Path, userId, name, expiresAt, role.Scopes); err != nil {
 			return nil, err
 		}
@@ -100,6 +103,9 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	token.GitlabRevokesToken = role.GitlabRevokesTokens
 
 	if vaultRevokesTokens {
+		// since vault is controlling the expiry we need to override here
+		// and make the expiry time accurate
+		expiresAt = startTime.Add(role.TTL)
 		token.ExpiresAt = &expiresAt
 	}
 
@@ -108,6 +114,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 
 	resp.Secret.MaxTTL = role.TTL
 	resp.Secret.TTL = role.TTL
+	resp.Secret.IssueTime = startTime
 	if gitlabRevokesTokens {
 		resp.Secret.TTL = token.ExpiresAt.Sub(*token.CreatedAt)
 	}

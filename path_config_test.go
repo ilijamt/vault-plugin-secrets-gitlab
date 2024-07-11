@@ -13,10 +13,11 @@ import (
 )
 
 func TestPathConfig(t *testing.T) {
-	t.Run("initial config should be empty", func(t *testing.T) {
-		b, l, err := getBackend()
+	t.Run("initial config should be empty fail with backend not configured", func(t *testing.T) {
+		ctx := getCtxGitlabClient(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 		})
@@ -26,10 +27,12 @@ func TestPathConfig(t *testing.T) {
 		require.EqualValues(t, resp.Error(), gitlab.ErrBackendNotConfigured)
 	})
 
-	t.Run("deleting uninitialized config should return error", func(t *testing.T) {
-		b, l, err := getBackend()
+	t.Run("deleting uninitialized config should fail with backend not configured", func(t *testing.T) {
+		ctx := getCtxGitlabClient(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 		})
@@ -41,15 +44,18 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("write, read, delete and read config", func(t *testing.T) {
-		b, l, events, err := getBackendWithEvents()
+		httpClient, url := getClient(t)
+		ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
+
+		b, l, events, err := getBackendWithEvents(ctx)
 		require.NoError(t, err)
 
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
-				"token":    "token",
-				"base_url": "https://gitlab.com",
+				"token":    "glpat-secret-random-token",
+				"base_url": url,
 			},
 		})
 
@@ -57,7 +63,7 @@ func TestPathConfig(t *testing.T) {
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
 
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 		})
@@ -69,7 +75,7 @@ func TestPathConfig(t *testing.T) {
 		assert.NotEmpty(t, resp.Data["base_url"])
 		require.Len(t, events.eventsProcessed, 1)
 
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 		})
@@ -77,7 +83,7 @@ func TestPathConfig(t *testing.T) {
 		require.Nil(t, resp)
 		require.Len(t, events.eventsProcessed, 2)
 
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 		})
@@ -96,10 +102,11 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("missing token from the request", func(t *testing.T) {
-		b, l, err := getBackend()
+		ctx := getCtxGitlabClient(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{},

@@ -1,7 +1,6 @@
 package gitlab_test
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -14,13 +13,15 @@ import (
 
 func TestPathConfig_AutoRotate(t *testing.T) {
 	t.Run("auto_rotate_token should be false if not specified", func(t *testing.T) {
-		b, l, err := getBackend()
+		ctx, url := getCtxGitlabClientWithUrl(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
-				"token": "super-secret-token",
+				"token":    "glpat-secret-random-token",
+				"base_url": url,
 			},
 		})
 		require.NoError(t, err)
@@ -29,14 +30,15 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before cannot be more than the minimal value", func(t *testing.T) {
-		b, l, err := getBackend()
+		ctx, url := getCtxGitlabClientWithUrl(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
-				"token":              "super-secret-token",
-				"base_url":           "https://gitlab.com",
+				"token":              "glpat-secret-random-token",
+				"base_url":           url,
 				"auto_rotate_before": "2h",
 			},
 		})
@@ -46,14 +48,15 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before should be less than the maximal limit", func(t *testing.T) {
-		b, l, err := getBackend()
+		ctx, url := getCtxGitlabClientWithUrl(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
-				"token":              "super-secret-token",
-				"base_url":           "https://gitlab.com",
+				"token":              "glpat-secret-random-token",
+				"base_url":           url,
 				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMaxTTL + time.Hour).String(),
 			},
 		})
@@ -62,14 +65,15 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before should be set to correct value", func(t *testing.T) {
-		b, l, err := getBackend()
+		ctx, url := getCtxGitlabClientWithUrl(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
-				"token":              "super-secret-token",
-				"base_url":           "https://gitlab.com",
+				"token":              "glpat-secret-random-token",
+				"base_url":           url,
 				"auto_rotate_before": "48h",
 			},
 		})
@@ -79,14 +83,15 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before should be more than the minimal limit", func(t *testing.T) {
-		b, l, err := getBackend()
+		ctx, url := getCtxGitlabClientWithUrl(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
-				"token":              "super-secret-token",
-				"base_url":           "https://gitlab.com",
+				"token":              "glpat-secret-random-token",
+				"base_url":           url,
 				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMinTTL - time.Hour).String(),
 			},
 		})
@@ -95,14 +100,15 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before should be set to min if not specified", func(t *testing.T) {
-		b, l, err := getBackend()
+		ctx, url := getCtxGitlabClientWithUrl(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
-				"token":    "super-secret-token",
-				"base_url": "https://gitlab.com",
+				"token":    "glpat-secret-random-token",
+				"base_url": url,
 			},
 		})
 		require.NoError(t, err)
@@ -111,14 +117,15 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before should be between the min and max value", func(t *testing.T) {
-		b, l, err := getBackend()
+		ctx, url := getCtxGitlabClientWithUrl(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 			Data: map[string]any{
-				"token":              "super-secret-token",
-				"base_url":           "https://gitlab.com",
+				"token":              "glpat-secret-random-token",
+				"base_url":           url,
 				"auto_rotate_before": "10h",
 			},
 		})
@@ -128,33 +135,46 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 }
 
 func TestPathConfig_AutoRotateToken(t *testing.T) {
-
 	t.Run("no error when auto rotate is disabled and config is not set", func(t *testing.T) {
-		b, l, err := getBackend()
+		ctx := getCtxGitlabClient(t)
+		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 
-		err = b.PeriodicFunc(context.Background(), &logical.Request{Storage: l})
+		err = b.PeriodicFunc(ctx, &logical.Request{Storage: l})
 		require.NoError(t, err)
 	})
 
 	t.Run("no error when auto rotate is disabled and config is set", func(t *testing.T) {
-		b, l, err := getBackendWithConfig(map[string]any{"token": "token"})
+		var client = newInMemoryClient(true)
+		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx = gitlab.GitlabClientNewContext(ctx, client)
+		b, l, err := getBackendWithConfig(ctx, map[string]any{
+			"token":    "glpat-secret-token",
+			"base_url": url,
+		})
 		require.NoError(t, err)
 
 		b.SetClient(newInMemoryClient(true))
-		err = b.PeriodicFunc(context.Background(), &logical.Request{Storage: l})
+		err = b.PeriodicFunc(ctx, &logical.Request{Storage: l})
 		require.NoError(t, err)
 	})
 
 	t.Run("call auto rotate the main token and rotate the token", func(t *testing.T) {
-		b, l, events, err := getBackendWithEventsAndConfig(map[string]any{"token": "token", "revoke_auto_rotated_token": true, "auto_rotate_token": true})
+		var client = newInMemoryClient(true)
+		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx = gitlab.GitlabClientNewContext(ctx, newInMemoryClient(true))
+		b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
+			"token":              "token",
+			"base_url":           url,
+			"auto_rotate_token":  true,
+			"auto_rotate_before": "360h",
+		})
 		require.NoError(t, err)
 
-		var client = newInMemoryClient(true)
 		client.rotateMainToken.Token = "new token"
 		b.SetClient(client)
 
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 		})
@@ -162,14 +182,13 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
 		require.NotEmpty(t, resp.Data)
-		require.Empty(t, resp.Data["token_expires_at"])
+		require.NotEmpty(t, resp.Data["token_expires_at"])
 
-		err = b.PeriodicFunc(context.Background(), &logical.Request{Storage: l})
+		err = b.PeriodicFunc(ctx, &logical.Request{Storage: l})
 		require.NoError(t, err)
-		assert.Greater(t, client.calledMainToken, 0)
 		assert.Greater(t, client.calledRotateMainToken, 0)
 
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 		})
@@ -187,23 +206,26 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 			{
 				eventType: "gitlab/config-token-rotate",
 			},
-			{
-				eventType: "gitlab/config-token-revoke",
-			},
 		})
-
 	})
 
 	t.Run("call auto rotate the main token but the token is still valid", func(t *testing.T) {
-		b, l, err := getBackendWithConfig(map[string]any{"token": "token", "auto_rotate_token": true})
+		var client = newInMemoryClient(true)
+		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx = gitlab.GitlabClientNewContext(ctx, newInMemoryClient(true))
+		b, l, err := getBackendWithConfig(ctx, map[string]any{
+			"token":              "token",
+			"base_url":           url,
+			"auto_rotate_token":  true,
+			"auto_rotate_before": "24h",
+		})
 		require.NoError(t, err)
 
-		var client = newInMemoryClient(true)
 		var expiresAt = time.Now().Add(100 * 24 * time.Hour)
 		client.mainTokenInfo.ExpiresAt = &expiresAt
 		b.SetClient(client)
 
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 		})
@@ -211,14 +233,13 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
 		require.NotEmpty(t, resp.Data)
-		require.Empty(t, resp.Data["token_expires_at"])
+		require.NotEmpty(t, resp.Data["token_expires_at"])
 
-		err = b.PeriodicFunc(context.Background(), &logical.Request{Storage: l})
+		err = b.PeriodicFunc(ctx, &logical.Request{Storage: l})
 		require.NoError(t, err)
-		assert.Greater(t, client.calledMainToken, 0)
-		assert.EqualValues(t, client.calledRotateMainToken, 0)
+		assert.EqualValues(t, 1, client.calledRotateMainToken)
 
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      gitlab.PathConfigStorage, Storage: l,
 		})

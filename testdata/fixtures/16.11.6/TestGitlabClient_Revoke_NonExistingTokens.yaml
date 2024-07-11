@@ -1,0 +1,176 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - glpat-secret-random-token
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/999
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 27
+        uncompressed: false
+        body: '{"message":"404 Not found"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "27"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 11 Jul 2024 20:50:31 GMT
+            Server:
+                - nginx
+            Vary:
+                - Origin
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01J2HRZNMRGJZW8DM4KSS1YKW8","version":"1"}'
+            X-Request-Id:
+                - 01J2HRZNMRGJZW8DM4KSS1YKW8
+            X-Runtime:
+                - "0.010627"
+        status: 404 Not Found
+        code: 404
+        duration: 12.354209ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - glpat-secret-random-token
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups/example/access_tokens/999
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 80
+        uncompressed: false
+        body: '{"message":"404 Could not find group access token with token_id: 999 Not Found"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "80"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 11 Jul 2024 20:50:31 GMT
+            Server:
+                - nginx
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01J2HRZNNJ0KJ6G8QFG3Z84SY8","version":"1"}'
+            X-Request-Id:
+                - 01J2HRZNNJ0KJ6G8QFG3Z84SY8
+            X-Runtime:
+                - "0.013470"
+        status: 404 Not Found
+        code: 404
+        duration: 15.589833ms
+    - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - glpat-secret-random-token
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/projects/example%2Fexample/access_tokens/999
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 82
+        uncompressed: false
+        body: '{"message":"404 Could not find project access token with token_id: 999 Not Found"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "82"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 11 Jul 2024 20:50:31 GMT
+            Server:
+                - nginx
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01J2HRZNPJ89K38RN3QE27DVFN","version":"1"}'
+            X-Request-Id:
+                - 01J2HRZNPJ89K38RN3QE27DVFN
+            X-Runtime:
+                - "0.017803"
+        status: 404 Not Found
+        code: 404
+        duration: 19.850375ms

@@ -1,8 +1,9 @@
 package gitlab_test
 
 import (
-	"context"
+	"cmp"
 	"fmt"
+	"os"
 	"strconv"
 	"testing"
 
@@ -13,12 +14,16 @@ import (
 )
 
 func TestPathTokenRoles(t *testing.T) {
-	var defaultConfig = map[string]any{"token": "random-token"}
+	var defaultConfig = map[string]any{
+		"token":    "glpat-secret-random-token",
+		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
+	}
 
 	t.Run("role not found", func(t *testing.T) {
-		var b, l, err = getBackend()
+		ctx := getCtxGitlabClient(t)
+		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathTokenRoleStorage), Storage: l,
 		})
@@ -29,29 +34,39 @@ func TestPathTokenRoles(t *testing.T) {
 
 	var generalTokenCreation = func(t *testing.T, tokenType gitlab.TokenType, level gitlab.AccessLevel, gitlabRevokesToken bool) {
 		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t", tokenType, level, gitlabRevokesToken)
-		var b, l, events, err = getBackendWithEvents()
+		ctx := getCtxGitlabClient(t)
+		client := newInMemoryClient(true)
+		ctx = gitlab.GitlabClientNewContext(ctx, client)
+		var b, l, events, err = getBackendWithEvents(ctx)
 		require.NoError(t, err)
-		require.NoError(t, writeBackendConfig(b, l, defaultConfig))
+		require.NoError(t, writeBackendConfig(ctx, b, l, defaultConfig))
 		require.NoError(t, err)
 
 		events.expectEvents(t, []expectedEvent{
 			{eventType: "gitlab/config-write"},
 		})
 
-		client := newInMemoryClient(true)
-		b.SetClient(client)
-
 		var ttl = "1h"
 		if gitlabRevokesToken {
 			ttl = "48h"
 		}
 
+		var path string
+		switch tokenType {
+		case gitlab.TokenTypeProject:
+			path = "example/example"
+		case gitlab.TokenTypePersonal:
+			path = "admin-user"
+		case gitlab.TokenTypeGroup:
+			path = "example"
+		}
+
 		// create a role
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
-				"path":                 "user",
+				"path":                 path,
 				"name":                 tokenType.String(),
 				"token_type":           tokenType.String(),
 				"access_level":         level,
@@ -64,7 +79,7 @@ func TestPathTokenRoles(t *testing.T) {
 		require.NoError(t, resp.Error())
 
 		// read an access token
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathTokenRoleStorage), Storage: l,
 		})
@@ -80,7 +95,7 @@ func TestPathTokenRoles(t *testing.T) {
 		require.Contains(t, client.accessTokens, fmt.Sprintf("%s_%v", tokenType.String(), tokenId))
 
 		// revoke the access token
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.RevokeOperation,
 			Path:      fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, leaseId), Storage: l,
 			Secret: secret,
@@ -95,7 +110,7 @@ func TestPathTokenRoles(t *testing.T) {
 		}
 
 		// calling revoke with nil secret
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.RevokeOperation,
 			Path:      fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, leaseId), Storage: l,
 		})
@@ -112,7 +127,7 @@ func TestPathTokenRoles(t *testing.T) {
 			case gitlab.TokenTypeGroup:
 				client.groupAccessTokenRevokeError = true
 			}
-			resp, err = b.HandleRequest(context.Background(), &logical.Request{
+			resp, err = b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.RevokeOperation,
 				Path:      fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, leaseId), Storage: l,
 				Secret: secret,
@@ -145,5 +160,4 @@ func TestPathTokenRoles(t *testing.T) {
 		generalTokenCreation(t, gitlab.TokenTypeGroup, gitlab.AccessLevelGuestPermissions, false)
 		generalTokenCreation(t, gitlab.TokenTypeGroup, gitlab.AccessLevelGuestPermissions, true)
 	})
-
 }

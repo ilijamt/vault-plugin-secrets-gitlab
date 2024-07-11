@@ -4,35 +4,41 @@ import (
 	"context"
 	"crypto/sha1"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/vault/sdk/logical"
 )
 
 type EntryConfig struct {
-	TokenId                int           `json:"token_id" yaml:"token_id" mapstructure:"token_id"`
-	BaseURL                string        `json:"base_url" structs:"base_url" mapstructure:"base_url"`
-	Token                  string        `json:"token" structs:"token" mapstructure:"token"`
-	AutoRotateToken        bool          `json:"auto_rotate_token" structs:"auto_rotate_token" mapstructure:"auto_rotate_token"`
-	AutoRotateBefore       time.Duration `json:"auto_rotate_before" structs:"auto_rotate_before" mapstructure:"auto_rotate_before"`
-	TokenExpiresAt         time.Time     `json:"token_expires_at" structs:"token_expires_at" mapstructure:"token_expires_at"`
-	RevokeAutoRotatedToken bool          `json:"revoke_auto_rotated_token" structs:"revoke_auto_rotated_token" mapstructure:"revoke_auto_rotated_token"`
+	TokenId          int           `json:"token_id" yaml:"token_id" mapstructure:"token_id"`
+	BaseURL          string        `json:"base_url" structs:"base_url" mapstructure:"base_url"`
+	Token            string        `json:"token" structs:"token" mapstructure:"token"`
+	AutoRotateToken  bool          `json:"auto_rotate_token" structs:"auto_rotate_token" mapstructure:"auto_rotate_token"`
+	AutoRotateBefore time.Duration `json:"auto_rotate_before" structs:"auto_rotate_before" mapstructure:"auto_rotate_before"`
+	TokenCreatedAt   time.Time     `json:"token_created_at" structs:"token_created_at" mapstructure:"token_created_at"`
+	TokenExpiresAt   time.Time     `json:"token_expires_at" structs:"token_expires_at" mapstructure:"token_expires_at"`
+	Scopes           []string      `json:"scopes" structs:"scopes" mapstructure:"scopes"`
 }
 
 func (e EntryConfig) LogicalResponseData() map[string]any {
-	var tokenExpiresAt = ""
+	var tokenExpiresAt, tokenCreatedAt = "", ""
 	if !e.TokenExpiresAt.IsZero() {
 		tokenExpiresAt = e.TokenExpiresAt.Format(time.RFC3339)
 	}
+	if !e.TokenCreatedAt.IsZero() {
+		tokenCreatedAt = e.TokenCreatedAt.Format(time.RFC3339)
+	}
 
 	return map[string]any{
-		"base_url":                  e.BaseURL,
-		"auto_rotate_token":         e.AutoRotateToken,
-		"auto_rotate_before":        e.AutoRotateBefore.String(),
-		"token_id":                  e.TokenId,
-		"token_expires_at":          tokenExpiresAt,
-		"token_sha1_hash":           fmt.Sprintf("%x", sha1.Sum([]byte(e.Token))),
-		"revoke_auto_rotated_token": e.RevokeAutoRotatedToken,
+		"base_url":           e.BaseURL,
+		"auto_rotate_token":  e.AutoRotateToken,
+		"auto_rotate_before": e.AutoRotateBefore.String(),
+		"token_id":           e.TokenId,
+		"token_created_at":   tokenCreatedAt,
+		"token_expires_at":   tokenExpiresAt,
+		"token_sha1_hash":    fmt.Sprintf("%x", sha1.Sum([]byte(e.Token))),
+		"scopes":             strings.Join(e.Scopes, ", "),
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestConvertToInt(t *testing.T) {
@@ -34,6 +35,8 @@ func TestConvertToInt(t *testing.T) {
 }
 
 func TestCalculateGitlabTTL(t *testing.T) {
+	locMST, err := time.LoadLocation("MST")
+	require.NoError(t, err)
 	var tests = []struct {
 		inDuration  time.Duration
 		inTime      time.Time
@@ -91,6 +94,23 @@ func TestCalculateGitlabTTL(t *testing.T) {
 			inTime:      time.Date(2024, 2, 22, 20, 0, 0, 0, time.UTC),
 			outDuration: time.Hour * 52,
 			outExpiry:   time.Date(2024, 2, 25, 0, 0, 0, 0, time.UTC),
+			outErr:      nil,
+		},
+
+		{
+			inDuration: time.Hour * 2,
+			// 2024-05-30 13:01:43 -0600 MDT
+			inTime:      time.Date(2024, 5, 30, 13, 01, 43, 0, locMST),
+			outDuration: time.Hour*3 + time.Minute*58 + time.Second*17,
+			outExpiry:   time.Date(2024, 5, 31, 0, 0, 0, 0, time.UTC),
+			outErr:      nil,
+		},
+
+		{
+			inDuration:  390 * 25 * time.Hour,
+			inTime:      time.Date(2024, 7, 11, 15, 41, 0, 0, time.UTC),
+			outDuration: 8744*time.Hour + 19*time.Minute,
+			outExpiry:   time.Date(2025, 7, 11, 0, 0, 0, 0, time.UTC),
 			outErr:      nil,
 		},
 	}
