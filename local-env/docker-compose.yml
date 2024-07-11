@@ -1,0 +1,22 @@
+name: vpsg
+services:
+  web:
+    image: 'gitlab/gitlab-ce:16.11.6-ce.0'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+        gitlab_rails['initial_root_password'] = "Iem3oe_lohy1"
+    ports:
+      - '8080:80'
+      - '8443:443'
+      - '2224:22'
+    volumes:
+      - 'gitlab_config:/etc/gitlab'
+      - 'gitlab_logs:/var/log/gitlab'
+      - 'gitlab_data:/var/opt/gitlab'
+    shm_size: 2g
+
+volumes:
+  gitlab_config:
+  gitlab_logs:
+  gitlab_data:
