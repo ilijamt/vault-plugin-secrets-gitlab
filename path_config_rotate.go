@@ -100,7 +100,5 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	})
 
 	b.SetClient(nil)
-	return &logical.Response{
-		Data: config.LogicalResponseData(),
-	}, nil
+	return config.Response(), nil
 }

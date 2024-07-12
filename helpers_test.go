@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"slices"
 	"strings"
 	"sync"
@@ -66,7 +67,7 @@ func (m *mockEventsSender) expectEvents(t *testing.T, expectedEvents []expectedE
 func getBackendWithEvents(ctx context.Context) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
 	events := &mockEventsSender{}
 	config := &logical.BackendConfig{
-		Logger:       logging.NewVaultLogger(log.Trace),
+		Logger:       logging.NewVaultLoggerWithWriter(io.Discard, log.NoLevel),
 		System:       &logical.StaticSystemView{},
 		StorageView:  &logical.InmemStorage{},
 		BackendUUID:  "test",
