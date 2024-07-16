@@ -1,8 +1,9 @@
 package gitlab_test
 
 import (
-	"context"
+	"cmp"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -16,9 +17,10 @@ import (
 
 func TestPathRolesList(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
-		var b, l, err = getBackend()
+		ctx := getCtxGitlabClient(t)
+		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ListOperation,
 			Path:      gitlab.PathRoleStorage, Storage: l,
 		})
@@ -30,11 +32,16 @@ func TestPathRolesList(t *testing.T) {
 }
 
 func TestPathRoles(t *testing.T) {
-	var defaultConfig = map[string]any{"token": "random-token"}
+	var defaultConfig = map[string]any{
+		"token":    "glpat-secret-random-token",
+		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
+	}
+
 	t.Run("delete non existing role", func(t *testing.T) {
-		var b, l, err = getBackend()
+		ctx := getCtxGitlabClient(t)
+		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 		})
@@ -42,10 +49,11 @@ func TestPathRoles(t *testing.T) {
 		require.Nil(t, resp)
 	})
 
-	t.Run("we get error if Backend is not set up during role write", func(t *testing.T) {
-		var b, l, err = getBackend()
+	t.Run("we get error if backend is not set up during role write", func(t *testing.T) {
+		ctx := getCtxGitlabClient(t)
+		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 		})
@@ -56,12 +64,12 @@ func TestPathRoles(t *testing.T) {
 	})
 
 	t.Run("access level", func(t *testing.T) {
-		var b, l, err = getBackendWithConfig(defaultConfig)
-		require.NoError(t, err)
-
 		t.Run(gitlab.TokenTypePersonal.String(), func(t *testing.T) {
 			t.Run("no access level defined", func(t *testing.T) {
-				resp, err := b.HandleRequest(context.Background(), &logical.Request{
+				ctx := getCtxGitlabClient(t)
+				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+				require.NoError(t, err)
+				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
@@ -79,7 +87,10 @@ func TestPathRoles(t *testing.T) {
 				require.Empty(t, resp.Warnings)
 			})
 			t.Run("with access level defined", func(t *testing.T) {
-				resp, err := b.HandleRequest(context.Background(), &logical.Request{
+				ctx := getCtxGitlabClient(t)
+				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+				require.NoError(t, err)
+				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
@@ -100,7 +111,10 @@ func TestPathRoles(t *testing.T) {
 
 		t.Run(gitlab.TokenTypeProject.String(), func(t *testing.T) {
 			t.Run("no access level defined", func(t *testing.T) {
-				resp, err := b.HandleRequest(context.Background(), &logical.Request{
+				ctx := getCtxGitlabClient(t)
+				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+				require.NoError(t, err)
+				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
@@ -117,7 +131,10 @@ func TestPathRoles(t *testing.T) {
 				require.Error(t, resp.Error())
 			})
 			t.Run("with access level defined", func(t *testing.T) {
-				resp, err := b.HandleRequest(context.Background(), &logical.Request{
+				ctx := getCtxGitlabClient(t)
+				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+				require.NoError(t, err)
+				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
@@ -139,7 +156,10 @@ func TestPathRoles(t *testing.T) {
 
 		t.Run(gitlab.TokenTypeGroup.String(), func(t *testing.T) {
 			t.Run("no access level defined", func(t *testing.T) {
-				resp, err := b.HandleRequest(context.Background(), &logical.Request{
+				ctx := getCtxGitlabClient(t)
+				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+				require.NoError(t, err)
+				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
@@ -156,7 +176,10 @@ func TestPathRoles(t *testing.T) {
 				require.Error(t, resp.Error())
 			})
 			t.Run("with access level defined", func(t *testing.T) {
-				resp, err := b.HandleRequest(context.Background(), &logical.Request{
+				ctx := getCtxGitlabClient(t)
+				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+				require.NoError(t, err)
+				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
@@ -179,9 +202,10 @@ func TestPathRoles(t *testing.T) {
 	})
 
 	t.Run("create with missing parameters", func(t *testing.T) {
-		var b, l, err = getBackendWithConfig(defaultConfig)
+		ctx := getCtxGitlabClient(t)
+		var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 		require.NoError(t, err)
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{},
@@ -196,9 +220,10 @@ func TestPathRoles(t *testing.T) {
 
 	t.Run("Project token scopes", func(t *testing.T) {
 		t.Run("valid scopes", func(t *testing.T) {
-			var b, l, err = getBackendWithConfig(defaultConfig)
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
@@ -215,9 +240,10 @@ func TestPathRoles(t *testing.T) {
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
-			var b, l, err = getBackendWithConfig(defaultConfig)
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
@@ -239,9 +265,10 @@ func TestPathRoles(t *testing.T) {
 
 	t.Run("Personal token scopes", func(t *testing.T) {
 		t.Run("valid scopes", func(t *testing.T) {
-			var b, l, err = getBackendWithConfig(defaultConfig)
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
@@ -257,9 +284,10 @@ func TestPathRoles(t *testing.T) {
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
-			var b, l, err = getBackendWithConfig(defaultConfig)
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
@@ -280,9 +308,10 @@ func TestPathRoles(t *testing.T) {
 
 	t.Run("Group token scopes", func(t *testing.T) {
 		t.Run("valid scopes", func(t *testing.T) {
-			var b, l, err = getBackendWithConfig(defaultConfig)
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
@@ -299,9 +328,10 @@ func TestPathRoles(t *testing.T) {
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
-			var b, l, err = getBackendWithConfig(defaultConfig)
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
@@ -320,9 +350,10 @@ func TestPathRoles(t *testing.T) {
 	})
 
 	t.Run("update handler existence check", func(t *testing.T) {
-		var b, l, err = getBackend()
+		ctx := getCtxGitlabClient(t)
+		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
-		hasExistenceCheck, exists, err := b.HandleExistenceCheck(context.Background(), &logical.Request{
+		hasExistenceCheck, exists, err := b.HandleExistenceCheck(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 		})
@@ -333,17 +364,21 @@ func TestPathRoles(t *testing.T) {
 	})
 
 	t.Run("full flow check roles", func(t *testing.T) {
-		var b, l, events, err = getBackendWithEvents()
+		ctx := getCtxGitlabClient(t)
+		var b, l, events, err = getBackendWithEvents(ctx)
 		require.NoError(t, err)
+
+		var defaultConfig = map[string]any{
+			"token":    "glpat-secret-random-token",
+			"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
+		}
 
 		// create a configuration with max ttl set to 10 days
 		func() {
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.UpdateOperation,
 				Path:      gitlab.PathConfigStorage, Storage: l,
-				Data: map[string]any{
-					"token": "token",
-				},
+				Data: defaultConfig,
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
@@ -362,7 +397,7 @@ func TestPathRoles(t *testing.T) {
 		}
 
 		// create a role
-		resp, err := b.HandleRequest(context.Background(), &logical.Request{
+		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 			Data: roleData,
@@ -373,7 +408,7 @@ func TestPathRoles(t *testing.T) {
 		require.Empty(t, resp.Warnings)
 
 		// read a role
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 		})
@@ -387,7 +422,7 @@ func TestPathRoles(t *testing.T) {
 		// update a role
 		roleData["name"] = "Example user personal token - updated"
 		roleData["path"] = "user2"
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 			Data: roleData,
@@ -399,7 +434,7 @@ func TestPathRoles(t *testing.T) {
 		require.EqualValues(t, "test", resp.Data["role_name"])
 
 		// read a role
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 		})
@@ -412,7 +447,7 @@ func TestPathRoles(t *testing.T) {
 		require.EqualValues(t, "Example user personal token - updated", resp.Data["name"])
 
 		// delete a role
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 		})
@@ -420,7 +455,7 @@ func TestPathRoles(t *testing.T) {
 		require.Nil(t, resp)
 
 		// read a role
-		resp, err = b.HandleRequest(context.Background(), &logical.Request{
+		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 		})

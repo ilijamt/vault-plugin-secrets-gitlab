@@ -3,10 +3,13 @@ package gitlab
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/vault/sdk/helper/logging"
 	g "github.com/xanzy/go-gitlab"
 	"golang.org/x/time/rate"
 )
@@ -18,9 +21,8 @@ var (
 
 type Client interface {
 	Valid() bool
-
 	CurrentTokenInfo() (*EntryToken, error)
-	RotateCurrentToken(revokeOldToken bool) (newToken *EntryToken, oldToken *EntryToken, err error)
+	RotateCurrentToken() (newToken *EntryToken, oldToken *EntryToken, err error)
 	CreatePersonalAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	CreateGroupAccessToken(groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
 	CreateProjectAccessToken(projectId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
@@ -33,14 +35,17 @@ type Client interface {
 type gitlabClient struct {
 	client *g.Client
 	config *EntryConfig
+	logger hclog.Logger
 }
 
-func (gc *gitlabClient) CurrentTokenInfo() (*EntryToken, error) {
-	var pat, _, err = gc.client.PersonalAccessTokens.GetSinglePersonalAccessToken()
+func (gc *gitlabClient) CurrentTokenInfo() (et *EntryToken, err error) {
+	var pat *g.PersonalAccessToken
+	defer func() { gc.logger.Debug("Current token info", "token", et, "error", err) }()
+	pat, _, err = gc.client.PersonalAccessTokens.GetSinglePersonalAccessToken()
 	if err != nil {
 		return nil, err
 	}
-	return &EntryToken{
+	et = &EntryToken{
 		TokenID:     pat.ID,
 		UserID:      pat.UserID,
 		ParentID:    "",
@@ -52,16 +57,20 @@ func (gc *gitlabClient) CurrentTokenInfo() (*EntryToken, error) {
 		ExpiresAt:   (*time.Time)(pat.ExpiresAt),
 		Scopes:      pat.Scopes,
 		AccessLevel: "",
-	}, nil
+	}
+	return et, nil
 }
 
-func (gc *gitlabClient) RotateCurrentToken(revokeOldToken bool) (*EntryToken, *EntryToken, error) {
-	var currentEntryToken, err = gc.CurrentTokenInfo()
+func (gc *gitlabClient) RotateCurrentToken() (token *EntryToken, currentEntryToken *EntryToken, err error) {
+	var expiresAt time.Time
+	defer func() {
+		gc.logger.Debug("Rotate current token", "token", token, "currentEntryToken", currentEntryToken, "expiresAt", expiresAt, "error", err)
+	}()
+
+	currentEntryToken, err = gc.CurrentTokenInfo()
 	if err != nil {
 		return nil, nil, err
 	}
-	var expiresAt = *currentEntryToken.ExpiresAt
-	var durationTTL = expiresAt.Sub(*currentEntryToken.CreatedAt)
 
 	var usr *g.User
 	usr, _, err = gc.client.Users.GetUser(currentEntryToken.UserID, g.GetUsersOptions{})
@@ -69,32 +78,51 @@ func (gc *gitlabClient) RotateCurrentToken(revokeOldToken bool) (*EntryToken, *E
 		return nil, nil, err
 	}
 
-	var token *EntryToken
-	token, err = gc.CreatePersonalAccessToken(
-		usr.Username,
-		currentEntryToken.UserID,
-		fmt.Sprintf("%s-%d", currentEntryToken.Name, time.Now().Unix()),
-		time.Now().Add(durationTTL),
-		currentEntryToken.Scopes,
+	var pat *g.PersonalAccessToken
+	var durationTTL = currentEntryToken.ExpiresAt.Sub(*currentEntryToken.CreatedAt)
+	_, expiresAt, _ = calculateGitlabTTL(durationTTL, time.Now())
+	pat, _, err = gc.client.PersonalAccessTokens.RotatePersonalAccessToken(
+		currentEntryToken.TokenID,
+		&g.RotatePersonalAccessTokenOptions{ExpiresAt: (*g.ISOTime)(&expiresAt)},
 	)
+
 	if err != nil {
 		return nil, nil, err
 	}
 
-	gc.config.Token = token.Token
-	if token.ExpiresAt != nil {
-		gc.config.TokenExpiresAt = *token.ExpiresAt
+	token = &EntryToken{
+		TokenID:     pat.ID,
+		UserID:      pat.UserID,
+		ParentID:    "",
+		Path:        usr.Username,
+		Name:        pat.Name,
+		Token:       pat.Token,
+		TokenType:   TokenTypePersonal,
+		CreatedAt:   pat.CreatedAt,
+		ExpiresAt:   (*time.Time)(pat.ExpiresAt),
+		Scopes:      pat.Scopes,
+		AccessLevel: AccessLevelUnknown,
 	}
 
-	if revokeOldToken {
-		_, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(currentEntryToken.TokenID)
+	gc.config.Token = token.Token
+	gc.config.TokenId = token.TokenID
+	gc.config.Scopes = token.Scopes
+	if token.CreatedAt != nil {
+		gc.config.TokenCreatedAt = *token.CreatedAt
+	}
+	if token.ExpiresAt != nil {
+		gc.config.TokenExpiresAt = *token.ExpiresAt
 	}
 
 	gc.client = nil
 	return token, currentEntryToken, err
 }
 
-func (gc *gitlabClient) GetUserIdByUsername(username string) (int, error) {
+func (gc *gitlabClient) GetUserIdByUsername(username string) (userId int, err error) {
+	defer func() {
+		gc.logger.Debug("Get user id by username", "username", username, "userId", userId, "error", err)
+	}()
+
 	l := &g.ListUsersOptions{
 		Username: g.Ptr(username),
 	}
@@ -103,15 +131,19 @@ func (gc *gitlabClient) GetUserIdByUsername(username string) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("%v", err)
 	}
-	if username != u[0].Username {
-		return 0, fmt.Errorf("%v does not match with %s: %w", u[0].Username, username, ErrInvalidValue)
+	if len(u) == 0 {
+		return 0, fmt.Errorf("username '%s' not found: %w", username, ErrInvalidValue)
 	}
-
-	return u[0].ID, nil
+	userId = u[0].ID
+	return userId, nil
 }
 
-func (gc *gitlabClient) CreatePersonalAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error) {
-	at, _, err := gc.client.Users.CreatePersonalAccessToken(userId, &g.CreatePersonalAccessTokenOptions{
+func (gc *gitlabClient) CreatePersonalAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (et *EntryToken, err error) {
+	var at *g.PersonalAccessToken
+	defer func() {
+		gc.logger.Debug("Create personal access token", "pat", at, "et", et, "username", username, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
+	}()
+	at, _, err = gc.client.Users.CreatePersonalAccessToken(userId, &g.CreatePersonalAccessTokenOptions{
 		Name:      g.Ptr(name),
 		ExpiresAt: (*g.ISOTime)(&expiresAt),
 		Scopes:    &scopes,
@@ -119,7 +151,7 @@ func (gc *gitlabClient) CreatePersonalAccessToken(username string, userId int, n
 	if err != nil {
 		return nil, err
 	}
-	return &EntryToken{
+	et = &EntryToken{
 		TokenID:     at.ID,
 		UserID:      userId,
 		ParentID:    "",
@@ -131,13 +163,18 @@ func (gc *gitlabClient) CreatePersonalAccessToken(username string, userId int, n
 		ExpiresAt:   (*time.Time)(at.ExpiresAt),
 		Scopes:      scopes,
 		AccessLevel: AccessLevelUnknown,
-	}, nil
+	}
+	return et, nil
 }
 
-func (gc *gitlabClient) CreateGroupAccessToken(groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error) {
+func (gc *gitlabClient) CreateGroupAccessToken(groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (et *EntryToken, err error) {
+	var at *g.GroupAccessToken
+	defer func() {
+		gc.logger.Debug("Create group access token", "gat", at, "et", et, "groupId", groupId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "accessLevel", accessLevel, "error", err)
+	}()
 	var al = new(g.AccessLevelValue)
 	*al = g.AccessLevelValue(accessLevel.Value())
-	at, _, err := gc.client.GroupAccessTokens.CreateGroupAccessToken(groupId, &g.CreateGroupAccessTokenOptions{
+	at, _, err = gc.client.GroupAccessTokens.CreateGroupAccessToken(groupId, &g.CreateGroupAccessTokenOptions{
 		Name:        g.Ptr(name),
 		Scopes:      &scopes,
 		ExpiresAt:   (*g.ISOTime)(&expiresAt),
@@ -146,7 +183,7 @@ func (gc *gitlabClient) CreateGroupAccessToken(groupId string, name string, expi
 	if err != nil {
 		return nil, err
 	}
-	return &EntryToken{
+	et = &EntryToken{
 		TokenID:     at.ID,
 		UserID:      0,
 		ParentID:    groupId,
@@ -158,7 +195,8 @@ func (gc *gitlabClient) CreateGroupAccessToken(groupId string, name string, expi
 		ExpiresAt:   (*time.Time)(at.ExpiresAt),
 		Scopes:      scopes,
 		AccessLevel: accessLevel,
-	}, nil
+	}
+	return et, nil
 }
 
 func (gc *gitlabClient) CreateProjectAccessToken(projectId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error) {
@@ -188,8 +226,12 @@ func (gc *gitlabClient) CreateProjectAccessToken(projectId string, name string, 
 	}, nil
 }
 
-func (gc *gitlabClient) RevokePersonalAccessToken(tokenId int) error {
-	var resp, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(tokenId)
+func (gc *gitlabClient) RevokePersonalAccessToken(tokenId int) (err error) {
+	defer func() {
+		gc.logger.Debug("Revoke personal access token", "tokenId", tokenId, "error", err)
+	}()
+	var resp *g.Response
+	resp, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(tokenId)
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("personal: %w", ErrAccessTokenNotFound)
 	}
@@ -199,8 +241,12 @@ func (gc *gitlabClient) RevokePersonalAccessToken(tokenId int) error {
 	return nil
 }
 
-func (gc *gitlabClient) RevokeProjectAccessToken(tokenId int, projectId string) error {
-	var resp, err = gc.client.ProjectAccessTokens.RevokeProjectAccessToken(projectId, tokenId)
+func (gc *gitlabClient) RevokeProjectAccessToken(tokenId int, projectId string) (err error) {
+	defer func() {
+		gc.logger.Debug("Revoke project access token", "tokenId", tokenId, "error", err)
+	}()
+	var resp *g.Response
+	resp, err = gc.client.ProjectAccessTokens.RevokeProjectAccessToken(projectId, tokenId)
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("project: %w", ErrAccessTokenNotFound)
 	}
@@ -210,8 +256,12 @@ func (gc *gitlabClient) RevokeProjectAccessToken(tokenId int, projectId string) 
 	return nil
 }
 
-func (gc *gitlabClient) RevokeGroupAccessToken(tokenId int, groupId string) error {
-	var resp, err = gc.client.GroupAccessTokens.RevokeGroupAccessToken(groupId, tokenId)
+func (gc *gitlabClient) RevokeGroupAccessToken(tokenId int, groupId string) (err error) {
+	defer func() {
+		gc.logger.Debug("Revoke group access token", "tokenId", tokenId, "error", err)
+	}()
+	var resp *g.Response
+	resp, err = gc.client.GroupAccessTokens.RevokeGroupAccessToken(groupId, tokenId)
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("group: %w", ErrAccessTokenNotFound)
 	}
@@ -227,9 +277,13 @@ func (gc *gitlabClient) Valid() bool {
 
 var _ Client = new(gitlabClient)
 
-func NewGitlabClient(config *EntryConfig, httpClient *http.Client) (client Client, err error) {
+func NewGitlabClient(config *EntryConfig, httpClient *http.Client, logger hclog.Logger) (client Client, err error) {
 	if config == nil {
 		return nil, fmt.Errorf("configure the backend first, config: %w", ErrNilValue)
+	}
+
+	if logger == nil {
+		logger = logging.NewVaultLoggerWithWriter(io.Discard, hclog.NoLevel)
 	}
 
 	if "" == strings.TrimSpace(config.BaseURL) {
@@ -245,7 +299,7 @@ func NewGitlabClient(config *EntryConfig, httpClient *http.Client) (client Clien
 	}
 
 	var opts = []g.ClientOptionFunc{
-		g.WithBaseURL(fmt.Sprintf("%s/api/v4", config.BaseURL)),
+		g.WithBaseURL(fmt.Sprintf("%s/api/v4", strings.TrimSuffix(config.BaseURL, "/"))),
 		g.WithCustomLimiter(rate.NewLimiter(rate.Inf, 0)),
 	}
 
@@ -256,5 +310,5 @@ func NewGitlabClient(config *EntryConfig, httpClient *http.Client) (client Clien
 	var gc *g.Client
 	gc, err = g.NewClient(config.Token, opts...)
 
-	return &gitlabClient{client: gc, config: config}, err
+	return &gitlabClient{client: gc, config: config, logger: logger}, err
 }

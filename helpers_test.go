@@ -4,10 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"slices"
+	"strings"
 	"sync"
 	"testing"
 	"time"
+	"unicode"
 
 	log "github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
@@ -61,17 +64,17 @@ func (m *mockEventsSender) expectEvents(t *testing.T, expectedEvents []expectedE
 	}
 }
 
-func getBackendWithEvents() (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
+func getBackendWithEvents(ctx context.Context) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
 	events := &mockEventsSender{}
 	config := &logical.BackendConfig{
-		Logger:       logging.NewVaultLogger(log.Trace),
+		Logger:       logging.NewVaultLoggerWithWriter(io.Discard, log.NoLevel),
 		System:       &logical.StaticSystemView{},
 		StorageView:  &logical.InmemStorage{},
 		BackendUUID:  "test",
 		EventsSender: events,
 	}
 
-	b, err := gitlab.Factory(context.Background(), config)
+	b, err := gitlab.Factory(ctx, config)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("unable to create Backend: %w", err)
 	}
@@ -79,8 +82,8 @@ func getBackendWithEvents() (*gitlab.Backend, logical.Storage, *mockEventsSender
 	return b.(*gitlab.Backend), config.StorageView, events, nil
 }
 
-func writeBackendConfig(b *gitlab.Backend, l logical.Storage, config map[string]any) error {
-	var _, err = b.HandleRequest(context.Background(), &logical.Request{
+func writeBackendConfig(ctx context.Context, b *gitlab.Backend, l logical.Storage, config map[string]any) error {
+	var _, err = b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
 		Path:      gitlab.PathConfigStorage, Storage: l,
 		Data: config,
@@ -88,18 +91,18 @@ func writeBackendConfig(b *gitlab.Backend, l logical.Storage, config map[string]
 	return err
 }
 
-func getBackendWithEventsAndConfig(config map[string]any) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
-	var b, storage, events, _ = getBackendWithEvents()
-	return b, storage, events, writeBackendConfig(b, storage, config)
+func getBackendWithEventsAndConfig(ctx context.Context, config map[string]any) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
+	var b, storage, events, _ = getBackendWithEvents(ctx)
+	return b, storage, events, writeBackendConfig(ctx, b, storage, config)
 }
 
-func getBackendWithConfig(config map[string]any) (*gitlab.Backend, logical.Storage, error) {
-	var b, storage, _, _ = getBackendWithEvents()
-	return b, storage, writeBackendConfig(b, storage, config)
+func getBackendWithConfig(ctx context.Context, config map[string]any) (*gitlab.Backend, logical.Storage, error) {
+	var b, storage, _, _ = getBackendWithEvents(ctx)
+	return b, storage, writeBackendConfig(ctx, b, storage, config)
 }
 
-func getBackend() (*gitlab.Backend, logical.Storage, error) {
-	b, storage, _, err := getBackendWithEvents()
+func getBackend(ctx context.Context) (*gitlab.Backend, logical.Storage, error) {
+	b, storage, _, err := getBackendWithEvents(ctx)
 	return b, storage, err
 }
 
@@ -144,7 +147,7 @@ func (i *inMemoryClient) CurrentTokenInfo() (*gitlab.EntryToken, error) {
 	return &i.mainTokenInfo, nil
 }
 
-func (i *inMemoryClient) RotateCurrentToken(revokeOldToken bool) (*gitlab.EntryToken, *gitlab.EntryToken, error) {
+func (i *inMemoryClient) RotateCurrentToken() (*gitlab.EntryToken, *gitlab.EntryToken, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	i.calledRotateMainToken++
@@ -272,3 +275,27 @@ func (i *inMemoryClient) GetUserIdByUsername(username string) (int, error) {
 }
 
 var _ gitlab.Client = new(inMemoryClient)
+
+func sanitizePath(path string) string {
+	var builder strings.Builder
+
+	for _, r := range path {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '_' {
+			builder.WriteRune(r)
+		} else {
+			builder.WriteRune('_')
+		}
+	}
+
+	return strings.ReplaceAll(builder.String(), "__", "_")
+}
+
+func getCtxGitlabClient(t *testing.T) context.Context {
+	httpClient, _ := getClient(t)
+	return gitlab.HttpClientNewContext(context.Background(), httpClient)
+}
+
+func getCtxGitlabClientWithUrl(t *testing.T) (context.Context, string) {
+	httpClient, url := getClient(t)
+	return gitlab.HttpClientNewContext(context.Background(), httpClient), url
+}

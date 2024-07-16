@@ -1,0 +1,68 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - glpat-secret-random-token
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/self
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"id":1,"name":"Initial token","revoked":false,"created_at":"2024-07-11T18:53:26.792Z","scopes":["api","read_api","read_user","sudo","admin_mode","create_runner","k8s_proxy","read_repository","write_repository","ai_features","read_service_ping"],"user_id":1,"last_used_at":"2024-07-11T20:49:46.599Z","active":true,"expires_at":"2025-07-11"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 11 Jul 2024 20:50:32 GMT
+            Etag:
+                - W/"a64ccd47e1869c3ec0c4e62786258eca"
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Accept-Encoding
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01J2HRZPPGNS2HTZHAPNX2KPH9","version":"1"}'
+            X-Request-Id:
+                - 01J2HRZPPGNS2HTZHAPNX2KPH9
+            X-Runtime:
+                - "0.008769"
+        status: 200 OK
+        code: 200
+        duration: 10.513166ms

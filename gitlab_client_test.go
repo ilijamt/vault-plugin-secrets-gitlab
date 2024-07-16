@@ -1,34 +1,34 @@
 package gitlab_test
 
 import (
-	"encoding/json"
-	"fmt"
+	"io"
 	"net/http"
-	"net/http/httptest"
-	"os"
 	"testing"
 	"time"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	log "github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/vault/sdk/helper/logging"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
 
 func TestGitlabClient(t *testing.T) {
 	t.Run("nil config", func(t *testing.T) {
-		client, err := gitlab.NewGitlabClient(nil, nil)
+		client, err := gitlab.NewGitlabClient(nil, nil, nil)
 		require.Nil(t, client)
 		require.ErrorIs(t, err, gitlab.ErrNilValue)
 	})
 
 	t.Run("no token", func(t *testing.T) {
-		var client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{}, nil)
+		var client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{}, nil, nil)
 		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
 		require.Nil(t, client)
 	})
 
 	t.Run("no base url", func(t *testing.T) {
-		var client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{}, nil)
+		var client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{}, nil, nil)
 		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
 		require.Nil(t, client)
 	})
@@ -37,7 +37,7 @@ func TestGitlabClient(t *testing.T) {
 		var client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 			Token:   "token",
 			BaseURL: "https://example.com",
-		}, &http.Client{})
+		}, &http.Client{}, nil)
 		require.NoError(t, err)
 		require.NotNil(t, client)
 	})
@@ -45,17 +45,12 @@ func TestGitlabClient(t *testing.T) {
 
 func TestGitlabClient_InvalidToken(t *testing.T) {
 	var err error
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusUnauthorized)
-	}))
-	defer server.Close()
-
+	httpClient, url := getClient(t)
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 		Token:   "super-secret-token",
-		BaseURL: server.URL,
-	}, nil)
+		BaseURL: url,
+	}, httpClient, nil)
 	require.NoError(t, err)
 	require.NotNil(t, client)
 
@@ -65,7 +60,7 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, token)
 
-	newToken, oldToken, err := client.RotateCurrentToken(true)
+	newToken, oldToken, err := client.RotateCurrentToken()
 	require.Error(t, err)
 	require.Nil(t, newToken)
 	require.Nil(t, oldToken)
@@ -92,76 +87,47 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 
 func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
 	var err error
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotFound)
-	}))
-	defer server.Close()
-
+	httpClient, url := getClient(t)
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "super-secret-token",
-		BaseURL: server.URL,
-	}, nil)
+		Token:   "glpat-secret-random-token",
+		BaseURL: url,
+	}, httpClient, nil)
 	require.NoError(t, err)
 	require.NotNil(t, client)
 
 	require.True(t, client.Valid())
 
-	require.ErrorIs(t, client.RevokePersonalAccessToken(1), gitlab.ErrAccessTokenNotFound)
-	require.ErrorIs(t, client.RevokeGroupAccessToken(1, "group"), gitlab.ErrAccessTokenNotFound)
-	require.ErrorIs(t, client.RevokeProjectAccessToken(1, "project"), gitlab.ErrAccessTokenNotFound)
+	require.ErrorIs(t, client.RevokePersonalAccessToken(999), gitlab.ErrAccessTokenNotFound)
+	require.ErrorIs(t, client.RevokeGroupAccessToken(999, "group"), gitlab.ErrAccessTokenNotFound)
+	require.ErrorIs(t, client.RevokeProjectAccessToken(999, "project"), gitlab.ErrAccessTokenNotFound)
 }
 
 func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
 	var err error
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.RequestURI == "/api/v4/users?username=ilijamt" {
-			w.WriteHeader(http.StatusOK)
-			data, _ := os.ReadFile("testdata/list_users.json")
-			_, _ = w.Write(data)
-
-		} else {
-			w.WriteHeader(http.StatusNotFound)
-		}
-	}))
-	defer server.Close()
-
+	httpClient, url := getClient(t)
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "super-secret-token",
-		BaseURL: server.URL,
-	}, nil)
+		Token:   "glpat-secret-random-token",
+		BaseURL: url,
+	}, httpClient, nil)
 	require.NoError(t, err)
 	require.NotNil(t, client)
 	require.True(t, client.Valid())
 
-	userId, err := client.GetUserIdByUsername("ilijamt")
+	userId, err := client.GetUserIdByUsername("root")
 	require.NoError(t, err)
 	require.EqualValues(t, 1, userId)
 }
 
 func TestGitlabClient_GetUserIdByUsernameDoesNotMatch(t *testing.T) {
 	var err error
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.RequestURI == "/api/v4/users?username=ilijamt" {
-			w.WriteHeader(http.StatusOK)
-			data, _ := os.ReadFile("testdata/list_users_username_not_matched.json")
-			_, _ = w.Write(data)
-
-		} else {
-			w.WriteHeader(http.StatusNotFound)
-		}
-	}))
-	defer server.Close()
-
+	httpClient, url := getClient(t)
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "super-secret-token",
-		BaseURL: server.URL,
-	}, nil)
+		Token:   "glpat-secret-random-token",
+		BaseURL: url,
+	}, httpClient, nil)
 	require.NoError(t, err)
 	require.NotNil(t, client)
 	require.True(t, client.Valid())
@@ -169,72 +135,37 @@ func TestGitlabClient_GetUserIdByUsernameDoesNotMatch(t *testing.T) {
 	userId, err := client.GetUserIdByUsername("ilijamt")
 	require.ErrorIs(t, err, gitlab.ErrInvalidValue)
 	require.NotEqualValues(t, 1, userId)
+
+	userId, err = client.GetUserIdByUsername("demo")
+	require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+	require.NotEqualValues(t, 1, userId)
 }
 
-func TestGitlabClient_Revoke_Success(t *testing.T) {
+func TestGitlabClient_Revoke_NonExistingTokens(t *testing.T) {
 	var err error
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNoContent)
-	}))
-	defer server.Close()
-
+	httpClient, url := getClient(t)
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "super-secret-token",
-		BaseURL: server.URL,
-	}, nil)
+		Token:   "glpat-secret-random-token",
+		BaseURL: url,
+	}, httpClient, nil)
 	require.NoError(t, err)
 	require.NotNil(t, client)
 	require.True(t, client.Valid())
 
-	require.NoError(t, client.RevokePersonalAccessToken(1))
-	require.NoError(t, client.RevokeGroupAccessToken(1, "group"))
-	require.NoError(t, client.RevokeProjectAccessToken(1, "project"))
-}
-
-func TestGitlabClient_Revoke_BadRequest(t *testing.T) {
-	var err error
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusBadRequest)
-	}))
-	defer server.Close()
-
-	var client gitlab.Client
-	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "super-secret-token",
-		BaseURL: server.URL,
-	}, nil)
-	require.NoError(t, err)
-	require.NotNil(t, client)
-	require.True(t, client.Valid())
-
-	require.Error(t, client.RevokePersonalAccessToken(1))
-	require.Error(t, client.RevokeGroupAccessToken(1, "group"))
-	require.Error(t, client.RevokeProjectAccessToken(1, "project"))
+	require.Error(t, client.RevokePersonalAccessToken(999))
+	require.Error(t, client.RevokeGroupAccessToken(999, "example"))
+	require.Error(t, client.RevokeProjectAccessToken(999, "example/example"))
 }
 
 func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 	var err error
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.RequestURI == "/api/v4/personal_access_tokens/self" {
-			w.WriteHeader(http.StatusOK)
-			data, _ := os.ReadFile("testdata/personal_access_tokens_self.json")
-			_, _ = w.Write(data)
-
-		} else {
-			w.WriteHeader(http.StatusNotFound)
-		}
-	}))
-	defer server.Close()
-
+	httpClient, url := getClient(t)
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "super-secret-token",
-		BaseURL: server.URL,
-	}, nil)
+		Token:   "glpat-secret-random-token",
+		BaseURL: url,
+	}, httpClient, nil)
 	require.NoError(t, err)
 	require.NotNil(t, client)
 	require.True(t, client.Valid())
@@ -245,145 +176,75 @@ func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 	assert.EqualValues(t, gitlab.TokenTypePersonal, token.TokenType)
 }
 
-func TestGitlabClient_CreateAccessToken(t *testing.T) {
+func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	var err error
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		data, err := os.ReadFile("testdata/create_access_token.json")
-		require.NoError(t, err)
-		var urlPayloads = make(map[string]json.RawMessage)
-		require.NoError(t, json.Unmarshal(data, &urlPayloads))
-		if payload, ok := urlPayloads[r.RequestURI]; ok {
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write(payload)
-		} else {
-			w.WriteHeader(http.StatusNotFound)
-		}
-	}))
-	defer server.Close()
-
+	httpClient, url := getClient(t)
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "super-secret-token",
-		BaseURL: server.URL,
-	}, nil)
+		Token:   "glpat-secret-random-token",
+		BaseURL: url,
+	}, httpClient, nil)
 	require.NoError(t, err)
 	require.NotNil(t, client)
 	require.True(t, client.Valid())
 
-	entryToken, err := client.CreateGroupAccessToken("group/subgroup", "name", time.Now(), []string{"scope"}, gitlab.AccessLevelUnknown)
+	entryToken, err := client.CreateGroupAccessToken(
+		"example",
+		"name",
+		time.Now(),
+		[]string{gitlab.TokenScopeReadApi.String()},
+		gitlab.AccessLevelGuestPermissions,
+	)
 	require.NoError(t, err)
 	require.NotNil(t, entryToken)
 	require.EqualValues(t, gitlab.TokenTypeGroup, entryToken.TokenType)
 	require.NotEmpty(t, entryToken.Token)
+	require.NoError(t, client.RevokeGroupAccessToken(entryToken.TokenID, "example"))
 
-	entryToken, err = client.CreateProjectAccessToken("group/project", "name", time.Now(), []string{"scope"}, gitlab.AccessLevelUnknown)
+	entryToken, err = client.CreateProjectAccessToken(
+		"example/example",
+		"name",
+		time.Now(),
+		[]string{gitlab.TokenScopeReadApi.String()},
+		gitlab.AccessLevelDeveloperPermissions,
+	)
 	require.NoError(t, err)
 	require.NotNil(t, entryToken)
 	require.EqualValues(t, gitlab.TokenTypeProject, entryToken.TokenType)
 	require.NotEmpty(t, entryToken.Token)
+	require.NoError(t, client.RevokeProjectAccessToken(entryToken.TokenID, "example/example"))
 
-	entryToken, err = client.CreatePersonalAccessToken("username", 1, "name", time.Now(), []string{"scope"})
+	entryToken, err = client.CreatePersonalAccessToken(
+		"normal-user",
+		1,
+		"name",
+		time.Now(),
+		[]string{gitlab.TokenScopeReadApi.String()},
+	)
 	require.NoError(t, err)
 	require.NotNil(t, entryToken)
 	require.EqualValues(t, gitlab.TokenTypePersonal, entryToken.TokenType)
 	require.NotEmpty(t, entryToken.Token)
+	require.NoError(t, client.RevokePersonalAccessToken(entryToken.TokenID))
 }
 
 func TestGitlabClient_RotateCurrentToken(t *testing.T) {
 	var err error
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		data, err := os.ReadFile("testdata/rotate_current_token.json")
-		require.NoError(t, err)
-		var urlPayloads = make(map[string]json.RawMessage)
-		require.NoError(t, json.Unmarshal(data, &urlPayloads))
-		if payload, ok := urlPayloads[r.RequestURI]; ok {
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write(payload)
-		} else {
-			w.WriteHeader(http.StatusNotFound)
-		}
-	}))
-	defer server.Close()
-
+	httpClient, url := getClient(t)
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "super-secret-token",
-		BaseURL: server.URL,
-	}, nil)
+		Token:   "glpat-secret-admin-token-ar1",
+		BaseURL: url,
+	}, httpClient, logging.NewVaultLoggerWithWriter(io.Discard, log.Trace))
+
 	require.NoError(t, err)
 	require.NotNil(t, client)
 	require.True(t, client.Valid())
 
-	newToken, oldToken, err := client.RotateCurrentToken(true)
+	newToken, oldToken, err := client.RotateCurrentToken()
 	require.NoError(t, err)
 	require.NotNil(t, newToken)
 	require.NotNil(t, oldToken)
-}
 
-func TestGitlabClient_RotateCurrentToken_UserNotFound(t *testing.T) {
-	var err error
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("%s %s\n", r.Method, r.RequestURI)
-		data, err := os.ReadFile("testdata/rotate_current_token_user_not_found.json")
-		require.NoError(t, err)
-		var urlPayloads = make(map[string]json.RawMessage)
-		require.NoError(t, json.Unmarshal(data, &urlPayloads))
-		if payload, ok := urlPayloads[r.RequestURI]; ok {
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write(payload)
-		} else {
-			w.WriteHeader(http.StatusNotFound)
-		}
-	}))
-	defer server.Close()
-
-	var client gitlab.Client
-	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "super-secret-token",
-		BaseURL: server.URL,
-	}, nil)
-	require.NoError(t, err)
-	require.NotNil(t, client)
-	require.True(t, client.Valid())
-
-	newToken, oldToken, err := client.RotateCurrentToken(true)
-	require.Error(t, err)
-	require.Nil(t, newToken)
-	require.Nil(t, oldToken)
-}
-
-func TestGitlabClient_RotateCurrentToken_FailToCreateAccessToken(t *testing.T) {
-	var err error
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("%s %s\n", r.Method, r.RequestURI)
-		data, err := os.ReadFile("testdata/rotate_current_token_fail_to_create_access_token.json")
-		require.NoError(t, err)
-		var urlPayloads = make(map[string]json.RawMessage)
-		require.NoError(t, json.Unmarshal(data, &urlPayloads))
-		if payload, ok := urlPayloads[r.RequestURI]; ok {
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write(payload)
-		} else {
-			w.WriteHeader(http.StatusNotFound)
-		}
-	}))
-	defer server.Close()
-
-	var client gitlab.Client
-	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "super-secret-token",
-		BaseURL: server.URL,
-	}, nil)
-	require.NoError(t, err)
-	require.NotNil(t, client)
-	require.True(t, client.Valid())
-
-	newToken, oldToken, err := client.RotateCurrentToken(true)
-	require.Error(t, err)
-	require.Nil(t, newToken)
-	require.Nil(t, oldToken)
+	require.NotEqualValues(t, oldToken.Token, newToken.Token)
 }

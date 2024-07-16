@@ -1,0 +1,467 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: gitlab.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - glpat-S2r_vUK9ExnFcxpzjt_9
+            User-Agent:
+                - go-gitlab
+        url: https://gitlab.com/api/v4/personal_access_tokens/self
+        method: GET
+      response:
+        proto: HTTP/2.0
+        proto_major: 2
+        proto_minor: 0
+        transfer_encoding: []
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"id":10223967,"name":"vault-plugin-test-token","revoked":false,"created_at":"2024-07-12T07:00:52.220Z","scopes":["api","read_api","read_user","create_runner","manage_runner","k8s_proxy","read_repository","write_repository","read_registry","write_registry","ai_features"],"user_id":32923,"last_used_at":"2024-07-12T07:00:53.184Z","active":true,"expires_at":"2025-07-12"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Cf-Cache-Status:
+                - MISS
+            Cf-Ray:
+                - 8a1f29796c826616-AMS
+            Content-Security-Policy:
+                - default-src 'none'
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 12 Jul 2024 07:01:26 GMT
+            Etag:
+                - W/"f6140d9ed9a4f04166db91626105ab11"
+            Gitlab-Lb:
+                - haproxy-main-16-lb-gprd
+            Gitlab-Sv:
+                - api-gke-us-east1-c
+            Nel:
+                - '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Report-To:
+                - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=ycfCXyNRlTvy%2BI8mYjrpFfPKrIHxnNOSmQ2WVN0fb8aLYsltcgwjwu%2F6V9Dh7aRD3trojDsqMBMVDwD3G%2FSGBB64fGN2j4RvyON1ysROmHpq5MuAHgfaQojUx3M%3D"}],"group":"cf-nel","max_age":604800}'
+            Server:
+                - cloudflare
+            Set-Cookie:
+                - _cfuvid=0rQ0z6sEfIrpXYS7BNECryGC.iztpN.tfUflLxYfdec-1720767686786-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+            Strict-Transport-Security:
+                - max-age=31536000
+            Vary:
+                - Origin, Accept-Encoding
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"8f41337686c941530d97f4f2e0b8a308","version":"1"}'
+            X-Request-Id:
+                - 8f41337686c941530d97f4f2e0b8a308
+            X-Runtime:
+                - "0.027601"
+        status: 200 OK
+        code: 200
+        duration: 255.557167ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: gitlab.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - glpat-S2r_vUK9ExnFcxpzjt_9
+            User-Agent:
+                - go-gitlab
+        url: https://gitlab.com/api/v4/personal_access_tokens/self
+        method: GET
+      response:
+        proto: HTTP/2.0
+        proto_major: 2
+        proto_minor: 0
+        transfer_encoding: []
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"id":10223967,"name":"vault-plugin-test-token","revoked":false,"created_at":"2024-07-12T07:00:52.220Z","scopes":["api","read_api","read_user","create_runner","manage_runner","k8s_proxy","read_repository","write_repository","read_registry","write_registry","ai_features"],"user_id":32923,"last_used_at":"2024-07-12T07:00:53.184Z","active":true,"expires_at":"2025-07-12"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Cf-Cache-Status:
+                - MISS
+            Cf-Ray:
+                - 8a1f297c2e9a6616-AMS
+            Content-Security-Policy:
+                - default-src 'none'
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 12 Jul 2024 07:01:27 GMT
+            Etag:
+                - W/"f6140d9ed9a4f04166db91626105ab11"
+            Gitlab-Lb:
+                - haproxy-main-36-lb-gprd
+            Gitlab-Sv:
+                - api-gke-us-east1-b
+            Nel:
+                - '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Report-To:
+                - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=430ZZS%2F%2FgX%2F0htk72XqeYa1eV3B7qae9%2FXlw%2F0xh3IbosxLhf7TtKN9e5RViAANoeEe0nAO1mcQxyLojXHIT3W3nhuoRcF9%2B7FzMvCbZU2KOCk3x05fdliAMk%2Bc%3D"}],"group":"cf-nel","max_age":604800}'
+            Server:
+                - cloudflare
+            Set-Cookie:
+                - _cfuvid=ML_pBBH2nAvG8sQbE1weKAdjMLU3pCx4c0.AeVWTebI-1720767687236-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+            Strict-Transport-Security:
+                - max-age=31536000
+            Vary:
+                - Origin, Accept-Encoding
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"bc6a6d67f177dd095c93c93d17b2b1cd","version":"1"}'
+            X-Request-Id:
+                - bc6a6d67f177dd095c93c93d17b2b1cd
+            X-Runtime:
+                - "0.037629"
+        status: 200 OK
+        code: 200
+        duration: 191.447083ms
+    - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: gitlab.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - glpat-S2r_vUK9ExnFcxpzjt_9
+            User-Agent:
+                - go-gitlab
+        url: https://gitlab.com/api/v4/users/32923
+        method: GET
+      response:
+        proto: HTTP/2.0
+        proto_major: 2
+        proto_minor: 0
+        transfer_encoding: []
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"id":32923,"username":"ilijamt","name":"Ilija Matoski","state":"active","locked":false,"avatar_url":"https://secure.gravatar.com/avatar/e1bd6bdeae5b3bcd803934a067f39933dd21f9da7974c8e3623ee21ece5fea61?s=80\u0026d=identicon","web_url":"https://gitlab.com/ilijamt","created_at":"2014-05-19T14:51:54.441Z","bio":"","location":"","public_email":"","skype":"","linkedin":"","twitter":"","discord":"","website_url":"","organization":"","job_title":"","pronouns":null,"bot":false,"work_information":null,"local_time":"7:01 AM"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Cf-Cache-Status:
+                - MISS
+            Cf-Ray:
+                - 8a1f297e88c16616-AMS
+            Content-Security-Policy:
+                - default-src 'none'
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 12 Jul 2024 07:01:27 GMT
+            Etag:
+                - W/"568ae35f9c682db65684e5a318315a7e"
+            Gitlab-Lb:
+                - haproxy-main-30-lb-gprd
+            Gitlab-Sv:
+                - api-gke-us-east1-b
+            Nel:
+                - '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Report-To:
+                - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=kZse%2B4yFZpwrT9sDhYrRWxQ23vhCUdZMFzTo99H6chE5yYQ9y%2FbG687hr1I3yzNlHfYv89%2Fa%2BwXHOfjV6hkgL5R6oKH%2BUMq1PkJWoH0QWWTAHsFQg2QupH%2BTiMU%3D"}],"group":"cf-nel","max_age":604800}'
+            Server:
+                - cloudflare
+            Set-Cookie:
+                - _cfuvid=7Knu_4zjIQ0Bd0SnKIuD0NlWlTQeDZmrRfk_0L9ihGo-1720767687657-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+            Strict-Transport-Security:
+                - max-age=31536000
+            Vary:
+                - Origin, Accept-Encoding
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"5cad1e0e954cea384a5abc9417d1a01c","version":"1"}'
+            X-Request-Id:
+                - 5cad1e0e954cea384a5abc9417d1a01c
+            X-Runtime:
+                - "0.070183"
+        status: 200 OK
+        code: 200
+        duration: 225.185792ms
+    - id: 3
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 27
+        transfer_encoding: []
+        trailer: {}
+        host: gitlab.com
+        remote_addr: ""
+        request_uri: ""
+        body: '{"expires_at":"2025-07-12"}'
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+            Private-Token:
+                - glpat-S2r_vUK9ExnFcxpzjt_9
+            User-Agent:
+                - go-gitlab
+        url: https://gitlab.com/api/v4/personal_access_tokens/10223967/rotate
+        method: POST
+      response:
+        proto: HTTP/2.0
+        proto_major: 2
+        proto_minor: 0
+        transfer_encoding: []
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"id":10223973,"name":"vault-plugin-test-token","revoked":false,"created_at":"2024-07-12T07:01:28.023Z","scopes":["api","read_api","read_user","create_runner","manage_runner","k8s_proxy","read_repository","write_repository","read_registry","write_registry","ai_features"],"user_id":32923,"last_used_at":null,"active":true,"expires_at":"2025-07-12","token":"glpat-oyksPKGzGbx2drP9ePz9"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Cf-Cache-Status:
+                - DYNAMIC
+            Cf-Ray:
+                - 8a1f29816b2a6616-AMS
+            Content-Security-Policy:
+                - default-src 'none'
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 12 Jul 2024 07:01:28 GMT
+            Etag:
+                - W/"c897288c64ada8962eeceee0bdf06b52"
+            Gitlab-Lb:
+                - haproxy-main-52-lb-gprd
+            Gitlab-Sv:
+                - api-gke-us-east1-c
+            Nel:
+                - '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Report-To:
+                - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=SJ9nZHT5sPCLXXsq6aT68qXdx5ph6x1iRltMFl7MRxFI07pkmKU7nyhW3IBflAxy5IvBH1ns1VC3pdAzzgRcaXwdITpo0TQDztcyYpNm4E1T0sFMIiON725rtls%3D"}],"group":"cf-nel","max_age":604800}'
+            Server:
+                - cloudflare
+            Set-Cookie:
+                - _cfuvid=krGCK_0U3LENuDNQGSaTcroQ__DdJ_2Oz1Xv1aEm3kY-1720767688089-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+            Strict-Transport-Security:
+                - max-age=31536000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"311c69a6e96ba6d2b59d59d9a8f66d1e","version":"1"}'
+            X-Request-Id:
+                - 311c69a6e96ba6d2b59d59d9a8f66d1e
+            X-Runtime:
+                - "0.080368"
+        status: 200 OK
+        code: 200
+        duration: 207.859542ms
+    - id: 4
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: gitlab.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - glpat-S2r_vUK9ExnFcxpzjt_9
+            User-Agent:
+                - go-gitlab
+        url: https://gitlab.com/api/v4/personal_access_tokens/self
+        method: GET
+      response:
+        proto: HTTP/2.0
+        proto_major: 2
+        proto_minor: 0
+        transfer_encoding: []
+        trailer: {}
+        content_length: 106
+        uncompressed: false
+        body: '{"error":"invalid_token","error_description":"Token was revoked. You have to re-authorize from the user."}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Cf-Cache-Status:
+                - MISS
+            Cf-Ray:
+                - 8a1f2983fd5d6616-AMS
+            Content-Length:
+                - "106"
+            Content-Security-Policy:
+                - default-src 'none'
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 12 Jul 2024 07:01:28 GMT
+            Gitlab-Lb:
+                - haproxy-main-08-lb-gprd
+            Gitlab-Sv:
+                - api-gke-us-east1-d
+            Nel:
+                - '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Report-To:
+                - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=SEtNpqnrFKYlTdA8nmwlOK01keWVI%2FTWryeED2SCm%2BrOUzBuhinQEIjj%2Bz2pngT4D5sOByk%2B0d36RzWx%2FKrg4xt24w%2BneUBPetb4GIWcA278lwk%2BLFd8OEV1Dd8%3D"}],"group":"cf-nel","max_age":604800}'
+            Server:
+                - cloudflare
+            Set-Cookie:
+                - _cfuvid=Sq7gaOY_5fFc3m5UM.NW326h8ktZmq4OWqnJzXsKd.g-1720767688470-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+            Strict-Transport-Security:
+                - max-age=31536000
+            Vary:
+                - Origin, Accept-Encoding
+            Www-Authenticate:
+                - Bearer realm="Protected by OAuth 2.0", error="invalid_token", error_description="Token was revoked. You have to re-authorize from the user."
+            X-Content-Type-Options:
+                - nosniff
+            X-Gitlab-Meta:
+                - '{"correlation_id":"f9e6fd6e69d4db85be354ed61ccd1fbc","version":"1"}'
+            X-Request-Id:
+                - f9e6fd6e69d4db85be354ed61ccd1fbc
+            X-Runtime:
+                - "0.021462"
+        status: 401 Unauthorized
+        code: 401
+        duration: 169.170875ms
+    - id: 5
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: gitlab.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - glpat-oyksPKGzGbx2drP9ePz9
+            User-Agent:
+                - go-gitlab
+        url: https://gitlab.com/api/v4/personal_access_tokens/self
+        method: GET
+      response:
+        proto: HTTP/2.0
+        proto_major: 2
+        proto_minor: 0
+        transfer_encoding: []
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"id":10223973,"name":"vault-plugin-test-token","revoked":false,"created_at":"2024-07-12T07:01:28.023Z","scopes":["api","read_api","read_user","create_runner","manage_runner","k8s_proxy","read_repository","write_repository","read_registry","write_registry","ai_features"],"user_id":32923,"last_used_at":"2024-07-12T07:01:28.735Z","active":true,"expires_at":"2025-07-12"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Cf-Cache-Status:
+                - MISS
+            Cf-Ray:
+                - 8a1f29861fae6616-AMS
+            Content-Security-Policy:
+                - default-src 'none'
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 12 Jul 2024 07:01:28 GMT
+            Etag:
+                - W/"edf1af6f1d62fb961f6929c8359fb67a"
+            Gitlab-Lb:
+                - haproxy-main-44-lb-gprd
+            Gitlab-Sv:
+                - api-gke-us-east1-d
+            Nel:
+                - '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Report-To:
+                - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=bk2kc5OsyaBL3DrMhFS4AKQ8JaYLTQoNymenBvPuLYPCIJ2iJ85V84GffrxiVMTuoMnYbdF3THdnEZvwgr7zANwBC4u9z1KPavI20XqAJdpdlq5p62DMpKP7UEs%3D"}],"group":"cf-nel","max_age":604800}'
+            Server:
+                - cloudflare
+            Set-Cookie:
+                - _cfuvid=10eGex6HwqI49tUKwO3FStr6Oat_emAmjvGM2YA14tU-1720767688848-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+            Strict-Transport-Security:
+                - max-age=31536000
+            Vary:
+                - Origin, Accept-Encoding
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"9972ca360df81a931d918c4415185653","version":"1"}'
+            X-Request-Id:
+                - 9972ca360df81a931d918c4415185653
+            X-Runtime:
+                - "0.057130"
+        status: 200 OK
+        code: 200
+        duration: 206.629916ms

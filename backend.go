@@ -3,9 +3,9 @@ package gitlab
 import (
 	"context"
 	"errors"
+	"net/http"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
@@ -103,49 +103,11 @@ func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) er
 		return nil
 	}
 
-	// if there is no expiry date on the token fetch it
-	if config.TokenExpiresAt.IsZero() {
-		err = errors.Join(err, b.updateMainTokenExpiryTime(ctx, request, config))
-	}
-
 	// If we need to autorotate the token, initiate the procedure to autorotate the token
 	if config.AutoRotateToken {
 		err = errors.Join(err, b.checkAndRotateConfigToken(ctx, request, config))
 	}
 
-	return err
-}
-
-func (b *Backend) updateMainTokenExpiryTime(ctx context.Context, request *logical.Request, config *EntryConfig) error {
-	b.Logger().Debug("Running updateMainTokenExpiryTime")
-	var client Client
-	var err error
-
-	if client, err = b.getClient(ctx, request.Storage); err != nil {
-		return err
-	}
-
-	if config.TokenExpiresAt.IsZero() {
-		b.Logger().Warn("Main token expiry information is empty, updating")
-		var entryToken *EntryToken
-		// we need to fetch the token expiration information
-		entryToken, err = client.CurrentTokenInfo()
-		if err != nil {
-			return err
-		}
-		// and update the information so we can do the checks
-		config.TokenExpiresAt = *entryToken.ExpiresAt
-		config.TokenId = entryToken.TokenID
-		err = func() error {
-			b.lockClientMutex.Lock()
-			defer b.lockClientMutex.Unlock()
-			return saveConfig(ctx, *config, request.Storage)
-		}()
-		if err != nil {
-			return err
-		}
-		b.Logger().Info("Main token expiry information updated", "token_id", entryToken.TokenID, "token_expires_at", entryToken.ExpiresAt.Format(time.RFC3339))
-	}
 	return err
 }
 
@@ -169,7 +131,7 @@ func (b *Backend) SetClient(client Client) {
 	b.client = client
 }
 
-func (b *Backend) getClient(ctx context.Context, s logical.Storage) (Client, error) {
+func (b *Backend) getClient(ctx context.Context, s logical.Storage) (client Client, err error) {
 	if b.client != nil && b.client.Valid() {
 		b.Logger().Debug("Returning existing gitlab client")
 		return b.client, nil
@@ -177,15 +139,19 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage) (Client, err
 
 	b.lockClientMutex.RLock()
 	defer b.lockClientMutex.RUnlock()
-	config, err := getConfig(ctx, s)
+	var config *EntryConfig
+	config, err = getConfig(ctx, s)
 	if err != nil {
 		b.Logger().Error("Failed to retrieve configuration", "error", err.Error())
 		return nil, err
 	}
 
-	client, err := NewGitlabClient(config, nil)
-	if err == nil {
-		b.SetClient(client)
+	var httpClient *http.Client
+	httpClient, _ = HttpClientFromContext(ctx)
+	if client, _ = GitlabClientFromContext(ctx); client == nil {
+		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
+			b.SetClient(client)
+		}
 	}
 	return client, err
 }

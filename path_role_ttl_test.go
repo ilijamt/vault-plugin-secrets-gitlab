@@ -1,9 +1,10 @@
 package gitlab_test
 
 import (
-	"context"
+	"cmp"
 	"fmt"
 	"maps"
+	"os"
 	"testing"
 	"time"
 
@@ -14,12 +15,12 @@ import (
 )
 
 func TestPathRolesTTL(t *testing.T) {
-	var defaultConfig = map[string]any{"token": "random-token"}
+	var defaultConfig = map[string]any{
+		"token":    "glpat-secret-random-token",
+		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
+	}
 
 	t.Run("general ttl limits", func(t *testing.T) {
-		var b, l, err = getBackendWithConfig(defaultConfig)
-		require.NoError(t, err)
-
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
@@ -32,11 +33,14 @@ func TestPathRolesTTL(t *testing.T) {
 		}
 
 		t.Run("role.TTL > DefaultAccessTokenMaxPossibleTTL", func(t *testing.T) {
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
 			maps.Copy(role, map[string]any{
 				"ttl": (gitlab.DefaultAccessTokenMaxPossibleTTL + time.Hour).String(),
 			})
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 				Data: role,
@@ -49,11 +53,14 @@ func TestPathRolesTTL(t *testing.T) {
 		})
 
 		t.Run("ttl = maxTTL", func(t *testing.T) {
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
 			maps.Copy(role, map[string]any{
 				"ttl": (gitlab.DefaultAccessTokenMaxPossibleTTL).String(),
 			})
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 				Data: role,
@@ -63,7 +70,7 @@ func TestPathRolesTTL(t *testing.T) {
 			require.Empty(t, resp.Warnings)
 
 			// read a role
-			resp, err = b.HandleRequest(context.Background(), &logical.Request{
+			resp, err = b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.ReadOperation,
 				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 			})
@@ -75,9 +82,6 @@ func TestPathRolesTTL(t *testing.T) {
 	})
 
 	t.Run("vault revokes the token", func(t *testing.T) {
-		var b, l, err = getBackendWithConfig(defaultConfig)
-		require.NoError(t, err)
-
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
@@ -90,11 +94,15 @@ func TestPathRolesTTL(t *testing.T) {
 		}
 
 		t.Run("ttl >= 1h && ttl <= DefaultAccessTokenMaxPossibleTTL", func(t *testing.T) {
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
 			maps.Copy(role, map[string]any{
 				"ttl": "1h",
 			})
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 				Data: role,
@@ -104,7 +112,7 @@ func TestPathRolesTTL(t *testing.T) {
 			require.Empty(t, resp.Warnings)
 
 			// read a role
-			resp, err = b.HandleRequest(context.Background(), &logical.Request{
+			resp, err = b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.ReadOperation,
 				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 			})
@@ -115,11 +123,14 @@ func TestPathRolesTTL(t *testing.T) {
 		})
 
 		t.Run("ttl < 1h", func(t *testing.T) {
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
 			maps.Copy(role, map[string]any{
 				"ttl": "59m59s",
 			})
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 				Data: role,
@@ -133,9 +144,6 @@ func TestPathRolesTTL(t *testing.T) {
 	})
 
 	t.Run("gitlab revokes the tokens", func(t *testing.T) {
-		var b, l, err = getBackendWithConfig(defaultConfig)
-		require.NoError(t, err)
-
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
@@ -148,11 +156,14 @@ func TestPathRolesTTL(t *testing.T) {
 		}
 
 		t.Run("ttl < 24h", func(t *testing.T) {
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
 			maps.Copy(role, map[string]any{
 				"ttl": "23h59m59s",
 			})
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 				Data: role,
@@ -165,11 +176,14 @@ func TestPathRolesTTL(t *testing.T) {
 		})
 
 		t.Run("ttl >= 24h && ttl <= DefaultAccessTokenMaxPossibleTTL", func(t *testing.T) {
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
 			maps.Copy(role, map[string]any{
 				"ttl": "24h",
 			})
-			resp, err := b.HandleRequest(context.Background(), &logical.Request{
+			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
 				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 				Data: role,
@@ -179,7 +193,7 @@ func TestPathRolesTTL(t *testing.T) {
 			require.Empty(t, resp.Warnings)
 
 			// read a role
-			resp, err = b.HandleRequest(context.Background(), &logical.Request{
+			resp, err = b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.ReadOperation,
 				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 			})

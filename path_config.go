@@ -41,14 +41,6 @@ var (
 				Name: "Auto rotate token",
 			},
 		},
-		"revoke_auto_rotated_token": {
-			Type:        framework.TypeBool,
-			Default:     false,
-			Description: `Should we revoke the auto-rotated token after a new one has been generated?`,
-			DisplayAttrs: &framework.DisplayAttributes{
-				Name: "Revoke auto rotated token",
-			},
-		},
 		"auto_rotate_before": {
 			Type:        framework.TypeDurationSecond,
 			Description: `How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h`,
@@ -97,6 +89,8 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
 	}
 
+	lrd := config.LogicalResponseData()
+	b.Logger().Debug("Reading configuration info", "info", lrd)
 	return &logical.Response{
 		Data: config.LogicalResponseData(),
 	}, nil
@@ -113,16 +107,15 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	}
 
 	var config = EntryConfig{
-		BaseURL:                data.Get("base_url").(string),
-		AutoRotateToken:        data.Get("auto_rotate_token").(bool),
-		RevokeAutoRotatedToken: data.Get("revoke_auto_rotated_token").(bool),
+		BaseURL:         data.Get("base_url").(string),
+		AutoRotateToken: data.Get("auto_rotate_token").(bool),
 	}
 
 	if autoTokenRotateTtlOk {
 		atr, _ := convertToInt(autoTokenRotateRaw)
 		if atr > int(DefaultAutoRotateBeforeMaxTTL.Seconds()) {
 			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be bigger than %s: %w", DefaultAutoRotateBeforeMaxTTL, ErrInvalidValue))
-		} else if atr <= int(DefaultAutoRotateBeforeMinTTL.Seconds()) {
+		} else if atr <= int(DefaultAutoRotateBeforeMinTTL.Seconds())-1 {
 			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be less than %s: %w", DefaultAutoRotateBeforeMinTTL, ErrInvalidValue))
 		} else {
 			config.AutoRotateBefore = time.Duration(atr) * time.Second
@@ -138,6 +131,26 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 
 	config.Token = token.(string)
 
+	var httpClient *http.Client
+	var client Client
+	httpClient, _ = HttpClientFromContext(ctx)
+	if client, _ = GitlabClientFromContext(ctx); client == nil {
+		if client, err = NewGitlabClient(&config, httpClient, b.Logger()); err == nil {
+			b.SetClient(client)
+		}
+	}
+
+	var et *EntryToken
+	et, err = client.CurrentTokenInfo()
+	if err != nil {
+		return nil, fmt.Errorf("token cannot be validated: %s", ErrInvalidValue)
+	}
+
+	config.TokenCreatedAt = *et.CreatedAt
+	config.TokenExpiresAt = *et.ExpiresAt
+	config.TokenId = et.TokenID
+	config.Scopes = et.Scopes
+
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()
 	err = saveConfig(ctx, config, req.Storage)
@@ -146,17 +159,21 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	}
 
 	event(ctx, b.Backend, "config-write", map[string]string{
-		"path":                      "config",
-		"auto_rotate_token":         strconv.FormatBool(config.AutoRotateToken),
-		"auto_rotate_before":        config.AutoRotateBefore.String(),
-		"base_url":                  config.BaseURL,
-		"revoke_auto_rotated_token": strconv.FormatBool(config.RevokeAutoRotatedToken),
+		"path":               "config",
+		"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
+		"auto_rotate_before": config.AutoRotateBefore.String(),
+		"base_url":           config.BaseURL,
+		"token_id":           strconv.Itoa(config.TokenId),
+		"created_at":         config.TokenCreatedAt.Format(time.RFC3339),
+		"expires_at":         config.TokenExpiresAt.Format(time.RFC3339),
+		"scopes":             strings.Join(config.Scopes, ", "),
 	})
 
 	b.SetClient(nil)
-	b.Logger().Debug("Wrote new config", "base_url", config.BaseURL, "auto_rotate_token", config.AutoRotateToken, "revoke_auto_rotated_token", config.RevokeAutoRotatedToken, "auto_rotate_before", config.AutoRotateBefore)
+	lrd := config.LogicalResponseData()
+	b.Logger().Debug("Wrote new config", "lrd", lrd, "warnings", warnings)
 	return &logical.Response{
-		Data:     config.LogicalResponseData(),
+		Data:     lrd,
 		Warnings: warnings,
 	}, nil
 

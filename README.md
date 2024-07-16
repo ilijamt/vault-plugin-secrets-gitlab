@@ -26,6 +26,12 @@ Otherwise, first read this guide on how to [get started with Vault](https://www.
 
 To learn specifically about how plugins work, see documentation on [Vault plugins](https://www.vaultproject.io/docs/plugins/plugin-architecture#plugin-catalog).
 
+## GitLab
+
+- GitLab CE/EE
+- gitlab.com (cannot use personal access token)
+- Dedicated Instance (cannot use personal access token)
+
 ### Setup
 
 Before we can use this plugin we need to create an access token that will have rights to do what we need to.
@@ -43,7 +49,6 @@ The current authentication model requires providing Vault with a Gitlab Token.
 |           token           |   yes    |      n/a      |    yes    | The token to access Gitlab API, it will not show when you do a read, as it's a sensitive value. Instead it will display it's SHA1 hash value. |
 |         base_url          |   yes    |      n/a      |    no     | The address to access Gitlab                                                                                                                  |
 |     auto_rotate_token     |    no    |      no       |    no     | Should we autorotate the token when it's close to expiry? (Experimental)                                                                      |
-| revoke_auto_rotated_token |    no    |      no       |    no     | Should we revoke the auto-rotated token after a new one has been generated?                                                                   |
 |    auto_rotate_before     |    no    |      24h      |    no     | How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h             |
 
 ### Role
@@ -120,7 +125,7 @@ If you use Vault to manage the tokens the minimal TTL you can use is `1h`, by se
 The command bellow will set up the config backend with a max TTL of 48h.
 
 ```shell
-$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token auto_rotate_token=false revoke_auto_rotated_token=false auto_rotate_before=48h
+$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token auto_rotate_token=false auto_rotate_before=48h
 $ vault read gitlab/config
 Key                   Value
 ---                   -----
@@ -268,7 +273,7 @@ If the original token that has been supplied to the backend is not expired. We c
 to force a rotation of the main token. This would create a new token with the same expiration as the original token.
 
 ```shell
-$ vault read gitlab/config/rotate
+$ vault write -f gitlab/config/rotate
 Key                   Value
 ---                   -----
 auto_rotate_before    48h0m0s
@@ -310,7 +315,6 @@ $ vault secrets list -detailed -format=json | jq '."gitlab/"'
    "deprecation_status":""
 }
 ```
+## Info
 
-## TODO
-
-* [ ] Add tests against real Gitlab instance
+Running the logging with `debug` level will shows sensitive information in the logs.

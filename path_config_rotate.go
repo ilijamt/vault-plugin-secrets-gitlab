@@ -21,7 +21,7 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 			OperationPrefix: operationPrefixGitlabAccessTokens,
 		},
 		Operations: map[logical.Operation]framework.OperationHandler{
-			logical.ReadOperation: &framework.PathOperation{
+			logical.UpdateOperation: &framework.PathOperation{
 				Callback:     b.pathConfigTokenRotate,
 				DisplayAttrs: &framework.DisplayAttributes{OperationVerb: "configure"},
 				Summary:      "Rotate the main Gitlab Access Token.",
@@ -33,10 +33,6 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *EntryConfig) error {
 	var err error
 	b.Logger().Debug("Running checkAndRotateConfigToken")
-
-	if err = b.updateMainTokenExpiryTime(ctx, request, config); err != nil {
-		return err
-	}
 
 	if time.Until(config.TokenExpiresAt) > config.AutoRotateBefore {
 		b.Logger().Debug("Nothing to do it's not yet time to rotate the token")
@@ -70,18 +66,22 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		return nil, err
 	}
 
-	var entryToken, oldToken *EntryToken
-	entryToken, oldToken, err = client.RotateCurrentToken(config.RevokeAutoRotatedToken)
+	var entryToken *EntryToken
+	entryToken, _, err = client.RotateCurrentToken()
 	if err != nil {
 		b.Logger().Error("Failed to rotate main token", "err", err)
 		return nil, err
 	}
 
 	config.Token = entryToken.Token
+	config.TokenId = entryToken.TokenID
+	config.Scopes = entryToken.Scopes
 	if entryToken.ExpiresAt != nil {
 		config.TokenExpiresAt = *entryToken.ExpiresAt
 	}
-	config.TokenId = entryToken.TokenID
+	if entryToken.CreatedAt != nil {
+		config.TokenExpiresAt = *entryToken.CreatedAt
+	}
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()
 	err = saveConfig(ctx, *config, request.Storage)
@@ -99,19 +99,6 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		"name":       entryToken.Name,
 	})
 
-	if config.RevokeAutoRotatedToken {
-		event(ctx, b.Backend, "config-token-revoke", map[string]string{
-			"path":       "config",
-			"expires_at": oldToken.ExpiresAt.Format(time.RFC3339),
-			"created_at": oldToken.CreatedAt.Format(time.RFC3339),
-			"scopes":     strings.Join(oldToken.Scopes, ", "),
-			"token_id":   strconv.Itoa(oldToken.TokenID),
-			"name":       oldToken.Name,
-		})
-	}
-
 	b.SetClient(nil)
-	return &logical.Response{
-		Data: config.LogicalResponseData(),
-	}, nil
+	return config.Response(), nil
 }
