@@ -26,6 +26,12 @@ Otherwise, first read this guide on how to [get started with Vault](https://www.
 
 To learn specifically about how plugins work, see documentation on [Vault plugins](https://www.vaultproject.io/docs/plugins/plugin-architecture#plugin-catalog).
 
+## GitLab
+
+- GitLab CE/EE
+- gitlab.com (cannot use personal access token)
+- Dedicated Instance (cannot use personal access token)
+
 ### Setup
 
 Before we can use this plugin we need to create an access token that will have rights to do what we need to.
