@@ -24,12 +24,15 @@ type Client interface {
 	CurrentTokenInfo() (*EntryToken, error)
 	RotateCurrentToken() (newToken *EntryToken, oldToken *EntryToken, err error)
 	CreatePersonalAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
+	CreateServiceAccountPersonalAccessToken(path string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	CreateGroupAccessToken(groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
 	CreateProjectAccessToken(projectId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
 	RevokePersonalAccessToken(tokenId int) error
+	RevokeServiceAccountPersonalAccessToken(tokenId int, tokenValue string) error
 	RevokeProjectAccessToken(tokenId int, projectId string) error
 	RevokeGroupAccessToken(tokenId int, groupId string) error
 	GetUserIdByUsername(username string) (int, error)
+	GetRolePathParts(path string) (interface{}, interface{}, error)
 }
 
 type gitlabClient struct {
@@ -167,6 +170,46 @@ func (gc *gitlabClient) CreatePersonalAccessToken(username string, userId int, n
 	return et, nil
 }
 
+func (gc *gitlabClient) GetRolePathParts(path string) (interface{}, interface{}, error) {
+	parts := strings.Split(path, "/")
+	if len(parts) != 2 {
+		return nil, nil, errors.New("Too many arguments for service account path - eg: 1234/my-service-account")
+	}
+	groupId := parts[0]
+	username := parts[1]
+
+	return groupId, username, nil
+}
+
+func (gc *gitlabClient) CreateServiceAccountPersonalAccessToken(path string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (et *EntryToken, err error) {
+	var at *g.PersonalAccessToken
+	defer func() {
+		gc.logger.Debug("Create service account personal access token", "pat", at, "et", et, "groupId", groupId, "serviceAccountId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
+	}()
+	at, _, err = gc.client.Groups.CreateServiceAccountPersonalAccessToken(groupId, userId, &g.CreateServiceAccountPersonalAccessTokenOptions{
+		Name:      g.Ptr(name),
+		ExpiresAt: (*g.ISOTime)(&expiresAt),
+		Scopes:    &scopes,
+	})
+	if err != nil {
+		return nil, err
+	}
+	et = &EntryToken{
+		TokenID:     at.ID,
+		UserID:      userId,
+		ParentID:    groupId,
+		Path:        path,
+		Name:        name,
+		Token:       at.Token,
+		TokenType:   TokenTypeServiceAccount,
+		CreatedAt:   at.CreatedAt,
+		ExpiresAt:   (*time.Time)(at.ExpiresAt),
+		Scopes:      scopes,
+		AccessLevel: AccessLevelUnknown,
+	}
+	return et, nil
+}
+
 func (gc *gitlabClient) CreateGroupAccessToken(groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (et *EntryToken, err error) {
 	var at *g.GroupAccessToken
 	defer func() {
@@ -234,6 +277,29 @@ func (gc *gitlabClient) RevokePersonalAccessToken(tokenId int) (err error) {
 	resp, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(tokenId)
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("personal: %w", ErrAccessTokenNotFound)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (gc *gitlabClient) RevokeServiceAccountPersonalAccessToken(tokenId int, tokenValue string) (err error) {
+	defer func() {
+		gc.logger.Debug("Revoke personal access token", "tokenId", tokenId, "error", err)
+	}()
+
+	u := "personal_access_tokens/self"
+	req, err := gc.client.NewRequest(http.MethodDelete, u, nil, nil)
+	if err != nil {
+		return fmt.Errorf("service account personal: %w", ErrAccessTokenNotFound)
+	}
+	req.Header.Set("PRIVATE-TOKEN", tokenValue)
+
+	var resp *g.Response
+	resp, err = gc.client.Do(req, nil)
+	if resp != nil && resp.StatusCode == http.StatusUnauthorized {
+		return fmt.Errorf("service account personal: %w", ErrAccessTokenNotFound)
 	}
 	if err != nil {
 		return err

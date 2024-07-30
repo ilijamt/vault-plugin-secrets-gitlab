@@ -59,6 +59,8 @@ func TestPathTokenRoles(t *testing.T) {
 			path = "admin-user"
 		case gitlab.TokenTypeGroup:
 			path = "example"
+		case gitlab.TokenTypeServiceAccount:
+			path = "example/example-service-account"
 		}
 
 		// create a role
@@ -126,6 +128,8 @@ func TestPathTokenRoles(t *testing.T) {
 				client.personalAccessTokenRevokeError = true
 			case gitlab.TokenTypeGroup:
 				client.groupAccessTokenRevokeError = true
+			case gitlab.TokenTypeServiceAccount:
+				client.serviceAccountPersonalAccessTokenRevokeError = true
 			}
 			resp, err = b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.RevokeOperation,
@@ -159,5 +163,10 @@ func TestPathTokenRoles(t *testing.T) {
 	t.Run("group access token", func(t *testing.T) {
 		generalTokenCreation(t, gitlab.TokenTypeGroup, gitlab.AccessLevelGuestPermissions, false)
 		generalTokenCreation(t, gitlab.TokenTypeGroup, gitlab.AccessLevelGuestPermissions, true)
+	})
+
+	t.Run("service account personal access token", func(t *testing.T) {
+		generalTokenCreation(t, gitlab.TokenTypeServiceAccount, gitlab.AccessLevelUnknown, false)
+		generalTokenCreation(t, gitlab.TokenTypeServiceAccount, gitlab.AccessLevelUnknown, true)
 	})
 }

@@ -15,6 +15,7 @@ through Vault.
 - Gitlab Personal Access Tokens: [https://docs.gitlab.com/ee/api/personal_access_tokens.html]
 - Gitlab Project Access Tokens: [https://docs.gitlab.com/ee/api/project_access_tokens.html]
 - Gitlab Group Access Tokens: [https://docs.gitlab.com/ee/api/group_access_tokens.html]
+- Gitlab Service Account Personal Access Tokens: [https://docs.gitlab.com/ee/api/groups.html#create-personal-access-token-for-service-account-user]
 
 ## Getting Started
 
@@ -81,6 +82,7 @@ For a list of available roles check https://docs.gitlab.com/ee/user/permissions.
 Depending on the type of token you have different scopes:
 
 * `Personal` - https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#personal-access-token-scopes
+* `Service Account` - https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#personal-access-token-scopes
 * `Project` - https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#scopes-for-a-project-access-token
 * `Group` - https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html#scopes-for-a-group-access-token
 
@@ -89,6 +91,7 @@ Depending on the type of token you have different scopes:
 Can be 
 
 * personal
+* service-account (gitlab.com / SaaS only)
 * project
 * group
 
@@ -160,6 +163,8 @@ This will create three roles, one of each type.
 # personal access tokens can only be created by Gitlab Administrators (see https://docs.gitlab.com/ee/api/users.html#create-a-personal-access-token)
 $ vault write gitlab/roles/personal name=personal-token-name path=username scopes="read_api" token_type=personal ttl=48h
 
+$ vault write gitlab/roles/service-account name=service-account-personal-token-name path=group/username scopes="read_api" token_type=service-account ttl=48h
+
 $ vault write gitlab/roles/project name=project-token-name path=group/project scopes="read_api" access_level=guest token_type=project ttl=48h
 
 $ vault write gitlab/roles/group name=group-token-name path=group/subgroup scopes="read_api" access_level=developer token_type=group ttl=48h
@@ -187,7 +192,7 @@ token              7mbpSExz7ruyw1QgTjL-
 $ vault lease revoke gitlab/token/personal/0FrzLFkRKaUNZSfa6WfFqjWK
 All revocation operations queued successfully!
 ```
-##### Service accounts
+##### Service accounts (self hosted)
 The service account users from Gitlab 16.1 are for all purposes users that don't use seats. So creating a service account and setting the path to the service account user would work the same as on a real user.
 ```shell
 $ curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab/api/v4/service_accounts" | jq .
@@ -219,6 +224,41 @@ name               vault-generated-personal-access-token-f6417198
 path               service_account_00b069cb73a15d0a7ba8cd67a653599c
 scopes             [api read_api read_repository read_registry]
 token              -senkScjDo-SoGwST9PP
+```
+
+##### Service accounts (SaaS / gitlab.com)
+The service account users for SaaS gitlab work slightly differently than that of self-hosted instances and are created under groups
+```shell
+$ curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab.com/api/v4/groups/345/service_accounts" | jq .
+{
+  "id": 2017,
+  "username": "service_account_00b069cb73a15d0a7ba8cd67a653599c",
+  "name": "Service account user"
+}
+```
+
+In this case you would create a role like
+```shell
+$ vault write gitlab/roles/sa name=sa-name path=345/service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=service-account token_ttl=24h
+$ vault read gitlab/token/sa
+vault read gitlab/token/sa
+
+Key                Value
+---                -----
+lease_id           gitlab/token/sa/oFI2vpUdvykvMgNum6pZReYZ
+lease_duration     20h1m37s
+lease_renewable    false
+access_level       n/a
+created_at         2023-08-31T03:58:23.069Z
+expires_at         2023-09-01T00:00:00Z
+name               vault-generated-service-account-access-token-f6417198
+role_name          sa-name
+path               345/service_account_00b069cb73a15d0a7ba8cd67a653599c
+scopes             [read_api]
+token              -senkScjDo-SoGwST9PP
+
+vault lease revoke gitlab/token/sa/oFI2vpUdvykvMgNum6pZReYZ
+All revocation operations queued successfully!
 ```
 
 #### Group
