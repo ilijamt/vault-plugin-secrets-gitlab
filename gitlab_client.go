@@ -292,13 +292,13 @@ func (gc *gitlabClient) RevokeServiceAccountPersonalAccessToken(tokenId int, tok
 	u := "personal_access_tokens/self"
 	req, err := gc.client.NewRequest(http.MethodDelete, u, nil, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("service account personal: %w", ErrAccessTokenNotFound)
 	}
 	req.Header.Set("PRIVATE-TOKEN", tokenValue)
 
 	var resp *g.Response
 	resp, err = gc.client.Do(req, nil)
-	if resp != nil && resp.StatusCode == http.StatusNotFound {
+	if resp != nil && resp.StatusCode == http.StatusUnauthorized {
 		return fmt.Errorf("service account personal: %w", ErrAccessTokenNotFound)
 	}
 	if err != nil {

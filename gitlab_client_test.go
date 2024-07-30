@@ -83,6 +83,12 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 	entryToken, err = client.CreatePersonalAccessToken("username", 0, "name", time.Now(), []string{"scope"})
 	require.Error(t, err)
 	require.Nil(t, entryToken)
+
+	groupId, username, _ := client.GetRolePathParts("123/service-account-user")
+	serviceAccountId, _ := client.GetUserIdByUsername(username.(string))
+	entryToken, err = client.CreateServiceAccountPersonalAccessToken("123/username", groupId.(string), serviceAccountId, "name", time.Now(), []string{"scope"})
+	require.Error(t, err)
+	require.Nil(t, entryToken)
 }
 
 func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
@@ -227,7 +233,11 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	require.NotEmpty(t, entryToken.Token)
 	require.NoError(t, client.RevokePersonalAccessToken(entryToken.TokenID))
 
-	groupId, username, _ := client.GetRolePathParts("123/service-account-user")
+	// Test incorrect path fails
+	groupId, username, err := client.GetRolePathParts("service-account-user")
+	require.Error(t, err)
+
+	groupId, username, _ = client.GetRolePathParts("123/service-account-user")
 	serviceAccountId, _ := client.GetUserIdByUsername(username.(string))
 	entryToken, err = client.CreateServiceAccountPersonalAccessToken(
 		"123/service-account-user",
@@ -242,6 +252,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	require.EqualValues(t, gitlab.TokenTypeServiceAccount, entryToken.TokenType)
 	require.NotEmpty(t, entryToken.Token)
 	require.NoError(t, client.RevokeServiceAccountPersonalAccessToken(entryToken.TokenID, entryToken.Token))
+	require.Error(t, client.RevokeServiceAccountPersonalAccessToken(entryToken.TokenID, "invalid-token"))
 }
 
 func TestGitlabClient_RotateCurrentToken(t *testing.T) {
