@@ -95,6 +95,17 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		if token, err = client.CreatePersonalAccessToken(role.Path, userId, name, expiresAt, role.Scopes); err != nil {
 			return nil, err
 		}
+	case TokenTypeServiceAccount:
+		var userId int
+		groupId, username, err := client.GetRolePathParts(role.Path)
+		userId, err = client.GetUserIdByUsername(username.(string))
+		if err != nil {
+			return nil, err
+		}
+		b.Logger().Debug("Creating service account access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
+		if token, err = client.CreateServiceAccountPersonalAccessToken(role.Path, groupId.(string), userId, name, expiresAt, role.Scopes); err != nil {
+			return nil, err
+		}
 	default:
 		return logical.ErrorResponse("invalid token type"), fmt.Errorf("%s: %w", role.TokenType.String(), ErrUnknownTokenType)
 	}

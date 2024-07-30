@@ -10,9 +10,10 @@ import (
 type TokenType string
 
 const (
-	TokenTypePersonal = TokenType("personal")
-	TokenTypeProject  = TokenType("project")
-	TokenTypeGroup    = TokenType("group")
+	TokenTypePersonal       = TokenType("personal")
+	TokenTypeServiceAccount = TokenType("service-account")
+	TokenTypeProject        = TokenType("project")
+	TokenTypeGroup          = TokenType("group")
 
 	TokenTypeUnknown = TokenType("")
 )
@@ -24,6 +25,7 @@ var (
 		TokenTypePersonal.String(),
 		TokenTypeProject.String(),
 		TokenTypeGroup.String(),
+		TokenTypeServiceAccount.String(),
 	}
 )
 

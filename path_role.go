@@ -260,6 +260,8 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	switch tokenType {
 	case TokenTypePersonal:
 		validAccessLevels = ValidPersonalAccessLevels
+	case TokenTypeServiceAccount:
+		validAccessLevels = ValidPersonalAccessLevels
 	case TokenTypeGroup:
 		validAccessLevels = ValidGroupAccessLevels
 	case TokenTypeProject:
@@ -273,7 +275,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	// validate scopes
 	var invalidScopes []string
 	var validScopes = validTokenScopes
-	if tokenType == TokenTypePersonal {
+	if tokenType == TokenTypePersonal || tokenType == TokenTypeServiceAccount {
 		validScopes = append(validScopes, ValidPersonalTokenScopes...)
 	}
 	for _, scope := range role.Scopes {

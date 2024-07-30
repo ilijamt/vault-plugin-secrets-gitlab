@@ -123,12 +123,14 @@ type inMemoryClient struct {
 	muLock          sync.Mutex
 	valid           bool
 
-	personalAccessTokenRevokeError bool
-	groupAccessTokenRevokeError    bool
-	projectAccessTokenRevokeError  bool
-	personalAccessTokenCreateError bool
-	groupAccessTokenCreateError    bool
-	projectAccessTokenCreateError  bool
+	personalAccessTokenRevokeError               bool
+	serviceAccountPersonalAccessTokenRevokeError bool
+	groupAccessTokenRevokeError                  bool
+	projectAccessTokenRevokeError                bool
+	personalAccessTokenCreateError               bool
+	serviceAccountPersonalAccessTokenCreateError bool
+	groupAccessTokenCreateError                  bool
+	projectAccessTokenCreateError                bool
 
 	calledMainToken       int
 	calledRotateMainToken int
@@ -235,6 +237,32 @@ func (i *inMemoryClient) CreateProjectAccessToken(projectId string, name string,
 	return &entryToken, nil
 }
 
+func (i *inMemoryClient) CreateServiceAccountPersonalAccessToken(path string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.serviceAccountPersonalAccessTokenCreateError {
+		return nil, fmt.Errorf("CreateServiceAccountPersonalAccessToken")
+	}
+	i.internalCounter++
+
+	var tokenId = i.internalCounter
+	var entryToken = gitlab.EntryToken{
+		TokenID:     tokenId,
+		UserID:      userId,
+		ParentID:    groupId,
+		Path:        path,
+		Name:        name,
+		Token:       "",
+		TokenType:   gitlab.TokenTypeServiceAccount,
+		CreatedAt:   g.Ptr(time.Now()),
+		ExpiresAt:   &expiresAt,
+		Scopes:      scopes,
+		AccessLevel: gitlab.AccessLevelUnknown,
+	}
+	i.accessTokens[fmt.Sprintf("%s_%v", gitlab.TokenTypeServiceAccount.String(), tokenId)] = entryToken
+	return &entryToken, nil
+}
+
 func (i *inMemoryClient) RevokePersonalAccessToken(tokenId int) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
@@ -265,6 +293,16 @@ func (i *inMemoryClient) RevokeGroupAccessToken(tokenId int, groupId string) err
 	return nil
 }
 
+func (i *inMemoryClient) RevokeServiceAccountPersonalAccessToken(tokenId int) error {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.serviceAccountPersonalAccessTokenRevokeError {
+		return fmt.Errorf("RevokeServiceAccountPersonalAccessToken")
+	}
+	delete(i.accessTokens, fmt.Sprintf("%s_%v", gitlab.TokenTypeServiceAccount.String(), tokenId))
+	return nil
+}
+
 func (i *inMemoryClient) GetUserIdByUsername(username string) (int, error) {
 	idx := slices.Index(i.users, username)
 	if idx == -1 {
@@ -272,6 +310,17 @@ func (i *inMemoryClient) GetUserIdByUsername(username string) (int, error) {
 		idx = slices.Index(i.users, username)
 	}
 	return idx, nil
+}
+
+func (i *inMemoryClient) GetRolePathParts(path string) (interface{}, interface{}, error) {
+	parts := strings.Split(path, "/")
+	if len(parts) != 2 {
+		return nil, 0, errors.New("Too many arguments for service account path - eg: 1234/my-service-account")
+	}
+	groupId := parts[0]
+	username := parts[1]
+
+	return groupId, username, nil
 }
 
 var _ gitlab.Client = new(inMemoryClient)
