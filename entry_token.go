@@ -35,6 +35,7 @@ func (e EntryToken) SecretResponse() (map[string]any, map[string]any) {
 		map[string]any{
 			"path":                 e.Path,
 			"name":                 e.Name,
+			"token":                e.Token,
 			"user_id":              e.UserID,
 			"parent_id":            e.ParentID,
 			"token_id":             e.TokenID,

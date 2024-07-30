@@ -230,7 +230,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	groupId, username, _ := client.GetRolePathParts("123/service-account-user")
 	serviceAccountId, err := client.GetUserIdByUsername(username.(string))
 	entryToken, err = client.CreateServiceAccountPersonalAccessToken(
-		"example/service-account-user",
+		"123/service-account-user",
 		groupId.(string),
 		serviceAccountId,
 		"name",
@@ -241,7 +241,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	require.NotNil(t, entryToken)
 	require.EqualValues(t, gitlab.TokenTypeServiceAccount, entryToken.TokenType)
 	require.NotEmpty(t, entryToken.Token)
-	require.NoError(t, client.RevokePersonalAccessToken(entryToken.TokenID))
+	require.NoError(t, client.RevokeServiceAccountPersonalAccessToken(entryToken.TokenID, entryToken.Token))
 }
 
 func TestGitlabClient_RotateCurrentToken(t *testing.T) {

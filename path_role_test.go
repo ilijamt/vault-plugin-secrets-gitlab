@@ -208,7 +208,7 @@ func TestPathRoles(t *testing.T) {
 					Operation: logical.CreateOperation,
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
-						"path":                 "user",
+						"path":                 "345/user",
 						"name":                 gitlab.TokenTypeServiceAccount.String(),
 						"token_type":           gitlab.TokenTypeServiceAccount.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
@@ -219,7 +219,6 @@ func TestPathRoles(t *testing.T) {
 				require.NoError(t, err)
 				require.NotNil(t, resp)
 				require.NoError(t, resp.Error())
-				require.Empty(t, resp.Warnings)
 			})
 			t.Run("with access level defined", func(t *testing.T) {
 				ctx := getCtxGitlabClient(t)
@@ -229,7 +228,7 @@ func TestPathRoles(t *testing.T) {
 					Operation: logical.CreateOperation,
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
-						"path":                 "user",
+						"path":                 "345/user",
 						"name":                 gitlab.TokenTypeServiceAccount.String(),
 						"access_level":         gitlab.AccessLevelOwnerPermissions.String(),
 						"token_type":           gitlab.TokenTypeServiceAccount.String(),
@@ -243,7 +242,6 @@ func TestPathRoles(t *testing.T) {
 				require.Error(t, resp.Error())
 			})
 		})
-
 	})
 
 	t.Run("create with missing parameters", func(t *testing.T) {

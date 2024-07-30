@@ -28,6 +28,7 @@ type Client interface {
 	CreateGroupAccessToken(groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
 	CreateProjectAccessToken(projectId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*EntryToken, error)
 	RevokePersonalAccessToken(tokenId int) error
+	RevokeServiceAccountPersonalAccessToken(tokenId int, tokenValue string) error
 	RevokeProjectAccessToken(tokenId int, projectId string) error
 	RevokeGroupAccessToken(tokenId int, groupId string) error
 	GetUserIdByUsername(username string) (int, error)
@@ -276,6 +277,29 @@ func (gc *gitlabClient) RevokePersonalAccessToken(tokenId int) (err error) {
 	resp, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(tokenId)
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("personal: %w", ErrAccessTokenNotFound)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (gc *gitlabClient) RevokeServiceAccountPersonalAccessToken(tokenId int, tokenValue string) (err error) {
+	defer func() {
+		gc.logger.Debug("Revoke personal access token", "tokenId", tokenId, "error", err)
+	}()
+
+	u := "personal_access_tokens/self"
+	req, err := gc.client.NewRequest(http.MethodDelete, u, nil, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("PRIVATE-TOKEN", tokenValue)
+
+	var resp *g.Response
+	resp, err = gc.client.Do(req, nil)
+	if resp != nil && resp.StatusCode == http.StatusNotFound {
+		return fmt.Errorf("service account personal: %w", ErrAccessTokenNotFound)
 	}
 	if err != nil {
 		return err

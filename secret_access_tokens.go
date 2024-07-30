@@ -78,6 +78,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 	var tokenTypeValue = req.Secret.InternalData["token_type"].(string)
 	var gitlabRevokesToken, _ = strconv.ParseBool(req.Secret.InternalData["gitlab_revokes_token"].(string))
 	var vaultRevokesToken = !gitlabRevokesToken
+	var tokenValue = req.Secret.InternalData["token"].(string)
 	tokenType, err = TokenTypeParse(tokenTypeValue)
 	if err != nil {
 		// shouldn't be possible to hit due to the guards in the creation of the roles
@@ -99,7 +100,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		case TokenTypeGroup:
 			err = client.RevokeGroupAccessToken(tokenId, parentId)
 		case TokenTypeServiceAccount:
-			err = client.RevokePersonalAccessToken(tokenId)
+			err = client.RevokeServiceAccountPersonalAccessToken(tokenId, tokenValue)
 		}
 
 		if err != nil && !errors.Is(err, ErrAccessTokenNotFound) {

@@ -293,7 +293,7 @@ func (i *inMemoryClient) RevokeGroupAccessToken(tokenId int, groupId string) err
 	return nil
 }
 
-func (i *inMemoryClient) RevokeServiceAccountPersonalAccessToken(tokenId int) error {
+func (i *inMemoryClient) RevokeServiceAccountPersonalAccessToken(tokenId int, tokenValue string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.serviceAccountPersonalAccessTokenRevokeError {
