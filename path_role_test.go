@@ -199,6 +199,51 @@ func TestPathRoles(t *testing.T) {
 			})
 		})
 
+		t.Run(gitlab.TokenTypeServiceAccount.String(), func(t *testing.T) {
+			t.Run("no access level defined", func(t *testing.T) {
+				ctx := getCtxGitlabClient(t)
+				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+				require.NoError(t, err)
+				resp, err := b.HandleRequest(ctx, &logical.Request{
+					Operation: logical.CreateOperation,
+					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+					Data: map[string]any{
+						"path":                 "user",
+						"name":                 gitlab.TokenTypeServiceAccount.String(),
+						"token_type":           gitlab.TokenTypeServiceAccount.String(),
+						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+						"scopes":               gitlab.ValidPersonalTokenScopes,
+						"gitlab_revokes_token": false,
+					},
+				})
+				require.NoError(t, err)
+				require.NotNil(t, resp)
+				require.NoError(t, resp.Error())
+				require.Empty(t, resp.Warnings)
+			})
+			t.Run("with access level defined", func(t *testing.T) {
+				ctx := getCtxGitlabClient(t)
+				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+				require.NoError(t, err)
+				resp, err := b.HandleRequest(ctx, &logical.Request{
+					Operation: logical.CreateOperation,
+					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+					Data: map[string]any{
+						"path":                 "user",
+						"name":                 gitlab.TokenTypeServiceAccount.String(),
+						"access_level":         gitlab.AccessLevelOwnerPermissions.String(),
+						"token_type":           gitlab.TokenTypeServiceAccount.String(),
+						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+						"scopes":               gitlab.ValidPersonalTokenScopes,
+						"gitlab_revokes_token": false,
+					},
+				})
+				require.Error(t, err)
+				require.NotNil(t, resp)
+				require.Error(t, resp.Error())
+			})
+		})
+
 	})
 
 	t.Run("create with missing parameters", func(t *testing.T) {
@@ -340,6 +385,49 @@ func TestPathRoles(t *testing.T) {
 					"access_level": gitlab.AccessLevelOwnerPermissions.String(),
 					"token_type":   gitlab.TokenTypeGroup.String(),
 					"scopes":       gitlab.ValidPersonalTokenScopes,
+				},
+			})
+			require.Error(t, err)
+			require.NotNil(t, resp)
+			var errorMap = countErrByName(err.(*multierror.Error))
+			assert.EqualValues(t, 1, errorMap[gitlab.ErrFieldInvalidValue.Error()])
+		})
+	})
+
+	t.Run("Service Account Personal token scopes", func(t *testing.T) {
+		t.Run("valid scopes", func(t *testing.T) {
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+			require.NoError(t, err)
+			resp, err := b.HandleRequest(ctx, &logical.Request{
+				Operation: logical.CreateOperation,
+				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+				Data: map[string]any{
+					"path":       "user",
+					"name":       "Example service account user personal token",
+					"ttl":        "48h",
+					"token_type": gitlab.TokenTypeServiceAccount.String(),
+					"scopes":     gitlab.ValidPersonalTokenScopes,
+				},
+			})
+			require.NoError(t, err)
+			require.NotNil(t, resp)
+		})
+
+		t.Run("invalid scopes", func(t *testing.T) {
+			ctx := getCtxGitlabClient(t)
+			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+			require.NoError(t, err)
+			resp, err := b.HandleRequest(ctx, &logical.Request{
+				Operation: logical.CreateOperation,
+				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+				Data: map[string]any{
+					"path":       "user",
+					"name":       "Example service account user personal token",
+					"token_type": gitlab.TokenTypeServiceAccount.String(),
+					"scopes": []string{
+						"invalid_scope",
+					},
 				},
 			})
 			require.Error(t, err)

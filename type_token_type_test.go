@@ -26,6 +26,10 @@ func TestTokenType(t *testing.T) {
 			input:    gitlab.TokenTypeProject.String(),
 		},
 		{
+			expected: gitlab.TokenTypeServiceAccount,
+			input:    gitlab.TokenTypeServiceAccount.String(),
+		},
+		{
 			expected: gitlab.TokenTypeUnknown,
 			input:    "unknown",
 			err:      true,
