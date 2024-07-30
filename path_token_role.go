@@ -98,6 +98,9 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	case TokenTypeServiceAccount:
 		var userId int
 		groupId, username, err := client.GetRolePathParts(role.Path)
+		if err != nil {
+			return nil, err
+		}
 		userId, err = client.GetUserIdByUsername(username.(string))
 		if err != nil {
 			return nil, err
