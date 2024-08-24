@@ -63,6 +63,38 @@ The current authentication model requires providing Vault with a Gitlab Token.
 |      token_type      |   yes    |      n/a      |    no     | Access token type                                                                                                    |
 | gitlab_revokes_token |    no    |      no       |    no     | Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires                      |
 
+#### name
+
+When generating a token, you have control over the token's name by using templating. The name is constructed using Go's [text/template](https://pkg.go.dev/text/template), which allows for dynamic generation of names based on available data. You can refer to Go's [text/template](https://pkg.go.dev/text/template#hdr-Examples) documentation for examples and guidance on how to use it effectively.
+
+**Important**: GitLab does not permit duplicate token names. If your template doesn't ensure unique names, token generation will fail.
+
+Here are some examples of effective token name templates:
+
+* `vault-generated-{{ .token_type }}-access-token-{{ randHexString 4 }}`
+* `{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}`
+
+##### Data
+
+The following data points can be used within your token name template. These are derived from the role for which the token is being generated:
+
+* path
+* ttl
+* access_level
+* scopes
+* token_type
+* gitlab_revokes_token
+* unix_timestamp_utc
+
+##### Functions
+
+You can also use the following functions within your template:
+
+* `randHexString(bytes int) string` - Generates a random hexadecimal string with the specified number of bytes.
+* `stringsJoin((elems []string, sep string) string` - joins a list of `elems` strings with a `sep`
+* `yesNoBool(in bool) string` - just return `yes` if `in` is true otherwise it returns `no`
+* `timeNowFormat(layout string) string` - layout is a go time format string layout
+
 #### ttl
 
 Depending on `gitlab_revokes_token` the TTL will change.

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 )
 
-type entryRole struct {
+type EntryRole struct {
 	RoleName            string        `json:"role_name" structs:"role_name" mapstructure:"role_name"`
 	TTL                 time.Duration `json:"ttl" structs:"ttl" mapstructure:"ttl"`
 	Path                string        `json:"path" structs:"path" mapstructure:"path"`
@@ -19,7 +19,7 @@ type entryRole struct {
 	GitlabRevokesTokens bool          `json:"gitlab_revokes_token" structs:"gitlab_revokes_token" mapstructure:"gitlab_revokes_token"`
 }
 
-func (e entryRole) LogicalResponseData() map[string]any {
+func (e EntryRole) LogicalResponseData() map[string]any {
 	return map[string]any{
 		"role_name":            e.RoleName,
 		"path":                 e.Path,
@@ -32,7 +32,7 @@ func (e entryRole) LogicalResponseData() map[string]any {
 	}
 }
 
-func getRole(ctx context.Context, name string, s logical.Storage) (*entryRole, error) {
+func getRole(ctx context.Context, name string, s logical.Storage) (*EntryRole, error) {
 	entry, err := s.Get(ctx, fmt.Sprintf("%s/%s", PathRoleStorage, name))
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func getRole(ctx context.Context, name string, s logical.Storage) (*entryRole, e
 		return nil, nil
 	}
 
-	role := new(entryRole)
+	role := new(EntryRole)
 	if err := entry.DecodeJSON(role); err != nil {
 		return nil, err
 	}

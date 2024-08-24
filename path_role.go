@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -213,7 +214,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	tokenType, _ = TokenTypeParse(data.Get("token_type").(string))
 	accessLevel, _ = AccessLevelParse(data.Get("access_level").(string))
 
-	var role = entryRole{
+	var role = EntryRole{
 		RoleName:            roleName,
 		TTL:                 time.Duration(data.Get("ttl").(int)) * time.Second,
 		Path:                data.Get("path").(string),
@@ -222,6 +223,11 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		AccessLevel:         accessLevel,
 		TokenType:           tokenType,
 		GitlabRevokesTokens: data.Get("gitlab_revokes_token").(bool),
+	}
+
+	// validate name of the entry role
+	if _, e := template.New("name").Funcs(tplFuncMap).Parse(role.Name); e != nil {
+		err = multierror.Append(err, fmt.Errorf("invalid template %s for name: %w", role.Name, e))
 	}
 
 	// validate token type

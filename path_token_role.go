@@ -2,7 +2,6 @@ package gitlab
 
 import (
 	"context"
-	"crypto/rand"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -34,7 +33,7 @@ var (
 func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var resp *logical.Response
 	var err error
-	var role *entryRole
+	var role *EntryRole
 	var roleName string
 
 	if roleName = data.Get("role_name").(string); roleName == "" {
@@ -56,12 +55,15 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	b.Logger().Debug("Creating token for role", "role_name", roleName, "token_type", role.TokenType.String())
 	defer b.Logger().Debug("Created token for role", "role_name", roleName, "token_type", role.TokenType.String())
 
-	buf := make([]byte, 4)
-	_, _ = rand.Read(buf)
+	var name string
 	var token *EntryToken
-	var name = strings.ToLower(fmt.Sprintf("vault-generated-%s-access-token-%x", role.TokenType.String(), buf))
 	var expiresAt time.Time
 	var startTime = time.Now().UTC()
+
+	name, err = TokenName(role)
+	if err != nil {
+		return nil, fmt.Errorf("error generating token name: %w", err)
+	}
 
 	var client Client
 	var gitlabRevokesTokens = role.GitlabRevokesTokens
