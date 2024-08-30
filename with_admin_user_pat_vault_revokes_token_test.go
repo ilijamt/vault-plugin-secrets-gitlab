@@ -31,6 +31,7 @@ func TestWithAdminUser_PAT_AdminUser_VaultRevokesToken(t *testing.T) {
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
+			"type":               gitlab.TypeSelfManaged.String(),
 		},
 	})
 

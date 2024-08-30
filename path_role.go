@@ -1,9 +1,11 @@
 package gitlab
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"text/template"
 	"time"
@@ -12,11 +14,11 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
-	"golang.org/x/exp/slices"
 )
 
 const (
-	PathRoleStorage = "roles"
+	PathRoleStorage   = "roles"
+	TypeConfigDefault = "default"
 )
 
 var (
@@ -87,6 +89,15 @@ var (
 			Description: `Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires.`,
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Gitlab revokes token.",
+			},
+		},
+		"config": {
+			Type:        framework.TypeString,
+			Default:     TypeConfigDefault,
+			Required:    false,
+			Description: "The config we use when interacting with the role, this can be specified if you want to use a specific config for the role, otherwise it uses the default one.",
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Configuration.",
 			},
 		},
 	}
@@ -199,6 +210,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	var warnings []string
 	var tokenType TokenType
 	var accessLevel AccessLevel
+	var configValue string
 
 	b.lockClientMutex.RLock()
 	defer b.lockClientMutex.RUnlock()
@@ -213,6 +225,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	tokenType, _ = TokenTypeParse(data.Get("token_type").(string))
 	accessLevel, _ = AccessLevelParse(data.Get("access_level").(string))
+	configValue = cmp.Or(data.Get("config").(string), TypeConfigDefault)
 
 	var role = EntryRole{
 		RoleName:            roleName,
@@ -223,6 +236,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		AccessLevel:         accessLevel,
 		TokenType:           tokenType,
 		GitlabRevokesTokens: data.Get("gitlab_revokes_token").(bool),
+		Config:              configValue,
 	}
 
 	// validate name of the entry role
@@ -235,8 +249,13 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		err = multierror.Append(err, fmt.Errorf("token_type='%s', should be one of %v: %w", data.Get("token_type").(string), validTokenTypes, ErrFieldInvalidValue))
 	}
 
+	var skipFields = []string{"config"}
+
 	// check if all required fields are set
 	for name, field := range fieldSchemaRoles {
+		if slices.Contains(skipFields, name) {
+			continue
+		}
 		val, ok, _ := data.GetOkErr(name)
 		if (tokenType == TokenTypePersonal && name == "access_level") ||
 			name == "gitlab_revokes_token" {
@@ -270,6 +289,10 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		validAccessLevels = ValidGroupAccessLevels
 	case TokenTypeProject:
 		validAccessLevels = ValidProjectAccessLevels
+	case TokenTypeUserServiceAccount:
+		validAccessLevels = ValidUserServiceAccountAccessLevels
+	case TokenTypeGroupServiceAccount:
+		validAccessLevels = ValidGroupServiceAccountAccessLevels
 	}
 
 	if !slices.Contains(validAccessLevels, accessLevel.String()) {
@@ -279,8 +302,14 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	// validate scopes
 	var invalidScopes []string
 	var validScopes = validTokenScopes
-	if tokenType == TokenTypePersonal {
+	if tokenType == TokenTypePersonal || tokenType == TokenTypeUserServiceAccount || tokenType == TokenTypeGroupServiceAccount {
 		validScopes = append(validScopes, ValidPersonalTokenScopes...)
+	}
+	if tokenType == TokenTypeUserServiceAccount {
+		validScopes = append(validScopes, ValidUserServiceAccountTokenScopes...)
+	}
+	if tokenType == TokenTypeGroupServiceAccount {
+		validScopes = append(validScopes, ValidGroupServiceAccountTokenScopes...)
 	}
 	for _, scope := range role.Scopes {
 		if !slices.Contains(validScopes, scope) {

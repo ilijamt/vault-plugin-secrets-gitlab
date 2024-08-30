@@ -19,6 +19,7 @@ type EntryConfig struct {
 	TokenCreatedAt   time.Time     `json:"token_created_at" structs:"token_created_at" mapstructure:"token_created_at"`
 	TokenExpiresAt   time.Time     `json:"token_expires_at" structs:"token_expires_at" mapstructure:"token_expires_at"`
 	Scopes           []string      `json:"scopes" structs:"scopes" mapstructure:"scopes"`
+	Type             Type          `json:"type" structs:"type" mapstructure:"type"`
 }
 
 func (e EntryConfig) Response() *logical.Response {
@@ -52,6 +53,7 @@ func (e EntryConfig) LogicalResponseData() map[string]any {
 		"token_expires_at":   tokenExpiresAt,
 		"token_sha1_hash":    fmt.Sprintf("%x", sha1.Sum([]byte(e.Token))),
 		"scopes":             strings.Join(e.Scopes, ", "),
+		"type":               e.Type.String(),
 	}
 }
 

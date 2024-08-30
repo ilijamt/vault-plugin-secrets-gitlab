@@ -123,12 +123,15 @@ type inMemoryClient struct {
 	muLock          sync.Mutex
 	valid           bool
 
-	personalAccessTokenRevokeError bool
-	groupAccessTokenRevokeError    bool
-	projectAccessTokenRevokeError  bool
-	personalAccessTokenCreateError bool
-	groupAccessTokenCreateError    bool
-	projectAccessTokenCreateError  bool
+	personalAccessTokenRevokeError                    bool
+	groupAccessTokenRevokeError                       bool
+	projectAccessTokenRevokeError                     bool
+	personalAccessTokenCreateError                    bool
+	groupAccessTokenCreateError                       bool
+	projectAccessTokenCreateError                     bool
+	revokeUserServiceAccountPersonalAccessTokenError  bool
+	revokeGroupServiceAccountPersonalAccessTokenError bool
+	createUserServiceAccountAccessTokenError          bool
 
 	calledMainToken       int
 	calledRotateMainToken int
@@ -138,6 +141,36 @@ type inMemoryClient struct {
 	rotateMainToken gitlab.EntryToken
 
 	accessTokens map[string]gitlab.EntryToken
+}
+
+func (i *inMemoryClient) CreateUserServiceAccountAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
+	i.muLock.Lock()
+	if i.createUserServiceAccountAccessTokenError {
+		i.muLock.Unlock()
+		return nil, fmt.Errorf("CreateUserServiceAccountAccessToken")
+	}
+	i.muLock.Unlock()
+	return i.CreatePersonalAccessToken(username, userId, name, expiresAt, scopes)
+}
+
+func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(token string) error {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.revokeUserServiceAccountPersonalAccessTokenError {
+		return errors.New("RevokeServiceAccountPersonalAccessToken")
+	}
+	delete(i.accessTokens, fmt.Sprintf("%s_%v", gitlab.TokenTypeUserServiceAccount.String(), token))
+	return nil
+}
+
+func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(token string) error {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.revokeGroupServiceAccountPersonalAccessTokenError {
+		return errors.New("RevokeServiceAccountPersonalAccessToken")
+	}
+	delete(i.accessTokens, fmt.Sprintf("%s_%v", gitlab.TokenTypeGroupServiceAccount.String(), token))
+	return nil
 }
 
 func (i *inMemoryClient) CurrentTokenInfo() (*gitlab.EntryToken, error) {

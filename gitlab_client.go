@@ -30,12 +30,53 @@ type Client interface {
 	RevokeProjectAccessToken(tokenId int, projectId string) error
 	RevokeGroupAccessToken(tokenId int, groupId string) error
 	GetUserIdByUsername(username string) (int, error)
+
+	CreateUserServiceAccountAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
+	RevokeUserServiceAccountAccessToken(token string) error
+	RevokeGroupServiceAccountAccessToken(token string) error
 }
 
 type gitlabClient struct {
-	client *g.Client
-	config *EntryConfig
-	logger hclog.Logger
+	client     *g.Client
+	httpClient *http.Client
+	config     *EntryConfig
+	logger     hclog.Logger
+}
+
+func (gc *gitlabClient) CreateUserServiceAccountAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error) {
+	return gc.CreatePersonalAccessToken(username, userId, name, expiresAt, scopes)
+}
+
+func (gc *gitlabClient) RevokeUserServiceAccountAccessToken(token string) (err error) {
+	defer func() { gc.logger.Debug("Revoke user service account token", "token", token, "error", err) }()
+	if token == "" {
+		err = fmt.Errorf("%w: empty token", ErrNilValue)
+		return err
+	}
+
+	var c *g.Client
+	if c, err = newGitlabClient(gc.config, gc.httpClient); err != nil {
+		return err
+	}
+
+	_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
+	return err
+}
+
+func (gc *gitlabClient) RevokeGroupServiceAccountAccessToken(token string) (err error) {
+	defer func() { gc.logger.Debug("Revoke group service account token", "token", token, "error", err) }()
+	if token == "" {
+		err = fmt.Errorf("%w: empty token", ErrNilValue)
+		return err
+	}
+
+	var c *g.Client
+	if c, err = newGitlabClient(gc.config, gc.httpClient); err != nil {
+		return err
+	}
+
+	_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
+	return err
 }
 
 func (gc *gitlabClient) CurrentTokenInfo() (et *EntryToken, err error) {
@@ -277,15 +318,7 @@ func (gc *gitlabClient) Valid() bool {
 
 var _ Client = new(gitlabClient)
 
-func NewGitlabClient(config *EntryConfig, httpClient *http.Client, logger hclog.Logger) (client Client, err error) {
-	if config == nil {
-		return nil, fmt.Errorf("configure the backend first, config: %w", ErrNilValue)
-	}
-
-	if logger == nil {
-		logger = logging.NewVaultLoggerWithWriter(io.Discard, hclog.NoLevel)
-	}
-
+func newGitlabClient(config *EntryConfig, httpClient *http.Client) (gc *g.Client, err error) {
 	if "" == strings.TrimSpace(config.BaseURL) {
 		err = errors.Join(err, fmt.Errorf("gitlab base url: %w", ErrInvalidValue))
 	}
@@ -307,8 +340,22 @@ func NewGitlabClient(config *EntryConfig, httpClient *http.Client, logger hclog.
 		opts = append(opts, g.WithHTTPClient(httpClient))
 	}
 
-	var gc *g.Client
-	gc, err = g.NewClient(config.Token, opts...)
+	return g.NewClient(config.Token, opts...)
+}
 
-	return &gitlabClient{client: gc, config: config, logger: logger}, err
+func NewGitlabClient(config *EntryConfig, httpClient *http.Client, logger hclog.Logger) (client Client, err error) {
+	if config == nil {
+		return nil, fmt.Errorf("configure the backend first, config: %w", ErrNilValue)
+	}
+
+	if logger == nil {
+		logger = logging.NewVaultLoggerWithWriter(io.Discard, hclog.NoLevel)
+	}
+
+	var gc *g.Client
+	if gc, err = newGitlabClient(config, httpClient); err != nil {
+		return nil, err
+	}
+
+	return &gitlabClient{client: gc, config: config, logger: logger, httpClient: httpClient}, err
 }

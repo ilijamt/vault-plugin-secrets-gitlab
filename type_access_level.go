@@ -3,9 +3,9 @@ package gitlab
 import (
 	"errors"
 	"fmt"
+	"slices"
 
 	"github.com/xanzy/go-gitlab"
-	"golang.org/x/exp/slices"
 )
 
 type AccessLevel string
@@ -34,8 +34,13 @@ var (
 		AccessLevelMaintainerPermissions.String(),
 		AccessLevelOwnerPermissions.String(),
 	}
-
 	ValidPersonalAccessLevels = []string{
+		AccessLevelUnknown.String(),
+	}
+	ValidUserServiceAccountAccessLevels = []string{
+		AccessLevelUnknown.String(),
+	}
+	ValidGroupServiceAccountAccessLevels = []string{
 		AccessLevelUnknown.String(),
 	}
 	ValidProjectAccessLevels = []string{

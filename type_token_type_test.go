@@ -3,8 +3,9 @@ package gitlab_test
 import (
 	"testing"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/stretchr/testify/assert"
+
+	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
 
 func TestTokenType(t *testing.T) {
@@ -24,6 +25,14 @@ func TestTokenType(t *testing.T) {
 		{
 			expected: gitlab.TokenTypeProject,
 			input:    gitlab.TokenTypeProject.String(),
+		},
+		{
+			expected: gitlab.TokenTypeUserServiceAccount,
+			input:    gitlab.TokenTypeUserServiceAccount.String(),
+		},
+		{
+			expected: gitlab.TokenTypeGroupServiceAccount,
+			input:    gitlab.TokenTypeGroupServiceAccount.String(),
 		},
 		{
 			expected: gitlab.TokenTypeUnknown,

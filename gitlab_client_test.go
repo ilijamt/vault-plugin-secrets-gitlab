@@ -41,6 +41,17 @@ func TestGitlabClient(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, client)
 	})
+
+	t.Run("revoke service account token with empty token", func(t *testing.T) {
+		var client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
+			Token:   "token",
+			BaseURL: "https://example.com",
+		}, &http.Client{}, nil)
+		require.NoError(t, err)
+		require.NotNil(t, client)
+		require.ErrorIs(t, client.RevokeGroupServiceAccountAccessToken(""), gitlab.ErrNilValue)
+		require.ErrorIs(t, client.RevokeUserServiceAccountAccessToken(""), gitlab.ErrNilValue)
+	})
 }
 
 func TestGitlabClient_InvalidToken(t *testing.T) {
