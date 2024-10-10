@@ -119,11 +119,10 @@ func (gc *gitlabClient) RevokeUserServiceAccountAccessToken(token string) (err e
 	if c, err = newGitlabClient(&EntryConfig{
 		BaseURL: gc.config.BaseURL,
 		Token:   token,
-	}, gc.httpClient); err != nil {
-		return err
+	}, gc.httpClient); err == nil {
+		_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
 	}
 
-	_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
 	return err
 }
 
@@ -138,11 +137,10 @@ func (gc *gitlabClient) RevokeGroupServiceAccountAccessToken(token string) (err 
 	if c, err = newGitlabClient(&EntryConfig{
 		BaseURL: gc.config.BaseURL,
 		Token:   token,
-	}, gc.httpClient); err != nil {
-		return err
+	}, gc.httpClient); err == nil {
+		_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
 	}
 
-	_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
 	return err
 }
 
