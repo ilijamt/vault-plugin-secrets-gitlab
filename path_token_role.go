@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	pathTokenRolesHelpSyn  = ``
-	pathTokenRolesHelpDesc = ``
+	pathTokenRolesHelpSyn  = `Generate an access token based on the specified role`
+	pathTokenRolesHelpDesc = `This path allows you to generate an access token based on a predefined role. You must create a role beforehand in /roles/ path,
+whose parameters are used to generate an access token based on a predefined role.`
 
 	PathTokenRoleStorage = "token"
 )
