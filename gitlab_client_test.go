@@ -114,6 +114,23 @@ func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
 	require.ErrorIs(t, client.RevokeProjectAccessToken(999, "project"), gitlab.ErrAccessTokenNotFound)
 }
 
+func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
+	var err error
+	httpClient, url := getClient(t)
+	var client gitlab.Client
+	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
+		Token:   "glpat-secret-random-token",
+		BaseURL: url,
+	}, httpClient, nil)
+	require.NoError(t, err)
+	require.NotNil(t, client)
+	require.True(t, client.Valid())
+
+	groupId, err := client.GetGroupIdByPath("test")
+	require.NoError(t, err)
+	require.EqualValues(t, 39, groupId)
+}
+
 func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
 	var err error
 	httpClient, url := getClient(t)

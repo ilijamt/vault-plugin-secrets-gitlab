@@ -67,6 +67,10 @@ The current authentication model requires providing Vault with a Gitlab Token.
 | gitlab_revokes_token |    no    |      no       |    no     | Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires                      |
 |        config        |    no    |    default    |    no     | The configuration to use for the role                                                                                |
 
+#### path
+
+If `token_type` is `group-service-account` then the format of the path is `{groupId}/{serviceAccountName}` example `265/service_account_65c74d39b4f71fc3fdc72330fce28c28`.
+
 #### name
 
 When generating a token, you have control over the token's name by using templating. The name is constructed using Go's [text/template](https://pkg.go.dev/text/template), which allows for dynamic generation of names based on available data. You can refer to Go's [text/template](https://pkg.go.dev/text/template#hdr-Examples) documentation for examples and guidance on how to use it effectively.
@@ -163,7 +167,7 @@ If you use Vault to manage the tokens the minimal TTL you can use is `1h`, by se
 The command bellow will set up the config backend with a max TTL of 48h.
 
 ```shell
-$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token auto_rotate_token=false auto_rotate_before=48h
+$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token auto_rotate_token=false auto_rotate_before=48h type=self-managed
 $ vault read gitlab/config
 Key                   Value
 ---                   -----
@@ -173,6 +177,7 @@ base_url              https://gitlab.example.com
 token_id              107
 token_expires_at      2025-03-29T00:00:00Z
 token_sha1_hash       1014647cd9bbf359d926fcacdf78e184db9dbedc
+type                  self-managed
 ```
 
 You may also need to configure the Max/Default TTL for a token that can be issued by setting:
@@ -195,77 +200,11 @@ with the correct expiry date and the corresponding `token_id`.
 This will create multiple roles
 
 ```shell
-$ vault write gitlab/roles/personal name=personal-token-name path=username scopes="read_api" token_type=personal ttl=48h type=self-managed
-$ vault write gitlab/roles/project name=project-token-name path=group/project scopes="read_api" access_level=guest token_type=project ttl=48h type=self-managed
-$ vault write gitlab/roles/group name=group-token-name path=group/subgroup scopes="read_api" access_level=developer token_type=group ttl=48h type=self-managed
-$ vault write gitlab/roles/sa name=sa-name path=service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=user-service-account token_ttl=24h type=self-managed
-$ vault write gitlab/roles/ga name=sa-name path=service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=group-service-account token_ttl=24h type=self-managed
-```
-
-### Get access tokens
-
-#### Personal
-
-```shell
-$ vault read gitlab/token/personal
-Key                Value
----                -----
-lease_id           gitlab/token/personal/0FrzLFkRKaUNZSfa6WfFqjWK
-lease_duration     20h1m37s
-lease_renewable    false
-access_level       n/a
-created_at         2023-08-31T03:58:23.069Z
-expires_at         2023-09-01T00:00:00Z
-name               vault-generated-personal-access-token-227cb38b
-path               username
-scopes             [read_api]
-token              7mbpSExz7ruyw1QgTjL-
-config             default
-
-$ vault lease revoke gitlab/token/personal/0FrzLFkRKaUNZSfa6WfFqjWK
-All revocation operations queued successfully!
-```
-
-#### Group
-
-```shell
-$ vault read gitlab/token/group
-Key                Value
----                -----
-lease_id           gitlab/token/group/LqmL1MtuIlJ43N8q2L975jm8
-lease_duration     20h14s
-lease_renewable    false
-access_level       developer
-created_at         2023-08-31T03:59:46.043Z
-expires_at         2023-09-01T00:00:00Z
-name               vault-generated-group-access-token-913ab1f9
-path               group/subgroup
-scopes             [read_api]
-token              rSYv4zwgP-2uaFEAsZyd
-
-$ vault lease revoke gitlab/token/group/LqmL1MtuIlJ43N8q2L975jm8
-All revocation operations queued successfully!
-```
-
-#### Project
-
-```shell
-$ vault read gitlab/token/project
-Key                Value
----                -----
-lease_id           gitlab/token/project/ZMSOrOHiP77l5kjWXq3zizPA
-lease_duration     19h59m6s
-lease_renewable    false
-access_level       guest
-created_at         2023-08-31T04:00:53.613Z
-expires_at         2023-09-01T00:00:00Z
-name               vault-generated-project-access-token-842113a6
-path               group/project
-scopes             [read_api]
-token              YfRu42VaGGrxshKKwtma
-
-$ vault lease revoke gitlab/token/project/ZMSOrOHiP77l5kjWXq3zizPA
-All revocation operations queued successfully!
+$ vault write gitlab/roles/personal name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=username scopes="read_api" token_type=personal ttl=48h
+$ vault write gitlab/roles/project name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=group/project scopes="read_api" access_level=guest token_type=project ttl=48h
+$ vault write gitlab/roles/group name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=group/subgroup scopes="read_api" access_level=developer token_type=group ttl=48h
+$ vault write gitlab/roles/sa name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=user-service-account ttl=24h
+$ vault write gitlab/roles/ga name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=345/service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=group-service-account ttl=24h
 ```
 
 #### User service accounts
@@ -275,36 +214,25 @@ The service account users from Gitlab 16.1 are for all purposes users that don't
 ```shell
 $ curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab/api/v4/service_accounts" | jq .
 {
-  "id": 2017,
-  "username": "service_account_00b069cb73a15d0a7ba8cd67a653599c",
-  "name": "Service account user",
-  "state": "active",
-  "avatar_url": "https://secure.gravatar.com/avatar/6faa2758127182d391be18b4c1e36630?s=80&d=identicon",
-  "web_url": "https://gitlab/service_account_00b069cb73a15d0a7ba8cd67a653599c"
+  "id": 63,
+  "username": "service_account_964b157dcff9bcd87dc7c0837f9c47e9",
+  "name": "Service account user"
 }
 ```
 
-In this case you would create a role like
+#### Group service accounts
+
+The service account users from Gitlab 16.1 are for all purposes users that don't use seats. More information can be found on https://docs.gitlab.com/ee/api/group_service_accounts.html#create-a-service-account-user.
 
 ```shell
-$ vault read gitlab/token/sa
-vault read gitlab/token/sa
+$ curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab/api/v4/groups/345/service_accounts" | jq .
+{
+  "id": 61,
+  "username": "service_account_group_345_c468757e6df2fc104de54ea470539bb5",
+  "name": "Service account user"
+}
 
-Key                Value
----                -----
-lease_id           gitlab/token/sa/oFI2vpUdvykvMgNum6pZReYZ
-lease_duration     20h1m37s
-lease_renewable    false
-access_level       n/a
-created_at         2023-08-31T03:58:23.069Z
-expires_at         2023-09-01T00:00:00Z
-name               vault-generated-personal-access-token-f6417198
-path               service_account_00b069cb73a15d0a7ba8cd67a653599c
-scopes             [api read_api read_repository read_registry]
-token              -senkScjDo-SoGwST9PP
 ```
-
-#### Group service accounts
 
 ### Revoke all created tokens by this plugin
 ```shell
@@ -361,4 +289,4 @@ $ vault secrets list -detailed -format=json | jq '."gitlab/"'
 ```
 ## Info
 
-Running the logging with `debug` level will shows sensitive information in the logs.
+Running the logging with `debug` level will show sensitive information in the logs.

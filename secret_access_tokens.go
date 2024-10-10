@@ -78,11 +78,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 	var tokenTypeValue = req.Secret.InternalData["token_type"].(string)
 	var gitlabRevokesToken, _ = strconv.ParseBool(req.Secret.InternalData["gitlab_revokes_token"].(string))
 	var vaultRevokesToken = !gitlabRevokesToken
-	tokenType, err = TokenTypeParse(tokenTypeValue)
-	if err != nil {
-		// shouldn't be possible to hit due to the guards in the creation of the roles
-		return nil, fmt.Errorf("%s: %w", tokenTypeValue, ErrUnknownTokenType)
-	}
+	tokenType, _ = TokenTypeParse(tokenTypeValue)
 
 	if vaultRevokesToken {
 		var client Client

@@ -251,6 +251,24 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	var skipFields = []string{"config"}
 
+	// validate access level
+	var validAccessLevels []string
+	switch tokenType {
+	case TokenTypePersonal:
+		validAccessLevels = ValidPersonalAccessLevels
+		skipFields = append(skipFields, "access_level")
+	case TokenTypeGroup:
+		validAccessLevels = ValidGroupAccessLevels
+	case TokenTypeProject:
+		validAccessLevels = ValidProjectAccessLevels
+	case TokenTypeUserServiceAccount:
+		validAccessLevels = ValidUserServiceAccountAccessLevels
+		skipFields = append(skipFields, "access_level")
+	case TokenTypeGroupServiceAccount:
+		validAccessLevels = ValidGroupServiceAccountAccessLevels
+		skipFields = append(skipFields, "access_level")
+	}
+
 	// check if all required fields are set
 	for name, field := range fieldSchemaRoles {
 		if slices.Contains(skipFields, name) {
@@ -280,21 +298,6 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl >= 1h]: %w", role.TTL, ErrInvalidValue))
 	}
 
-	// validate access level
-	var validAccessLevels []string
-	switch tokenType {
-	case TokenTypePersonal:
-		validAccessLevels = ValidPersonalAccessLevels
-	case TokenTypeGroup:
-		validAccessLevels = ValidGroupAccessLevels
-	case TokenTypeProject:
-		validAccessLevels = ValidProjectAccessLevels
-	case TokenTypeUserServiceAccount:
-		validAccessLevels = ValidUserServiceAccountAccessLevels
-	case TokenTypeGroupServiceAccount:
-		validAccessLevels = ValidGroupServiceAccountAccessLevels
-	}
-
 	if !slices.Contains(validAccessLevels, accessLevel.String()) {
 		err = multierror.Append(err, fmt.Errorf("access_level='%s', should be one of %v: %w", data.Get("access_level").(string), validAccessLevels, ErrFieldInvalidValue))
 	}
@@ -319,6 +322,10 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	if len(invalidScopes) > 0 {
 		err = multierror.Append(err, fmt.Errorf("scopes='%v', should be one or more of '%v': %w", invalidScopes, validScopes, ErrFieldInvalidValue))
+	}
+
+	if tokenType == TokenTypeUserServiceAccount && (config.Type == TypeSaaS || config.Type == TypeDedicated) {
+		err = multierror.Append(err, fmt.Errorf("cannot create %s with %s: %w", tokenType, config.Type, ErrInvalidValue))
 	}
 
 	if err != nil {

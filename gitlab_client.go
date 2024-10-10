@@ -20,6 +20,7 @@ var (
 )
 
 type Client interface {
+	GitlabClient() *g.Client
 	Valid() bool
 	CurrentTokenInfo() (*EntryToken, error)
 	RotateCurrentToken() (newToken *EntryToken, oldToken *EntryToken, err error)
@@ -30,7 +31,8 @@ type Client interface {
 	RevokeProjectAccessToken(tokenId int, projectId string) error
 	RevokeGroupAccessToken(tokenId int, groupId string) error
 	GetUserIdByUsername(username string) (int, error)
-
+	GetGroupIdByPath(path string) (int, error)
+	CreateGroupServiceAccountAccessToken(group string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	CreateUserServiceAccountAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	RevokeUserServiceAccountAccessToken(token string) error
 	RevokeGroupServiceAccountAccessToken(token string) error
@@ -43,8 +45,67 @@ type gitlabClient struct {
 	logger     hclog.Logger
 }
 
-func (gc *gitlabClient) CreateUserServiceAccountAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error) {
-	return gc.CreatePersonalAccessToken(username, userId, name, expiresAt, scopes)
+func (gc *gitlabClient) GetGroupIdByPath(path string) (groupId int, err error) {
+	defer func() {
+		gc.logger.Debug("Get group id by path", "path", path, "groupId", groupId, "error", err)
+	}()
+
+	l := &g.ListGroupsOptions{
+		Search: g.Ptr(path),
+	}
+
+	g, _, err := gc.client.Groups.ListGroups(l)
+	if err != nil {
+		return 0, fmt.Errorf("%v", err)
+	}
+	if len(g) == 0 {
+		return 0, fmt.Errorf("path '%s' not found: %w", path, ErrInvalidValue)
+	}
+	groupId = g[0].ID
+	return groupId, nil
+
+}
+
+func (gc *gitlabClient) GitlabClient() *g.Client {
+	return gc.client
+}
+
+func (gc *gitlabClient) CreateGroupServiceAccountAccessToken(path string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (et *EntryToken, err error) {
+	var at *g.PersonalAccessToken
+	defer func() {
+		gc.logger.Debug("Created group service access token", "pat", at, "et", et, "path", path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
+	}()
+	at, _, err = gc.client.Groups.CreateServiceAccountPersonalAccessToken(groupId, userId, &g.CreateServiceAccountPersonalAccessTokenOptions{
+		Name:      g.Ptr(name),
+		ExpiresAt: (*g.ISOTime)(&expiresAt),
+		Scopes:    &scopes,
+	})
+	if err != nil {
+		return nil, err
+	}
+	et = &EntryToken{
+		TokenID:     at.ID,
+		UserID:      userId,
+		ParentID:    groupId,
+		Path:        path,
+		Name:        name,
+		Token:       at.Token,
+		TokenType:   TokenTypeGroupServiceAccount,
+		CreatedAt:   at.CreatedAt,
+		ExpiresAt:   (*time.Time)(at.ExpiresAt),
+		Scopes:      scopes,
+		AccessLevel: AccessLevelUnknown,
+	}
+	return et, nil
+}
+
+func (gc *gitlabClient) CreateUserServiceAccountAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (et *EntryToken, err error) {
+	defer func() {
+		gc.logger.Debug("Created user service access token", "et", et, "username", username, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
+	}()
+	et, err = gc.CreatePersonalAccessToken(username, userId, name, expiresAt, scopes)
+	et.TokenType = TokenTypeUserServiceAccount
+	return et, err
 }
 
 func (gc *gitlabClient) RevokeUserServiceAccountAccessToken(token string) (err error) {
@@ -55,7 +116,10 @@ func (gc *gitlabClient) RevokeUserServiceAccountAccessToken(token string) (err e
 	}
 
 	var c *g.Client
-	if c, err = newGitlabClient(gc.config, gc.httpClient); err != nil {
+	if c, err = newGitlabClient(&EntryConfig{
+		BaseURL: gc.config.BaseURL,
+		Token:   token,
+	}, gc.httpClient); err != nil {
 		return err
 	}
 
@@ -71,7 +135,10 @@ func (gc *gitlabClient) RevokeGroupServiceAccountAccessToken(token string) (err 
 	}
 
 	var c *g.Client
-	if c, err = newGitlabClient(gc.config, gc.httpClient); err != nil {
+	if c, err = newGitlabClient(&EntryConfig{
+		BaseURL: gc.config.BaseURL,
+		Token:   token,
+	}, gc.httpClient); err != nil {
 		return err
 	}
 

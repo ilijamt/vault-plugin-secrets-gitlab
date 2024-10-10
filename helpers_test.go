@@ -1,10 +1,12 @@
 package gitlab_test
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"slices"
 	"strings"
 	"sync"
@@ -20,6 +22,11 @@ import (
 	g "github.com/xanzy/go-gitlab"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+)
+
+var (
+	gitlabComPersonalAccessToken = cmp.Or(os.Getenv("GITLAB_COM_TOKEN"), "glpat-invalid-value")
+	gitlabComUrl                 = cmp.Or(os.Getenv("GITLAB_COM_URL"), "https://gitlab.com")
 )
 
 func countErrByName(err *multierror.Error) map[string]int {
@@ -120,6 +127,7 @@ func newInMemoryClient(valid bool) *inMemoryClient {
 type inMemoryClient struct {
 	internalCounter int
 	users           []string
+	groups          []string
 	muLock          sync.Mutex
 	valid           bool
 
@@ -132,6 +140,7 @@ type inMemoryClient struct {
 	revokeUserServiceAccountPersonalAccessTokenError  bool
 	revokeGroupServiceAccountPersonalAccessTokenError bool
 	createUserServiceAccountAccessTokenError          bool
+	createGroupServiceAccountAccessTokenError         bool
 
 	calledMainToken       int
 	calledRotateMainToken int
@@ -141,6 +150,28 @@ type inMemoryClient struct {
 	rotateMainToken gitlab.EntryToken
 
 	accessTokens map[string]gitlab.EntryToken
+}
+
+func (i *inMemoryClient) GetGroupIdByPath(path string) (int, error) {
+	idx := slices.Index(i.groups, path)
+	if idx == -1 {
+		i.users = append(i.groups, path)
+		idx = slices.Index(i.groups, path)
+	}
+	return idx, nil
+}
+
+func (i *inMemoryClient) GitlabClient() *g.Client {
+	return nil
+}
+
+func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(path string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.createGroupServiceAccountAccessTokenError {
+		return nil, fmt.Errorf("CreateGroupServiceAccountAccessToken")
+	}
+	return nil, nil
 }
 
 func (i *inMemoryClient) CreateUserServiceAccountAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
