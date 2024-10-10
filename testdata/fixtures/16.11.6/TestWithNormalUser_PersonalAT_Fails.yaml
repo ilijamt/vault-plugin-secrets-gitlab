@@ -18,7 +18,7 @@ interactions:
             Accept:
                 - application/json
             Private-Token:
-                - glpat-secret-normal-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/personal_access_tokens/self
@@ -32,7 +32,7 @@ interactions:
         trailer: {}
         content_length: -1
         uncompressed: true
-        body: '{"id":3,"name":"Initial token","revoked":false,"created_at":"2024-07-11T18:54:07.334Z","scopes":["api","read_api","read_user","create_runner","k8s_proxy","read_repository","write_repository","ai_features","read_service_ping"],"user_id":3,"last_used_at":"2024-07-11T20:49:51.954Z","active":true,"expires_at":"2025-07-11"}'
+        body: '{"id":3,"name":"Initial token","revoked":false,"created_at":"2024-07-11T18:54:07.334Z","scopes":["api","read_api","read_user","create_runner","k8s_proxy","read_repository","write_repository","ai_features","read_service_ping"],"user_id":3,"last_used_at":"2024-10-11T09:11:12.119Z","active":true,"expires_at":"2025-07-11"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -41,9 +41,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:34 GMT
+                - Fri, 11 Oct 2024 09:11:12 GMT
             Etag:
-                - W/"c4f64658ab2d539712d7c776f596a781"
+                - W/"763a880ea8d1c08ecaa89a99e3c63e7f"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -58,14 +58,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZRP4W5AST70VFW5N57ZE","version":"1"}'
+                - '{"correlation_id":"01J9XDH9ZG7J66B42VERDH8JTN","version":"1"}'
             X-Request-Id:
-                - 01J2HRZRP4W5AST70VFW5N57ZE
+                - 01J9XDH9ZG7J66B42VERDH8JTN
             X-Runtime:
-                - "0.009040"
+                - "0.010730"
         status: 200 OK
         code: 200
-        duration: 11.487625ms
+        duration: 13.127792ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -83,7 +83,7 @@ interactions:
             Accept:
                 - application/json
             Private-Token:
-                - glpat-secret-normal-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/users?username=normal-user
@@ -97,7 +97,7 @@ interactions:
         trailer: {}
         content_length: -1
         uncompressed: true
-        body: '[{"id":3,"username":"normal-user","name":"Normal User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/30ee3a8ed91c220db688a3bde115c203763b4281374c40835f69168786a590af?s=80\u0026d=identicon","web_url":"http://c4765a4b4564/normal-user"}]'
+        body: '[{"id":3,"username":"normal-user","name":"Normal User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/30ee3a8ed91c220db688a3bde115c203763b4281374c40835f69168786a590af?s=80\u0026d=identicon","web_url":"http://1b25ef517b98/normal-user"}]'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -106,11 +106,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:34 GMT
+                - Fri, 11 Oct 2024 09:11:12 GMT
             Etag:
-                - W/"4c4f9ce9f69c779f953d980638464ad4"
+                - W/"8e47761c8cfb2481e9983f2bd4b37cca"
             Link:
-                - <http://c4765a4b4564/api/v4/users?active=false&admins=false&blocked=false&exclude_external=false&exclude_internal=false&external=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://c4765a4b4564/api/v4/users?active=false&admins=false&blocked=false&exclude_external=false&exclude_internal=false&external=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
+                - <http://1b25ef517b98/api/v4/users?active=false&admins=false&blocked=false&exclude_external=false&exclude_internal=false&external=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://1b25ef517b98/api/v4/users?active=false&admins=false&blocked=false&exclude_external=false&exclude_internal=false&external=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -125,7 +125,7 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZRPX1YVKDNPPCF66REQV","version":"1"}'
+                - '{"correlation_id":"01J9XDHA0D8TTHGP5MSHBQ9M0G","version":"1"}'
             X-Next-Page:
                 - ""
             X-Page:
@@ -135,28 +135,28 @@ interactions:
             X-Prev-Page:
                 - ""
             X-Request-Id:
-                - 01J2HRZRPX1YVKDNPPCF66REQV
+                - 01J9XDHA0D8TTHGP5MSHBQ9M0G
             X-Runtime:
-                - "0.065889"
+                - "0.093108"
             X-Total:
                 - "1"
             X-Total-Pages:
                 - "1"
         status: 200 OK
         code: 200
-        duration: 68.002792ms
+        duration: 96.00225ms
     - id: 2
       request:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 105
+        content_length: 67
         transfer_encoding: []
         trailer: {}
         host: localhost:8080
         remote_addr: ""
         request_uri: ""
-        body: '{"name":"vault-generated-personal-access-token-6cb6e995","expires_at":"2024-07-17","scopes":["read_api"]}'
+        body: '{"name":"personal","expires_at":"2024-10-17","scopes":["read_api"]}'
         form: {}
         headers:
             Accept:
@@ -164,7 +164,7 @@ interactions:
             Content-Type:
                 - application/json
             Private-Token:
-                - glpat-secret-normal-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/users/3/personal_access_tokens
@@ -188,7 +188,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:34 GMT
+                - Fri, 11 Oct 2024 09:11:12 GMT
             Server:
                 - nginx
             Vary:
@@ -198,11 +198,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZRV7XD3G21H76PGTMM9M","version":"1"}'
+                - '{"correlation_id":"01J9XDHA6F1WEGCXZ0PYM0Z7B7","version":"1"}'
             X-Request-Id:
-                - 01J2HRZRV7XD3G21H76PGTMM9M
+                - 01J9XDHA6F1WEGCXZ0PYM0Z7B7
             X-Runtime:
-                - "0.014521"
+                - "0.020591"
         status: 403 Forbidden
         code: 403
-        duration: 17.673417ms
+        duration: 24.304417ms

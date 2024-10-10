@@ -1,3 +1,5 @@
+//go:build !integration
+
 package gitlab_test
 
 import (
@@ -7,26 +9,35 @@ import (
 	"os"
 	"testing"
 
-	"gopkg.in/dnaeon/go-vcr.v3/cassette"
-	"gopkg.in/dnaeon/go-vcr.v3/recorder"
+	"gopkg.in/dnaeon/go-vcr.v4/pkg/cassette"
+	"gopkg.in/dnaeon/go-vcr.v4/pkg/recorder"
 )
 
 func getClient(t *testing.T) (client *http.Client, u string) {
 	t.Helper()
 
 	filename := fmt.Sprintf("testdata/fixtures/%s/%s", gitlabVersion, sanitizePath(t.Name()))
-	r, err := recorder.New(filename)
+	r, err := recorder.New(filename,
+		[]recorder.Option{
+			recorder.WithMode(recorder.ModeRecordOnce),
+			recorder.WithMatcher(
+				cassette.NewDefaultMatcher(
+					cassette.WithIgnoreUserAgent(),
+					cassette.WithIgnoreAuthorization(),
+					cassette.WithIgnoreHeaders(
+						"Private-Token",
+					),
+				),
+			),
+			recorder.WithHook(func(i *cassette.Interaction) error {
+				i.Request.Headers.Set("Private-Token", "REPLACED-TOKEN")
+				return nil
+			}, recorder.BeforeSaveHook),
+		}...,
+	)
 	if err != nil {
 		t.Fatalf("could not create recorder: %s", err)
 	}
-
-	r.AddHook(
-		func(i *cassette.Interaction) (err error) {
-			delete(i.Request.Headers, "Private-Token")
-			return err
-		},
-		recorder.AfterCaptureHook,
-	)
 
 	t.Cleanup(func() {
 		if err := r.Stop(); err != nil {

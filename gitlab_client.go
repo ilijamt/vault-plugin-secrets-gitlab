@@ -104,7 +104,9 @@ func (gc *gitlabClient) CreateUserServiceAccountAccessToken(username string, use
 		gc.logger.Debug("Created user service access token", "et", et, "username", username, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
 	}()
 	et, err = gc.CreatePersonalAccessToken(username, userId, name, expiresAt, scopes)
-	et.TokenType = TokenTypeUserServiceAccount
+	if err == nil && et != nil {
+		et.TokenType = TokenTypeUserServiceAccount
+	}
 	return et, err
 }
 
@@ -119,11 +121,10 @@ func (gc *gitlabClient) RevokeUserServiceAccountAccessToken(token string) (err e
 	if c, err = newGitlabClient(&EntryConfig{
 		BaseURL: gc.config.BaseURL,
 		Token:   token,
-	}, gc.httpClient); err != nil {
-		return err
+	}, gc.httpClient); err == nil {
+		_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
 	}
 
-	_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
 	return err
 }
 
@@ -138,11 +139,10 @@ func (gc *gitlabClient) RevokeGroupServiceAccountAccessToken(token string) (err 
 	if c, err = newGitlabClient(&EntryConfig{
 		BaseURL: gc.config.BaseURL,
 		Token:   token,
-	}, gc.httpClient); err != nil {
-		return err
+	}, gc.httpClient); err == nil {
+		_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
 	}
 
-	_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
 	return err
 }
 

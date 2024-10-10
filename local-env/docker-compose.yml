@@ -15,6 +15,10 @@ services:
       - 'gitlab_logs:/var/log/gitlab'
       - 'gitlab_data:/var/opt/gitlab'
     shm_size: 2g
+    logging:
+      options:
+        max-size: "3m"
+        max-file: "1"
 
 volumes:
   gitlab_config:

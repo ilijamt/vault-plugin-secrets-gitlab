@@ -27,6 +27,8 @@ import (
 var (
 	gitlabComPersonalAccessToken = cmp.Or(os.Getenv("GITLAB_COM_TOKEN"), "glpat-invalid-value")
 	gitlabComUrl                 = cmp.Or(os.Getenv("GITLAB_COM_URL"), "https://gitlab.com")
+	gitlabServiceAccountUrl      = cmp.Or(os.Getenv("GITLAB_SERVICE_ACCOUNT_URL"), "http://localhost:8080")
+	gitlabServiceAccountToken    = cmp.Or(os.Getenv("GITLAB_SERVICE_ACCOUNT_TOKEN"), "REPLACED-TOKEN")
 )
 
 func countErrByName(err *multierror.Error) map[string]int {
@@ -49,12 +51,22 @@ type expectedEvent struct {
 
 type mockEventsSender struct {
 	eventsProcessed []*logical.EventReceived
+	mu              sync.Mutex
+}
+
+func (m *mockEventsSender) resetEvents(t *testing.T) {
+	t.Helper()
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.eventsProcessed = make([]*logical.EventReceived, 0)
 }
 
 func (m *mockEventsSender) SendEvent(ctx context.Context, eventType logical.EventType, event *logical.EventData) error {
 	if m == nil {
 		return nil
 	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.eventsProcessed = append(m.eventsProcessed, &logical.EventReceived{
 		EventType: string(eventType),
 		Event:     event,
@@ -63,6 +75,8 @@ func (m *mockEventsSender) SendEvent(ctx context.Context, eventType logical.Even
 }
 
 func (m *mockEventsSender) expectEvents(t *testing.T, expectedEvents []expectedEvent) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	t.Helper()
 	require.EqualValuesf(t, len(m.eventsProcessed), len(expectedEvents), "Expected events: %v\nEvents processed: %v", expectedEvents, m.eventsProcessed)
 	for i, expected := range expectedEvents {

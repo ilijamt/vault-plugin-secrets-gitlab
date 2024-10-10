@@ -40,7 +40,6 @@ func TestWithNormalUser_GAT(t *testing.T) {
 	require.NoError(t, resp.Error())
 	require.NotEmpty(t, events)
 
-	var c *g.Client
 	var token string
 	var secret *logical.Secret
 
@@ -50,16 +49,12 @@ func TestWithNormalUser_GAT(t *testing.T) {
 			Path:      fmt.Sprintf("%s/gat", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "example",
-				"name":                 gitlab.TokenTypeGroup.String(),
+				"name":                 `gat-token`,
 				"token_type":           gitlab.TokenTypeGroup.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(false),
 				"access_level":         gitlab.AccessLevelMaintainerPermissions.String(),
-				"scopes": strings.Join(
-					[]string{
-						gitlab.TokenScopeReadApi.String(),
-					},
-					","),
+				"scopes":               strings.Join([]string{gitlab.TokenScopeReadApi.String()}, ","),
 			},
 		})
 		require.NoError(t, err)
@@ -83,6 +78,7 @@ func TestWithNormalUser_GAT(t *testing.T) {
 		require.NotNil(t, secret)
 	}
 
+	var c *g.Client
 	c, err = g.NewClient(token, g.WithHTTPClient(httpClient), g.WithBaseURL(url))
 	require.NoError(t, err)
 	require.NotNil(t, c)

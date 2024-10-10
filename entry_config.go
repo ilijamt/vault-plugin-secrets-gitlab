@@ -58,6 +58,9 @@ func (e EntryConfig) LogicalResponseData() map[string]any {
 }
 
 func getConfig(ctx context.Context, s logical.Storage) (*EntryConfig, error) {
+	if s == nil {
+		return nil, fmt.Errorf("%w: local.Storage", ErrNilValue)
+	}
 	entry, err := s.Get(ctx, PathConfigStorage)
 	if err != nil {
 		return nil, err

@@ -1,3 +1,5 @@
+//go:build !integration
+
 package gitlab_test
 
 import (
@@ -128,7 +130,10 @@ func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 
 	groupId, err := client.GetGroupIdByPath("test")
 	require.NoError(t, err)
-	require.EqualValues(t, 39, groupId)
+	require.EqualValues(t, 37, groupId)
+
+	_, err = client.GetGroupIdByPath("nonexistent")
+	require.ErrorIs(t, err, gitlab.ErrInvalidValue)
 }
 
 func TestGitlabClient_GetUserIdByUsername(t *testing.T) {

@@ -18,7 +18,7 @@ interactions:
             Accept:
                 - application/json
             Private-Token:
-                - glpat-secret-random-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/personal_access_tokens/self
@@ -32,7 +32,7 @@ interactions:
         trailer: {}
         content_length: -1
         uncompressed: true
-        body: '{"id":1,"name":"Initial token","revoked":false,"created_at":"2024-07-11T18:53:26.792Z","scopes":["api","read_api","read_user","sudo","admin_mode","create_runner","k8s_proxy","read_repository","write_repository","ai_features","read_service_ping"],"user_id":1,"last_used_at":"2024-07-11T20:49:46.599Z","active":true,"expires_at":"2025-07-11"}'
+        body: '{"id":1,"name":"Initial token","revoked":false,"created_at":"2024-07-11T18:53:26.792Z","scopes":["api","read_api","read_user","sudo","admin_mode","create_runner","k8s_proxy","read_repository","write_repository","ai_features","read_service_ping"],"user_id":1,"last_used_at":"2024-10-11T09:11:05.898Z","active":true,"expires_at":"2025-07-11"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -41,9 +41,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:32 GMT
+                - Fri, 11 Oct 2024 09:11:11 GMT
             Etag:
-                - W/"a64ccd47e1869c3ec0c4e62786258eca"
+                - W/"86a012f2542444285d00a390ed234220"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -58,11 +58,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZQ6TX6068D5X9MV23VFN","version":"1"}'
+                - '{"correlation_id":"01J9XDH91XVRM9H5T9MD4SJX4A","version":"1"}'
             X-Request-Id:
-                - 01J2HRZQ6TX6068D5X9MV23VFN
+                - 01J9XDH91XVRM9H5T9MD4SJX4A
             X-Runtime:
-                - "0.008197"
+                - "0.011083"
         status: 200 OK
         code: 200
-        duration: 10.160125ms
+        duration: 13.319375ms
