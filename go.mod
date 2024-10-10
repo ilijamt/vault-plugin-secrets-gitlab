@@ -8,9 +8,9 @@ require (
 	github.com/hashicorp/vault/api v1.12.2
 	github.com/hashicorp/vault/sdk v0.12.0
 	github.com/stretchr/testify v1.9.0
-	github.com/xanzy/go-gitlab v0.110.0
+	github.com/xanzy/go-gitlab v0.111.0
 	golang.org/x/time v0.7.0
-	google.golang.org/protobuf v1.34.2
+	google.golang.org/protobuf v1.35.1
 	gopkg.in/dnaeon/go-vcr.v3 v3.2.0
 )
 
