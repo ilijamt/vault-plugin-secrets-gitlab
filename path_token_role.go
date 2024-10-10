@@ -138,7 +138,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	}
 
 	var secretData, secretInternal = token.SecretResponse()
-	resp = b.Secret(secretAccessTokenType).Response(secretData, secretInternal)
+	resp = b.Secret(SecretAccessTokenType).Response(secretData, secretInternal)
 
 	resp.Secret.MaxTTL = role.TTL
 	resp.Secret.TTL = role.TTL

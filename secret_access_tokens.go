@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	secretAccessTokenType = "access_tokens"
+	SecretAccessTokenType = "access_tokens"
 )
 
 var (
@@ -45,7 +45,7 @@ var (
 
 func secretAccessTokens(b *Backend) *framework.Secret {
 	return &framework.Secret{
-		Type:   secretAccessTokenType,
+		Type:   SecretAccessTokenType,
 		Fields: fieldSchemaAccessTokens,
 		Revoke: b.secretAccessTokenRevoke,
 	}
@@ -84,7 +84,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		var client Client
 		client, err = b.getClient(ctx, req.Storage)
 		if err != nil {
-			return nil, fmt.Errorf("revoke token: %w", err)
+			return nil, fmt.Errorf("revoke token cannot get client: %w", err)
 		}
 
 		switch tokenType {

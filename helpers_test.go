@@ -49,9 +49,19 @@ type expectedEvent struct {
 
 type mockEventsSender struct {
 	eventsProcessed []*logical.EventReceived
+	mu              sync.Mutex
+}
+
+func (m *mockEventsSender) resetEvents(t *testing.T) {
+	t.Helper()
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.eventsProcessed = make([]*logical.EventReceived, 0)
 }
 
 func (m *mockEventsSender) SendEvent(ctx context.Context, eventType logical.EventType, event *logical.EventData) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	if m == nil {
 		return nil
 	}
@@ -63,6 +73,8 @@ func (m *mockEventsSender) SendEvent(ctx context.Context, eventType logical.Even
 }
 
 func (m *mockEventsSender) expectEvents(t *testing.T, expectedEvents []expectedEvent) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	t.Helper()
 	require.EqualValuesf(t, len(m.eventsProcessed), len(expectedEvents), "Expected events: %v\nEvents processed: %v", expectedEvents, m.eventsProcessed)
 	for i, expected := range expectedEvents {
