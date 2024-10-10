@@ -21,7 +21,7 @@ var (
 	fieldSchemaConfig = map[string]*framework.FieldSchema{
 		"token": {
 			Type:        framework.TypeString,
-			Description: "The token to access Gitlab API",
+			Description: "The API access token required for authenticating requests to the GitLab API. This token must be a valid personal access token or any other type of token supported by GitLab for API access.",
 			Required:    true,
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name:      "Token",
@@ -29,24 +29,40 @@ var (
 			},
 		},
 		"base_url": {
-			Type:        framework.TypeString,
-			Required:    true,
-			Description: `The address to access Gitlab.`,
+			Type:     framework.TypeString,
+			Required: true,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "GitLab Base URL",
+			},
+			Description: `The base URL of your GitLab instance. This could be the URL of a self-hosted GitLab instance or the URL of the GitLab SaaS service (https://gitlab.com). The URL must be properly formatted, including the scheme (http or https). This field is essential as it determines the endpoint where API requests will be directed.`,
+		},
+		"type": {
+			Type:     framework.TypeString,
+			Required: true,
+			AllowedValues: []any{
+				TypeSelfManaged,
+				TypeSaaS,
+				TypeDedicated,
+			},
+			Description: `The type of GitLab instance you are connecting to. This could typically distinguish between 'self-hosted' for on-premises GitLab installations or 'saas' or 'dedicated' for the GitLab SaaS offering. This field helps the plugin to adjust any necessary configurations or request patterns specific to the type of GitLab instance.`,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "GitLab Type",
+			},
 		},
 		"auto_rotate_token": {
 			Type:        framework.TypeBool,
 			Default:     false,
-			Description: `Should we autorotate the token when it's close to expiry?`,
+			Description: `Determines whether the plugin should automatically rotate the API access token as it approaches its expiration date. Enabling this feature ensures that the token is refreshed without manual intervention, reducing the risk of service disruption due to expired tokens.`,
 			DisplayAttrs: &framework.DisplayAttributes{
-				Name: "Auto rotate token",
+				Name: "Auto Rotate Token",
 			},
 		},
 		"auto_rotate_before": {
 			Type:        framework.TypeDurationSecond,
-			Description: `How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h`,
+			Description: `Specifies the duration, in seconds, before the token's expiration at which the auto-rotation should occur. The value must be set between a minimum of 24 hours (86400 seconds) and a maximum of 730 hours (2628000 seconds). This setting allows you to control how early the token rotation should happen, balancing between proactive rotation and maximizing token lifespan.`,
 			Default:     DefaultConfigFieldAccessTokenRotate,
 			DisplayAttrs: &framework.DisplayAttributes{
-				Name: "Auto rotate before",
+				Name: "Auto Rotate Before",
 			},
 		},
 	}
@@ -100,10 +116,15 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	var warnings []string
 	var autoTokenRotateRaw, autoTokenRotateTtlOk = data.GetOk("auto_rotate_before")
 	var token, tokenOk = data.GetOk("token")
+	var gitlabType, gitlabTypeOk = data.GetOk("type")
 	var err error
 
 	if !tokenOk {
 		err = multierror.Append(err, fmt.Errorf("token: %w", ErrFieldRequired))
+	}
+
+	if !gitlabTypeOk {
+		err = multierror.Append(err, fmt.Errorf("gitlab type: %w", ErrFieldRequired))
 	}
 
 	var config = EntryConfig{
@@ -130,6 +151,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	}
 
 	config.Token = token.(string)
+	config.Type = Type(gitlabType.(string))
 
 	var httpClient *http.Client
 	var client Client
@@ -167,6 +189,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		"created_at":         config.TokenCreatedAt.Format(time.RFC3339),
 		"expires_at":         config.TokenExpiresAt.Format(time.RFC3339),
 		"scopes":             strings.Join(config.Scopes, ", "),
+		"type":               config.Type.String(),
 	})
 
 	b.SetClient(nil)

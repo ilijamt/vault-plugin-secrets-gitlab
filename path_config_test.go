@@ -56,6 +56,7 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    "glpat-secret-random-token",
 				"base_url": url,
+				"type":     gitlab.TypeSelfManaged.String(),
 			},
 		})
 
@@ -116,7 +117,7 @@ func TestPathConfig(t *testing.T) {
 		require.Nil(t, resp)
 
 		var errorMap = countErrByName(err.(*multierror.Error))
-		assert.EqualValues(t, 1, errorMap[gitlab.ErrFieldRequired.Error()])
+		assert.EqualValues(t, 2, errorMap[gitlab.ErrFieldRequired.Error()])
 		require.Len(t, errorMap, 1)
 	})
 }

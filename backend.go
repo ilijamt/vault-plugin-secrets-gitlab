@@ -122,6 +122,10 @@ func (b *Backend) Invalidate(ctx context.Context, key string) {
 	}
 }
 
+func (b *Backend) GetClient() Client {
+	return b.client
+}
+
 func (b *Backend) SetClient(client Client) {
 	if client == nil {
 		b.Logger().Debug("Setting a nil client")

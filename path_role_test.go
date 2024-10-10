@@ -35,6 +35,7 @@ func TestPathRoles(t *testing.T) {
 	var defaultConfig = map[string]any{
 		"token":    "glpat-secret-random-token",
 		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
+		"type":     gitlab.TypeSelfManaged.String(),
 	}
 
 	t.Run("delete non existing role", func(t *testing.T) {
@@ -196,6 +197,7 @@ func TestPathRoles(t *testing.T) {
 				require.NotNil(t, resp)
 				require.NoError(t, resp.Error())
 				require.Empty(t, resp.Warnings)
+				require.EqualValues(t, resp.Data["config"], gitlab.TypeConfigDefault)
 			})
 		})
 
@@ -237,6 +239,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
+			require.EqualValues(t, resp.Data["config"], gitlab.TypeConfigDefault)
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
@@ -281,6 +284,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
+			require.EqualValues(t, resp.Data["config"], gitlab.TypeConfigDefault)
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
@@ -325,6 +329,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
+			require.EqualValues(t, resp.Data["config"], gitlab.TypeConfigDefault)
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
@@ -371,6 +376,7 @@ func TestPathRoles(t *testing.T) {
 		var defaultConfig = map[string]any{
 			"token":    "glpat-secret-random-token",
 			"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
+			"type":     gitlab.TypeSelfManaged.String(),
 		}
 
 		// create a configuration with max ttl set to 10 days
@@ -406,6 +412,7 @@ func TestPathRoles(t *testing.T) {
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
 		require.Empty(t, resp.Warnings)
+		require.EqualValues(t, resp.Data["config"], gitlab.TypeConfigDefault)
 
 		// read a role
 		resp, err = b.HandleRequest(ctx, &logical.Request{

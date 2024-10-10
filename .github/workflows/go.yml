@@ -20,9 +20,9 @@ jobs:
       - name: Display Go version
         run: go version
       - name: Build
-        run: go build -v ./cmd/vault-plugin-secrets-gitlab
+        run: go build ./cmd/vault-plugin-secrets-gitlab
       - name: Test
-        run: go test -cover -coverprofile=coverage.out -v
+        run: go test -cover -coverprofile=coverage.out
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         env:

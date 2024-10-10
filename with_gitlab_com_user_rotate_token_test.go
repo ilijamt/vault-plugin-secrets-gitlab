@@ -1,11 +1,9 @@
 package gitlab_test
 
 import (
-	"cmp"
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/vault/sdk/logical"
@@ -13,11 +11,6 @@ import (
 	g "github.com/xanzy/go-gitlab"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-)
-
-var (
-	gitlabComPersonalAccessToken = cmp.Or(os.Getenv("GITLAB_COM_TOKEN"), "glpat-invalid-value")
-	gitlabComUrl                 = cmp.Or(os.Getenv("GITLAB_COM_URL"), "https://gitlab.com")
 )
 
 func TestWithGitlabUser_RotateToken(t *testing.T) {
@@ -36,6 +29,7 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
+			"type":               gitlab.TypeSaaS.String(),
 		},
 	})
 
