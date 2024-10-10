@@ -170,6 +170,10 @@ func TestWithUserServiceAccount(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, usr)
 
+	t.Cleanup(func() {
+		_, _ = gClient.Users.DeleteUser(usr.ID)
+	})
+
 	// Create a user service account role
 	resp, err = b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.CreateOperation,
@@ -270,6 +274,10 @@ func TestWithGroupServiceAccount(t *testing.T) {
 	sa, _, err := gClient.Groups.CreateServiceAccount(gid, &g.CreateServiceAccountOptions{})
 	require.NoError(t, err)
 	require.NotNil(t, sa)
+
+	t.Cleanup(func() {
+		_, _ = gClient.Users.DeleteUser(sa.ID)
+	})
 
 	// Create a group service account role
 	resp, err = b.HandleRequest(ctx, &logical.Request{
