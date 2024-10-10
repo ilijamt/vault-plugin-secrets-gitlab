@@ -130,7 +130,7 @@ func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 	require.NoError(t, err)
 	require.EqualValues(t, 39, groupId)
 
-	groupId, err = client.GetGroupIdByPath("nonexistent")
+	_, err = client.GetGroupIdByPath("nonexistent")
 	require.ErrorIs(t, err, gitlab.ErrInvalidValue)
 }
 

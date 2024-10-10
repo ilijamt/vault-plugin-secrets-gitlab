@@ -60,11 +60,11 @@ func (m *mockEventsSender) resetEvents(t *testing.T) {
 }
 
 func (m *mockEventsSender) SendEvent(ctx context.Context, eventType logical.EventType, event *logical.EventData) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
 	if m == nil {
 		return nil
 	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.eventsProcessed = append(m.eventsProcessed, &logical.EventReceived{
 		EventType: string(eventType),
 		Event:     event,
