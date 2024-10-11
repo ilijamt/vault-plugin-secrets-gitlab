@@ -149,8 +149,6 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfi
 		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
 			b.SetClient(client)
 		}
-	} else {
-		b.SetClient(client)
 	}
 
 	et, err = client.CurrentTokenInfo()
