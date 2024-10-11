@@ -27,7 +27,7 @@ func TestType(t *testing.T) {
 		{
 			expected: gitlab.TypeDedicated,
 			input:    gitlab.TypeDedicated.String(),
-			err:      true,
+			err:      false,
 		},
 		{
 			expected: gitlab.TypeUnknown,

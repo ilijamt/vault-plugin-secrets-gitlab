@@ -23,7 +23,7 @@ whose parameters are used to generate an access token based on a predefined role
 )
 
 var (
-	fieldSchemaTokenRole = map[string]*framework.FieldSchema{
+	FieldSchemaTokenRole = map[string]*framework.FieldSchema{
 		"role_name": {
 			Type:        framework.TypeString,
 			Description: "Role name",
@@ -157,7 +157,7 @@ func pathTokenRoles(b *Backend) *framework.Path {
 		HelpSynopsis:    strings.TrimSpace(pathTokenRolesHelpSyn),
 		HelpDescription: strings.TrimSpace(pathTokenRolesHelpDesc),
 		Pattern:         fmt.Sprintf("%s/%s", PathTokenRoleStorage, framework.GenericNameWithAtRegex("role_name")),
-		Fields:          fieldSchemaTokenRole,
+		Fields:          FieldSchemaTokenRole,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,
 			OperationSuffix: "generate",

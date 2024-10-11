@@ -34,19 +34,15 @@ func (e EntryRole) LogicalResponseData() map[string]any {
 	}
 }
 
-func getRole(ctx context.Context, name string, s logical.Storage) (*EntryRole, error) {
-	entry, err := s.Get(ctx, fmt.Sprintf("%s/%s", PathRoleStorage, name))
-	if err != nil {
-		return nil, err
+func getRole(ctx context.Context, name string, s logical.Storage) (role *EntryRole, err error) {
+	var entry *logical.StorageEntry
+	if entry, err = s.Get(ctx, fmt.Sprintf("%s/%s", PathRoleStorage, name)); err == nil {
+		if entry == nil {
+			return nil, nil
+		}
+		role = new(EntryRole)
+		_ = entry.DecodeJSON(role)
 	}
+	return role, err
 
-	if entry == nil {
-		return nil, nil
-	}
-
-	role := new(EntryRole)
-	if err := entry.DecodeJSON(role); err != nil {
-		return nil, err
-	}
-	return role, nil
 }

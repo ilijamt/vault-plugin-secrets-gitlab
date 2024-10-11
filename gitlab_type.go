@@ -21,7 +21,7 @@ var (
 	validGitlabTypes = []string{
 		TypeSaaS.String(),
 		TypeSelfManaged.String(),
-		// TypeDedicated.String(),
+		TypeDedicated.String(),
 	}
 )
 

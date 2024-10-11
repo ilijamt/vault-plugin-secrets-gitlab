@@ -93,19 +93,17 @@ func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) er
 	var err error
 
 	b.lockClientMutex.Lock()
-	if config, err = getConfig(ctx, request.Storage); err != nil {
-		b.lockClientMutex.Unlock()
-		return err
-	}
-	b.lockClientMutex.Unlock()
-
-	if config == nil {
-		return nil
-	}
-
-	// If we need to autorotate the token, initiate the procedure to autorotate the token
-	if config.AutoRotateToken {
-		err = errors.Join(err, b.checkAndRotateConfigToken(ctx, request, config))
+	unlockLockClientMutex := sync.OnceFunc(func() { b.lockClientMutex.Unlock() })
+	defer unlockLockClientMutex()
+	if config, err = getConfig(ctx, request.Storage); err == nil {
+		unlockLockClientMutex()
+		if config == nil {
+			return nil
+		}
+		// If we need to autorotate the token, initiate the procedure to autorotate the token
+		if config.AutoRotateToken {
+			err = errors.Join(err, b.checkAndRotateConfigToken(ctx, request, config))
+		}
 	}
 
 	return err
