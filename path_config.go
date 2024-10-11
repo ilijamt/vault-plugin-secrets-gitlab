@@ -106,7 +106,7 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 
 func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
 	var warnings []string
-	var changes = make(map[string]string)
+	var changes map[string]string
 	var config *EntryConfig
 	config, err = getConfig(ctx, req.Storage)
 	if err != nil {
@@ -122,8 +122,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 	}
 
 	if _, ok := data.GetOk("token"); ok {
-		var et *EntryToken
-		if err = b.updateConfigClientInfo(ctx, et, config); err != nil {
+		if _, err = b.updateConfigClientInfo(ctx, config); err != nil {
 			return nil, err
 		}
 	}
@@ -142,7 +141,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 
 }
 
-func (b *Backend) updateConfigClientInfo(ctx context.Context, et *EntryToken, config *EntryConfig) (err error) {
+func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfig) (et *EntryToken, err error) {
 	var httpClient *http.Client
 	var client Client
 	httpClient, _ = HttpClientFromContext(ctx)
@@ -156,7 +155,7 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, et *EntryToken, co
 
 	et, err = client.CurrentTokenInfo()
 	if err != nil {
-		return fmt.Errorf("token cannot be validated: %s", ErrInvalidValue)
+		return et, fmt.Errorf("token cannot be validated: %s", ErrInvalidValue)
 	}
 
 	config.TokenCreatedAt = *et.CreatedAt
@@ -164,7 +163,7 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, et *EntryToken, co
 	config.TokenId = et.TokenID
 	config.Scopes = et.Scopes
 
-	return nil
+	return et, nil
 }
 
 func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
@@ -174,8 +173,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		return nil, err
 	}
 
-	var et *EntryToken
-	if err = b.updateConfigClientInfo(ctx, et, config); err != nil {
+	if _, err = b.updateConfigClientInfo(ctx, config); err != nil {
 		return nil, err
 	}
 
