@@ -11,10 +11,12 @@ through Vault.
 
 ## Quick Links
 
-- Vault Website: [https://www.vaultproject.io]
-- Gitlab Personal Access Tokens: [https://docs.gitlab.com/ee/api/personal_access_tokens.html]
-- Gitlab Project Access Tokens: [https://docs.gitlab.com/ee/api/project_access_tokens.html]
-- Gitlab Group Access Tokens: [https://docs.gitlab.com/ee/api/group_access_tokens.html]
+- Vault Website - https://www.vaultproject.io
+- Gitlab Personal Access Tokens - https://docs.gitlab.com/ee/api/personal_access_tokens.html
+- Gitlab Project Access Tokens - https://docs.gitlab.com/ee/api/project_access_tokens.html
+- Gitlab Group Access Tokens - https://docs.gitlab.com/ee/api/group_access_tokens.html
+- Gitlab User Service Account Tokens - https://docs.gitlab.com/ee/api/users.html#create-service-account-user
+- Gitlab Group Service Account Tokens - https://docs.gitlab.com/ee/api/group_service_accounts.html
 
 ## Getting Started
 
@@ -28,7 +30,7 @@ To learn specifically about how plugins work, see documentation on [Vault plugin
 
 ## GitLab
 
-- GitLab CE/EE
+- GitLab CE/EE - Self Managed
 - gitlab.com (cannot use personal access token)
 - Dedicated Instance (cannot use personal access token)
 
@@ -44,12 +46,13 @@ The current authentication model requires providing Vault with a Gitlab Token.
 
 ### Config
 
-|         Property          | Required | Default value | Sensitive | Description                                                                                                                                   |
-|:-------------------------:|:--------:|:-------------:|:---------:|:----------------------------------------------------------------------------------------------------------------------------------------------|
-|           token           |   yes    |      n/a      |    yes    | The token to access Gitlab API, it will not show when you do a read, as it's a sensitive value. Instead it will display it's SHA1 hash value. |
-|         base_url          |   yes    |      n/a      |    no     | The address to access Gitlab                                                                                                                  |
-|     auto_rotate_token     |    no    |      no       |    no     | Should we autorotate the token when it's close to expiry? (Experimental)                                                                      |
-|    auto_rotate_before     |    no    |      24h      |    no     | How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h             |
+|      Property      | Required | Default value | Sensitive | Description                                                                                                                                   |
+|:------------------:|:--------:|:-------------:|:---------:|:----------------------------------------------------------------------------------------------------------------------------------------------|
+|       token        |   yes    |      n/a      |    yes    | The token to access Gitlab API, it will not show when you do a read, as it's a sensitive value. Instead it will display it's SHA1 hash value. |
+|      base_url      |   yes    |      n/a      |    no     | The address to access Gitlab                                                                                                                  |
+| auto_rotate_token  |    no    |      no       |    no     | Should we autorotate the token when it's close to expiry? (Experimental)                                                                      |
+| auto_rotate_before |    no    |      24h      |    no     | How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h             |
+|        type        |   yes    |      n/a      |    no     | The type of gitlab instance that we use can be one of saas, self-hosted or dedicated                                                          |
 
 ### Role
 
@@ -62,6 +65,11 @@ The current authentication model requires providing Vault with a Gitlab Token.
 |        scopes        |    no    |      []       |    no     | List of scopes                                                                                                       |
 |      token_type      |   yes    |      n/a      |    no     | Access token type                                                                                                    |
 | gitlab_revokes_token |    no    |      no       |    no     | Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires                      |
+|        config        |    no    |    default    |    no     | The configuration to use for the role                                                                                |
+
+#### path
+
+If `token_type` is `group-service-account` then the format of the path is `{groupId}/{serviceAccountName}` example `265/service_account_65c74d39b4f71fc3fdc72330fce28c28`.
 
 #### name
 
@@ -123,6 +131,8 @@ Can be
 * personal
 * project
 * group
+* user-service-account
+* group-service-account
 
 #### gitlab_revokes_token
 
@@ -157,7 +167,7 @@ If you use Vault to manage the tokens the minimal TTL you can use is `1h`, by se
 The command bellow will set up the config backend with a max TTL of 48h.
 
 ```shell
-$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token auto_rotate_token=false auto_rotate_before=48h
+$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token auto_rotate_token=false auto_rotate_before=48h type=self-managed
 $ vault read gitlab/config
 Key                   Value
 ---                   -----
@@ -167,6 +177,7 @@ base_url              https://gitlab.example.com
 token_id              107
 token_expires_at      2025-03-29T00:00:00Z
 token_sha1_hash       1014647cd9bbf359d926fcacdf78e184db9dbedc
+type                  self-managed
 ```
 
 You may also need to configure the Max/Default TTL for a token that can be issued by setting:
@@ -186,112 +197,41 @@ with the correct expiry date and the corresponding `token_id`.
 
 ### Roles
 
-This will create three roles, one of each type.
+This will create multiple roles
 
 ```shell
-# personal access tokens can only be created by Gitlab Administrators (see https://docs.gitlab.com/ee/api/users.html#create-a-personal-access-token)
-$ vault write gitlab/roles/personal name=personal-token-name path=username scopes="read_api" token_type=personal ttl=48h
-
-$ vault write gitlab/roles/project name=project-token-name path=group/project scopes="read_api" access_level=guest token_type=project ttl=48h
-
-$ vault write gitlab/roles/group name=group-token-name path=group/subgroup scopes="read_api" access_level=developer token_type=group ttl=48h
+$ vault write gitlab/roles/personal name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=username scopes="read_api" token_type=personal ttl=48h
+$ vault write gitlab/roles/project name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=group/project scopes="read_api" access_level=guest token_type=project ttl=48h
+$ vault write gitlab/roles/group name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=group/subgroup scopes="read_api" access_level=developer token_type=group ttl=48h
+$ vault write gitlab/roles/sa name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=user-service-account ttl=24h
+$ vault write gitlab/roles/ga name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=345/service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=group-service-account ttl=24h
 ```
 
-### Get access tokens
+#### User service accounts
 
-#### Personal
+The service account users from Gitlab 16.1 are for all purposes users that don't use seats. So creating a service account and setting the path to the service account user would work the same as on a real user. More information can be found on https://docs.gitlab.com/ee/api/users.html#create-service-account-user.
 
-```shell
-$ vault read gitlab/token/personal
-Key                Value
----                -----
-lease_id           gitlab/token/personal/0FrzLFkRKaUNZSfa6WfFqjWK
-lease_duration     20h1m37s
-lease_renewable    false
-access_level       n/a
-created_at         2023-08-31T03:58:23.069Z
-expires_at         2023-09-01T00:00:00Z
-name               vault-generated-personal-access-token-227cb38b
-path               username
-scopes             [read_api]
-token              7mbpSExz7ruyw1QgTjL-
-
-$ vault lease revoke gitlab/token/personal/0FrzLFkRKaUNZSfa6WfFqjWK
-All revocation operations queued successfully!
-```
-##### Service accounts
-The service account users from Gitlab 16.1 are for all purposes users that don't use seats. So creating a service account and setting the path to the service account user would work the same as on a real user.
 ```shell
 $ curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab/api/v4/service_accounts" | jq .
 {
-  "id": 2017,
-  "username": "service_account_00b069cb73a15d0a7ba8cd67a653599c",
-  "name": "Service account user",
-  "state": "active",
-  "avatar_url": "https://secure.gravatar.com/avatar/6faa2758127182d391be18b4c1e36630?s=80&d=identicon",
-  "web_url": "https://gitlab/service_account_00b069cb73a15d0a7ba8cd67a653599c"
+  "id": 63,
+  "username": "service_account_964b157dcff9bcd87dc7c0837f9c47e9",
+  "name": "Service account user"
 }
 ```
 
-In this case you would create a role like
-```shell
-$ vault write gitlab/roles/sa name=sa-name path=service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=personal token_ttl=24h
-$ vault read gitlab/token/sa
-vault read gitlab/token/sa
+#### Group service accounts
 
-Key                Value
----                -----
-lease_id           gitlab/token/sa/oFI2vpUdvykvMgNum6pZReYZ
-lease_duration     20h1m37s
-lease_renewable    false
-access_level       n/a
-created_at         2023-08-31T03:58:23.069Z
-expires_at         2023-09-01T00:00:00Z
-name               vault-generated-personal-access-token-f6417198
-path               service_account_00b069cb73a15d0a7ba8cd67a653599c
-scopes             [api read_api read_repository read_registry]
-token              -senkScjDo-SoGwST9PP
-```
-
-#### Group
-```shell
-$ vault read gitlab/token/group
-Key                Value
----                -----
-lease_id           gitlab/token/group/LqmL1MtuIlJ43N8q2L975jm8
-lease_duration     20h14s
-lease_renewable    false
-access_level       developer
-created_at         2023-08-31T03:59:46.043Z
-expires_at         2023-09-01T00:00:00Z
-name               vault-generated-group-access-token-913ab1f9
-path               group/subgroup
-scopes             [read_api]
-token              rSYv4zwgP-2uaFEAsZyd
-
-$ vault lease revoke gitlab/token/group/LqmL1MtuIlJ43N8q2L975jm8
-All revocation operations queued successfully!
-```
-
-#### Project
+The service account users from Gitlab 16.1 are for all purposes users that don't use seats. More information can be found on https://docs.gitlab.com/ee/api/group_service_accounts.html#create-a-service-account-user.
 
 ```shell
-$ vault read gitlab/token/project
-Key                Value
----                -----
-lease_id           gitlab/token/project/ZMSOrOHiP77l5kjWXq3zizPA
-lease_duration     19h59m6s
-lease_renewable    false
-access_level       guest
-created_at         2023-08-31T04:00:53.613Z
-expires_at         2023-09-01T00:00:00Z
-name               vault-generated-project-access-token-842113a6
-path               group/project
-scopes             [read_api]
-token              YfRu42VaGGrxshKKwtma
+$ curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab/api/v4/groups/345/service_accounts" | jq .
+{
+  "id": 61,
+  "username": "service_account_group_345_c468757e6df2fc104de54ea470539bb5",
+  "name": "Service account user"
+}
 
-$ vault lease revoke gitlab/token/project/ZMSOrOHiP77l5kjWXq3zizPA
-All revocation operations queued successfully!
 ```
 
 ### Revoke all created tokens by this plugin
@@ -349,4 +289,4 @@ $ vault secrets list -detailed -format=json | jq '."gitlab/"'
 ```
 ## Info
 
-Running the logging with `debug` level will shows sensitive information in the logs.
+Running the logging with `debug` level will show sensitive information in the logs.

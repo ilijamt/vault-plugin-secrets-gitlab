@@ -3,16 +3,17 @@ package gitlab
 import (
 	"errors"
 	"fmt"
-
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
 type TokenType string
 
 const (
-	TokenTypePersonal = TokenType("personal")
-	TokenTypeProject  = TokenType("project")
-	TokenTypeGroup    = TokenType("group")
+	TokenTypePersonal            = TokenType("personal")
+	TokenTypeProject             = TokenType("project")
+	TokenTypeGroup               = TokenType("group")
+	TokenTypeUserServiceAccount  = TokenType("user-service-account")
+	TokenTypeGroupServiceAccount = TokenType("group-service-account")
 
 	TokenTypeUnknown = TokenType("")
 )
@@ -24,6 +25,8 @@ var (
 		TokenTypePersonal.String(),
 		TokenTypeProject.String(),
 		TokenTypeGroup.String(),
+		TokenTypeUserServiceAccount.String(),
+		TokenTypeGroupServiceAccount.String(),
 	}
 )
 

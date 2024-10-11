@@ -3,8 +3,9 @@ package gitlab_test
 import (
 	"testing"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/stretchr/testify/assert"
+
+	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
 
 func TestTokenScope(t *testing.T) {

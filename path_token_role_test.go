@@ -17,6 +17,7 @@ func TestPathTokenRoles(t *testing.T) {
 	var defaultConfig = map[string]any{
 		"token":    "glpat-secret-random-token",
 		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
+		"type":     gitlab.TypeSelfManaged.String(),
 	}
 
 	t.Run("role not found", func(t *testing.T) {

@@ -18,7 +18,7 @@ interactions:
             Accept:
                 - application/json
             Private-Token:
-                - super-secret-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/personal_access_tokens/self
@@ -42,7 +42,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:30 GMT
+                - Fri, 11 Oct 2024 09:11:04 GMT
             Server:
                 - nginx
             Vary:
@@ -52,14 +52,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZN7WJV7X16F13M4H5JVR","version":"1"}'
+                - '{"correlation_id":"01J9XDH2WZJXF5X68QJ9GZPJYD","version":"1"}'
             X-Request-Id:
-                - 01J2HRZN7WJV7X16F13M4H5JVR
+                - 01J9XDH2WZJXF5X68QJ9GZPJYD
             X-Runtime:
-                - "0.007210"
+                - "0.101793"
         status: 401 Unauthorized
         code: 401
-        duration: 19.6915ms
+        duration: 126.2685ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -77,7 +77,7 @@ interactions:
             Accept:
                 - application/json
             Private-Token:
-                - super-secret-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/personal_access_tokens/self
@@ -101,7 +101,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:30 GMT
+                - Fri, 11 Oct 2024 09:11:05 GMT
             Server:
                 - nginx
             Vary:
@@ -111,14 +111,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZN8YWS60JS281N8CDHFH","version":"1"}'
+                - '{"correlation_id":"01J9XDH34MCFTY1VBH2RS80FVB","version":"1"}'
             X-Request-Id:
-                - 01J2HRZN8YWS60JS281N8CDHFH
+                - 01J9XDH34MCFTY1VBH2RS80FVB
             X-Runtime:
-                - "0.006534"
+                - "0.091717"
         status: 401 Unauthorized
         code: 401
-        duration: 8.65025ms
+        duration: 98.871291ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -136,7 +136,7 @@ interactions:
             Accept:
                 - application/json
             Private-Token:
-                - super-secret-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/personal_access_tokens/1
@@ -160,7 +160,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:30 GMT
+                - Fri, 11 Oct 2024 09:11:05 GMT
             Server:
                 - nginx
             Vary:
@@ -170,14 +170,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZN9H47HAA79KX9PZAAER","version":"1"}'
+                - '{"correlation_id":"01J9XDH3AVB4PS5D7BE5AJTFGS","version":"1"}'
             X-Request-Id:
-                - 01J2HRZN9H47HAA79KX9PZAAER
+                - 01J9XDH3AVB4PS5D7BE5AJTFGS
             X-Runtime:
-                - "0.006227"
+                - "0.027357"
         status: 401 Unauthorized
         code: 401
-        duration: 8.403833ms
+        duration: 30.439167ms
     - id: 3
       request:
         proto: HTTP/1.1
@@ -195,7 +195,7 @@ interactions:
             Accept:
                 - application/json
             Private-Token:
-                - super-secret-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/groups/group/access_tokens/1
@@ -219,7 +219,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:30 GMT
+                - Fri, 11 Oct 2024 09:11:05 GMT
             Server:
                 - nginx
             Vary:
@@ -229,14 +229,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZNA3P5Z6RJN2G53PDPY2","version":"1"}'
+                - '{"correlation_id":"01J9XDH3CTKRF7PT9Y6GN7F90P","version":"1"}'
             X-Request-Id:
-                - 01J2HRZNA3P5Z6RJN2G53PDPY2
+                - 01J9XDH3CTKRF7PT9Y6GN7F90P
             X-Runtime:
-                - "0.008500"
+                - "0.010791"
         status: 401 Unauthorized
         code: 401
-        duration: 10.576167ms
+        duration: 13.480542ms
     - id: 4
       request:
         proto: HTTP/1.1
@@ -254,7 +254,7 @@ interactions:
             Accept:
                 - application/json
             Private-Token:
-                - super-secret-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/projects/project/access_tokens/1
@@ -278,7 +278,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:30 GMT
+                - Fri, 11 Oct 2024 09:11:05 GMT
             Server:
                 - nginx
             Vary:
@@ -288,14 +288,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZNATXFVFA778GVGK8SQS","version":"1"}'
+                - '{"correlation_id":"01J9XDH3DP74JX1PGAM5SNAXF9","version":"1"}'
             X-Request-Id:
-                - 01J2HRZNATXFVFA778GVGK8SQS
+                - 01J9XDH3DP74JX1PGAM5SNAXF9
             X-Runtime:
-                - "0.005865"
+                - "0.076665"
         status: 401 Unauthorized
         code: 401
-        duration: 7.532583ms
+        duration: 81.851167ms
     - id: 5
       request:
         proto: HTTP/1.1
@@ -313,7 +313,7 @@ interactions:
             Accept:
                 - application/json
             Private-Token:
-                - super-secret-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/users?username=username
@@ -337,7 +337,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:30 GMT
+                - Fri, 11 Oct 2024 09:11:05 GMT
             Server:
                 - nginx
             Vary:
@@ -347,14 +347,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZNBA4WPV24XABG1GA5SC","version":"1"}'
+                - '{"correlation_id":"01J9XDH3JWA0M57MZ3NJVXCS0T","version":"1"}'
             X-Request-Id:
-                - 01J2HRZNBA4WPV24XABG1GA5SC
+                - 01J9XDH3JWA0M57MZ3NJVXCS0T
             X-Runtime:
-                - "0.006468"
+                - "0.015838"
         status: 401 Unauthorized
         code: 401
-        duration: 8.260875ms
+        duration: 18.823916ms
     - id: 6
       request:
         proto: HTTP/1.1
@@ -366,7 +366,7 @@ interactions:
         host: localhost:8080
         remote_addr: ""
         request_uri: ""
-        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2024-07-11"}'
+        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2024-10-11"}'
         form: {}
         headers:
             Accept:
@@ -374,7 +374,7 @@ interactions:
             Content-Type:
                 - application/json
             Private-Token:
-                - super-secret-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/groups/groupId/access_tokens
@@ -398,7 +398,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:30 GMT
+                - Fri, 11 Oct 2024 09:11:05 GMT
             Server:
                 - nginx
             Vary:
@@ -408,14 +408,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZNBW6VG1MQWP3QM0EYMH","version":"1"}'
+                - '{"correlation_id":"01J9XDH3M46RWCF6T7HNQD6TBF","version":"1"}'
             X-Request-Id:
-                - 01J2HRZNBW6VG1MQWP3QM0EYMH
+                - 01J9XDH3M46RWCF6T7HNQD6TBF
             X-Runtime:
-                - "0.012206"
+                - "0.084065"
         status: 401 Unauthorized
         code: 401
-        duration: 14.324083ms
+        duration: 89.894917ms
     - id: 7
       request:
         proto: HTTP/1.1
@@ -427,7 +427,7 @@ interactions:
         host: localhost:8080
         remote_addr: ""
         request_uri: ""
-        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2024-07-11"}'
+        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2024-10-11"}'
         form: {}
         headers:
             Accept:
@@ -435,7 +435,7 @@ interactions:
             Content-Type:
                 - application/json
             Private-Token:
-                - super-secret-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/projects/projectId/access_tokens
@@ -459,7 +459,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:30 GMT
+                - Fri, 11 Oct 2024 09:11:05 GMT
             Server:
                 - nginx
             Vary:
@@ -469,14 +469,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZNCT2NN9BHX8BCWJ12PW","version":"1"}'
+                - '{"correlation_id":"01J9XDH3SSP673Q613MSVNTKT6","version":"1"}'
             X-Request-Id:
-                - 01J2HRZNCT2NN9BHX8BCWJ12PW
+                - 01J9XDH3SSP673Q613MSVNTKT6
             X-Runtime:
-                - "0.008475"
+                - "0.015038"
         status: 401 Unauthorized
         code: 401
-        duration: 10.265917ms
+        duration: 18.650709ms
     - id: 8
       request:
         proto: HTTP/1.1
@@ -488,7 +488,7 @@ interactions:
         host: localhost:8080
         remote_addr: ""
         request_uri: ""
-        body: '{"name":"name","expires_at":"2024-07-11","scopes":["scope"]}'
+        body: '{"name":"name","expires_at":"2024-10-11","scopes":["scope"]}'
         form: {}
         headers:
             Accept:
@@ -496,7 +496,7 @@ interactions:
             Content-Type:
                 - application/json
             Private-Token:
-                - super-secret-token
+                - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
         url: http://localhost:8080/api/v4/users/0/personal_access_tokens
@@ -520,7 +520,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 11 Jul 2024 20:50:30 GMT
+                - Fri, 11 Oct 2024 09:11:05 GMT
             Server:
                 - nginx
             Vary:
@@ -530,11 +530,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J2HRZNDGH2RAGF5XTKRY9GRF","version":"1"}'
+                - '{"correlation_id":"01J9XDH3V040J2XHTTH7S1MY40","version":"1"}'
             X-Request-Id:
-                - 01J2HRZNDGH2RAGF5XTKRY9GRF
+                - 01J9XDH3V040J2XHTTH7S1MY40
             X-Runtime:
-                - "0.009658"
+                - "0.011736"
         status: 401 Unauthorized
         code: 401
-        duration: 11.621416ms
+        duration: 14.744167ms

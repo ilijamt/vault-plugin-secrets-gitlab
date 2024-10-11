@@ -1,0 +1,161 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups?search=test
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '[{"id":37,"web_url":"http://1b25ef517b98/groups/test","name":"test","path":"test","description":"","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}]},"avatar_url":null,"request_access_enabled":true,"full_name":"test","full_path":"test","created_at":"2024-10-11T07:48:18.836Z","parent_id":null,"organization_id":1,"shared_runners_setting":"enabled"},{"id":39,"web_url":"http://1b25ef517b98/groups/test/test1","name":"test1","path":"test1","description":"","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}]},"avatar_url":null,"request_access_enabled":true,"full_name":"test / test1","full_path":"test/test1","created_at":"2024-10-11T07:48:39.999Z","parent_id":37,"organization_id":1,"shared_runners_setting":"enabled"},{"id":40,"web_url":"http://1b25ef517b98/groups/test2","name":"test2","path":"test2","description":"","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}]},"avatar_url":null,"request_access_enabled":true,"full_name":"test2","full_path":"test2","created_at":"2024-10-11T07:48:59.139Z","parent_id":null,"organization_id":1,"shared_runners_setting":"enabled"}]'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 11 Oct 2024 09:11:06 GMT
+            Etag:
+                - W/"a5a174aa9f8d8a0f74463379f0b3c209"
+            Link:
+                - <http://1b25ef517b98/api/v4/groups?order_by=name&owned=false&page=1&per_page=20&search=test&sort=asc&statistics=false&with_custom_attributes=false>; rel="first", <http://1b25ef517b98/api/v4/groups?order_by=name&owned=false&page=1&per_page=20&search=test&sort=asc&statistics=false&with_custom_attributes=false>; rel="last"
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Accept-Encoding
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01J9XDH49C54CKK6P3D1TM8Y34","version":"1"}'
+            X-Next-Page:
+                - ""
+            X-Page:
+                - "1"
+            X-Per-Page:
+                - "20"
+            X-Prev-Page:
+                - ""
+            X-Request-Id:
+                - 01J9XDH49C54CKK6P3D1TM8Y34
+            X-Runtime:
+                - "0.096532"
+            X-Total:
+                - "3"
+            X-Total-Pages:
+                - "1"
+        status: 200 OK
+        code: 200
+        duration: 100.233625ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups?search=nonexistent
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 2
+        uncompressed: false
+        body: '[]'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "2"
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 11 Oct 2024 09:11:06 GMT
+            Etag:
+                - W/"4f53cda18c2baa0c0354bb5f9a3ecbe5"
+            Link:
+                - <http://1b25ef517b98/api/v4/groups?order_by=name&owned=false&page=1&per_page=20&search=nonexistent&sort=asc&statistics=false&with_custom_attributes=false>; rel="first", <http://1b25ef517b98/api/v4/groups?order_by=name&owned=false&page=1&per_page=20&search=nonexistent&sort=asc&statistics=false&with_custom_attributes=false>; rel="last"
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01J9XDH4FTSD2M8YSSYKV8DBWN","version":"1"}'
+            X-Next-Page:
+                - ""
+            X-Page:
+                - "1"
+            X-Per-Page:
+                - "20"
+            X-Prev-Page:
+                - ""
+            X-Request-Id:
+                - 01J9XDH4FTSD2M8YSSYKV8DBWN
+            X-Runtime:
+                - "0.113787"
+            X-Total:
+                - "0"
+            X-Total-Pages:
+                - "1"
+        status: 200 OK
+        code: 200
+        duration: 117.924292ms

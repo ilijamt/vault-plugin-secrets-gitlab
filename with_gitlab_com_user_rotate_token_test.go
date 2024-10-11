@@ -1,11 +1,9 @@
 package gitlab_test
 
 import (
-	"cmp"
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/vault/sdk/logical"
@@ -15,14 +13,8 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
 
-var (
-	gitlabComPersonalAccessToken = cmp.Or(os.Getenv("GITLAB_COM_TOKEN"), "glpat-invalid-value")
-	gitlabComUrl                 = cmp.Or(os.Getenv("GITLAB_COM_URL"), "https://gitlab.com")
-)
-
 func TestWithGitlabUser_RotateToken(t *testing.T) {
 	httpClient, _ := getClient(t)
-	url := gitlabComUrl
 	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)
@@ -33,9 +25,10 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 		Path:      gitlab.PathConfigStorage, Storage: l,
 		Data: map[string]any{
 			"token":              gitlabComPersonalAccessToken,
-			"base_url":           url,
+			"base_url":           gitlabComUrl,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
+			"type":               gitlab.TypeSaaS.String(),
 		},
 	})
 
@@ -65,7 +58,7 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 
 	// Old token should not have access anymore
 	{
-		c, err := g.NewClient(oldToken, g.WithHTTPClient(httpClient), g.WithBaseURL(url))
+		c, err := g.NewClient(oldToken, g.WithHTTPClient(httpClient), g.WithBaseURL(gitlabComUrl))
 		require.NoError(t, err)
 		require.NotNil(t, c)
 		pat, r, err := c.PersonalAccessTokens.GetSinglePersonalAccessToken()
@@ -77,7 +70,7 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 
 	// New token should have access
 	{
-		c, err := g.NewClient(newToken, g.WithHTTPClient(httpClient), g.WithBaseURL(url))
+		c, err := g.NewClient(newToken, g.WithHTTPClient(httpClient), g.WithBaseURL(gitlabComUrl))
 		require.NoError(t, err)
 		require.NotNil(t, c)
 		pat, r, err := c.PersonalAccessTokens.GetSinglePersonalAccessToken()
