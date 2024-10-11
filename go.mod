@@ -11,7 +11,7 @@ require (
 	github.com/xanzy/go-gitlab v0.111.0
 	golang.org/x/time v0.7.0
 	google.golang.org/protobuf v1.35.1
-	gopkg.in/dnaeon/go-vcr.v4 v4.0.2-0.20241010085657-e544a7e468e5
+	gopkg.in/dnaeon/go-vcr.v4 v4.0.2-0.20241011125548-e0eabf67b136
 )
 
 require (
