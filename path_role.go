@@ -428,8 +428,14 @@ func pathRoles(b *Backend) *framework.Path {
 }
 
 const (
-	pathRolesHelpSyn      = `Create a role with parameters that are used to generate a project, group or personal access token.`
-	pathRolesHelpDesc     = `This path allows you to create a role whose parameters will be used to generate a project, group, personal access access token, user service account or group service account.`
+	pathRolesHelpSyn  = `Create a role with parameters that are used to generate a various access tokens.`
+	pathRolesHelpDesc = `
+This path allows you to create a role with predefined parameters that will be used to generate tokens for different 
+access types in GitLab. The role defines the configuration for generating project, group, personal access tokens,
+user service accounts, or group service accounts.`
 	pathListRolesHelpSyn  = `Lists existing roles`
-	pathListRolesHelpDesc = `This path allows you to list all available roles.`
+	pathListRolesHelpDesc = `
+This path allows you to list all available roles that have been created within the GitLab Access Tokens Backend. 
+Each role defines a set of parameters, such as token permissions, scopes, and expiration settings, which are used 
+when generating access tokens.`
 )

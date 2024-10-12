@@ -12,7 +12,10 @@ import (
 
 const (
 	pathListConfigHelpSyn  = `Lists existing configs`
-	pathListConfigHelpDesc = `This path allows you to list all available configurations.`
+	pathListConfigHelpDesc = `
+This path allows you to list all available configurations that have been set up within the GitLab Access Tokens Backend. 
+These configurations typically include credentials, base URLs, and other settings required for managing access tokens 
+across different GitLab environments.`
 )
 
 func pathListConfig(b *Backend) *framework.Path {

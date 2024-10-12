@@ -69,7 +69,7 @@ you may or may not be able to access certain paths.
         Lists existing configs
 
     ^roles/(?P<role_name>\w(([\w-.@]+)?\w)?)$
-        Create a role with parameters that are used to generate a project, group or personal access token.
+        Create a role with parameters that are used to generate a various access tokens.
 
     ^roles?/?$
         Lists existing roles

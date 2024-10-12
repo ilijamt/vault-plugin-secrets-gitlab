@@ -16,8 +16,11 @@ import (
 
 const (
 	pathTokenRolesHelpSyn  = `Generate an access token based on the specified role`
-	pathTokenRolesHelpDesc = `This path allows you to generate an access token based on a predefined role. You must create a role beforehand in /roles/ path,
-whose parameters are used to generate an access token based on a predefined role.`
+	pathTokenRolesHelpDesc = `
+This path allows you to generate an access token based on a predefined role. The role must be created beforehand in 
+the ^roles/(?P<role_name>\w(([\w-.@]+)?\w)?)$ path, where its parameters, such as token permissions, scopes, and 
+expiration, are defined. When you request an access token through this path, Vault will use the predefined 
+role's parameters to create a new access token.`
 
 	PathTokenRoleStorage = "token"
 )
