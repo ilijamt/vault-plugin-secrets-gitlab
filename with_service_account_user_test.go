@@ -22,7 +22,7 @@ func TestWithServiceAccountUser(t *testing.T) {
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      gitlab.PathConfigStorage, Storage: l,
+		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		Data: map[string]any{
 			"token":              gitlabServiceAccountToken,
 			"base_url":           gitlabServiceAccountUrl,
@@ -37,8 +37,8 @@ func TestWithServiceAccountUser(t *testing.T) {
 	require.NoError(t, resp.Error())
 	require.NotEmpty(t, events)
 
-	require.NotNil(t, b.GetClient())
-	var gClient = b.GetClient().GitlabClient()
+	require.NotNil(t, b.GetClient(gitlab.DefaultConfigName))
+	var gClient = b.GetClient(gitlab.DefaultConfigName).GitlabClient()
 	require.NotNil(t, gClient)
 
 	// Create a service account user

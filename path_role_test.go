@@ -383,7 +383,7 @@ func TestPathRoles(t *testing.T) {
 		func() {
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.UpdateOperation,
-				Path:      gitlab.PathConfigStorage, Storage: l,
+				Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 				Data: defaultConfig,
 			})
 			require.NoError(t, err)

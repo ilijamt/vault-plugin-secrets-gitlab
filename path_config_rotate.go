@@ -1,6 +1,7 @@
 package gitlab
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"strconv"
@@ -15,8 +16,9 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 	return &framework.Path{
 		HelpSynopsis:    strings.TrimSpace(pathConfigHelpSynopsis),
 		HelpDescription: strings.TrimSpace(pathConfigHelpDescription),
-		Pattern:         fmt.Sprintf("%s/rotate$", PathConfigStorage),
-		Fields:          FieldSchemaConfig,
+		// Pattern:         fmt.Sprintf("%s/rotate$", PathConfigStorage),
+		Pattern: fmt.Sprintf("%s/%s/rotate$", PathConfigStorage, framework.GenericNameRegex("config_name")),
+		Fields:  FieldSchemaConfig,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,
 		},
@@ -39,18 +41,24 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 		return nil
 	}
 
-	_, err = b.pathConfigTokenRotate(ctx, request, &framework.FieldData{})
+	_, err = b.pathConfigTokenRotate(ctx, request, &framework.FieldData{
+		Raw: map[string]interface{}{
+			"config_name": cmp.Or(config.Name, TypeConfigDefault),
+		},
+		Schema: FieldSchemaConfig,
+	})
 	return err
 }
 
 func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+	var name = data.Get("config_name").(string)
 	b.Logger().Debug("Running pathConfigTokenRotate")
 	var config *EntryConfig
 	var client Client
 	var err error
 
 	b.lockClientMutex.RLock()
-	if config, err = getConfig(ctx, request.Storage); err != nil {
+	if config, err = getConfig(ctx, request.Storage, name); err != nil {
 		b.lockClientMutex.RUnlock()
 		b.Logger().Error("Failed to fetch configuration", "error", err.Error())
 		return nil, err
@@ -62,7 +70,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
 	}
 
-	if client, err = b.getClient(ctx, request.Storage); err != nil {
+	if client, err = b.getClient(ctx, request.Storage, name); err != nil {
 		return nil, err
 	}
 
@@ -99,6 +107,6 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		"name":       entryToken.Name,
 	})
 
-	b.SetClient(nil)
+	b.SetClient(nil, name)
 	return config.Response(), nil
 }

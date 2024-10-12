@@ -1,6 +1,7 @@
 package gitlab_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -18,7 +19,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":    "glpat-secret-random-token",
 				"base_url": url,
@@ -36,7 +37,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              "glpat-secret-random-token",
 				"base_url":           url,
@@ -55,7 +56,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              "glpat-secret-random-token",
 				"base_url":           url,
@@ -73,7 +74,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              "glpat-secret-random-token",
 				"base_url":           url,
@@ -92,7 +93,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              "glpat-secret-random-token",
 				"base_url":           url,
@@ -110,7 +111,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":    "glpat-secret-random-token",
 				"base_url": url,
@@ -128,7 +129,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              "glpat-secret-random-token",
 				"base_url":           url,
@@ -162,7 +163,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		b.SetClient(newInMemoryClient(true))
+		b.SetClient(newInMemoryClient(true), gitlab.DefaultConfigName)
 		err = b.PeriodicFunc(ctx, &logical.Request{Storage: l})
 		require.NoError(t, err)
 	})
@@ -181,11 +182,11 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		require.NoError(t, err)
 
 		client.rotateMainToken.Token = "new token"
-		b.SetClient(client)
+		b.SetClient(client, gitlab.DefaultConfigName)
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -199,7 +200,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -233,11 +234,11 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 
 		var expiresAt = time.Now().Add(100 * 24 * time.Hour)
 		client.mainTokenInfo.ExpiresAt = &expiresAt
-		b.SetClient(client)
+		b.SetClient(client, gitlab.DefaultConfigName)
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -251,7 +252,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)

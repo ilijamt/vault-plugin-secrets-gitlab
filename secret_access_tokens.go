@@ -52,19 +52,21 @@ func secretAccessTokens(b *Backend) *framework.Secret {
 }
 
 func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
-	var config *EntryConfig
 	var err error
-	config, err = getConfig(ctx, req.Storage)
-	if err != nil {
-		return nil, err
-	}
-	if config == nil {
-		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+
+	var config *EntryConfig
+	if req.Storage == nil {
+		return nil, fmt.Errorf("storage: %w", ErrNilValue)
 	}
 
 	var secret = req.Secret
 	if secret == nil {
 		return nil, fmt.Errorf("secret: %w", ErrNilValue)
+	}
+
+	var configName = DefaultConfigName
+	if val, ok := req.Secret.InternalData["config_name"]; ok {
+		configName = val.(string)
 	}
 
 	var tokenId int
@@ -73,16 +75,24 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		return nil, fmt.Errorf("token_id: %w", err)
 	}
 
+	config, err = getConfig(ctx, req.Storage, configName)
+	if err != nil {
+		return nil, err
+	}
+	if config == nil {
+		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+	}
+
+	var gitlabRevokesToken, _ = strconv.ParseBool(req.Secret.InternalData["gitlab_revokes_token"].(string))
+	var vaultRevokesToken = !gitlabRevokesToken
 	var parentId = req.Secret.InternalData["parent_id"].(string)
 	var tokenType TokenType
 	var tokenTypeValue = req.Secret.InternalData["token_type"].(string)
-	var gitlabRevokesToken, _ = strconv.ParseBool(req.Secret.InternalData["gitlab_revokes_token"].(string))
-	var vaultRevokesToken = !gitlabRevokesToken
 	tokenType, _ = TokenTypeParse(tokenTypeValue)
 
 	if vaultRevokesToken {
 		var client Client
-		client, err = b.getClient(ctx, req.Storage)
+		client, err = b.getClient(ctx, req.Storage, configName)
 		if err != nil {
 			return nil, fmt.Errorf("revoke token cannot get client: %w", err)
 		}

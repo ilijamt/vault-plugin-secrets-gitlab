@@ -64,6 +64,14 @@ var (
 				Name: "Auto Rotate Before",
 			},
 		},
+		"config_name": {
+			Type:        framework.TypeString,
+			Description: "Config name",
+			Required:    true,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Config name",
+			},
+		},
 	}
 )
 
@@ -71,17 +79,18 @@ func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, da
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()
 	var err error
+	var name = data.Get("config_name").(string)
 
-	if config, err := getConfig(ctx, req.Storage); err == nil {
+	if config, err := getConfig(ctx, req.Storage, name); err == nil {
 		if config == nil {
 			return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
 		}
 
-		if err = req.Storage.Delete(ctx, PathConfigStorage); err == nil {
+		if err = req.Storage.Delete(ctx, fmt.Sprintf("%s/%s", PathConfigStorage, name)); err == nil {
 			event(ctx, b.Backend, "config-delete", map[string]string{
 				"path": "config",
 			})
-			b.SetClient(nil)
+			b.SetClient(nil, name)
 		}
 	}
 
@@ -92,8 +101,9 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 	b.lockClientMutex.RLock()
 	defer b.lockClientMutex.RUnlock()
 
+	var name = data.Get("config_name").(string)
 	var config *EntryConfig
-	if config, err = getConfig(ctx, req.Storage); err == nil {
+	if config, err = getConfig(ctx, req.Storage, name); err == nil {
 		if config == nil {
 			return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
 		}
@@ -105,10 +115,11 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 }
 
 func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
+	var name = data.Get("config_name").(string)
 	var warnings []string
 	var changes map[string]string
 	var config *EntryConfig
-	config, err = getConfig(ctx, req.Storage)
+	config, err = getConfig(ctx, req.Storage, name)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +143,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 	if err = saveConfig(ctx, *config, req.Storage); err == nil {
 		lrd := config.LogicalResponseData()
 		event(ctx, b.Backend, "config-patch", changes)
-		b.SetClient(nil)
+		b.SetClient(nil, name)
 		b.Logger().Debug("Patched config", "lrd", lrd, "warnings", warnings)
 		lResp = &logical.Response{Data: lrd, Warnings: warnings}
 	}
@@ -147,7 +158,7 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfi
 	httpClient, _ = HttpClientFromContext(ctx)
 	if client, _ = GitlabClientFromContext(ctx); client == nil {
 		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
-			b.SetClient(client)
+			b.SetClient(client, config.Name)
 		}
 	}
 
@@ -165,11 +176,13 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfi
 }
 
 func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+	var name = data.Get("config_name").(string)
 	var config = new(EntryConfig)
 	var warnings, err = config.UpdateFromFieldData(data)
 	if err != nil {
 		return nil, err
 	}
+	config.Name = name
 
 	if _, err = b.updateConfigClientInfo(ctx, config); err != nil {
 		return nil, err
@@ -190,9 +203,10 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 			"expires_at":         config.TokenExpiresAt.Format(time.RFC3339),
 			"scopes":             strings.Join(config.Scopes, ", "),
 			"type":               config.Type.String(),
+			"config_name":        config.Name,
 		})
 
-		b.SetClient(nil)
+		b.SetClient(nil, name)
 		lrd := config.LogicalResponseData()
 		b.Logger().Debug("Wrote new config", "lrd", lrd, "warnings", warnings)
 		lResp = &logical.Response{Data: lrd, Warnings: warnings}
@@ -205,8 +219,9 @@ func pathConfig(b *Backend) *framework.Path {
 	return &framework.Path{
 		HelpSynopsis:    strings.TrimSpace(pathConfigHelpSynopsis),
 		HelpDescription: strings.TrimSpace(pathConfigHelpDescription),
-		Pattern:         fmt.Sprintf("%s$", PathConfigStorage),
-		Fields:          FieldSchemaConfig,
+		// Pattern:         fmt.Sprintf("%s$", PathConfigStorage),
+		Pattern: fmt.Sprintf("%s/%s", PathConfigStorage, framework.GenericNameWithAtRegex("config_name")),
+		Fields:  FieldSchemaConfig,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,
 		},

@@ -106,7 +106,7 @@ func getBackendWithEvents(ctx context.Context) (*gitlab.Backend, logical.Storage
 func writeBackendConfig(ctx context.Context, b *gitlab.Backend, l logical.Storage, config map[string]any) error {
 	var _, err = b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      gitlab.PathConfigStorage, Storage: l,
+		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		Data: config,
 	})
 	return err

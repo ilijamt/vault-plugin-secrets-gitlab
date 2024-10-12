@@ -99,7 +99,7 @@ The following data points can be used within your token name template. These are
 You can also use the following functions within your template:
 
 * `randHexString(bytes int) string` - Generates a random hexadecimal string with the specified number of bytes.
-* `stringsJoin((elems []string, sep string) string` - joins a list of `elems` strings with a `sep`
+* `stringsJoin(elems []string, sep string) string` - joins a list of `elems` strings with a `sep`
 * `yesNoBool(in bool) string` - just return `yes` if `in` is true otherwise it returns `no`
 * `timeNowFormat(layout string) string` - layout is a go time format string layout
 
@@ -167,8 +167,8 @@ If you use Vault to manage the tokens the minimal TTL you can use is `1h`, by se
 The command bellow will set up the config backend with a max TTL of 48h.
 
 ```shell
-$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token auto_rotate_token=false auto_rotate_before=48h type=self-managed
-$ vault read gitlab/config
+$ vault write gitlab/config/default base_url=https://gitlab.example.com token=gitlab-super-secret-token auto_rotate_token=false auto_rotate_before=48h type=self-managed
+$ vault read gitlab/config/default
 Key                   Value
 ---                   -----
 auto_rotate_before    48h0m0s
@@ -178,12 +178,13 @@ token_id              1
 token_expires_at      2025-03-29T00:00:00Z
 token_sha1_hash       9441e6e07d77a2d5601ab5d7cac5868d358d885c
 type                  self-managed
+name                  default
 ```
 
 After initial setup should you wish to change any value you can do so by using the patch command for example
 
 ```shell
-$ vault patch gitlab/config type=saas auto_rotate_token=true auto_rotate_before=64h token=glpat-secret-admin-token
+$ vault patch gitlab/config/default type=saas auto_rotate_token=true auto_rotate_before=64h token=glpat-secret-admin-token
 Key                   Value
 ---                   -----
 auto_rotate_before    64h0m0s
@@ -195,6 +196,7 @@ token_expires_at      2025-07-11T00:00:00Z
 token_id              2
 token_sha1_hash       c6e762667cadb936f0c8439b0d240661a270eba1
 type                  saas
+name                  default
 ```
 
 All the config properties as defined above in the Config section can be patched.

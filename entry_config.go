@@ -16,13 +16,14 @@ import (
 type EntryConfig struct {
 	TokenId          int           `json:"token_id" yaml:"token_id" mapstructure:"token_id"`
 	BaseURL          string        `json:"base_url" structs:"base_url" mapstructure:"base_url"`
-	Token            string        `json:"token" structs:"token" mapstructure:"token" validate:"min=10,max=40"`
+	Token            string        `json:"token" structs:"token" mapstructure:"token"`
 	AutoRotateToken  bool          `json:"auto_rotate_token" structs:"auto_rotate_token" mapstructure:"auto_rotate_token"`
 	AutoRotateBefore time.Duration `json:"auto_rotate_before" structs:"auto_rotate_before" mapstructure:"auto_rotate_before"`
 	TokenCreatedAt   time.Time     `json:"token_created_at" structs:"token_created_at" mapstructure:"token_created_at"`
 	TokenExpiresAt   time.Time     `json:"token_expires_at" structs:"token_expires_at" mapstructure:"token_expires_at"`
 	Scopes           []string      `json:"scopes" structs:"scopes" mapstructure:"scopes"`
-	Type             Type          `json:"type" structs:"type" mapstructure:"type" validate:"gitlab-type"`
+	Type             Type          `json:"type" structs:"type" mapstructure:"type"`
+	Name             string        `json:"name" structs:"name" mapstructure:"name"`
 }
 
 func (e *EntryConfig) Merge(data *framework.FieldData) (warnings []string, changes map[string]string, err error) {
@@ -170,12 +171,12 @@ func (e *EntryConfig) LogicalResponseData() map[string]any {
 	}
 }
 
-func getConfig(ctx context.Context, s logical.Storage) (cfg *EntryConfig, err error) {
+func getConfig(ctx context.Context, s logical.Storage, name string) (cfg *EntryConfig, err error) {
 	if s == nil {
 		return nil, fmt.Errorf("%w: local.Storage", ErrNilValue)
 	}
 	var entry *logical.StorageEntry
-	if entry, err = s.Get(ctx, PathConfigStorage); err == nil {
+	if entry, err = s.Get(ctx, fmt.Sprintf("%s/%s", PathConfigStorage, name)); err == nil {
 		if entry == nil {
 			return nil, nil
 		}
@@ -187,7 +188,7 @@ func getConfig(ctx context.Context, s logical.Storage) (cfg *EntryConfig, err er
 
 func saveConfig(ctx context.Context, config EntryConfig, s logical.Storage) (err error) {
 	var storageEntry *logical.StorageEntry
-	if storageEntry, err = logical.StorageEntryJSON(PathConfigStorage, config); err == nil {
+	if storageEntry, err = logical.StorageEntryJSON(fmt.Sprintf("%s/%s", PathConfigStorage, config.Name), config); err == nil {
 		err = s.Put(ctx, storageEntry)
 	}
 	return err

@@ -36,11 +36,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	var resp *logical.Response
 	var err error
 	var role *EntryRole
-	var roleName string
-
-	if roleName = data.Get("role_name").(string); roleName == "" {
-		return logical.ErrorResponse("missing role name"), nil
-	}
+	var roleName = data.Get("role_name").(string)
 
 	lock := locksutil.LockForKey(b.roleLocks, roleName)
 	lock.RLock()
@@ -73,7 +69,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 
 	_, expiresAt, _ = calculateGitlabTTL(role.TTL, startTime)
 
-	client, err = b.getClient(ctx, req.Storage)
+	client, err = b.getClient(ctx, req.Storage, role.Config)
 	if err != nil {
 		return nil, err
 	}
@@ -118,6 +114,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		return nil, cmp.Or(err, fmt.Errorf("%w: token is nil", ErrNilValue))
 	}
 
+	token.ConfigName = cmp.Or(role.Config, DefaultConfigName)
 	token.RoleName = role.RoleName
 	token.GitlabRevokesToken = role.GitlabRevokesTokens
 
