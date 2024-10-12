@@ -54,7 +54,6 @@ func secretAccessTokens(b *Backend) *framework.Secret {
 func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
 	var err error
 
-	var config *EntryConfig
 	if req.Storage == nil {
 		return nil, fmt.Errorf("storage: %w", ErrNilValue)
 	}
@@ -69,18 +68,16 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		configName = val.(string)
 	}
 
+	// var config *EntryConfig
+	// config, err = getConfig(ctx, req.Storage, configName)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
 	var tokenId int
 	tokenId, err = convertToInt(req.Secret.InternalData["token_id"])
 	if err != nil {
 		return nil, fmt.Errorf("token_id: %w", err)
-	}
-
-	config, err = getConfig(ctx, req.Storage, configName)
-	if err != nil {
-		return nil, err
-	}
-	if config == nil {
-		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
 	}
 
 	var gitlabRevokesToken, _ = strconv.ParseBool(req.Secret.InternalData["gitlab_revokes_token"].(string))
