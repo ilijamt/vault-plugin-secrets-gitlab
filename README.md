@@ -105,7 +105,7 @@ The current authentication model requires providing Vault with a Gitlab Token.
 |        scopes        |    no    |      []       |    no     | List of scopes                                                                                                       |
 |      token_type      |   yes    |      n/a      |    no     | Access token type                                                                                                    |
 | gitlab_revokes_token |    no    |      no       |    no     | Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires                      |
-|        config        |    no    |    default    |    no     | The configuration to use for the role                                                                                |
+|        config_name   |    no    |    default    |    no     | The configuration to use for the role                                                                                |
 
 #### path
 
