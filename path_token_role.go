@@ -156,7 +156,7 @@ func pathTokenRoles(b *Backend) *framework.Path {
 	return &framework.Path{
 		HelpSynopsis:    strings.TrimSpace(pathTokenRolesHelpSyn),
 		HelpDescription: strings.TrimSpace(pathTokenRolesHelpDesc),
-		Pattern:         fmt.Sprintf("%s/%s", PathTokenRoleStorage, framework.GenericNameWithAtRegex("role_name")),
+		Pattern:         fmt.Sprintf("%s/%s", PathTokenRoleStorage, framework.GenericNameRegex("role_name")),
 		Fields:          FieldSchemaTokenRole,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,

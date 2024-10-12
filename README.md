@@ -59,7 +59,7 @@ any of the paths below, use the help command with any route matching
 the path pattern. Note that depending on the policy of your auth token,
 you may or may not be able to access certain paths.
 
-    ^config/(?P<config_name>\w(([\w-.@]+)?\w)?)$
+    ^config/(?P<config_name>\w(([\w-.]+)?\w)?)$
         Configure the Gitlab Access Tokens Backend.
 
     ^config/(?P<config_name>\w(([\w-.]+)?\w)?)/rotate$
@@ -68,13 +68,13 @@ you may or may not be able to access certain paths.
     ^config?/?$
         Lists existing configs
 
-    ^roles/(?P<role_name>\w(([\w-.@]+)?\w)?)$
+    ^roles/(?P<role_name>\w(([\w-.]+)?\w)?)$
         Create a role with parameters that are used to generate a various access tokens.
 
     ^roles?/?$
         Lists existing roles
 
-    ^token/(?P<role_name>\w(([\w-.@]+)?\w)?)$
+    ^token/(?P<role_name>\w(([\w-.]+)?\w)?)$
         Generate an access token based on the specified role
 ```
 
