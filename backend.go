@@ -85,31 +85,28 @@ type Backend struct {
 	roleLocks []*locksutil.LockEntry
 }
 
-func (b *Backend) periodicFunc(ctx context.Context, req *logical.Request) error {
+func (b *Backend) periodicFunc(ctx context.Context, req *logical.Request) (err error) {
 	b.Logger().Debug("Periodic action executing")
 
-	if !b.WriteSafeReplicationState() {
-		return nil
-	}
+	if b.WriteSafeReplicationState() {
+		var config *EntryConfig
 
-	var config *EntryConfig
-	var err error
+		b.lockClientMutex.Lock()
+		unlockLockClientMutex := sync.OnceFunc(func() { b.lockClientMutex.Unlock() })
+		defer unlockLockClientMutex()
 
-	b.lockClientMutex.Lock()
-	unlockLockClientMutex := sync.OnceFunc(func() { b.lockClientMutex.Unlock() })
-	defer unlockLockClientMutex()
+		var configs []string
+		configs, err = req.Storage.List(ctx, fmt.Sprintf("%s/", PathConfigStorage))
 
-	var configs []string
-	configs, err = req.Storage.List(ctx, fmt.Sprintf("%s/", PathConfigStorage))
-
-	for _, name := range configs {
-		if config, err = getConfig(ctx, req.Storage, name); err == nil {
-			b.Logger().Debug("Trying to rotate the config", "name", name)
-			unlockLockClientMutex()
-			if config != nil {
-				// If we need to autorotate the token, initiate the procedure to autorotate the token
-				if config.AutoRotateToken {
-					err = errors.Join(err, b.checkAndRotateConfigToken(ctx, req, config))
+		for _, name := range configs {
+			if config, err = getConfig(ctx, req.Storage, name); err == nil {
+				b.Logger().Debug("Trying to rotate the config", "name", name)
+				unlockLockClientMutex()
+				if config != nil {
+					// If we need to autorotate the token, initiate the procedure to autorotate the token
+					if config.AutoRotateToken {
+						err = errors.Join(err, b.checkAndRotateConfigToken(ctx, req, config))
+					}
 				}
 			}
 		}

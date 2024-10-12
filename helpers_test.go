@@ -131,11 +131,6 @@ func getBackendWithConfig(ctx context.Context, config map[string]any) (*gitlab.B
 	return b, storage, writeBackendConfig(ctx, b, storage, config)
 }
 
-func getBackendWithConfigName(ctx context.Context, config map[string]any, name string) (*gitlab.Backend, logical.Storage, error) {
-	var b, storage, _, _ = getBackendWithEvents(ctx)
-	return b, storage, writeBackendConfigWithName(ctx, b, storage, config, name)
-}
-
 func getBackend(ctx context.Context) (*gitlab.Backend, logical.Storage, error) {
 	b, storage, _, err := getBackendWithEvents(ctx)
 	return b, storage, err

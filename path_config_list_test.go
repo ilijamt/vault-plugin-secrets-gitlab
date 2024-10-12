@@ -1,6 +1,10 @@
 package gitlab_test
 
 import (
+	"cmp"
+	"fmt"
+	"os"
+	"slices"
 	"testing"
 
 	"github.com/hashicorp/vault/sdk/logical"
@@ -23,5 +27,91 @@ func TestPathConfigList(t *testing.T) {
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
 		assert.Empty(t, resp.Data)
+	})
+
+	t.Run("multiple configs", func(t *testing.T) {
+		ctx := getCtxGitlabClient(t)
+		var b, l, events, err = getBackendWithEventsAndConfigName(ctx,
+			map[string]any{
+				"token":    "glpat-secret-random-token",
+				"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
+				"type":     gitlab.TypeSaaS.String(),
+			},
+			gitlab.DefaultConfigName,
+		)
+		require.NoError(t, err)
+		require.NotNil(t, events)
+		require.NotNil(t, b)
+		require.NotNil(t, l)
+
+		require.NoError(t,
+			writeBackendConfigWithName(ctx, b, l,
+				map[string]any{
+					"token":    "glpat-secret-admin-token",
+					"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
+					"type":     gitlab.TypeSelfManaged.String(),
+				},
+				"admin",
+			),
+		)
+
+		require.NoError(t,
+			writeBackendConfigWithName(ctx, b, l,
+				map[string]any{
+					"token":    "glpat-secret-normal-token",
+					"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
+					"type":     gitlab.TypeDedicated.String(),
+				},
+				"normal",
+			),
+		)
+
+		resp, err := b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.ListOperation,
+			Path:      gitlab.PathConfigStorage, Storage: l,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NoError(t, resp.Error())
+		require.NotNil(t, resp.Data["keys"])
+		keysResponse := resp.Data["keys"].([]string)
+		slices.Sort(keysResponse)
+		keysExpected := []string{gitlab.DefaultConfigName, "admin", "normal"}
+		slices.Sort(keysExpected)
+		require.EqualValues(t, keysExpected, keysResponse)
+		require.Len(t, keysResponse, 3)
+
+		events.expectEvents(t, []expectedEvent{
+			{eventType: "gitlab/config-write"},
+			{eventType: "gitlab/config-write"},
+			{eventType: "gitlab/config-write"},
+		})
+
+		resp, err = b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotEmpty(t, resp.Data)
+		require.EqualValues(t, gitlab.TypeSaaS.String(), resp.Data["type"])
+
+		resp, err = b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      fmt.Sprintf("%s/normal", gitlab.PathConfigStorage), Storage: l,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotEmpty(t, resp.Data)
+		require.EqualValues(t, gitlab.TypeDedicated.String(), resp.Data["type"])
+
+		resp, err = b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      fmt.Sprintf("%s/admin", gitlab.PathConfigStorage), Storage: l,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotEmpty(t, resp.Data)
+		require.EqualValues(t, gitlab.TypeSelfManaged.String(), resp.Data["type"])
 	})
 }
