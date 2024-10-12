@@ -91,6 +91,8 @@ The following data points can be used within your token name template. These are
 * access_level
 * scopes
 * token_type
+* role_name
+* config_name
 * gitlab_revokes_token
 * unix_timestamp_utc
 

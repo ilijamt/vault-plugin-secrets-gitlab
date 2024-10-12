@@ -69,7 +69,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 
 	_, expiresAt, _ = calculateGitlabTTL(role.TTL, startTime)
 
-	client, err = b.getClient(ctx, req.Storage, role.Config)
+	client, err = b.getClient(ctx, req.Storage, role.ConfigName)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		return nil, cmp.Or(err, fmt.Errorf("%w: token is nil", ErrNilValue))
 	}
 
-	token.ConfigName = cmp.Or(role.Config, DefaultConfigName)
+	token.ConfigName = cmp.Or(role.ConfigName, DefaultConfigName)
 	token.RoleName = role.RoleName
 	token.GitlabRevokesToken = role.GitlabRevokesTokens
 

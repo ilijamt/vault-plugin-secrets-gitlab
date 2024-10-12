@@ -99,7 +99,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	}
 
 	event(ctx, b.Backend, "config-token-rotate", map[string]string{
-		"path":       "config",
+		"path":       fmt.Sprintf("%s/%s", PathConfigStorage, name),
 		"expires_at": entryToken.ExpiresAt.Format(time.RFC3339),
 		"created_at": entryToken.CreatedAt.Format(time.RFC3339),
 		"scopes":     strings.Join(entryToken.Scopes, ", "),

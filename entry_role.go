@@ -17,7 +17,7 @@ type EntryRole struct {
 	AccessLevel         AccessLevel   `json:"access_level" structs:"access_level" mapstructure:"access_level,omitempty"`
 	TokenType           TokenType     `json:"token_type" structs:"token_type" mapstructure:"token_type"`
 	GitlabRevokesTokens bool          `json:"gitlab_revokes_token" structs:"gitlab_revokes_token" mapstructure:"gitlab_revokes_token"`
-	Config              string        `json:"config" structs:"config" mapstructure:"config"`
+	ConfigName          string        `json:"config_name" structs:"config_name" mapstructure:"config_name"`
 }
 
 func (e EntryRole) LogicalResponseData() map[string]any {
@@ -30,7 +30,7 @@ func (e EntryRole) LogicalResponseData() map[string]any {
 		"ttl":                  int64(e.TTL / time.Second),
 		"token_type":           e.TokenType.String(),
 		"gitlab_revokes_token": e.GitlabRevokesTokens,
-		"config":               e.Config,
+		"config_name":          e.ConfigName,
 	}
 }
 

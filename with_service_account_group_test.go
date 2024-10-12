@@ -69,7 +69,7 @@ func TestWithServiceAccountGroup(t *testing.T) {
 	require.NotNil(t, resp)
 	require.NoError(t, resp.Error())
 	require.Empty(t, resp.Warnings)
-	require.EqualValues(t, resp.Data["config"], gitlab.TypeConfigDefault)
+	require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
 
 	// Get a new token for the service account
 	resp, err = b.HandleRequest(ctx, &logical.Request{

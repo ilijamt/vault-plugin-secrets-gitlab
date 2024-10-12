@@ -91,7 +91,7 @@ var (
 				Name: "Gitlab revokes token.",
 			},
 		},
-		"config": {
+		"config_name": {
 			Type:        framework.TypeString,
 			Default:     TypeConfigDefault,
 			Required:    false,
@@ -210,7 +210,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	var warnings []string
 	var tokenType TokenType
 	var accessLevel AccessLevel
-	var configName = cmp.Or(data.Get("config").(string), TypeConfigDefault)
+	var configName = cmp.Or(data.Get("config_name").(string), TypeConfigDefault)
 
 	b.lockClientMutex.RLock()
 	defer b.lockClientMutex.RUnlock()
@@ -235,7 +235,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		AccessLevel:         accessLevel,
 		TokenType:           tokenType,
 		GitlabRevokesTokens: data.Get("gitlab_revokes_token").(bool),
-		Config:              configName,
+		ConfigName:          configName,
 	}
 
 	// validate name of the entry role
@@ -248,7 +248,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		err = multierror.Append(err, fmt.Errorf("token_type='%s', should be one of %v: %w", data.Get("token_type").(string), validTokenTypes, ErrFieldInvalidValue))
 	}
 
-	var skipFields = []string{"config"}
+	var skipFields = []string{"config_name"}
 
 	// validate access level
 	var validAccessLevels []string

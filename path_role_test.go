@@ -197,7 +197,7 @@ func TestPathRoles(t *testing.T) {
 				require.NotNil(t, resp)
 				require.NoError(t, resp.Error())
 				require.Empty(t, resp.Warnings)
-				require.EqualValues(t, resp.Data["config"], gitlab.TypeConfigDefault)
+				require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
 			})
 		})
 
@@ -239,7 +239,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
-			require.EqualValues(t, resp.Data["config"], gitlab.TypeConfigDefault)
+			require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
@@ -284,7 +284,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
-			require.EqualValues(t, resp.Data["config"], gitlab.TypeConfigDefault)
+			require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
@@ -329,7 +329,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
-			require.EqualValues(t, resp.Data["config"], gitlab.TypeConfigDefault)
+			require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
@@ -412,7 +412,7 @@ func TestPathRoles(t *testing.T) {
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
 		require.Empty(t, resp.Warnings)
-		require.EqualValues(t, resp.Data["config"], gitlab.TypeConfigDefault)
+		require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
 
 		// read a role
 		resp, err = b.HandleRequest(ctx, &logical.Request{

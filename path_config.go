@@ -88,7 +88,7 @@ func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, da
 
 		if err = req.Storage.Delete(ctx, fmt.Sprintf("%s/%s", PathConfigStorage, name)); err == nil {
 			event(ctx, b.Backend, "config-delete", map[string]string{
-				"path": "config",
+				"path": fmt.Sprintf("%s/%s", PathConfigStorage, name),
 			})
 			b.SetClient(nil, name)
 		}
@@ -194,7 +194,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 
 	if err = saveConfig(ctx, *config, req.Storage); err == nil {
 		event(ctx, b.Backend, "config-write", map[string]string{
-			"path":               "config",
+			"path":               fmt.Sprintf("%s/%s", PathConfigStorage, name),
 			"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
 			"auto_rotate_before": config.AutoRotateBefore.String(),
 			"base_url":           config.BaseURL,
