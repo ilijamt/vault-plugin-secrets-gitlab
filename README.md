@@ -215,12 +215,14 @@ Key                   Value
 ---                   -----
 auto_rotate_before    48h0m0s
 auto_rotate_token     false
-base_url              https://gitlab.example.com
+base_url              http://localhost:8080
+name                  default
+scopes                api, read_api, read_user, sudo, admin_mode, create_runner, k8s_proxy, read_repository, write_repository, ai_features, read_service_ping
+token_created_at      2024-07-11T18:53:26Z
+token_expires_at      2025-07-11T00:00:00Z
 token_id              1
-token_expires_at      2025-03-29T00:00:00Z
 token_sha1_hash       9441e6e07d77a2d5601ab5d7cac5868d358d885c
 type                  self-managed
-name                  default
 ```
 
 After initial setup should you wish to change any value you can do so by using the patch command for example
@@ -231,14 +233,14 @@ Key                   Value
 ---                   -----
 auto_rotate_before    64h0m0s
 auto_rotate_token     true
-base_url              https://gitlab.example.com
+base_url              http://localhost:8080
+name                  default
 scopes                api, read_api, read_user, sudo, admin_mode, create_runner, k8s_proxy, read_repository, write_repository, ai_features, read_service_ping
-token_created_at      2024-07-11T18:53:26Z
+token_created_at      2024-07-11T18:53:46Z
 token_expires_at      2025-07-11T00:00:00Z
 token_id              2
 token_sha1_hash       c6e762667cadb936f0c8439b0d240661a270eba1
 type                  saas
-name                  default
 ```
 
 All the config properties as defined above in the Config section can be patched.
@@ -308,16 +310,24 @@ If the original token that has been supplied to the backend is not expired. We c
 to force a rotation of the main token. This would create a new token with the same expiration as the original token.
 
 ```shell
-$ vault write -f gitlab/config/rotate
+$ vault write -f gitlab/config/default/rotate
 Key                   Value
 ---                   -----
-auto_rotate_before    48h0m0s
-auto_rotate_token     false
-base_url              https://gitlab.example.com
-token_expires_at      2025-03-29T00:00:00Z
-token_id              110
-token_sha1_hash       b8ff3f9e560f29d15f756fc92a3b1d6602aaae55
+lease_id              gitlab/config/default/rotate/Ils8dp7PDXSWgb5dF4I2NPPS
+lease_duration        768h
+lease_renewable       false
+auto_rotate_before    64h0m0s
+auto_rotate_token     true
+base_url              http://localhost:8080
+name                  default
+scopes                api, read_api, read_user, sudo, admin_mode, create_runner, k8s_proxy, read_repository, write_repository, ai_features, read_service_ping
+token_created_at      2024-07-11T18:53:46Z
+token_expires_at      2024-10-12T20:02:11Z
+token_id              76
+token_sha1_hash       10e413692b345809f6b4db57c5d38fadaacbf9be
+type                  saas
 ```
+
 ## Upgrading
 
 ```shell

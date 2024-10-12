@@ -168,6 +168,7 @@ func (e *EntryConfig) LogicalResponseData() map[string]any {
 		"token_sha1_hash":    fmt.Sprintf("%x", sha1.Sum([]byte(e.Token))),
 		"scopes":             strings.Join(e.Scopes, ", "),
 		"type":               e.Type.String(),
+		"name":               e.Name,
 	}
 }
 
