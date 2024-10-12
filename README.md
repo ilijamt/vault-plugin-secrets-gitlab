@@ -99,7 +99,7 @@ The following data points can be used within your token name template. These are
 You can also use the following functions within your template:
 
 * `randHexString(bytes int) string` - Generates a random hexadecimal string with the specified number of bytes.
-* `stringsJoin((elems []string, sep string) string` - joins a list of `elems` strings with a `sep`
+* `stringsJoin(elems []string, sep string) string` - joins a list of `elems` strings with a `sep`
 * `yesNoBool(in bool) string` - just return `yes` if `in` is true otherwise it returns `no`
 * `timeNowFormat(layout string) string` - layout is a go time format string layout
 
