@@ -220,6 +220,28 @@ func TestPathRoles(t *testing.T) {
 		assert.EqualValues(t, 2, errorMap[gitlab.ErrFieldInvalidValue.Error()])
 	})
 
+	t.Run("invalid name template", func(t *testing.T) {
+		ctx := getCtxGitlabClient(t)
+		var b, l, err = getBackendWithConfig(ctx, defaultConfig)
+		require.NoError(t, err)
+		resp, err := b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.CreateOperation,
+			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Data: map[string]any{
+				"path":                 "user",
+				"name":                 "{{ . } invalid template",
+				"token_type":           gitlab.TokenTypePersonal.String(),
+				"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+				"scopes":               gitlab.ValidPersonalTokenScopes,
+				"gitlab_revokes_token": false,
+			},
+		})
+		require.Error(t, err)
+		require.NotNil(t, resp)
+		require.Error(t, resp.Error())
+		require.ErrorContains(t, resp.Error(), "invalid template")
+	})
+
 	t.Run("Project token scopes", func(t *testing.T) {
 		t.Run("valid scopes", func(t *testing.T) {
 			ctx := getCtxGitlabClient(t)
