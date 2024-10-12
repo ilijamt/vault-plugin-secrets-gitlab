@@ -22,7 +22,7 @@ const (
 )
 
 var (
-	fieldSchemaRoles = map[string]*framework.FieldSchema{
+	FieldSchemaRoles = map[string]*framework.FieldSchema{
 		"role_name": {
 			Type:        framework.TypeString,
 			Description: "Role name",
@@ -131,7 +131,7 @@ func pathListRoles(b *Backend) *framework.Path {
 					http.StatusOK: {{
 						Description: http.StatusText(http.StatusOK),
 						Fields: map[string]*framework.FieldSchema{
-							"role_name": fieldSchemaRoles["role_name"],
+							"role_name": FieldSchemaRoles["role_name"],
 						},
 					}},
 				},
@@ -270,7 +270,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	}
 
 	// check if all required fields are set
-	for name, field := range fieldSchemaRoles {
+	for name, field := range FieldSchemaRoles {
 		if slices.Contains(skipFields, name) {
 			continue
 		}
@@ -378,7 +378,7 @@ func pathRoles(b *Backend) *framework.Path {
 		HelpSynopsis:    strings.TrimSpace(pathRolesHelpSyn),
 		HelpDescription: strings.TrimSpace(pathRolesHelpDesc),
 		Pattern:         fmt.Sprintf("%s/%s", PathRoleStorage, framework.GenericNameWithAtRegex("role_name")),
-		Fields:          fieldSchemaRoles,
+		Fields:          FieldSchemaRoles,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,
 			OperationSuffix: "role",
@@ -419,7 +419,7 @@ func pathRoles(b *Backend) *framework.Path {
 						Description: http.StatusText(http.StatusNotFound),
 					}},
 					http.StatusOK: {{
-						Fields: fieldSchemaRoles,
+						Fields: FieldSchemaRoles,
 					}},
 				},
 			},

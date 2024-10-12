@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 )
@@ -18,7 +17,7 @@ const (
 )
 
 var (
-	fieldSchemaConfig = map[string]*framework.FieldSchema{
+	FieldSchemaConfig = map[string]*framework.FieldSchema{
 		"token": {
 			Type:        framework.TypeString,
 			Description: "The API access token required for authenticating requests to the GitLab API. This token must be a valid personal access token or any other type of token supported by GitLab for API access.",
@@ -69,103 +68,92 @@ var (
 )
 
 func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	b.lockClientMutex.RLock()
-	defer b.lockClientMutex.RUnlock()
-
-	config, err := getConfig(ctx, req.Storage)
-	if err != nil {
-		return nil, err
-	}
-
-	if config == nil {
-		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
-	}
-
-	if err = req.Storage.Delete(ctx, PathConfigStorage); err != nil {
-		return nil, err
-	}
-
-	event(ctx, b.Backend, "config-delete", map[string]string{
-		"path": "config",
-	})
-
-	return nil, nil
-}
-
-func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	b.lockClientMutex.RLock()
-	defer b.lockClientMutex.RUnlock()
-
-	config, err := getConfig(ctx, req.Storage)
-	if err != nil {
-		return nil, err
-	}
-
-	if config == nil {
-		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
-	}
-
-	lrd := config.LogicalResponseData()
-	b.Logger().Debug("Reading configuration info", "info", lrd)
-	return &logical.Response{
-		Data: config.LogicalResponseData(),
-	}, nil
-}
-
-func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	var warnings []string
-	var autoTokenRotateRaw, autoTokenRotateTtlOk = data.GetOk("auto_rotate_before")
-	var token, tokenOk = data.GetOk("token")
-	var gitlabType, gitlabTypeOk = data.GetOk("type")
+	b.lockClientMutex.Lock()
+	defer b.lockClientMutex.Unlock()
 	var err error
 
-	if !tokenOk {
-		err = multierror.Append(err, fmt.Errorf("token: %w", ErrFieldRequired))
-	}
-
-	if !gitlabTypeOk {
-		err = multierror.Append(err, fmt.Errorf("gitlab type: %w", ErrFieldRequired))
-	}
-
-	var config = EntryConfig{
-		BaseURL:         data.Get("base_url").(string),
-		AutoRotateToken: data.Get("auto_rotate_token").(bool),
-	}
-
-	if autoTokenRotateTtlOk {
-		atr, _ := convertToInt(autoTokenRotateRaw)
-		if atr > int(DefaultAutoRotateBeforeMaxTTL.Seconds()) {
-			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be bigger than %s: %w", DefaultAutoRotateBeforeMaxTTL, ErrInvalidValue))
-		} else if atr <= int(DefaultAutoRotateBeforeMinTTL.Seconds())-1 {
-			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be less than %s: %w", DefaultAutoRotateBeforeMinTTL, ErrInvalidValue))
-		} else {
-			config.AutoRotateBefore = time.Duration(atr) * time.Second
+	if config, err := getConfig(ctx, req.Storage); err == nil {
+		if config == nil {
+			return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
 		}
-	} else {
-		config.AutoRotateBefore = DefaultAutoRotateBeforeMinTTL
-		warnings = append(warnings, fmt.Sprintf("auto_rotate_token not specified setting to %s", DefaultAutoRotateBeforeMinTTL))
+
+		if err = req.Storage.Delete(ctx, PathConfigStorage); err == nil {
+			event(ctx, b.Backend, "config-delete", map[string]string{
+				"path": "config",
+			})
+			b.SetClient(nil)
+		}
 	}
 
+	return nil, err
+}
+
+func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
+	b.lockClientMutex.RLock()
+	defer b.lockClientMutex.RUnlock()
+
+	var config *EntryConfig
+	if config, err = getConfig(ctx, req.Storage); err == nil {
+		if config == nil {
+			return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+		}
+		lrd := config.LogicalResponseData()
+		b.Logger().Debug("Reading configuration info", "info", lrd)
+		lResp = &logical.Response{Data: config.LogicalResponseData()}
+	}
+	return lResp, err
+}
+
+func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
+	var warnings []string
+	var changes map[string]string
+	var config *EntryConfig
+	config, err = getConfig(ctx, req.Storage)
+	if err != nil {
+		return nil, err
+	}
+	if config == nil {
+		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+	}
+
+	warnings, changes, err = config.Merge(data)
 	if err != nil {
 		return nil, err
 	}
 
-	config.Token = token.(string)
-	config.Type = Type(gitlabType.(string))
+	if _, ok := data.GetOk("token"); ok {
+		if _, err = b.updateConfigClientInfo(ctx, config); err != nil {
+			return nil, err
+		}
+	}
 
+	b.lockClientMutex.Lock()
+	defer b.lockClientMutex.Unlock()
+	if err = saveConfig(ctx, *config, req.Storage); err == nil {
+		lrd := config.LogicalResponseData()
+		event(ctx, b.Backend, "config-patch", changes)
+		b.SetClient(nil)
+		b.Logger().Debug("Patched config", "lrd", lrd, "warnings", warnings)
+		lResp = &logical.Response{Data: lrd, Warnings: warnings}
+	}
+
+	return lResp, err
+
+}
+
+func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfig) (et *EntryToken, err error) {
 	var httpClient *http.Client
 	var client Client
 	httpClient, _ = HttpClientFromContext(ctx)
 	if client, _ = GitlabClientFromContext(ctx); client == nil {
-		if client, err = NewGitlabClient(&config, httpClient, b.Logger()); err == nil {
+		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
 			b.SetClient(client)
 		}
 	}
 
-	var et *EntryToken
 	et, err = client.CurrentTokenInfo()
 	if err != nil {
-		return nil, fmt.Errorf("token cannot be validated: %s", ErrInvalidValue)
+		return et, fmt.Errorf("token cannot be validated: %s", ErrInvalidValue)
 	}
 
 	config.TokenCreatedAt = *et.CreatedAt
@@ -173,33 +161,44 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	config.TokenId = et.TokenID
 	config.Scopes = et.Scopes
 
-	b.lockClientMutex.Lock()
-	defer b.lockClientMutex.Unlock()
-	err = saveConfig(ctx, config, req.Storage)
+	return et, nil
+}
+
+func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+	var config = new(EntryConfig)
+	var warnings, err = config.UpdateFromFieldData(data)
 	if err != nil {
 		return nil, err
 	}
 
-	event(ctx, b.Backend, "config-write", map[string]string{
-		"path":               "config",
-		"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
-		"auto_rotate_before": config.AutoRotateBefore.String(),
-		"base_url":           config.BaseURL,
-		"token_id":           strconv.Itoa(config.TokenId),
-		"created_at":         config.TokenCreatedAt.Format(time.RFC3339),
-		"expires_at":         config.TokenExpiresAt.Format(time.RFC3339),
-		"scopes":             strings.Join(config.Scopes, ", "),
-		"type":               config.Type.String(),
-	})
+	if _, err = b.updateConfigClientInfo(ctx, config); err != nil {
+		return nil, err
+	}
 
-	b.SetClient(nil)
-	lrd := config.LogicalResponseData()
-	b.Logger().Debug("Wrote new config", "lrd", lrd, "warnings", warnings)
-	return &logical.Response{
-		Data:     lrd,
-		Warnings: warnings,
-	}, nil
+	b.lockClientMutex.Lock()
+	defer b.lockClientMutex.Unlock()
+	var lResp *logical.Response
 
+	if err = saveConfig(ctx, *config, req.Storage); err == nil {
+		event(ctx, b.Backend, "config-write", map[string]string{
+			"path":               "config",
+			"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
+			"auto_rotate_before": config.AutoRotateBefore.String(),
+			"base_url":           config.BaseURL,
+			"token_id":           strconv.Itoa(config.TokenId),
+			"created_at":         config.TokenCreatedAt.Format(time.RFC3339),
+			"expires_at":         config.TokenExpiresAt.Format(time.RFC3339),
+			"scopes":             strings.Join(config.Scopes, ", "),
+			"type":               config.Type.String(),
+		})
+
+		b.SetClient(nil)
+		lrd := config.LogicalResponseData()
+		b.Logger().Debug("Wrote new config", "lrd", lrd, "warnings", warnings)
+		lResp = &logical.Response{Data: lrd, Warnings: warnings}
+	}
+
+	return lResp, err
 }
 
 func pathConfig(b *Backend) *framework.Path {
@@ -207,11 +206,21 @@ func pathConfig(b *Backend) *framework.Path {
 		HelpSynopsis:    strings.TrimSpace(pathConfigHelpSynopsis),
 		HelpDescription: strings.TrimSpace(pathConfigHelpDescription),
 		Pattern:         fmt.Sprintf("%s$", PathConfigStorage),
-		Fields:          fieldSchemaConfig,
+		Fields:          FieldSchemaConfig,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,
 		},
 		Operations: map[logical.Operation]framework.OperationHandler{
+			logical.PatchOperation: &framework.PathOperation{
+				Callback:     b.pathConfigPatch,
+				DisplayAttrs: &framework.DisplayAttributes{OperationVerb: "configure"},
+				Summary:      "Configure Backend level settings that are applied to all credentials.",
+				Responses: map[int][]framework.Response{
+					http.StatusNoContent: {{
+						Description: http.StatusText(http.StatusNoContent),
+					}},
+				},
+			},
 			logical.UpdateOperation: &framework.PathOperation{
 				Callback:     b.pathConfigWrite,
 				DisplayAttrs: &framework.DisplayAttributes{OperationVerb: "configure"},
@@ -232,7 +241,7 @@ func pathConfig(b *Backend) *framework.Path {
 				Responses: map[int][]framework.Response{
 					http.StatusOK: {{
 						Description: http.StatusText(http.StatusOK),
-						Fields:      fieldSchemaConfig,
+						Fields:      FieldSchemaConfig,
 					}},
 				},
 			},

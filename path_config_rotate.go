@@ -16,7 +16,7 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 		HelpSynopsis:    strings.TrimSpace(pathConfigHelpSynopsis),
 		HelpDescription: strings.TrimSpace(pathConfigHelpDescription),
 		Pattern:         fmt.Sprintf("%s/rotate$", PathConfigStorage),
-		Fields:          fieldSchemaConfig,
+		Fields:          FieldSchemaConfig,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,
 		},

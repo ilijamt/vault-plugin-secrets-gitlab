@@ -174,11 +174,30 @@ Key                   Value
 auto_rotate_before    48h0m0s
 auto_rotate_token     false
 base_url              https://gitlab.example.com
-token_id              107
+token_id              1
 token_expires_at      2025-03-29T00:00:00Z
-token_sha1_hash       1014647cd9bbf359d926fcacdf78e184db9dbedc
+token_sha1_hash       9441e6e07d77a2d5601ab5d7cac5868d358d885c
 type                  self-managed
 ```
+
+After initial setup should you wish to change any value you can do so by using the patch command for example
+
+```shell
+$ vault patch gitlab/config type=saas auto_rotate_token=true auto_rotate_before=64h token=glpat-secret-admin-token
+Key                   Value
+---                   -----
+auto_rotate_before    64h0m0s
+auto_rotate_token     true
+base_url              https://gitlab.example.com
+scopes                api, read_api, read_user, sudo, admin_mode, create_runner, k8s_proxy, read_repository, write_repository, ai_features, read_service_ping
+token_created_at      2024-07-11T18:53:26Z
+token_expires_at      2025-07-11T00:00:00Z
+token_id              2
+token_sha1_hash       c6e762667cadb936f0c8439b0d240661a270eba1
+type                  saas
+```
+
+All the config properties as defined above in the Config section can be patched.
 
 You may also need to configure the Max/Default TTL for a token that can be issued by setting:
 
