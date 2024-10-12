@@ -31,8 +31,8 @@ To learn specifically about how plugins work, see documentation on [Vault plugin
 ## GitLab
 
 - GitLab CE/EE - Self Managed
-- gitlab.com (cannot use personal access token)
-- Dedicated Instance (cannot use personal access token)
+- gitlab.com (cannot use personal access token, and user service account)
+- Dedicated Instance (cannot use personal access token, and user service account)
 
 ### Setup
 
