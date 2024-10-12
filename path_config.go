@@ -219,9 +219,8 @@ func pathConfig(b *Backend) *framework.Path {
 	return &framework.Path{
 		HelpSynopsis:    strings.TrimSpace(pathConfigHelpSynopsis),
 		HelpDescription: strings.TrimSpace(pathConfigHelpDescription),
-		// Pattern:         fmt.Sprintf("%s$", PathConfigStorage),
-		Pattern: fmt.Sprintf("%s/%s", PathConfigStorage, framework.GenericNameWithAtRegex("config_name")),
-		Fields:  FieldSchemaConfig,
+		Pattern:         fmt.Sprintf("%s/%s", PathConfigStorage, framework.GenericNameWithAtRegex("config_name")),
+		Fields:          FieldSchemaConfig,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,
 		},

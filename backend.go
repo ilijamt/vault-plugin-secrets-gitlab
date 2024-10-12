@@ -56,6 +56,7 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 		Paths: framework.PathAppend(
 			[]*framework.Path{
 				pathConfig(b),
+				pathListConfig(b),
 				pathConfigTokenRotate(b),
 				pathListRoles(b),
 				pathRoles(b),
@@ -84,7 +85,7 @@ type Backend struct {
 	roleLocks []*locksutil.LockEntry
 }
 
-func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) error {
+func (b *Backend) periodicFunc(ctx context.Context, req *logical.Request) error {
 	b.Logger().Debug("Periodic action executing")
 
 	if !b.WriteSafeReplicationState() {
@@ -97,17 +98,19 @@ func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) er
 	b.lockClientMutex.Lock()
 	unlockLockClientMutex := sync.OnceFunc(func() { b.lockClientMutex.Unlock() })
 	defer unlockLockClientMutex()
-	var configs = []string{DefaultConfigName}
+
+	var configs []string
+	configs, err = req.Storage.List(ctx, fmt.Sprintf("%s/", PathConfigStorage))
+
 	for _, name := range configs {
-		if config, err = getConfig(ctx, request.Storage, name); err == nil {
-			b.Logger().Debug("Trying to rotate the config", "name	2", name)
+		if config, err = getConfig(ctx, req.Storage, name); err == nil {
+			b.Logger().Debug("Trying to rotate the config", "name", name)
 			unlockLockClientMutex()
-			if config == nil {
-				continue // skip onto the next one
-			}
-			// If we need to autorotate the token, initiate the procedure to autorotate the token
-			if config.AutoRotateToken {
-				err = errors.Join(err, b.checkAndRotateConfigToken(ctx, request, config))
+			if config != nil {
+				// If we need to autorotate the token, initiate the procedure to autorotate the token
+				if config.AutoRotateToken {
+					err = errors.Join(err, b.checkAndRotateConfigToken(ctx, req, config))
+				}
 			}
 		}
 	}

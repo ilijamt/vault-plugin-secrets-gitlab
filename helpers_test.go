@@ -103,13 +103,17 @@ func getBackendWithEvents(ctx context.Context) (*gitlab.Backend, logical.Storage
 	return b.(*gitlab.Backend), config.StorageView, events, nil
 }
 
-func writeBackendConfig(ctx context.Context, b *gitlab.Backend, l logical.Storage, config map[string]any) error {
+func writeBackendConfigWithName(ctx context.Context, b *gitlab.Backend, l logical.Storage, config map[string]any, name string) error {
 	var _, err = b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, cmp.Or(name, gitlab.DefaultConfigName)), Storage: l,
 		Data: config,
 	})
 	return err
+}
+
+func writeBackendConfig(ctx context.Context, b *gitlab.Backend, l logical.Storage, config map[string]any) error {
+	return writeBackendConfigWithName(ctx, b, l, config, gitlab.DefaultConfigName)
 }
 
 func getBackendWithEventsAndConfig(ctx context.Context, config map[string]any) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
@@ -117,9 +121,19 @@ func getBackendWithEventsAndConfig(ctx context.Context, config map[string]any) (
 	return b, storage, events, writeBackendConfig(ctx, b, storage, config)
 }
 
+func getBackendWithEventsAndConfigName(ctx context.Context, config map[string]any, name string) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
+	var b, storage, events, _ = getBackendWithEvents(ctx)
+	return b, storage, events, writeBackendConfigWithName(ctx, b, storage, config, name)
+}
+
 func getBackendWithConfig(ctx context.Context, config map[string]any) (*gitlab.Backend, logical.Storage, error) {
 	var b, storage, _, _ = getBackendWithEvents(ctx)
 	return b, storage, writeBackendConfig(ctx, b, storage, config)
+}
+
+func getBackendWithConfigName(ctx context.Context, config map[string]any, name string) (*gitlab.Backend, logical.Storage, error) {
+	var b, storage, _, _ = getBackendWithEvents(ctx)
+	return b, storage, writeBackendConfigWithName(ctx, b, storage, config, name)
 }
 
 func getBackend(ctx context.Context) (*gitlab.Backend, logical.Storage, error) {
