@@ -12,13 +12,20 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 )
 
+const pathConfigRotateHelpSynopsis = `Rotate the gitlab token for this configuration.`
+
+const pathConfigRotateHelpDescription = `
+This endpoint allows you to rotate the GitLab token associated with your current configuration. When you invoke this 
+operation, Vault securely generates a new token and replaces the existing one without revealing the new token to you. 
+The newly generated token is securely stored within Vault's internal storage, ensuring that only Vault has 
+access to it for future use when interacting with the GitLab API.'`
+
 func pathConfigTokenRotate(b *Backend) *framework.Path {
 	return &framework.Path{
-		HelpSynopsis:    strings.TrimSpace(pathConfigHelpSynopsis),
-		HelpDescription: strings.TrimSpace(pathConfigHelpDescription),
-		// Pattern:         fmt.Sprintf("%s/rotate$", PathConfigStorage),
-		Pattern: fmt.Sprintf("%s/%s/rotate$", PathConfigStorage, framework.GenericNameRegex("config_name")),
-		Fields:  FieldSchemaConfig,
+		HelpSynopsis:    strings.TrimSpace(pathConfigRotateHelpSynopsis),
+		HelpDescription: strings.TrimSpace(pathConfigRotateHelpDescription),
+		Pattern:         fmt.Sprintf("%s/%s/rotate$", PathConfigStorage, framework.GenericNameRegex("config_name")),
+		Fields:          FieldSchemaConfig,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,
 		},
