@@ -31,12 +31,52 @@ To learn specifically about how plugins work, see documentation on [Vault plugin
 ## GitLab
 
 - GitLab CE/EE - Self Managed
-- gitlab.com (cannot use personal access token)
-- Dedicated Instance (cannot use personal access token)
+- gitlab.com (cannot use personal access token, and user service account)
+- Dedicated Instance (cannot use personal access token, and user service account)
 
 ### Setup
 
 Before we can use this plugin we need to create an access token that will have rights to do what we need to.
+
+## Paths
+
+For a list of the available endpoints you can check bellow or by running the command `vault path-help gitlab` for your version after you've mounted it.
+
+```shell
+$ vault path-help gitlab
+## DESCRIPTION
+
+The Gitlab Access token auth Backend dynamically generates private
+and group tokens.
+
+After mounting this Backend, credentials to manage Gitlab tokens must be configured
+with the "^config/(?P<config_name>\w(([\w-.@]+)?\w)?)$" endpoints.
+
+## PATHS
+
+The following paths are supported by this backend. To view help for
+any of the paths below, use the help command with any route matching
+the path pattern. Note that depending on the policy of your auth token,
+you may or may not be able to access certain paths.
+
+    ^config/(?P<config_name>\w(([\w-.@]+)?\w)?)$
+        Configure the Gitlab Access Tokens Backend.
+
+    ^config/(?P<config_name>\w(([\w-.]+)?\w)?)/rotate$
+        Rotate the gitlab token for this configuration.
+
+    ^config?/?$
+        Lists existing configs
+
+    ^roles/(?P<role_name>\w(([\w-.@]+)?\w)?)$
+        Create a role with parameters that are used to generate a various access tokens.
+
+    ^roles?/?$
+        Lists existing roles
+
+    ^token/(?P<role_name>\w(([\w-.@]+)?\w)?)$
+        Generate an access token based on the specified role
+```
 
 ## Security Model
 
@@ -91,6 +131,8 @@ The following data points can be used within your token name template. These are
 * access_level
 * scopes
 * token_type
+* role_name
+* config_name
 * gitlab_revokes_token
 * unix_timestamp_utc
 
@@ -167,15 +209,18 @@ If you use Vault to manage the tokens the minimal TTL you can use is `1h`, by se
 The command bellow will set up the config backend with a max TTL of 48h.
 
 ```shell
-$ vault write gitlab/config base_url=https://gitlab.example.com token=gitlab-super-secret-token auto_rotate_token=false auto_rotate_before=48h type=self-managed
-$ vault read gitlab/config
+$ vault write gitlab/config/default base_url=https://gitlab.example.com token=gitlab-super-secret-token auto_rotate_token=false auto_rotate_before=48h type=self-managed
+$ vault read gitlab/config/default
 Key                   Value
 ---                   -----
 auto_rotate_before    48h0m0s
 auto_rotate_token     false
-base_url              https://gitlab.example.com
+base_url              http://localhost:8080
+name                  default
+scopes                api, read_api, read_user, sudo, admin_mode, create_runner, k8s_proxy, read_repository, write_repository, ai_features, read_service_ping
+token_created_at      2024-07-11T18:53:26Z
+token_expires_at      2025-07-11T00:00:00Z
 token_id              1
-token_expires_at      2025-03-29T00:00:00Z
 token_sha1_hash       9441e6e07d77a2d5601ab5d7cac5868d358d885c
 type                  self-managed
 ```
@@ -183,14 +228,15 @@ type                  self-managed
 After initial setup should you wish to change any value you can do so by using the patch command for example
 
 ```shell
-$ vault patch gitlab/config type=saas auto_rotate_token=true auto_rotate_before=64h token=glpat-secret-admin-token
+$ vault patch gitlab/config/default type=saas auto_rotate_token=true auto_rotate_before=64h token=glpat-secret-admin-token
 Key                   Value
 ---                   -----
 auto_rotate_before    64h0m0s
 auto_rotate_token     true
-base_url              https://gitlab.example.com
+base_url              http://localhost:8080
+name                  default
 scopes                api, read_api, read_user, sudo, admin_mode, create_runner, k8s_proxy, read_repository, write_repository, ai_features, read_service_ping
-token_created_at      2024-07-11T18:53:26Z
+token_created_at      2024-07-11T18:53:46Z
 token_expires_at      2025-07-11T00:00:00Z
 token_id              2
 token_sha1_hash       c6e762667cadb936f0c8439b0d240661a270eba1
@@ -264,16 +310,24 @@ If the original token that has been supplied to the backend is not expired. We c
 to force a rotation of the main token. This would create a new token with the same expiration as the original token.
 
 ```shell
-$ vault write -f gitlab/config/rotate
+$ vault write -f gitlab/config/default/rotate
 Key                   Value
 ---                   -----
-auto_rotate_before    48h0m0s
-auto_rotate_token     false
-base_url              https://gitlab.example.com
-token_expires_at      2025-03-29T00:00:00Z
-token_id              110
-token_sha1_hash       b8ff3f9e560f29d15f756fc92a3b1d6602aaae55
+lease_id              gitlab/config/default/rotate/Ils8dp7PDXSWgb5dF4I2NPPS
+lease_duration        768h
+lease_renewable       false
+auto_rotate_before    64h0m0s
+auto_rotate_token     true
+base_url              http://localhost:8080
+name                  default
+scopes                api, read_api, read_user, sudo, admin_mode, create_runner, k8s_proxy, read_repository, write_repository, ai_features, read_service_ping
+token_created_at      2024-07-11T18:53:46Z
+token_expires_at      2024-10-12T20:02:11Z
+token_id              76
+token_sha1_hash       10e413692b345809f6b4db57c5d38fadaacbf9be
+type                  saas
 ```
+
 ## Upgrading
 
 ```shell

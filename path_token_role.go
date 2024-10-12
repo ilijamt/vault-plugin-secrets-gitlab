@@ -16,8 +16,11 @@ import (
 
 const (
 	pathTokenRolesHelpSyn  = `Generate an access token based on the specified role`
-	pathTokenRolesHelpDesc = `This path allows you to generate an access token based on a predefined role. You must create a role beforehand in /roles/ path,
-whose parameters are used to generate an access token based on a predefined role.`
+	pathTokenRolesHelpDesc = `
+This path allows you to generate an access token based on a predefined role. The role must be created beforehand in 
+the ^roles/(?P<role_name>\w(([\w-.@]+)?\w)?)$ path, where its parameters, such as token permissions, scopes, and 
+expiration, are defined. When you request an access token through this path, Vault will use the predefined 
+role's parameters to create a new access token.`
 
 	PathTokenRoleStorage = "token"
 )
@@ -36,11 +39,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	var resp *logical.Response
 	var err error
 	var role *EntryRole
-	var roleName string
-
-	if roleName = data.Get("role_name").(string); roleName == "" {
-		return logical.ErrorResponse("missing role name"), nil
-	}
+	var roleName = data.Get("role_name").(string)
 
 	lock := locksutil.LockForKey(b.roleLocks, roleName)
 	lock.RLock()
@@ -73,7 +72,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 
 	_, expiresAt, _ = calculateGitlabTTL(role.TTL, startTime)
 
-	client, err = b.getClient(ctx, req.Storage)
+	client, err = b.getClient(ctx, req.Storage, role.ConfigName)
 	if err != nil {
 		return nil, err
 	}
@@ -118,6 +117,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		return nil, cmp.Or(err, fmt.Errorf("%w: token is nil", ErrNilValue))
 	}
 
+	token.ConfigName = cmp.Or(role.ConfigName, DefaultConfigName)
 	token.RoleName = role.RoleName
 	token.GitlabRevokesToken = role.GitlabRevokesTokens
 

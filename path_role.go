@@ -18,7 +18,7 @@ import (
 
 const (
 	PathRoleStorage   = "roles"
-	TypeConfigDefault = "default"
+	TypeConfigDefault = DefaultConfigName
 )
 
 var (
@@ -91,7 +91,7 @@ var (
 				Name: "Gitlab revokes token.",
 			},
 		},
-		"config": {
+		"config_name": {
 			Type:        framework.TypeString,
 			Default:     TypeConfigDefault,
 			Required:    false,
@@ -210,13 +210,13 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	var warnings []string
 	var tokenType TokenType
 	var accessLevel AccessLevel
-	var configValue string
+	var configName = cmp.Or(data.Get("config_name").(string), TypeConfigDefault)
 
 	b.lockClientMutex.RLock()
 	defer b.lockClientMutex.RUnlock()
-	config, err = getConfig(ctx, req.Storage)
+	config, err = getConfig(ctx, req.Storage, configName)
 	if err != nil {
-		return logical.ErrorResponse("missing configuration for gitlab"), err
+		return logical.ErrorResponse(fmt.Sprintf("missing %s configuration for gitlab", configName)), err
 	}
 
 	if config == nil {
@@ -225,7 +225,6 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	tokenType, _ = TokenTypeParse(data.Get("token_type").(string))
 	accessLevel, _ = AccessLevelParse(data.Get("access_level").(string))
-	configValue = cmp.Or(data.Get("config").(string), TypeConfigDefault)
 
 	var role = EntryRole{
 		RoleName:            roleName,
@@ -236,7 +235,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		AccessLevel:         accessLevel,
 		TokenType:           tokenType,
 		GitlabRevokesTokens: data.Get("gitlab_revokes_token").(bool),
-		Config:              configValue,
+		ConfigName:          configName,
 	}
 
 	// validate name of the entry role
@@ -249,7 +248,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		err = multierror.Append(err, fmt.Errorf("token_type='%s', should be one of %v: %w", data.Get("token_type").(string), validTokenTypes, ErrFieldInvalidValue))
 	}
 
-	var skipFields = []string{"config"}
+	var skipFields = []string{"config_name"}
 
 	// validate access level
 	var validAccessLevels []string
@@ -429,8 +428,14 @@ func pathRoles(b *Backend) *framework.Path {
 }
 
 const (
-	pathRolesHelpSyn      = `Create a role with parameters that are used to generate a project, group or personal access token.`
-	pathRolesHelpDesc     = `This path allows you to create a role whose parameters will be used to generate a project, group or personal access access token.`
+	pathRolesHelpSyn  = `Create a role with parameters that are used to generate a various access tokens.`
+	pathRolesHelpDesc = `
+This path allows you to create a role with predefined parameters that will be used to generate tokens for different 
+access types in GitLab. The role defines the configuration for generating project, group, personal access tokens,
+user service accounts, or group service accounts.`
 	pathListRolesHelpSyn  = `Lists existing roles`
-	pathListRolesHelpDesc = `This path allows you to list all available roles.`
+	pathListRolesHelpDesc = `
+This path allows you to list all available roles that have been created within the GitLab Access Tokens Backend. 
+Each role defines a set of parameters, such as token permissions, scopes, and expiration settings, which are used 
+when generating access tokens.`
 )

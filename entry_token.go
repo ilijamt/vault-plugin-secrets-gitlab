@@ -18,6 +18,7 @@ type EntryToken struct {
 	Scopes             []string    `json:"scopes"`
 	AccessLevel        AccessLevel `json:"access_level"` // not used for personal access tokens
 	RoleName           string      `json:"role_name"`
+	ConfigName         string      `json:"config_name"`
 	GitlabRevokesToken bool        `json:"gitlab_revokes_token"`
 }
 
@@ -43,6 +44,7 @@ func (e EntryToken) SecretResponse() (map[string]any, map[string]any) {
 			"scopes":               e.Scopes,
 			"access_level":         e.AccessLevel.String(),
 			"role_name":            e.RoleName,
+			"config_name":          e.ConfigName,
 			"gitlab_revokes_token": strconv.FormatBool(e.GitlabRevokesToken),
 		}
 }

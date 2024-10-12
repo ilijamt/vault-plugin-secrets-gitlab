@@ -1,6 +1,7 @@
 package gitlab
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"strconv"
@@ -11,11 +12,19 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 )
 
+const pathConfigRotateHelpSynopsis = `Rotate the gitlab token for this configuration.`
+
+const pathConfigRotateHelpDescription = `
+This endpoint allows you to rotate the GitLab token associated with your current configuration. When you invoke this 
+operation, Vault securely generates a new token and replaces the existing one without revealing the new token to you. 
+The newly generated token is securely stored within Vault's internal storage, ensuring that only Vault has 
+access to it for future use when interacting with the GitLab API.'`
+
 func pathConfigTokenRotate(b *Backend) *framework.Path {
 	return &framework.Path{
-		HelpSynopsis:    strings.TrimSpace(pathConfigHelpSynopsis),
-		HelpDescription: strings.TrimSpace(pathConfigHelpDescription),
-		Pattern:         fmt.Sprintf("%s/rotate$", PathConfigStorage),
+		HelpSynopsis:    strings.TrimSpace(pathConfigRotateHelpSynopsis),
+		HelpDescription: strings.TrimSpace(pathConfigRotateHelpDescription),
+		Pattern:         fmt.Sprintf("%s/%s/rotate$", PathConfigStorage, framework.GenericNameRegex("config_name")),
 		Fields:          FieldSchemaConfig,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,
@@ -39,18 +48,24 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 		return nil
 	}
 
-	_, err = b.pathConfigTokenRotate(ctx, request, &framework.FieldData{})
+	_, err = b.pathConfigTokenRotate(ctx, request, &framework.FieldData{
+		Raw: map[string]interface{}{
+			"config_name": cmp.Or(config.Name, TypeConfigDefault),
+		},
+		Schema: FieldSchemaConfig,
+	})
 	return err
 }
 
 func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+	var name = data.Get("config_name").(string)
 	b.Logger().Debug("Running pathConfigTokenRotate")
 	var config *EntryConfig
 	var client Client
 	var err error
 
 	b.lockClientMutex.RLock()
-	if config, err = getConfig(ctx, request.Storage); err != nil {
+	if config, err = getConfig(ctx, request.Storage, name); err != nil {
 		b.lockClientMutex.RUnlock()
 		b.Logger().Error("Failed to fetch configuration", "error", err.Error())
 		return nil, err
@@ -62,7 +77,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
 	}
 
-	if client, err = b.getClient(ctx, request.Storage); err != nil {
+	if client, err = b.getClient(ctx, request.Storage, name); err != nil {
 		return nil, err
 	}
 
@@ -91,7 +106,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	}
 
 	event(ctx, b.Backend, "config-token-rotate", map[string]string{
-		"path":       "config",
+		"path":       fmt.Sprintf("%s/%s", PathConfigStorage, name),
 		"expires_at": entryToken.ExpiresAt.Format(time.RFC3339),
 		"created_at": entryToken.CreatedAt.Format(time.RFC3339),
 		"scopes":     strings.Join(entryToken.Scopes, ", "),
@@ -99,6 +114,6 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		"name":       entryToken.Name,
 	})
 
-	b.SetClient(nil)
+	b.SetClient(nil, name)
 	return config.Response(), nil
 }

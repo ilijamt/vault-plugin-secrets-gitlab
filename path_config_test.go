@@ -2,6 +2,7 @@ package gitlab_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
@@ -19,7 +20,7 @@ func TestPathConfig(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -34,7 +35,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -52,7 +53,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":    "glpat-secret-random-token",
 				"base_url": url,
@@ -66,7 +67,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		})
 
 		require.NoError(t, err)
@@ -78,7 +79,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.Nil(t, resp)
@@ -86,7 +87,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -107,7 +108,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":    "invalid-token",
 				"base_url": url,
@@ -128,7 +129,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{},
 		})
 
@@ -149,7 +150,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.PatchOperation,
-			Path:      gitlab.PathConfigStorage, Storage: nil,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: nil,
 			Data: map[string]any{
 				"token":    "glpat-secret-random-token",
 				"base_url": url,
@@ -170,7 +171,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.PatchOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":    "glpat-secret-random-token",
 				"base_url": url,
@@ -186,13 +187,14 @@ func TestPathConfig(t *testing.T) {
 	t.Run("patch a config", func(t *testing.T) {
 		httpClient, url := getClient(t)
 		ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
+		var path = fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName)
 
 		b, l, events, err := getBackendWithEvents(ctx)
 		require.NoError(t, err)
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      path, Storage: l,
 			Data: map[string]any{
 				"token":    "glpat-secret-random-token",
 				"base_url": url,
@@ -206,7 +208,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      path, Storage: l,
 		})
 
 		require.NoError(t, err)
@@ -215,11 +217,11 @@ func TestPathConfig(t *testing.T) {
 		tokenOriginalSha1Hash := resp.Data["token_sha1_hash"].(string)
 		require.NotEmpty(t, tokenOriginalSha1Hash)
 		require.Equal(t, gitlab.TypeSelfManaged.String(), resp.Data["type"])
-		require.NotNil(t, b.GetClient().GitlabClient())
+		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient())
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.PatchOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      path, Storage: l,
 			Data: map[string]interface{}{
 				"type":  gitlab.TypeSaaS.String(),
 				"token": "glpat-secret-admin-token",
@@ -233,7 +235,7 @@ func TestPathConfig(t *testing.T) {
 		require.NotEqual(t, tokenOriginalSha1Hash, tokenNewSha1Hash)
 
 		require.Equal(t, gitlab.TypeSaaS.String(), resp.Data["type"])
-		require.NotNil(t, b.GetClient().GitlabClient())
+		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient())
 
 		events.expectEvents(t, []expectedEvent{
 			{eventType: "gitlab/config-write"},

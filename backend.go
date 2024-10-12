@@ -1,8 +1,10 @@
 package gitlab
 
 import (
+	"cmp"
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -21,7 +23,7 @@ The Gitlab Access token auth Backend dynamically generates private
 and group tokens.
 
 After mounting this Backend, credentials to manage Gitlab tokens must be configured 
-with the "config/" endpoints.
+with the "^config/(?P<config_name>\w(([\w-.@]+)?\w)?)$" endpoints.
 `
 )
 
@@ -29,6 +31,7 @@ with the "config/" endpoints.
 func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend, error) {
 	var b = &Backend{
 		roleLocks: locksutil.CreateLocks(),
+		clients:   sync.Map{},
 	}
 
 	b.Backend = &framework.Backend{
@@ -53,6 +56,7 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 		Paths: framework.PathAppend(
 			[]*framework.Path{
 				pathConfig(b),
+				pathListConfig(b),
 				pathConfigTokenRotate(b),
 				pathListRoles(b),
 				pathRoles(b),
@@ -63,7 +67,6 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 		PeriodicFunc: b.periodicFunc,
 	}
 
-	b.SetClient(nil)
 	var err = b.Setup(ctx, conf)
 	return b, err
 }
@@ -72,7 +75,7 @@ type Backend struct {
 	*framework.Backend
 
 	// The client that we can use to create and revoke the access tokens
-	client Client
+	clients sync.Map
 
 	// Mutex to protect access to gitlab clients and client configs, a change to the gitlab client config
 	// would invalidate the gitlab client, so it will need to be reinitialized
@@ -82,27 +85,30 @@ type Backend struct {
 	roleLocks []*locksutil.LockEntry
 }
 
-func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) error {
+func (b *Backend) periodicFunc(ctx context.Context, req *logical.Request) (err error) {
 	b.Logger().Debug("Periodic action executing")
 
-	if !b.WriteSafeReplicationState() {
-		return nil
-	}
+	if b.WriteSafeReplicationState() {
+		var config *EntryConfig
 
-	var config *EntryConfig
-	var err error
+		b.lockClientMutex.Lock()
+		unlockLockClientMutex := sync.OnceFunc(func() { b.lockClientMutex.Unlock() })
+		defer unlockLockClientMutex()
 
-	b.lockClientMutex.Lock()
-	unlockLockClientMutex := sync.OnceFunc(func() { b.lockClientMutex.Unlock() })
-	defer unlockLockClientMutex()
-	if config, err = getConfig(ctx, request.Storage); err == nil {
-		unlockLockClientMutex()
-		if config == nil {
-			return nil
-		}
-		// If we need to autorotate the token, initiate the procedure to autorotate the token
-		if config.AutoRotateToken {
-			err = errors.Join(err, b.checkAndRotateConfigToken(ctx, request, config))
+		var configs []string
+		configs, err = req.Storage.List(ctx, fmt.Sprintf("%s/", PathConfigStorage))
+
+		for _, name := range configs {
+			if config, err = getConfig(ctx, req.Storage, name); err == nil {
+				b.Logger().Debug("Trying to rotate the config", "name", name)
+				unlockLockClientMutex()
+				if config != nil {
+					// If we need to autorotate the token, initiate the procedure to autorotate the token
+					if config.AutoRotateToken {
+						err = errors.Join(err, b.checkAndRotateConfigToken(ctx, req, config))
+					}
+				}
+			}
 		}
 	}
 
@@ -112,37 +118,46 @@ func (b *Backend) periodicFunc(ctx context.Context, request *logical.Request) er
 // Invalidate invalidates the key if required
 func (b *Backend) Invalidate(ctx context.Context, key string) {
 	b.Logger().Debug("Backend invalidate", "key", key)
-	if key == PathConfigStorage {
-		b.Logger().Warn("Gitlab config changed, reinitializing the gitlab client")
+	if strings.HasPrefix(key, PathConfigStorage) {
+		parts := strings.SplitN(key, "/", 2)
+		var name = parts[1]
+		b.Logger().Warn(fmt.Sprintf("Gitlab config for %s changed, reinitializing the gitlab client", name))
 		b.lockClientMutex.Lock()
 		defer b.lockClientMutex.Unlock()
-		b.client = nil
+		b.clients.Delete(name)
 	}
 }
 
-func (b *Backend) GetClient() Client {
-	return b.client
+func (b *Backend) GetClient(name string) Client {
+	if client, ok := b.clients.Load(cmp.Or(name, DefaultConfigName)); ok {
+		return client.(Client)
+	}
+	return nil
 }
 
-func (b *Backend) SetClient(client Client) {
+func (b *Backend) SetClient(client Client, name string) {
+	name = cmp.Or(name, DefaultConfigName)
 	if client == nil {
 		b.Logger().Debug("Setting a nil client")
 		return
 	}
 	b.Logger().Debug("Setting a new client")
-	b.client = client
+	b.clients.Store(name, client)
 }
 
-func (b *Backend) getClient(ctx context.Context, s logical.Storage) (client Client, err error) {
-	if b.client != nil && b.client.Valid() {
+func (b *Backend) getClient(ctx context.Context, s logical.Storage, name string) (client Client, err error) {
+	if c, ok := b.clients.Load(cmp.Or(name, DefaultConfigName)); ok {
+		client = c.(Client)
+	}
+	if client != nil && client.Valid() {
 		b.Logger().Debug("Returning existing gitlab client")
-		return b.client, nil
+		return client, nil
 	}
 
 	b.lockClientMutex.RLock()
 	defer b.lockClientMutex.RUnlock()
 	var config *EntryConfig
-	config, err = getConfig(ctx, s)
+	config, err = getConfig(ctx, s, name)
 	if err != nil {
 		b.Logger().Error("Failed to retrieve configuration", "error", err.Error())
 		return nil, err
@@ -152,7 +167,7 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage) (client Clie
 	httpClient, _ = HttpClientFromContext(ctx)
 	if client, _ = GitlabClientFromContext(ctx); client == nil {
 		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
-			b.SetClient(client)
+			b.SetClient(client, name)
 		}
 	}
 	return client, err

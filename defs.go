@@ -27,6 +27,7 @@ const (
 	DefaultAutoRotateBeforeMaxTTL       = 730 * time.Hour
 	ctxKeyHttpClient                    = contextKey("vpsg-ctx-key-http-client")
 	ctxKeyGitlabClient                  = contextKey("vpsg-ctx-key-gitlab-client")
+	DefaultConfigName                   = "default"
 )
 
 func HttpClientNewContext(ctx context.Context, httpClient *http.Client) context.Context {

@@ -22,7 +22,8 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      gitlab.PathConfigStorage, Storage: l,
+		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName),
+		Storage:   l,
 		Data: map[string]any{
 			"token":              gitlabComPersonalAccessToken,
 			"base_url":           gitlabComUrl,
@@ -43,7 +44,7 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 	{
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/rotate", gitlab.PathConfigStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/%s/rotate", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{},
 		})
 		require.NoError(t, err)

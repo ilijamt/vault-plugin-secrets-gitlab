@@ -1,7 +1,7 @@
 package gitlab_test
 
 import (
-	"reflect"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -16,13 +16,12 @@ func TestBackend(t *testing.T) {
 	b, _, err = getBackend(ctx)
 	require.NoError(t, err)
 	require.NotNil(t, b)
-	fv := reflect.ValueOf(b).Elem().FieldByName("client")
-	require.True(t, fv.IsNil())
-	b.SetClient(newInMemoryClient(true))
-	require.False(t, fv.IsNil())
-	b.Invalidate(ctx, gitlab.PathConfigStorage)
-	require.True(t, fv.IsNil())
-	b.SetClient(newInMemoryClient(true))
-	require.False(t, fv.IsNil())
+	require.Nil(t, b.GetClient(gitlab.DefaultConfigName))
+	b.SetClient(newInMemoryClient(true), gitlab.DefaultConfigName)
+	require.NotNil(t, b.GetClient(gitlab.DefaultConfigName))
+	b.Invalidate(ctx, fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName))
+	require.Nil(t, b.GetClient(gitlab.DefaultConfigName))
+	b.SetClient(newInMemoryClient(true), gitlab.DefaultConfigName)
+	require.NotNil(t, b.GetClient(gitlab.DefaultConfigName))
 	require.EqualValues(t, gitlab.Version, b.PluginVersion().Version)
 }

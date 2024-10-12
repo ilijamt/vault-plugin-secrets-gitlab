@@ -80,23 +80,22 @@ func (gc *gitlabClient) CreateGroupServiceAccountAccessToken(path string, groupI
 		ExpiresAt: (*g.ISOTime)(&expiresAt),
 		Scopes:    &scopes,
 	})
-	if err != nil {
-		return nil, err
+	if err == nil {
+		et = &EntryToken{
+			TokenID:     at.ID,
+			UserID:      userId,
+			ParentID:    groupId,
+			Path:        path,
+			Name:        name,
+			Token:       at.Token,
+			TokenType:   TokenTypeGroupServiceAccount,
+			CreatedAt:   at.CreatedAt,
+			ExpiresAt:   (*time.Time)(at.ExpiresAt),
+			Scopes:      scopes,
+			AccessLevel: AccessLevelUnknown,
+		}
 	}
-	et = &EntryToken{
-		TokenID:     at.ID,
-		UserID:      userId,
-		ParentID:    groupId,
-		Path:        path,
-		Name:        name,
-		Token:       at.Token,
-		TokenType:   TokenTypeGroupServiceAccount,
-		CreatedAt:   at.CreatedAt,
-		ExpiresAt:   (*time.Time)(at.ExpiresAt),
-		Scopes:      scopes,
-		AccessLevel: AccessLevelUnknown,
-	}
-	return et, nil
+	return et, err
 }
 
 func (gc *gitlabClient) CreateUserServiceAccountAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (et *EntryToken, err error) {

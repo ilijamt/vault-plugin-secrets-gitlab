@@ -25,7 +25,7 @@ func TestWithNormalUser_ProjectAT(t *testing.T) {
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      gitlab.PathConfigStorage, Storage: l,
+		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		Data: map[string]any{
 			"token":              "glpat-secret-normal-token",
 			"base_url":           url,

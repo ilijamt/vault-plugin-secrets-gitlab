@@ -2,6 +2,7 @@ package gitlab_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/vault/sdk/logical"
@@ -26,20 +27,11 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		events.expectEvents(t, []expectedEvent{})
 	})
 
-	t.Run("backend not configured", func(t *testing.T) {
-		events.resetEvents(t)
-		resp, err := b.Secret(gitlab.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{Storage: l})
-		require.NoError(t, err)
-		require.NotNil(t, resp)
-		require.ErrorContains(t, resp.Error(), gitlab.ErrBackendNotConfigured.Error())
-		events.expectEvents(t, []expectedEvent{})
-	})
-
 	t.Run("nil secret", func(t *testing.T) {
 		events.resetEvents(t)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              "glpat-secret-random-token",
 				"base_url":           url,
@@ -69,7 +61,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		events.resetEvents(t)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              "glpat-secret-random-token",
 				"base_url":           url,
