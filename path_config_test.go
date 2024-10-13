@@ -217,7 +217,7 @@ func TestPathConfig(t *testing.T) {
 		tokenOriginalSha1Hash := resp.Data["token_sha1_hash"].(string)
 		require.NotEmpty(t, tokenOriginalSha1Hash)
 		require.Equal(t, gitlab.TypeSelfManaged.String(), resp.Data["type"])
-		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient())
+		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx))
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.PatchOperation,
@@ -235,7 +235,7 @@ func TestPathConfig(t *testing.T) {
 		require.NotEqual(t, tokenOriginalSha1Hash, tokenNewSha1Hash)
 
 		require.Equal(t, gitlab.TypeSaaS.String(), resp.Data["type"])
-		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient())
+		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx))
 
 		events.expectEvents(t, []expectedEvent{
 			{eventType: "gitlab/config-write"},

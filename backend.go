@@ -149,7 +149,7 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage, name string)
 	if c, ok := b.clients.Load(cmp.Or(name, DefaultConfigName)); ok {
 		client = c.(Client)
 	}
-	if client != nil && client.Valid() {
+	if client != nil && client.Valid(ctx) {
 		b.Logger().Debug("Returning existing gitlab client")
 		return client, nil
 	}

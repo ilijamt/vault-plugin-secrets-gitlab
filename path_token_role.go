@@ -59,7 +59,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	var name string
 	var token *EntryToken
 	var expiresAt time.Time
-	var startTime = time.Now().UTC()
+	var startTime = TimeFromContext(ctx).UTC()
 
 	name, err = TokenName(role)
 	if err != nil {
@@ -80,22 +80,22 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	switch role.TokenType {
 	case TokenTypeGroup:
 		b.Logger().Debug("Creating group access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
-		token, err = client.CreateGroupAccessToken(role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
+		token, err = client.CreateGroupAccessToken(ctx, role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
 	case TokenTypeProject:
 		b.Logger().Debug("Creating project access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
-		token, err = client.CreateProjectAccessToken(role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
+		token, err = client.CreateProjectAccessToken(ctx, role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
 	case TokenTypePersonal:
 		var userId int
-		userId, err = client.GetUserIdByUsername(role.Path)
+		userId, err = client.GetUserIdByUsername(ctx, role.Path)
 		if err == nil {
 			b.Logger().Debug("Creating personal access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
-			token, err = client.CreatePersonalAccessToken(role.Path, userId, name, expiresAt, role.Scopes)
+			token, err = client.CreatePersonalAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
 		}
 	case TokenTypeUserServiceAccount:
 		var userId int
-		if userId, err = client.GetUserIdByUsername(role.Path); err == nil {
+		if userId, err = client.GetUserIdByUsername(ctx, role.Path); err == nil {
 			b.Logger().Debug("Creating user service account access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
-			token, err = client.CreateUserServiceAccountAccessToken(role.Path, userId, name, expiresAt, role.Scopes)
+			token, err = client.CreateUserServiceAccountAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
 		}
 	case TokenTypeGroupServiceAccount:
 		var serviceAccount, groupId string
@@ -105,9 +105,9 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		}
 
 		var userId int
-		if userId, err = client.GetUserIdByUsername(serviceAccount); err == nil {
+		if userId, err = client.GetUserIdByUsername(ctx, serviceAccount); err == nil {
 			b.Logger().Debug("Creating group service account access token for role", "path", role.Path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
-			token, err = client.CreateGroupServiceAccountAccessToken(role.Path, groupId, userId, name, expiresAt, role.Scopes)
+			token, err = client.CreateGroupServiceAccountAccessToken(ctx, role.Path, groupId, userId, name, expiresAt, role.Scopes)
 		}
 	default:
 		return logical.ErrorResponse("invalid token type"), fmt.Errorf("%s: %w", role.TokenType.String(), ErrUnknownTokenType)

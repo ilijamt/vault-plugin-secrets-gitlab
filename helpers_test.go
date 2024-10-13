@@ -175,7 +175,7 @@ type inMemoryClient struct {
 	accessTokens map[string]gitlab.EntryToken
 }
 
-func (i *inMemoryClient) GetGroupIdByPath(path string) (int, error) {
+func (i *inMemoryClient) GetGroupIdByPath(ctx context.Context, path string) (int, error) {
 	idx := slices.Index(i.groups, path)
 	if idx == -1 {
 		i.users = append(i.groups, path)
@@ -184,11 +184,11 @@ func (i *inMemoryClient) GetGroupIdByPath(path string) (int, error) {
 	return idx, nil
 }
 
-func (i *inMemoryClient) GitlabClient() *g.Client {
+func (i *inMemoryClient) GitlabClient(ctx context.Context) *g.Client {
 	return nil
 }
 
-func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(path string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Context, path string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.createGroupServiceAccountAccessTokenError {
@@ -197,17 +197,17 @@ func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(path string, group
 	return nil, nil
 }
 
-func (i *inMemoryClient) CreateUserServiceAccountAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
 	i.muLock.Lock()
 	if i.createUserServiceAccountAccessTokenError {
 		i.muLock.Unlock()
 		return nil, fmt.Errorf("CreateUserServiceAccountAccessToken")
 	}
 	i.muLock.Unlock()
-	return i.CreatePersonalAccessToken(username, userId, name, expiresAt, scopes)
+	return i.CreatePersonalAccessToken(ctx, username, userId, name, expiresAt, scopes)
 }
 
-func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(token string) error {
+func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(ctx context.Context, token string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.revokeUserServiceAccountPersonalAccessTokenError {
@@ -217,7 +217,7 @@ func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(token string) error
 	return nil
 }
 
-func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(token string) error {
+func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(ctx context.Context, token string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.revokeGroupServiceAccountPersonalAccessTokenError {
@@ -227,28 +227,28 @@ func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(token string) erro
 	return nil
 }
 
-func (i *inMemoryClient) CurrentTokenInfo() (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CurrentTokenInfo(ctx context.Context) (*gitlab.EntryToken, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	i.calledMainToken++
 	return &i.mainTokenInfo, nil
 }
 
-func (i *inMemoryClient) RotateCurrentToken() (*gitlab.EntryToken, *gitlab.EntryToken, error) {
+func (i *inMemoryClient) RotateCurrentToken(ctx context.Context) (*gitlab.EntryToken, *gitlab.EntryToken, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	i.calledRotateMainToken++
 	return &i.rotateMainToken, &i.mainTokenInfo, nil
 }
 
-func (i *inMemoryClient) Valid() bool {
+func (i *inMemoryClient) Valid(ctx context.Context) bool {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	i.calledValid++
 	return i.valid
 }
 
-func (i *inMemoryClient) CreatePersonalAccessToken(username string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.personalAccessTokenCreateError {
@@ -272,7 +272,7 @@ func (i *inMemoryClient) CreatePersonalAccessToken(username string, userId int, 
 	return &entryToken, nil
 }
 
-func (i *inMemoryClient) CreateGroupAccessToken(groupId string, name string, expiresAt time.Time, scopes []string, accessLevel gitlab.AccessLevel) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel gitlab.AccessLevel) (*gitlab.EntryToken, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.groupAccessTokenCreateError {
@@ -297,7 +297,7 @@ func (i *inMemoryClient) CreateGroupAccessToken(groupId string, name string, exp
 	return &entryToken, nil
 }
 
-func (i *inMemoryClient) CreateProjectAccessToken(projectId string, name string, expiresAt time.Time, scopes []string, accessLevel gitlab.AccessLevel) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel gitlab.AccessLevel) (*gitlab.EntryToken, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.projectAccessTokenCreateError {
@@ -322,7 +322,7 @@ func (i *inMemoryClient) CreateProjectAccessToken(projectId string, name string,
 	return &entryToken, nil
 }
 
-func (i *inMemoryClient) RevokePersonalAccessToken(tokenId int) error {
+func (i *inMemoryClient) RevokePersonalAccessToken(ctx context.Context, tokenId int) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.personalAccessTokenRevokeError {
@@ -332,7 +332,7 @@ func (i *inMemoryClient) RevokePersonalAccessToken(tokenId int) error {
 	return nil
 }
 
-func (i *inMemoryClient) RevokeProjectAccessToken(tokenId int, projectId string) error {
+func (i *inMemoryClient) RevokeProjectAccessToken(ctx context.Context, tokenId int, projectId string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.projectAccessTokenRevokeError {
@@ -342,7 +342,7 @@ func (i *inMemoryClient) RevokeProjectAccessToken(tokenId int, projectId string)
 	return nil
 }
 
-func (i *inMemoryClient) RevokeGroupAccessToken(tokenId int, groupId string) error {
+func (i *inMemoryClient) RevokeGroupAccessToken(ctx context.Context, tokenId int, groupId string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.groupAccessTokenRevokeError {
@@ -352,7 +352,7 @@ func (i *inMemoryClient) RevokeGroupAccessToken(tokenId int, groupId string) err
 	return nil
 }
 
-func (i *inMemoryClient) GetUserIdByUsername(username string) (int, error) {
+func (i *inMemoryClient) GetUserIdByUsername(ctx context.Context, username string) (int, error) {
 	idx := slices.Index(i.users, username)
 	if idx == -1 {
 		i.users = append(i.users, username)
@@ -385,4 +385,14 @@ func getCtxGitlabClient(t *testing.T) context.Context {
 func getCtxGitlabClientWithUrl(t *testing.T) (context.Context, string) {
 	httpClient, url := getClient(t)
 	return gitlab.HttpClientNewContext(context.Background(), httpClient), url
+}
+
+func ctxTestTime(ctx context.Context, tn string) (_ context.Context, t time.Time) {
+	switch tn {
+	case "TestGitlabClient_RotateCurrentToken", "TestWithGitlabUser_RotateToken":
+		t = time.Date(2024, 8, 12, 0, 0, 0, 0, time.UTC)
+	default:
+		t = time.Date(2024, 12, 12, 0, 0, 0, 0, time.UTC)
+	}
+	return gitlab.WithStaticTime(ctx, t), t
 }
