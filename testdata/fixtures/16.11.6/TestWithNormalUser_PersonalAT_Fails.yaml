@@ -32,7 +32,7 @@ interactions:
         trailer: {}
         content_length: -1
         uncompressed: true
-        body: '{"id":3,"name":"Initial token","revoked":false,"created_at":"2024-07-11T18:54:07.334Z","scopes":["api","read_api","read_user","create_runner","k8s_proxy","read_repository","write_repository","ai_features","read_service_ping"],"user_id":3,"last_used_at":"2024-10-12T07:08:04.484Z","active":true,"expires_at":"2025-07-11"}'
+        body: '{"id":3,"name":"Initial token","revoked":false,"created_at":"2024-07-11T18:54:07.334Z","scopes":["api","read_api","read_user","create_runner","k8s_proxy","read_repository","write_repository","ai_features","read_service_ping"],"user_id":3,"last_used_at":"2024-10-13T12:38:38.421Z","active":true,"expires_at":"2025-07-11"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -41,9 +41,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 12 Oct 2024 07:08:04 GMT
+                - Sun, 13 Oct 2024 12:38:39 GMT
             Etag:
-                - W/"882521c09243ae1cedf2ba0b451a8b14"
+                - W/"cc5eb58605b15a9d07c4de17559ec98c"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -58,14 +58,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J9ZRWJEJKR0VG4DNRYZ9D9HJ","version":"1"}'
+                - '{"correlation_id":"01JA2Y6KXPT9DDQTHS0P97ZW6R","version":"1"}'
             X-Request-Id:
-                - 01J9ZRWJEJKR0VG4DNRYZ9D9HJ
+                - 01JA2Y6KXPT9DDQTHS0P97ZW6R
             X-Runtime:
-                - "0.060524"
+                - "0.031431"
         status: 200 OK
         code: 200
-        duration: 68.569125ms
+        duration: 41.503625ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -106,7 +106,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 12 Oct 2024 07:08:04 GMT
+                - Sun, 13 Oct 2024 12:38:39 GMT
             Etag:
                 - W/"8e47761c8cfb2481e9983f2bd4b37cca"
             Link:
@@ -125,7 +125,7 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J9ZRWJJZMR4XKQ8G48D2QXCM","version":"1"}'
+                - '{"correlation_id":"01JA2Y6M0782M70WYC4FDZENSA","version":"1"}'
             X-Next-Page:
                 - ""
             X-Page:
@@ -135,16 +135,16 @@ interactions:
             X-Prev-Page:
                 - ""
             X-Request-Id:
-                - 01J9ZRWJJZMR4XKQ8G48D2QXCM
+                - 01JA2Y6M0782M70WYC4FDZENSA
             X-Runtime:
-                - "0.023643"
+                - "0.108940"
             X-Total:
                 - "1"
             X-Total-Pages:
                 - "1"
         status: 200 OK
         code: 200
-        duration: 27.55125ms
+        duration: 112.581917ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -156,7 +156,7 @@ interactions:
         host: localhost:8080
         remote_addr: ""
         request_uri: ""
-        body: '{"name":"personal","expires_at":"2024-10-18","scopes":["read_api"]}'
+        body: '{"name":"personal","expires_at":"2024-12-18","scopes":["read_api"]}'
         form: {}
         headers:
             Accept:
@@ -188,7 +188,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 12 Oct 2024 07:08:04 GMT
+                - Sun, 13 Oct 2024 12:38:40 GMT
             Server:
                 - nginx
             Vary:
@@ -198,11 +198,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01J9ZRWJMRH7TY32E38BP1WQRM","version":"1"}'
+                - '{"correlation_id":"01JA2Y6M7BXM6P5X757132A299","version":"1"}'
             X-Request-Id:
-                - 01J9ZRWJMRH7TY32E38BP1WQRM
+                - 01JA2Y6M7BXM6P5X757132A299
             X-Runtime:
-                - "0.017483"
+                - "0.019930"
         status: 403 Forbidden
         code: 403
-        duration: 20.619208ms
+        duration: 24.000625ms

@@ -82,7 +82,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	}
 
 	var entryToken *EntryToken
-	entryToken, _, err = client.RotateCurrentToken()
+	entryToken, _, err = client.RotateCurrentToken(ctx)
 	if err != nil {
 		b.Logger().Error("Failed to rotate main token", "err", err)
 		return nil, err

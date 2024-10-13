@@ -86,7 +86,8 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			require.Empty(t, resp.Warnings)
 			require.EqualValues(t, cfg, resp.Data["config_name"])
 
-			resp, err = b.HandleRequest(ctx, &logical.Request{
+			ctxIssueToken, _ := ctxTestTime(ctx, t.Name())
+			resp, err = b.HandleRequest(ctxIssueToken, &logical.Request{
 				Operation: logical.ReadOperation, Storage: l,
 				Path: fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, rd.rn),
 			})

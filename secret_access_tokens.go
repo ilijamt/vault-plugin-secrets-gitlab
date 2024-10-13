@@ -96,17 +96,17 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 
 		switch tokenType {
 		case TokenTypePersonal:
-			err = client.RevokePersonalAccessToken(tokenId)
+			err = client.RevokePersonalAccessToken(ctx, tokenId)
 		case TokenTypeProject:
-			err = client.RevokeProjectAccessToken(tokenId, parentId)
+			err = client.RevokeProjectAccessToken(ctx, tokenId, parentId)
 		case TokenTypeGroup:
-			err = client.RevokeGroupAccessToken(tokenId, parentId)
+			err = client.RevokeGroupAccessToken(ctx, tokenId, parentId)
 		case TokenTypeUserServiceAccount:
 			var token = req.Secret.InternalData["token"].(string)
-			err = client.RevokeUserServiceAccountAccessToken(token)
+			err = client.RevokeUserServiceAccountAccessToken(ctx, token)
 		case TokenTypeGroupServiceAccount:
 			var token = req.Secret.InternalData["token"].(string)
-			err = client.RevokeGroupServiceAccountAccessToken(token)
+			err = client.RevokeGroupServiceAccountAccessToken(ctx, token)
 		}
 
 		if err != nil && !errors.Is(err, ErrAccessTokenNotFound) {

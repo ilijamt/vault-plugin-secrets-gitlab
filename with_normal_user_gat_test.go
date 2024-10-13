@@ -64,7 +64,8 @@ func TestWithNormalUser_GAT(t *testing.T) {
 
 	// issue a group access token
 	{
-		resp, err := b.HandleRequest(ctx, &logical.Request{
+		ctxIssueToken, _ := ctxTestTime(ctx, t.Name())
+		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
 			Operation: logical.ReadOperation, Storage: l,
 			Path: fmt.Sprintf("%s/gat", gitlab.PathTokenRoleStorage),
 		})

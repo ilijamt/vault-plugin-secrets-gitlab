@@ -162,7 +162,7 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfi
 		}
 	}
 
-	et, err = client.CurrentTokenInfo()
+	et, err = client.CurrentTokenInfo(ctx)
 	if err != nil {
 		return et, fmt.Errorf("token cannot be validated: %s", ErrInvalidValue)
 	}

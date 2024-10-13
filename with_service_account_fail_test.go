@@ -41,7 +41,7 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 			require.NotEmpty(t, events)
 
 			require.NotNil(t, b.GetClient(gitlab.DefaultConfigName))
-			var gClient = b.GetClient(gitlab.DefaultConfigName).GitlabClient()
+			var gClient = b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx)
 			require.NotNil(t, gClient)
 
 			usr, _, err := gClient.Users.CreateServiceAccountUser()
