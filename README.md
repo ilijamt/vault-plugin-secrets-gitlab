@@ -313,20 +313,20 @@ to force a rotation of the main token. This would create a new token with the sa
 $ vault write -f gitlab/config/default/rotate
 Key                   Value
 ---                   -----
-lease_id              gitlab/config/default/rotate/Ils8dp7PDXSWgb5dF4I2NPPS
-lease_duration        768h
-lease_renewable       false
-auto_rotate_before    64h0m0s
-auto_rotate_token     true
+auto_rotate_before    48h0m0s
+auto_rotate_token     false
 base_url              http://localhost:8080
 name                  default
 scopes                api, read_api, read_user, sudo, admin_mode, create_runner, k8s_proxy, read_repository, write_repository, ai_features, read_service_ping
-token_created_at      2024-07-11T18:53:46Z
-token_expires_at      2024-10-12T20:02:11Z
-token_id              76
-token_sha1_hash       10e413692b345809f6b4db57c5d38fadaacbf9be
-type                  saas
+token                 glpat-VhoWnWJ7RYwE78dn7Nsj
+token_created_at      2024-10-15T12:57:47Z
+token_expires_at      2025-10-15T00:00:00Z
+token_id              43
+token_sha1_hash       91a91bb30f816770081c570504c5e2723bcb1f38
+type                  self-managed
 ```
+
+**Important**: Token will be showed after rotation, it will not be shown again.
 
 ## Upgrading
 
