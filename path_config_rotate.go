@@ -91,11 +91,11 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	config.Token = entryToken.Token
 	config.TokenId = entryToken.TokenID
 	config.Scopes = entryToken.Scopes
+	if entryToken.CreatedAt != nil {
+		config.TokenCreatedAt = *entryToken.CreatedAt
+	}
 	if entryToken.ExpiresAt != nil {
 		config.TokenExpiresAt = *entryToken.ExpiresAt
-	}
-	if entryToken.CreatedAt != nil {
-		config.TokenExpiresAt = *entryToken.CreatedAt
 	}
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()
