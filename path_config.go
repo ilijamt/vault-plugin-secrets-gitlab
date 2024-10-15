@@ -149,7 +149,6 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 	}
 
 	return lResp, err
-
 }
 
 func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfig) (et *EntryToken, err error) {

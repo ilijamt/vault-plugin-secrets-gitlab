@@ -53,6 +53,6 @@ func (b *Backend) pathConfigList(ctx context.Context, req *logical.Request, data
 	if err == nil {
 		lResp = logical.ListResponse(configs)
 	}
-	b.Logger().Debug("Available configs input the system", "configs", configs)
+	b.Logger().Debug("Available", "configs", configs)
 	return lResp, err
 }

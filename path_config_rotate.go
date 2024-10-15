@@ -57,12 +57,11 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 	return err
 }
 
-func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
 	var name = data.Get("config_name").(string)
 	b.Logger().Debug("Running pathConfigTokenRotate")
 	var config *EntryConfig
 	var client Client
-	var err error
 
 	b.lockClientMutex.RLock()
 	if config, err = getConfig(ctx, request.Storage, name); err != nil {
@@ -105,6 +104,8 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		return nil, err
 	}
 
+	lResp = &logical.Response{Data: config.LogicalResponseData()}
+	lResp.Data["token"] = config.Token
 	event(ctx, b.Backend, "config-token-rotate", map[string]string{
 		"path":       fmt.Sprintf("%s/%s", PathConfigStorage, name),
 		"expires_at": entryToken.ExpiresAt.Format(time.RFC3339),
@@ -115,5 +116,5 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	})
 
 	b.SetClient(nil, name)
-	return config.Response(), nil
+	return lResp, err
 }

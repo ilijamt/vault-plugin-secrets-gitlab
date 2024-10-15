@@ -52,10 +52,8 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 		require.NotNil(t, resp)
 		require.NotEqualValues(t, resp.Data["token"], gitlabComPersonalAccessToken)
 		oldToken = gitlabComPersonalAccessToken
-		require.NotNil(t, resp.Secret)
-		require.NotNil(t, resp.Secret.InternalData)
-		require.NotEmpty(t, resp.Secret.InternalData["token"])
-		newToken = resp.Secret.InternalData["token"].(string)
+		newToken = resp.Data["token"].(string)
+		require.Nil(t, resp.Secret) // This must not be a secret
 	}
 
 	// Old token should not have access anymore

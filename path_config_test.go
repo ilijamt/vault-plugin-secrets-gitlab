@@ -76,6 +76,7 @@ func TestPathConfig(t *testing.T) {
 		assert.NotEmpty(t, resp.Data["token_sha1_hash"])
 		assert.NotEmpty(t, resp.Data["base_url"])
 		require.Len(t, events.eventsProcessed, 1)
+		require.Empty(t, resp.Data["token"])
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,

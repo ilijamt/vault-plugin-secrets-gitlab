@@ -108,7 +108,7 @@ func (b *Backend) pathRolesList(ctx context.Context, req *logical.Request, data 
 	if err != nil {
 		return logical.ErrorResponse("Error listing roles"), err
 	}
-	b.Logger().Debug("Available roles input the system", "roles", roles)
+	b.Logger().Debug("Available", "roles", roles)
 	return logical.ListResponse(roles), nil
 }
 

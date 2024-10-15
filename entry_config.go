@@ -136,19 +136,6 @@ func (e *EntryConfig) UpdateFromFieldData(data *framework.FieldData) (warnings [
 	return warnings, err
 }
 
-func (e *EntryConfig) Response() *logical.Response {
-	return &logical.Response{
-		Secret: &logical.Secret{
-			LeaseOptions: logical.LeaseOptions{},
-			InternalData: map[string]any{
-				"token_id": e.TokenId,
-				"token":    e.Token,
-			},
-		},
-		Data: e.LogicalResponseData(),
-	}
-}
-
 func (e *EntryConfig) LogicalResponseData() map[string]any {
 	var tokenExpiresAt, tokenCreatedAt = "", ""
 	if !e.TokenExpiresAt.IsZero() {
