@@ -1,0 +1,5 @@
+/.terraform
+/.terraform.lock.hcl
+/.envrc
+/plan
+/terraform.tfstate*
