@@ -16,9 +16,10 @@ const pathConfigRotateHelpSynopsis = `Rotate the gitlab token for this configura
 
 const pathConfigRotateHelpDescription = `
 This endpoint allows you to rotate the GitLab token associated with your current configuration. When you invoke this 
-operation, Vault securely generates a new token and replaces the existing one without revealing the new token to you. 
-The newly generated token is securely stored within Vault's internal storage, ensuring that only Vault has 
-access to it for future use when interacting with the GitLab API.'`
+operation, Vault securely generates a new token and replaces the existing one revealing the new token to you. It
+will only reveal it once, after that you will be unable to retrieve it. The newly generated token is securely 
+stored within Vault's internal storage, ensuring that only Vault has access to it for future use when interacting 
+with the GitLab API.'`
 
 func pathConfigTokenRotate(b *Backend) *framework.Path {
 	return &framework.Path{
@@ -41,7 +42,7 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 
 func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *EntryConfig) error {
 	var err error
-	b.Logger().Debug("Running checkAndRotateConfigToken")
+	b.Logger().Debug("Running check and rotate config token")
 
 	if time.Until(config.TokenExpiresAt) > config.AutoRotateBefore {
 		b.Logger().Debug("Nothing to do it's not yet time to rotate the token")
