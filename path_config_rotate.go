@@ -42,10 +42,19 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 
 func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *EntryConfig) error {
 	var err error
-	b.Logger().Debug("Running check and rotate config token")
+	b.Logger().Debug("Running check and rotate config token",
+		"name", config.Name,
+		"tokenId", config.TokenId,
+	)
 
 	if time.Until(config.TokenExpiresAt) > config.AutoRotateBefore {
-		b.Logger().Debug("Nothing to do it's not yet time to rotate the token")
+		b.Logger().Debug("Nothing to do it's not yet time to rotate the token",
+			"name", config.Name,
+			"tokenId", config.TokenId,
+			"expiresAt", config.TokenExpiresAt.String(),
+			"autoRotateBefore", config.AutoRotateBefore.String(),
+			"remainingTime", time.Until(config.TokenExpiresAt).String(),
+		)
 		return nil
 	}
 
@@ -60,7 +69,7 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 
 func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
 	var name = data.Get("config_name").(string)
-	b.Logger().Debug("Running pathConfigTokenRotate")
+	b.Logger().Debug("Running config token rotation", "config_name", name)
 	var config *EntryConfig
 	var client Client
 

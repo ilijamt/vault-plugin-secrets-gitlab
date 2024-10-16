@@ -39,13 +39,14 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 		Help:           strings.TrimSpace(backendHelp),
 		RunningVersion: Version,
 		Invalidate:     b.Invalidate,
+		Clean:          b.Clean,
 
 		PathsSpecial: &logical.Paths{
 			LocalStorage: []string{
 				framework.WALPrefix,
 			},
 			SealWrapStorage: []string{
-				PathConfigStorage,
+				fmt.Sprintf("%s/", PathConfigStorage),
 			},
 		},
 
@@ -85,6 +86,10 @@ type Backend struct {
 	roleLocks []*locksutil.LockEntry
 }
 
+func (b *Backend) Clean(ctx context.Context) {
+	b.Logger().Debug("Clean up")
+}
+
 func (b *Backend) periodicFunc(ctx context.Context, req *logical.Request) (err error) {
 	b.Logger().Debug("Periodic action executing")
 
@@ -97,10 +102,10 @@ func (b *Backend) periodicFunc(ctx context.Context, req *logical.Request) (err e
 
 		var configs []string
 		configs, err = req.Storage.List(ctx, fmt.Sprintf("%s/", PathConfigStorage))
+		b.Logger().Debug("Found config list", "configs", configs)
 
 		for _, name := range configs {
 			if config, err = getConfig(ctx, req.Storage, name); err == nil {
-				b.Logger().Debug("Trying to rotate the config", "name", name)
 				unlockLockClientMutex()
 				if config != nil {
 					// If we need to autorotate the token, initiate the procedure to autorotate the token
