@@ -33,7 +33,7 @@ var (
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "GitLab Base URL",
 			},
-			Description: `The base URL of your GitLab instance. This could be the URL of a self-hosted GitLab instance or the URL of the GitLab SaaS service (https://gitlab.com). The URL must be properly formatted, including the scheme (http or https). This field is essential as it determines the endpoint where API requests will be directed.`,
+			Description: `The base URL of your GitLab instance. This could be the URL of a self-managed GitLab instance or the URL of the GitLab SaaS service (https://gitlab.com). The URL must be properly formatted, including the scheme (http or https). This field is essential as it determines the endpoint where API requests will be directed.`,
 		},
 		"type": {
 			Type:     framework.TypeString,
@@ -43,7 +43,7 @@ var (
 				TypeSaaS,
 				TypeDedicated,
 			},
-			Description: `The type of GitLab instance you are connecting to. This could typically distinguish between 'self-hosted' for on-premises GitLab installations or 'saas' or 'dedicated' for the GitLab SaaS offering. This field helps the plugin to adjust any necessary configurations or request patterns specific to the type of GitLab instance.`,
+			Description: `The type of GitLab instance you are connecting to. This could typically distinguish between 'self-managed' for on-premises GitLab installations or 'saas' or 'dedicated' for the GitLab SaaS offering. This field helps the plugin to adjust any necessary configurations or request patterns specific to the type of GitLab instance.`,
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "GitLab Type",
 			},
