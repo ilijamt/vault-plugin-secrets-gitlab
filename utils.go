@@ -1,9 +1,20 @@
 package gitlab
 
 import (
+	"errors"
 	"fmt"
 	"time"
+
+	"github.com/hashicorp/go-multierror"
 )
+
+func multiErrWrap(err error) error {
+	var error *multierror.Error
+	if errors.As(err, &error) {
+		return err.(*multierror.Error).ErrorOrNil()
+	}
+	return err
+}
 
 func allowedValues(values ...string) (ret []any) {
 	for _, value := range values {
