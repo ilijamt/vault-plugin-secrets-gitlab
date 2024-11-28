@@ -10,7 +10,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/xanzy/go-gitlab v0.114.0
 	golang.org/x/time v0.8.0
-	google.golang.org/protobuf v1.35.1
+	google.golang.org/protobuf v1.35.2
 	gopkg.in/dnaeon/go-vcr.v4 v4.0.2
 )
 
