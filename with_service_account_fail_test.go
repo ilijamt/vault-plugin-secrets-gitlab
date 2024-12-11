@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
+	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
@@ -44,7 +45,7 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 			var gClient = b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx)
 			require.NotNil(t, gClient)
 
-			usr, _, err := gClient.Users.CreateServiceAccountUser()
+			usr, _, err := gClient.Users.CreateServiceAccountUser(&g.CreateServiceAccountUserOptions{})
 			require.NoError(t, err)
 			require.NotNil(t, usr)
 

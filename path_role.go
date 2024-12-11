@@ -266,6 +266,9 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	case TokenTypeGroupServiceAccount:
 		validAccessLevels = ValidGroupServiceAccountAccessLevels
 		skipFields = append(skipFields, "access_level")
+	case TokenPipelineProjectTrigger:
+		validAccessLevels = ValidPipelineProjectTriggerAccessLevels
+		skipFields = append(skipFields, "access_level", "scopes")
 	}
 
 	// check if all required fields are set
@@ -313,6 +316,10 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	if tokenType == TokenTypeGroupServiceAccount {
 		validScopes = append(validScopes, ValidGroupServiceAccountTokenScopes...)
 	}
+	if tokenType == TokenPipelineProjectTrigger {
+		validScopes = []string{}
+	}
+
 	for _, scope := range role.Scopes {
 		if !slices.Contains(validScopes, scope) {
 			invalidScopes = append(invalidScopes, scope)

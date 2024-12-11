@@ -17,6 +17,7 @@ through Vault.
 - Gitlab Group Access Tokens - https://docs.gitlab.com/ee/api/group_access_tokens.html
 - Gitlab User Service Account Tokens - https://docs.gitlab.com/ee/api/users.html#create-service-account-user
 - Gitlab Group Service Account Tokens - https://docs.gitlab.com/ee/api/group_service_accounts.html
+- Gitlab Pipeline Project Trigger Tokens - https://docs.gitlab.com/ee/api/pipeline_triggers.html
 
 ## Getting Started
 
@@ -92,7 +93,7 @@ The current authentication model requires providing Vault with a Gitlab Token.
 |      base_url      |   yes    |      n/a      |    no     | The address to access Gitlab                                                                                                                  |
 | auto_rotate_token  |    no    |      no       |    no     | Should we autorotate the token when it's close to expiry? (Experimental)                                                                      |
 | auto_rotate_before |    no    |      24h      |    no     | How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h             |
-|        type        |   yes    |      n/a      |    no     | The type of gitlab instance that we use can be one of saas, self-managed or dedicated                                                          |
+|        type        |   yes    |      n/a      |    no     | The type of gitlab instance that we use can be one of saas, self-managed or dedicated                                                         |
 
 ### Role
 
@@ -105,7 +106,7 @@ The current authentication model requires providing Vault with a Gitlab Token.
 |        scopes        |    no    |      []       |    no     | List of scopes                                                                                                       |
 |      token_type      |   yes    |      n/a      |    no     | Access token type                                                                                                    |
 | gitlab_revokes_token |    no    |      no       |    no     | Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires                      |
-|        config_name   |    no    |    default    |    no     | The configuration to use for the role                                                                                |
+|     config_name      |    no    |    default    |    no     | The configuration to use for the role                                                                                |
 
 #### path
 
@@ -154,11 +155,13 @@ Depending on `gitlab_revokes_token` the TTL will change.
 
 #### access_level 
 
-It's not required if `token_type` is set to `personal`. 
+It's not required if `token_type` is set to `personal` or `pipeline-project-trigger`.
 
 For a list of available roles check https://docs.gitlab.com/ee/user/permissions.html
 
 #### scopes
+
+It's not required if `token_type` is set to `pipeline-project-trigger`.
 
 Depending on the type of token you have different scopes:
 
@@ -175,6 +178,7 @@ Can be
 * group
 * user-service-account
 * group-service-account
+* pipeline-project-trigger
 
 #### gitlab_revokes_token
 
@@ -326,7 +330,7 @@ token_sha1_hash       91a91bb30f816770081c570504c5e2723bcb1f38
 type                  self-managed
 ```
 
-**Important**: Token will be showed after rotation, it will not be shown again.
+**Important**: Token will be shown only after rotation, and it will not be shown again.
 
 ## Upgrading
 

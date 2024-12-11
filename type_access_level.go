@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/xanzy/go-gitlab"
+	"gitlab.com/gitlab-org/api/client-go"
 )
 
 type AccessLevel string
@@ -56,6 +56,9 @@ var (
 		AccessLevelDeveloperPermissions.String(),
 		AccessLevelMaintainerPermissions.String(),
 		AccessLevelOwnerPermissions.String(),
+	}
+	ValidPipelineProjectTriggerAccessLevels = []string{
+		AccessLevelUnknown.String(),
 	}
 )
 

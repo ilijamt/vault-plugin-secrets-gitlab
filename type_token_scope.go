@@ -60,8 +60,9 @@ var (
 		TokenScopeK8SProxy.String(),
 	}
 
-	ValidGroupTokenScopes   = validTokenScopes
-	ValidProjectTokenScopes = validTokenScopes
+	ValidPipelineProjectTokenScopes []string
+	ValidGroupTokenScopes           = validTokenScopes
+	ValidProjectTokenScopes         = validTokenScopes
 
 	ValidPersonalTokenScopes = []string{
 		TokenScopeReadServicePing.String(),
@@ -95,6 +96,7 @@ func (i TokenScope) Value() string {
 
 func TokenScopeParse(value string) (TokenScope, error) {
 	if slices.Contains(ValidGroupTokenScopes, value) ||
+		slices.Contains(ValidPipelineProjectTokenScopes, value) ||
 		slices.Contains(ValidPersonalTokenScopes, value) ||
 		slices.Contains(ValidProjectTokenScopes, value) ||
 		slices.Contains(ValidUserServiceAccountTokenScopes, value) ||

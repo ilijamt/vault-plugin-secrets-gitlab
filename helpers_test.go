@@ -19,7 +19,7 @@ import (
 	"github.com/hashicorp/vault/sdk/helper/logging"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "github.com/xanzy/go-gitlab"
+	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
@@ -164,6 +164,8 @@ type inMemoryClient struct {
 	revokeGroupServiceAccountPersonalAccessTokenError bool
 	createUserServiceAccountAccessTokenError          bool
 	createGroupServiceAccountAccessTokenError         bool
+	createPipelineProjectTriggerAccessTokenError      bool
+	revokePipelineProjectTriggerAccessTokenError      bool
 
 	calledMainToken       int
 	calledRotateMainToken int
@@ -173,6 +175,24 @@ type inMemoryClient struct {
 	rotateMainToken gitlab.EntryToken
 
 	accessTokens map[string]gitlab.EntryToken
+}
+
+func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, description string) error {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.createGroupServiceAccountAccessTokenError {
+		return fmt.Errorf("CreatePipelineProjectTriggerAccessToken")
+	}
+	return nil
+}
+
+func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, tokenId int) error {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.createGroupServiceAccountAccessTokenError {
+		return fmt.Errorf("RevokePipelineProjectTriggerAccessToken")
+	}
+	return nil
 }
 
 func (i *inMemoryClient) GetGroupIdByPath(ctx context.Context, path string) (int, error) {

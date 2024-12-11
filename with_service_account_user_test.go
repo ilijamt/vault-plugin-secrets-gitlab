@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "github.com/xanzy/go-gitlab"
+	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
@@ -42,7 +42,7 @@ func TestWithServiceAccountUser(t *testing.T) {
 	require.NotNil(t, gClient)
 
 	// Create a service account user
-	usr, _, err := gClient.Users.CreateServiceAccountUser()
+	usr, _, err := gClient.Users.CreateServiceAccountUser(&g.CreateServiceAccountUserOptions{})
 	require.NoError(t, err)
 	require.NotNil(t, usr)
 

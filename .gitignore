@@ -38,3 +38,6 @@ fabric.properties
 go.work
 tmp/
 bin/
+/coverage.html
+/coverage.out
+.envrc

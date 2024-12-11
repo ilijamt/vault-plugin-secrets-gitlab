@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/sdk/helper/logging"
-	g "github.com/xanzy/go-gitlab"
+	g "gitlab.com/gitlab-org/api/client-go"
 	"golang.org/x/time/rate"
 )
 
@@ -37,6 +37,8 @@ type Client interface {
 	CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	RevokeUserServiceAccountAccessToken(ctx context.Context, token string) error
 	RevokeGroupServiceAccountAccessToken(ctx context.Context, token string) error
+	CreatePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, description string) error
+	RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, tokenId int) error
 }
 
 type gitlabClient struct {
@@ -44,6 +46,22 @@ type gitlabClient struct {
 	httpClient *http.Client
 	config     *EntryConfig
 	logger     hclog.Logger
+}
+
+func (gc *gitlabClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, description string) (err error) {
+	defer func() {
+		gc.logger.Debug("Created a pipeline project trigger access token", "projectId", description, "description", "error", err)
+	}()
+
+	return err
+}
+
+func (gc *gitlabClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, tokenId int) (err error) {
+	defer func() {
+		gc.logger.Debug("Revoked pipeline project trigger access token", "projectId", projectId, "tokenId", tokenId, "error", err)
+	}()
+
+	return err
 }
 
 func (gc *gitlabClient) GetGroupIdByPath(ctx context.Context, path string) (groupId int, err error) {
