@@ -168,7 +168,7 @@ Depending on the type of token you have different scopes:
 * `Personal` - https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#personal-access-token-scopes
 * `Project` - https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#scopes-for-a-project-access-token
 * `Group` - https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html#scopes-for-a-group-access-token
-
+* `Deploy` - https://docs.gitlab.com/ee/user/project/deploy_tokens/#scope
 #### token_types
 
 Can be 
@@ -179,6 +179,8 @@ Can be
 * user-service-account
 * group-service-account
 * pipeline-project-trigger
+* project-deploy
+* group-deploy
 
 #### gitlab_revokes_token
 
@@ -261,8 +263,6 @@ $ vault secrets tune -max-lease-ttl=8784h -default-lease-ttl=168h gitlab/
 Check https://developer.hashicorp.com/vault/docs/commands/secrets/tune for more information.
 
 There is a periodic func that runs that is responsible for autorotation and main token expiry time. 
-So in the beginning you may see  `token_expires_at n/a`. But when the function runs it will update itself 
-with the correct expiry date and the corresponding `token_id`.
 
 ### Roles
 

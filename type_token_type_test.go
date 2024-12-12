@@ -35,6 +35,18 @@ func TestTokenType(t *testing.T) {
 			input:    gitlab.TokenTypeGroupServiceAccount.String(),
 		},
 		{
+			expected: gitlab.TokenPipelineProjectTrigger,
+			input:    gitlab.TokenPipelineProjectTrigger.String(),
+		},
+		{
+			expected: gitlab.TokenProjectDeploy,
+			input:    gitlab.TokenProjectDeploy.String(),
+		},
+		{
+			expected: gitlab.TokenGroupDeploy,
+			input:    gitlab.TokenGroupDeploy.String(),
+		},
+		{
 			expected: gitlab.TokenTypeUnknown,
 			input:    "unknown",
 			err:      true,

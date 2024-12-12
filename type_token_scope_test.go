@@ -55,6 +55,14 @@ func TestTokenScope(t *testing.T) {
 			input:    gitlab.TokenScopeAdminMode.String(),
 		},
 		{
+			expected: gitlab.TokenScopeReadPackageRegistry,
+			input:    gitlab.TokenScopeReadPackageRegistry.String(),
+		},
+		{
+			expected: gitlab.TokenScopeWritePackageRegistry,
+			input:    gitlab.TokenScopeWritePackageRegistry.String(),
+		},
+		{
 			expected: gitlab.TokenScopeUnknown,
 			input:    "what",
 			err:      true,

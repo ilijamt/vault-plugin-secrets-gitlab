@@ -8,12 +8,14 @@ import (
 	"io"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 	"unicode"
 
+	"github.com/google/uuid"
 	log "github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/helper/logging"
@@ -177,13 +179,27 @@ type inMemoryClient struct {
 	accessTokens map[string]gitlab.EntryToken
 }
 
-func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, description string) error {
+func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, name string, projectId int, description string) (et *gitlab.EntryToken, err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.createPipelineProjectTriggerAccessTokenError {
-		return fmt.Errorf("CreatePipelineProjectTriggerAccessToken")
+		return nil, fmt.Errorf("CreatePipelineProjectTriggerAccessToken")
 	}
-	return nil
+	i.internalCounter++
+	var tokenId = i.internalCounter
+	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenPipelineProjectTrigger.String(), projectId, tokenId)
+	var entryToken = gitlab.EntryToken{
+		TokenID:   tokenId,
+		UserID:    projectId,
+		ParentID:  "",
+		Path:      strconv.Itoa(projectId),
+		Name:      name,
+		Token:     fmt.Sprintf("glptt-%s", uuid.New().String()),
+		TokenType: gitlab.TokenPipelineProjectTrigger,
+		CreatedAt: g.Ptr(time.Now()),
+	}
+	i.accessTokens[key] = entryToken
+	return &entryToken, nil
 }
 
 func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, tokenId int) error {
@@ -192,6 +208,8 @@ func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Con
 	if i.revokePipelineProjectTriggerAccessTokenError {
 		return fmt.Errorf("RevokePipelineProjectTriggerAccessToken")
 	}
+	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenPipelineProjectTrigger.String(), projectId, tokenId)
+	delete(i.accessTokens, key)
 	return nil
 }
 

@@ -269,6 +269,9 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	case TokenPipelineProjectTrigger:
 		validAccessLevels = ValidPipelineProjectTriggerAccessLevels
 		skipFields = append(skipFields, "access_level", "scopes")
+	case TokenDeploy:
+		validAccessLevels = ValidDeployTokenScopes
+		skipFields = append(skipFields, "access_level")
 	}
 
 	// check if all required fields are set

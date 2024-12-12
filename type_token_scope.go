@@ -22,6 +22,11 @@ const (
 	// TokenScopeWriteRepository grants read and write access (pull and push) to all repositories within expected group
 	TokenScopeWriteRepository = TokenScope("write_repository")
 
+	// TokenScopeReadPackageRegistry Allows read-only access to the package registry.
+	TokenScopeReadPackageRegistry = TokenScope("read_package_registry")
+	// TokenScopeWritePackageRegistry Allows read and write access to the package registry.
+	TokenScopeWritePackageRegistry = TokenScope("write_package_registry")
+
 	// TokenScopeCreateRunner grants permission to create runners in expected group
 	TokenScopeCreateRunner = TokenScope("create_runner")
 	// TokenScopeManageRunner grants permission to manage runners in expected group
@@ -64,6 +69,22 @@ var (
 	ValidGroupTokenScopes           = validTokenScopes
 	ValidProjectTokenScopes         = validTokenScopes
 
+	ValidProjectDeployTokenScopes = []string{
+		TokenScopeReadRepository.String(),
+		TokenScopeReadRepository.String(),
+		TokenScopeWriteRegistry.String(),
+		TokenScopeReadPackageRegistry.String(),
+		TokenScopeWritePackageRegistry.String(),
+	}
+
+	ValidGroupDeployTokenScopes = []string{
+		TokenScopeReadRepository.String(),
+		TokenScopeReadRepository.String(),
+		TokenScopeWriteRegistry.String(),
+		TokenScopeReadPackageRegistry.String(),
+		TokenScopeWritePackageRegistry.String(),
+	}
+
 	ValidPersonalTokenScopes = []string{
 		TokenScopeReadServicePing.String(),
 		TokenScopeReadUser.String(),
@@ -97,6 +118,8 @@ func (i TokenScope) Value() string {
 func TokenScopeParse(value string) (TokenScope, error) {
 	if slices.Contains(ValidGroupTokenScopes, value) ||
 		slices.Contains(ValidPipelineProjectTokenScopes, value) ||
+		slices.Contains(ValidGroupDeployTokenScopes, value) ||
+		slices.Contains(ValidProjectDeployTokenScopes, value) ||
 		slices.Contains(ValidPersonalTokenScopes, value) ||
 		slices.Contains(ValidProjectTokenScopes, value) ||
 		slices.Contains(ValidUserServiceAccountTokenScopes, value) ||

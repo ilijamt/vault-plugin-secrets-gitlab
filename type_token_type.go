@@ -15,6 +15,8 @@ const (
 	TokenTypeUserServiceAccount  = TokenType("user-service-account")
 	TokenTypeGroupServiceAccount = TokenType("group-service-account")
 	TokenPipelineProjectTrigger  = TokenType("pipeline-project-trigger")
+	TokenProjectDeploy           = TokenType("project-deploy")
+	TokenGroupDeploy             = TokenType("group-deploy")
 
 	TokenTypeUnknown = TokenType("")
 )
@@ -29,6 +31,8 @@ var (
 		TokenTypeUserServiceAccount.String(),
 		TokenTypeGroupServiceAccount.String(),
 		TokenPipelineProjectTrigger.String(),
+		TokenProjectDeploy.String(),
+		TokenGroupDeploy.String(),
 	}
 )
 

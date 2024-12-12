@@ -37,7 +37,7 @@ type Client interface {
 	CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	RevokeUserServiceAccountAccessToken(ctx context.Context, token string) error
 	RevokeGroupServiceAccountAccessToken(ctx context.Context, token string) error
-	CreatePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, description string) error
+	CreatePipelineProjectTriggerAccessToken(ctx context.Context, name string, projectId int, description string) (*EntryToken, error)
 	RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, tokenId int) error
 }
 
@@ -48,12 +48,12 @@ type gitlabClient struct {
 	logger     hclog.Logger
 }
 
-func (gc *gitlabClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, description string) (err error) {
+func (gc *gitlabClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, name string, projectId int, description string) (et *EntryToken, err error) {
 	defer func() {
 		gc.logger.Debug("Created a pipeline project trigger access token", "projectId", description, "description", "error", err)
 	}()
 
-	return err
+	return nil, err
 }
 
 func (gc *gitlabClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, tokenId int) (err error) {
