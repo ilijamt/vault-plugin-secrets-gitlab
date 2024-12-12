@@ -18,6 +18,7 @@ through Vault.
 - Gitlab User Service Account Tokens - https://docs.gitlab.com/ee/api/users.html#create-service-account-user
 - Gitlab Group Service Account Tokens - https://docs.gitlab.com/ee/api/group_service_accounts.html
 - Gitlab Pipeline Project Trigger Tokens - https://docs.gitlab.com/ee/api/pipeline_triggers.html
+- Gitlab Group/Project Deploy Tokens - https://docs.gitlab.com/ee/user/project/deploy_tokens
 
 ## Getting Started
 
