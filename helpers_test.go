@@ -180,7 +180,7 @@ type inMemoryClient struct {
 func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, description string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.createGroupServiceAccountAccessTokenError {
+	if i.createPipelineProjectTriggerAccessTokenError {
 		return fmt.Errorf("CreatePipelineProjectTriggerAccessToken")
 	}
 	return nil
@@ -189,7 +189,7 @@ func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Con
 func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, tokenId int) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.createGroupServiceAccountAccessTokenError {
+	if i.revokePipelineProjectTriggerAccessTokenError {
 		return fmt.Errorf("RevokePipelineProjectTriggerAccessToken")
 	}
 	return nil
