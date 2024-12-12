@@ -187,7 +187,7 @@ func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Con
 	}
 	i.internalCounter++
 	var tokenId = i.internalCounter
-	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenPipelineProjectTrigger.String(), projectId, tokenId)
+	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypePipelineProjectTrigger.String(), projectId, tokenId)
 	var entryToken = gitlab.EntryToken{
 		TokenID:   tokenId,
 		UserID:    projectId,
@@ -195,7 +195,7 @@ func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Con
 		Path:      strconv.Itoa(projectId),
 		Name:      name,
 		Token:     fmt.Sprintf("glptt-%s", uuid.New().String()),
-		TokenType: gitlab.TokenPipelineProjectTrigger,
+		TokenType: gitlab.TokenTypePipelineProjectTrigger,
 		CreatedAt: g.Ptr(time.Now()),
 	}
 	i.accessTokens[key] = entryToken
@@ -208,7 +208,7 @@ func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Con
 	if i.revokePipelineProjectTriggerAccessTokenError {
 		return fmt.Errorf("RevokePipelineProjectTriggerAccessToken")
 	}
-	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenPipelineProjectTrigger.String(), projectId, tokenId)
+	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypePipelineProjectTrigger.String(), projectId, tokenId)
 	delete(i.accessTokens, key)
 	return nil
 }

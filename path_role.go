@@ -266,11 +266,14 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	case TokenTypeGroupServiceAccount:
 		validAccessLevels = ValidGroupServiceAccountAccessLevels
 		skipFields = append(skipFields, "access_level")
-	case TokenPipelineProjectTrigger:
+	case TokenTypePipelineProjectTrigger:
 		validAccessLevels = ValidPipelineProjectTriggerAccessLevels
 		skipFields = append(skipFields, "access_level", "scopes")
-	case TokenDeploy:
-		validAccessLevels = ValidDeployTokenScopes
+	case TokenTypeProjectDeploy:
+		validAccessLevels = ValidProjectDeployAccessLevels
+		skipFields = append(skipFields, "access_level")
+	case TokenTypeGroupDeploy:
+		validAccessLevels = ValidGroupDeployAccessLevels
 		skipFields = append(skipFields, "access_level")
 	}
 
@@ -313,14 +316,18 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	if tokenType == TokenTypePersonal || tokenType == TokenTypeUserServiceAccount || tokenType == TokenTypeGroupServiceAccount {
 		validScopes = append(validScopes, ValidPersonalTokenScopes...)
 	}
-	if tokenType == TokenTypeUserServiceAccount {
+
+	switch tokenType {
+	case TokenTypeUserServiceAccount:
 		validScopes = append(validScopes, ValidUserServiceAccountTokenScopes...)
-	}
-	if tokenType == TokenTypeGroupServiceAccount {
+	case TokenTypeGroupServiceAccount:
 		validScopes = append(validScopes, ValidGroupServiceAccountTokenScopes...)
-	}
-	if tokenType == TokenPipelineProjectTrigger {
+	case TokenTypePipelineProjectTrigger:
 		validScopes = []string{}
+	case TokenTypeProjectDeploy:
+		validScopes = ValidProjectDeployTokenScopes
+	case TokenTypeGroupDeploy:
+		validScopes = ValidGroupDeployTokenScopes
 	}
 
 	for _, scope := range role.Scopes {

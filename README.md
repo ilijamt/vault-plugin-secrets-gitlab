@@ -170,6 +170,7 @@ Depending on the type of token you have different scopes:
 * `Project` - https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#scopes-for-a-project-access-token
 * `Group` - https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html#scopes-for-a-group-access-token
 * `Deploy` - https://docs.gitlab.com/ee/user/project/deploy_tokens/#scope
+
 #### token_types
 
 Can be 

@@ -57,9 +57,10 @@ var (
 		AccessLevelMaintainerPermissions.String(),
 		AccessLevelOwnerPermissions.String(),
 	}
-	ValidPipelineProjectTriggerAccessLevels = []string{
-		AccessLevelUnknown.String(),
-	}
+
+	ValidPipelineProjectTriggerAccessLevels = []string{AccessLevelUnknown.String()}
+	ValidProjectDeployAccessLevels          = []string{AccessLevelUnknown.String()}
+	ValidGroupDeployAccessLevels            = []string{AccessLevelUnknown.String()}
 )
 
 func (i AccessLevel) String() string {
