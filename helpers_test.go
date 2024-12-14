@@ -1,3 +1,5 @@
+//go:build unit || saas || selfhosted || local
+
 package gitlab_test
 
 import (

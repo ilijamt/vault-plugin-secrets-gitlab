@@ -1,3 +1,5 @@
+//go:build selfhosted
+
 package gitlab_test
 
 import (

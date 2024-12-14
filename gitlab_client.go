@@ -158,16 +158,25 @@ func (gc *gitlabClient) RevokeGroupServiceAccountAccessToken(ctx context.Context
 		BaseURL: gc.config.BaseURL,
 		Token:   token,
 	}, gc.httpClient); err == nil {
-		_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
+		_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf(g.WithContext(ctx))
 	}
 
 	return err
 }
 
+func (gc *gitlabClient) CurrentVersionInfo(ctx context.Context) (v *g.Version, err error) {
+	defer func() { gc.logger.Debug("Current version info", "version", v, "error", err) }()
+	v, _, err = gc.client.Version.GetVersion(g.WithContext(ctx))
+	if err != nil {
+		return nil, err
+	}
+	return v, nil
+}
+
 func (gc *gitlabClient) CurrentTokenInfo(ctx context.Context) (et *EntryToken, err error) {
 	var pat *g.PersonalAccessToken
 	defer func() { gc.logger.Debug("Current token info", "token", et, "error", err) }()
-	pat, _, err = gc.client.PersonalAccessTokens.GetSinglePersonalAccessToken()
+	pat, _, err = gc.client.PersonalAccessTokens.GetSinglePersonalAccessToken(g.WithContext(ctx))
 	if err != nil {
 		return nil, err
 	}

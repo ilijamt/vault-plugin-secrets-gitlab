@@ -231,6 +231,8 @@ token_expires_at      2025-07-11T00:00:00Z
 token_id              1
 token_sha1_hash       9441e6e07d77a2d5601ab5d7cac5868d358d885c
 type                  self-managed
+gitlab_version        17.5.3-ee
+gitlab_is_enterprise  true
 ```
 
 After initial setup should you wish to change any value you can do so by using the patch command for example
@@ -249,6 +251,8 @@ token_expires_at      2025-07-11T00:00:00Z
 token_id              2
 token_sha1_hash       c6e762667cadb936f0c8439b0d240661a270eba1
 type                  saas
+gitlab_version        17.7.0-pre
+gitlab_is_enterprise  true
 ```
 
 All the config properties as defined above in the Config section can be patched.

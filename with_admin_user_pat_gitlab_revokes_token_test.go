@@ -1,3 +1,5 @@
+//go:build local
+
 package gitlab_test
 
 import (

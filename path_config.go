@@ -171,6 +171,9 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfi
 	config.TokenId = et.TokenID
 	config.Scopes = et.Scopes
 
+	// config.GitlabIsEnterprise
+	// config.GitlabVersion
+
 	return et, nil
 }
 

@@ -1,3 +1,5 @@
+//go:build saas
+
 package gitlab_test
 
 import (

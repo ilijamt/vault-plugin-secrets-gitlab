@@ -14,16 +14,18 @@ import (
 )
 
 type EntryConfig struct {
-	TokenId          int           `json:"token_id" yaml:"token_id" mapstructure:"token_id"`
-	BaseURL          string        `json:"base_url" structs:"base_url" mapstructure:"base_url"`
-	Token            string        `json:"token" structs:"token" mapstructure:"token"`
-	AutoRotateToken  bool          `json:"auto_rotate_token" structs:"auto_rotate_token" mapstructure:"auto_rotate_token"`
-	AutoRotateBefore time.Duration `json:"auto_rotate_before" structs:"auto_rotate_before" mapstructure:"auto_rotate_before"`
-	TokenCreatedAt   time.Time     `json:"token_created_at" structs:"token_created_at" mapstructure:"token_created_at"`
-	TokenExpiresAt   time.Time     `json:"token_expires_at" structs:"token_expires_at" mapstructure:"token_expires_at"`
-	Scopes           []string      `json:"scopes" structs:"scopes" mapstructure:"scopes"`
-	Type             Type          `json:"type" structs:"type" mapstructure:"type"`
-	Name             string        `json:"name" structs:"name" mapstructure:"name"`
+	TokenId            int           `json:"token_id" yaml:"token_id" mapstructure:"token_id"`
+	BaseURL            string        `json:"base_url" structs:"base_url" mapstructure:"base_url"`
+	Token              string        `json:"token" structs:"token" mapstructure:"token"`
+	AutoRotateToken    bool          `json:"auto_rotate_token" structs:"auto_rotate_token" mapstructure:"auto_rotate_token"`
+	AutoRotateBefore   time.Duration `json:"auto_rotate_before" structs:"auto_rotate_before" mapstructure:"auto_rotate_before"`
+	TokenCreatedAt     time.Time     `json:"token_created_at" structs:"token_created_at" mapstructure:"token_created_at"`
+	TokenExpiresAt     time.Time     `json:"token_expires_at" structs:"token_expires_at" mapstructure:"token_expires_at"`
+	Scopes             []string      `json:"scopes" structs:"scopes" mapstructure:"scopes"`
+	Type               Type          `json:"type" structs:"type" mapstructure:"type"`
+	Name               string        `json:"name" structs:"name" mapstructure:"name"`
+	GitlabVersion      string        `json:"gitlab_version" structs:"gitlab_version" mapstructure:"gitlab_version"`
+	GitlabIsEnterprise bool          `json:"gitlab_is_enterprise" structs:"gitlab_is_enterprise" mapstructure:"gitlab_is_enterprise"`
 }
 
 func (e *EntryConfig) Merge(data *framework.FieldData) (warnings []string, changes map[string]string, err error) {
@@ -146,16 +148,18 @@ func (e *EntryConfig) LogicalResponseData() map[string]any {
 	}
 
 	return map[string]any{
-		"base_url":           e.BaseURL,
-		"auto_rotate_token":  e.AutoRotateToken,
-		"auto_rotate_before": e.AutoRotateBefore.String(),
-		"token_id":           e.TokenId,
-		"token_created_at":   tokenCreatedAt,
-		"token_expires_at":   tokenExpiresAt,
-		"token_sha1_hash":    fmt.Sprintf("%x", sha1.Sum([]byte(e.Token))),
-		"scopes":             strings.Join(e.Scopes, ", "),
-		"type":               e.Type.String(),
-		"name":               e.Name,
+		"base_url":             e.BaseURL,
+		"auto_rotate_token":    e.AutoRotateToken,
+		"auto_rotate_before":   e.AutoRotateBefore.String(),
+		"token_id":             e.TokenId,
+		"gitlab_version":       e.GitlabVersion,
+		"gitlab_is_enterprise": e.GitlabIsEnterprise,
+		"token_created_at":     tokenCreatedAt,
+		"token_expires_at":     tokenExpiresAt,
+		"token_sha1_hash":      fmt.Sprintf("%x", sha1.Sum([]byte(e.Token))),
+		"scopes":               strings.Join(e.Scopes, ", "),
+		"type":                 e.Type.String(),
+		"name":                 e.Name,
 	}
 }
 
