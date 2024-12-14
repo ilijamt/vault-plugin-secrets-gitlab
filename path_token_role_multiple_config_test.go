@@ -15,7 +15,7 @@ import (
 )
 
 func TestPathTokenRolesMultipleConfigs(t *testing.T) {
-	httpClient, gitlabUrl := getClient(t)
+	httpClient, gitlabUrl := getClient(t, "unit")
 	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)

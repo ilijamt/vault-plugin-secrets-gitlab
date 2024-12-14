@@ -14,7 +14,7 @@ import (
 func TestBackend(t *testing.T) {
 	var err error
 	var b *gitlab.Backend
-	ctx := getCtxGitlabClient(t)
+	ctx := getCtxGitlabClient(t, "unit")
 	b, _, err = getBackend(ctx)
 	require.NoError(t, err)
 	require.NotNil(t, b)

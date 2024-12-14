@@ -19,7 +19,7 @@ import (
 )
 
 func TestWithNormalUser_ProjectAT(t *testing.T) {
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "local")
 	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)

@@ -25,6 +25,7 @@ type EntryConfig struct {
 	Type               Type          `json:"type" structs:"type" mapstructure:"type"`
 	Name               string        `json:"name" structs:"name" mapstructure:"name"`
 	GitlabVersion      string        `json:"gitlab_version" structs:"gitlab_version" mapstructure:"gitlab_version"`
+	GitlabRevision     string        `json:"gitlab_revision" structs:"gitlab_revision" mapstructure:"gitlab_revision"`
 	GitlabIsEnterprise bool          `json:"gitlab_is_enterprise" structs:"gitlab_is_enterprise" mapstructure:"gitlab_is_enterprise"`
 }
 
@@ -153,6 +154,7 @@ func (e *EntryConfig) LogicalResponseData() map[string]any {
 		"auto_rotate_before":   e.AutoRotateBefore.String(),
 		"token_id":             e.TokenId,
 		"gitlab_version":       e.GitlabVersion,
+		"gitlab_revision":      e.GitlabRevision,
 		"gitlab_is_enterprise": e.GitlabIsEnterprise,
 		"token_created_at":     tokenCreatedAt,
 		"token_expires_at":     tokenExpiresAt,

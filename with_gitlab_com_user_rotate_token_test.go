@@ -16,7 +16,7 @@ import (
 )
 
 func TestWithGitlabUser_RotateToken(t *testing.T) {
-	httpClient, _ := getClient(t)
+	httpClient, _ := getClient(t, "saas")
 	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)

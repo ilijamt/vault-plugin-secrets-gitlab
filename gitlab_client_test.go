@@ -60,7 +60,7 @@ func TestGitlabClient(t *testing.T) {
 func TestGitlabClient_InvalidToken(t *testing.T) {
 	ctx, timeExpiresAt := ctxTestTime(context.Background(), t.Name())
 	var err error
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 		Token:   "super-secret-token",
@@ -103,7 +103,7 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
 	var ctx = context.Background()
 	var err error
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 		Token:   "glpat-secret-random-token",
@@ -122,7 +122,7 @@ func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
 func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 	var ctx = context.Background()
 	var err error
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 		Token:   "glpat-secret-random-token",
@@ -143,7 +143,7 @@ func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
 	var ctx = context.Background()
 	var err error
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 		Token:   "glpat-secret-random-token",
@@ -161,7 +161,7 @@ func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
 func TestGitlabClient_GetUserIdByUsernameDoesNotMatch(t *testing.T) {
 	var err error
 	var ctx = context.Background()
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 		Token:   "glpat-secret-random-token",
@@ -183,7 +183,7 @@ func TestGitlabClient_GetUserIdByUsernameDoesNotMatch(t *testing.T) {
 func TestGitlabClient_Revoke_NonExistingTokens(t *testing.T) {
 	var ctx = context.Background()
 	var err error
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 		Token:   "glpat-secret-random-token",
@@ -201,7 +201,7 @@ func TestGitlabClient_Revoke_NonExistingTokens(t *testing.T) {
 func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 	var err error
 	var ctx = context.Background()
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 		Token:   "glpat-secret-random-token",
@@ -217,10 +217,28 @@ func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 	assert.EqualValues(t, gitlab.TokenTypePersonal, token.TokenType)
 }
 
+func TestGitlabClient_Metadata(t *testing.T) {
+	var err error
+	var ctx = context.Background()
+	httpClient, url := getClient(t, "unit")
+	var client gitlab.Client
+	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
+		Token:   "glpat-secret-random-token",
+		BaseURL: url,
+	}, httpClient, nil)
+	require.NoError(t, err)
+	require.NotNil(t, client)
+	require.True(t, client.Valid(ctx))
+
+	metadata, err := client.Metadata(ctx)
+	require.NoError(t, err)
+	require.NotNil(t, metadata)
+}
+
 func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	var err error
 	ctx, timeExpiresAt := ctxTestTime(context.Background(), t.Name())
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 		Token:   "glpat-secret-random-token",
@@ -276,7 +294,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 func TestGitlabClient_RotateCurrentToken(t *testing.T) {
 	var err error
 	var ctx = context.Background()
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 		Token:   "glpat-secret-admin-token-ar1",

@@ -23,7 +23,7 @@ func TestPathTokenRoles(t *testing.T) {
 	}
 
 	t.Run("role not found", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t)
+		ctx := getCtxGitlabClient(t, "unit")
 		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -37,7 +37,7 @@ func TestPathTokenRoles(t *testing.T) {
 
 	var generalTokenCreation = func(t *testing.T, tokenType gitlab.TokenType, level gitlab.AccessLevel, gitlabRevokesToken bool) {
 		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t", tokenType, level, gitlabRevokesToken)
-		ctx := getCtxGitlabClient(t)
+		ctx := getCtxGitlabClient(t, "unit")
 		client := newInMemoryClient(true)
 		ctx = gitlab.GitlabClientNewContext(ctx, client)
 		var b, l, events, err = getBackendWithEvents(ctx)

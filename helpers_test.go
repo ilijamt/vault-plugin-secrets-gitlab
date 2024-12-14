@@ -170,6 +170,7 @@ type inMemoryClient struct {
 	createGroupServiceAccountAccessTokenError         bool
 	createPipelineProjectTriggerAccessTokenError      bool
 	revokePipelineProjectTriggerAccessTokenError      bool
+	metadataError                                     bool
 
 	calledMainToken       int
 	calledRotateMainToken int
@@ -179,6 +180,17 @@ type inMemoryClient struct {
 	rotateMainToken gitlab.EntryToken
 
 	accessTokens map[string]gitlab.EntryToken
+}
+
+func (i *inMemoryClient) Metadata(ctx context.Context) (*g.Metadata, error) {
+	if i.metadataError {
+		return nil, errors.New("metadata error")
+	}
+	return &g.Metadata{
+		Version:    "version",
+		Revision:   "revision",
+		Enterprise: false,
+	}, nil
 }
 
 func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, name string, projectId int, description string) (et *gitlab.EntryToken, err error) {
@@ -417,22 +429,22 @@ func sanitizePath(path string) string {
 	return strings.ReplaceAll(builder.String(), "__", "_")
 }
 
-func getCtxGitlabClient(t *testing.T) context.Context {
-	httpClient, _ := getClient(t)
+func getCtxGitlabClient(t *testing.T, target string) context.Context {
+	httpClient, _ := getClient(t, target)
 	return gitlab.HttpClientNewContext(context.Background(), httpClient)
 }
 
-func getCtxGitlabClientWithUrl(t *testing.T) (context.Context, string) {
-	httpClient, url := getClient(t)
+func getCtxGitlabClientWithUrl(t *testing.T, target string) (context.Context, string) {
+	httpClient, url := getClient(t, target)
 	return gitlab.HttpClientNewContext(context.Background(), httpClient), url
 }
 
 func ctxTestTime(ctx context.Context, tn string) (_ context.Context, t time.Time) {
 	switch tn {
 	case "TestGitlabClient_RotateCurrentToken", "TestWithGitlabUser_RotateToken":
-		t = time.Date(2024, 8, 12, 0, 0, 0, 0, time.UTC)
-	default:
 		t = time.Date(2024, 12, 12, 0, 0, 0, 0, time.UTC)
+	default:
+		t = time.Date(2025, 3, 12, 0, 0, 0, 0, time.UTC)
 	}
 	return gitlab.WithStaticTime(ctx, t), t
 }

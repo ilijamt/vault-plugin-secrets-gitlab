@@ -1,4 +1,4 @@
-//go:build unit || saas || selfhosted
+//go:build unit || saas || selfhosted || local
 
 package gitlab_test
 
@@ -13,10 +13,10 @@ import (
 	"gopkg.in/dnaeon/go-vcr.v4/pkg/recorder"
 )
 
-func getClient(t *testing.T) (client *http.Client, u string) {
+func getClient(t *testing.T, target string) (client *http.Client, u string) {
 	t.Helper()
 
-	filename := fmt.Sprintf("testdata/fixtures/%s/%s", gitlabVersion, sanitizePath(t.Name()))
+	filename := fmt.Sprintf("testdata/%s/%s", target, sanitizePath(t.Name()))
 	r, err := recorder.New(filename,
 		[]recorder.Option{
 			recorder.WithMode(recorder.ModeRecordOnce),

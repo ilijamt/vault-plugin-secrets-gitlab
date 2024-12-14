@@ -23,6 +23,7 @@ var (
 type Client interface {
 	GitlabClient(ctx context.Context) *g.Client
 	Valid(ctx context.Context) bool
+	Metadata(ctx context.Context) (*g.Metadata, error)
 	CurrentTokenInfo(ctx context.Context) (*EntryToken, error)
 	RotateCurrentToken(ctx context.Context) (newToken *EntryToken, oldToken *EntryToken, err error)
 	CreatePersonalAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
@@ -46,6 +47,15 @@ type gitlabClient struct {
 	httpClient *http.Client
 	config     *EntryConfig
 	logger     hclog.Logger
+}
+
+func (gc *gitlabClient) Metadata(ctx context.Context) (metadata *g.Metadata, err error) {
+	defer func() {
+		gc.logger.Debug("Fetch metadata information", "metadata", metadata, "error", err)
+	}()
+
+	metadata, _, err = gc.client.Metadata.GetMetadata(g.WithContext(ctx))
+	return metadata, err
 }
 
 func (gc *gitlabClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, name string, projectId int, description string) (et *EntryToken, err error) {
@@ -73,7 +83,7 @@ func (gc *gitlabClient) GetGroupIdByPath(ctx context.Context, path string) (grou
 		Search: g.Ptr(path),
 	}
 
-	g, _, err := gc.client.Groups.ListGroups(l)
+	g, _, err := gc.client.Groups.ListGroups(l, g.WithContext(ctx))
 	if err != nil {
 		return 0, fmt.Errorf("%v", err)
 	}
@@ -98,7 +108,7 @@ func (gc *gitlabClient) CreateGroupServiceAccountAccessToken(ctx context.Context
 		Name:      g.Ptr(name),
 		ExpiresAt: (*g.ISOTime)(&expiresAt),
 		Scopes:    &scopes,
-	})
+	}, g.WithContext(ctx))
 	if err == nil {
 		et = &EntryToken{
 			TokenID:     at.ID,
@@ -140,7 +150,7 @@ func (gc *gitlabClient) RevokeUserServiceAccountAccessToken(ctx context.Context,
 		BaseURL: gc.config.BaseURL,
 		Token:   token,
 	}, gc.httpClient); err == nil {
-		_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf()
+		_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf(g.WithContext(ctx))
 	}
 
 	return err
@@ -262,7 +272,7 @@ func (gc *gitlabClient) GetUserIdByUsername(ctx context.Context, username string
 		Username: g.Ptr(username),
 	}
 
-	u, _, err := gc.client.Users.ListUsers(l)
+	u, _, err := gc.client.Users.ListUsers(l, g.WithContext(ctx))
 	if err != nil {
 		return 0, fmt.Errorf("%v", err)
 	}
@@ -282,7 +292,7 @@ func (gc *gitlabClient) CreatePersonalAccessToken(ctx context.Context, username 
 		Name:      g.Ptr(name),
 		ExpiresAt: (*g.ISOTime)(&expiresAt),
 		Scopes:    &scopes,
-	})
+	}, g.WithContext(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -314,7 +324,7 @@ func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId stri
 		Scopes:      &scopes,
 		ExpiresAt:   (*g.ISOTime)(&expiresAt),
 		AccessLevel: al,
-	})
+	}, g.WithContext(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -342,7 +352,7 @@ func (gc *gitlabClient) CreateProjectAccessToken(ctx context.Context, projectId 
 		Scopes:      &scopes,
 		ExpiresAt:   (*g.ISOTime)(&expiresAt),
 		AccessLevel: al,
-	})
+	}, g.WithContext(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -366,7 +376,7 @@ func (gc *gitlabClient) RevokePersonalAccessToken(ctx context.Context, tokenId i
 		gc.logger.Debug("Revoke personal access token", "tokenId", tokenId, "error", err)
 	}()
 	var resp *g.Response
-	resp, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(tokenId)
+	resp, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(tokenId, g.WithContext(ctx))
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("personal: %w", ErrAccessTokenNotFound)
 	}
@@ -381,7 +391,7 @@ func (gc *gitlabClient) RevokeProjectAccessToken(ctx context.Context, tokenId in
 		gc.logger.Debug("Revoke project access token", "tokenId", tokenId, "error", err)
 	}()
 	var resp *g.Response
-	resp, err = gc.client.ProjectAccessTokens.RevokeProjectAccessToken(projectId, tokenId)
+	resp, err = gc.client.ProjectAccessTokens.RevokeProjectAccessToken(projectId, tokenId, g.WithContext(ctx))
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("project: %w", ErrAccessTokenNotFound)
 	}
@@ -396,7 +406,7 @@ func (gc *gitlabClient) RevokeGroupAccessToken(ctx context.Context, tokenId int,
 		gc.logger.Debug("Revoke group access token", "tokenId", tokenId, "error", err)
 	}()
 	var resp *g.Response
-	resp, err = gc.client.GroupAccessTokens.RevokeGroupAccessToken(groupId, tokenId)
+	resp, err = gc.client.GroupAccessTokens.RevokeGroupAccessToken(groupId, tokenId, g.WithContext(ctx))
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("group: %w", ErrAccessTokenNotFound)
 	}

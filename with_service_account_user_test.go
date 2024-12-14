@@ -16,7 +16,7 @@ import (
 )
 
 func TestWithServiceAccountUser(t *testing.T) {
-	httpClient, _ := getClient(t)
+	httpClient, _ := getClient(t, "selfhosted")
 	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)

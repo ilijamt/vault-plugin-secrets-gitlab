@@ -14,7 +14,7 @@ import (
 
 func TestPathConfigRotate(t *testing.T) {
 	t.Run("initial config should be empty fail with backend not configured", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t)
+		ctx := getCtxGitlabClient(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{

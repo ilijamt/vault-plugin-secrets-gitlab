@@ -20,7 +20,7 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 		gitlab.TypeDedicated,
 	} {
 		t.Run(typ.String(), func(t *testing.T) {
-			httpClient, _ := getClient(t)
+			httpClient, _ := getClient(t, "selfhosted")
 			ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 			b, l, events, err := getBackendWithEvents(ctx)

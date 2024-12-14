@@ -17,7 +17,7 @@ import (
 
 func TestPathConfig(t *testing.T) {
 	t.Run("initial config should be empty fail with backend not configured", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t)
+		ctx := getCtxGitlabClient(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -31,7 +31,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("deleting uninitialized config should fail with backend not configured", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t)
+		ctx := getCtxGitlabClient(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 
@@ -47,7 +47,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("write, read, delete and read config", func(t *testing.T) {
-		httpClient, url := getClient(t)
+		httpClient, url := getClient(t, "unit")
 		ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 		b, l, events, err := getBackendWithEvents(ctx)
@@ -103,7 +103,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("invalid token", func(t *testing.T) {
-		httpClient, url := getClient(t)
+		httpClient, url := getClient(t, "unit")
 		ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 		b, l, events, err := getBackendWithEvents(ctx)
@@ -126,7 +126,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("missing token from the request", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t)
+		ctx := getCtxGitlabClient(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 
@@ -145,7 +145,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("patch a config with no storage", func(t *testing.T) {
-		httpClient, url := getClient(t)
+		httpClient, url := getClient(t, "unit")
 		ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 		b, _, err := getBackend(ctx)
@@ -166,7 +166,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("patch a config no backend", func(t *testing.T) {
-		httpClient, url := getClient(t)
+		httpClient, url := getClient(t, "unit")
 		ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 		b, l, err := getBackend(ctx)
@@ -188,7 +188,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("patch a config", func(t *testing.T) {
-		httpClient, url := getClient(t)
+		httpClient, url := getClient(t, "unit")
 		ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 		var path = fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName)
 
