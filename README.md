@@ -111,7 +111,9 @@ The current authentication model requires providing Vault with a Gitlab Token.
 
 #### path
 
-If `token_type` is `group-service-account` then the format of the path is `{groupId}/{serviceAccountName}` example `265/service_account_65c74d39b4f71fc3fdc72330fce28c28`.
+##### `token_type` is `group-service-account`
+
+Format of the path is `{groupId}/{serviceAccountName}` example `265/service_account_65c74d39b4f71fc3fdc72330fce28c28`.
 
 #### name
 
@@ -156,7 +158,7 @@ Depending on `gitlab_revokes_token` the TTL will change.
 
 #### access_level 
 
-It's not required if `token_type` is set to `personal` or `pipeline-project-trigger`.
+It's not required if `token_type` is set to `personal`, `pipeline-project-trigger`, `project-deploy`, `group-deploy`.
 
 For a list of available roles check https://docs.gitlab.com/ee/user/permissions.html
 
@@ -232,6 +234,7 @@ token_id              1
 token_sha1_hash       9441e6e07d77a2d5601ab5d7cac5868d358d885c
 type                  self-managed
 gitlab_version        17.5.3-ee
+gitlab_revision       9d81c27eee7
 gitlab_is_enterprise  true
 ```
 
@@ -252,6 +255,7 @@ token_id              2
 token_sha1_hash       c6e762667cadb936f0c8439b0d240661a270eba1
 type                  saas
 gitlab_version        17.7.0-pre
+gitlab_revision       22e9474dc6b
 gitlab_is_enterprise  true
 ```
 

@@ -109,6 +109,11 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 			b.Logger().Debug("Creating group service account access token for role", "path", role.Path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreateGroupServiceAccountAccessToken(ctx, role.Path, groupId, userId, name, expiresAt, role.Scopes)
 		}
+
+	case TokenTypeProjectDeploy:
+	case TokenTypeGroupDeploy:
+	case TokenTypePipelineProjectTrigger:
+
 	default:
 		return logical.ErrorResponse("invalid token type"), fmt.Errorf("%s: %w", role.TokenType.String(), ErrUnknownTokenType)
 	}
@@ -148,6 +153,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		"token_type":   role.TokenType.String(),
 		"scopes":       strings.Join(role.Scopes, ","),
 		"access_level": role.AccessLevel.String(),
+		"config_name":  token.ConfigName,
 	})
 	return resp, nil
 }

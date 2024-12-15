@@ -250,7 +250,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	var skipFields = []string{"config_name"}
 
-	// validate access level
+	// validate access level and which fields to skip for validation
 	var validAccessLevels []string
 	switch tokenType {
 	case TokenTypePersonal:
@@ -362,8 +362,9 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	}
 
 	event(ctx, b.Backend, "role-write", map[string]string{
-		"path":      "roles",
-		"role_name": roleName,
+		"path":        "roles",
+		"role_name":   roleName,
+		"config_name": role.ConfigName,
 	})
 
 	b.Logger().Debug("Role written", "role", roleName)
