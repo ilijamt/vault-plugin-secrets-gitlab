@@ -109,11 +109,21 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 			b.Logger().Debug("Creating group service account access token for role", "path", role.Path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreateGroupServiceAccountAccessToken(ctx, role.Path, groupId, userId, name, expiresAt, role.Scopes)
 		}
-
 	case TokenTypeProjectDeploy:
+		var projectId int
+		if projectId, err = client.GetProjectIdByPath(ctx, role.Path); err == nil {
+			token, err = client.CreateProjectDeployToken(ctx, role.Path, projectId, name, &expiresAt, role.Scopes)
+		}
 	case TokenTypeGroupDeploy:
+		var groupId int
+		if groupId, err = client.GetGroupIdByPath(ctx, role.Path); err == nil {
+			token, err = client.CreateGroupDeployToken(ctx, role.Path, groupId, name, &expiresAt, role.Scopes)
+		}
 	case TokenTypePipelineProjectTrigger:
-
+		var projectId int
+		if projectId, err = client.GetProjectIdByPath(ctx, role.Path); err == nil {
+			token, err = client.CreatePipelineProjectTriggerAccessToken(ctx, role.Path, name, projectId, name, &expiresAt)
+		}
 	default:
 		return logical.ErrorResponse("invalid token type"), fmt.Errorf("%s: %w", role.TokenType.String(), ErrUnknownTokenType)
 	}

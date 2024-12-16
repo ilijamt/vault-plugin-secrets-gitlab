@@ -59,7 +59,7 @@ var (
 		"ttl": {
 			Type:        framework.TypeDurationSecond,
 			Description: "The TTL of the token",
-			Required:    true,
+			Required:    false,
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Token TTL",
 			},
@@ -282,28 +282,35 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		if slices.Contains(skipFields, name) {
 			continue
 		}
+
 		val, ok, _ := data.GetOkErr(name)
 		if (tokenType == TokenTypePersonal && name == "access_level") ||
 			name == "gitlab_revokes_token" {
 			continue
 		}
-		if field.Required && !ok {
+
+		var required = field.Required
+		if name == "ttl" && !slices.Contains([]TokenType{TokenTypePipelineProjectTrigger}, tokenType) {
+			required = true
+		}
+
+		if required && !ok {
 			err = multierror.Append(err, fmt.Errorf("%s: %w", name, ErrFieldRequired))
-		} else if !field.Required && val == nil {
+		} else if !required && val == nil {
 			warnings = append(warnings, fmt.Sprintf("field '%s' is using expected default value of %v", name, val))
 		}
-	}
 
-	if role.TTL > DefaultAccessTokenMaxPossibleTTL {
-		err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl <= max_ttl = %s]: %w", role.TTL.String(), DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
-	}
-
-	if role.GitlabRevokesTokens && role.TTL < 24*time.Hour {
-		err = multierror.Append(err, fmt.Errorf("ttl = %s [%s <= ttl <= %s]: %w", role.TTL, DefaultAccessTokenMinTTL, DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
-	}
-
-	if !role.GitlabRevokesTokens && role.TTL < time.Hour {
-		err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl >= 1h]: %w", role.TTL, ErrInvalidValue))
+		if required && name == "ttl" {
+			if role.TTL > DefaultAccessTokenMaxPossibleTTL {
+				err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl <= max_ttl = %s]: %w", role.TTL.String(), DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
+			}
+			if role.GitlabRevokesTokens && role.TTL < 24*time.Hour {
+				err = multierror.Append(err, fmt.Errorf("ttl = %s [%s <= ttl <= %s]: %w", role.TTL, DefaultAccessTokenMinTTL, DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
+			}
+			if !role.GitlabRevokesTokens && role.TTL < time.Hour {
+				err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl >= 1h]: %w", role.TTL, ErrInvalidValue))
+			}
+		}
 	}
 
 	if !slices.Contains(validAccessLevels, accessLevel.String()) {

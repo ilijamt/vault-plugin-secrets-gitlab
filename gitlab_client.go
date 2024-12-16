@@ -35,6 +35,7 @@ type Client interface {
 	RevokeGroupAccessToken(ctx context.Context, tokenId int, groupId string) error
 	GetUserIdByUsername(ctx context.Context, username string) (int, error)
 	GetGroupIdByPath(ctx context.Context, path string) (int, error)
+	GetProjectIdByPath(ctx context.Context, path string) (int, error)
 	CreateGroupServiceAccountAccessToken(ctx context.Context, group string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*EntryToken, error)
 	RevokeUserServiceAccountAccessToken(ctx context.Context, token string) error
@@ -52,6 +53,20 @@ type gitlabClient struct {
 	httpClient *http.Client
 	config     *EntryConfig
 	logger     hclog.Logger
+}
+
+func (gc *gitlabClient) GetProjectIdByPath(ctx context.Context, path string) (projectId int, err error) {
+	defer func() {
+		gc.logger.Debug("Get project id by path", "path", path, "projectId", projectId, "error", err)
+	}()
+
+	projectId = -1
+	var project *g.Project
+	if project, _, err = gc.client.Projects.GetProject(path, &g.GetProjectOptions{}, g.WithContext(ctx)); err == nil {
+		projectId = project.ID
+	}
+
+	return projectId, err
 }
 
 func (gc *gitlabClient) CreateGroupDeployToken(ctx context.Context, path string, groupId int, name string, expiresAt *time.Time, scopes []string) (et *EntryToken, err error) {
@@ -185,14 +200,14 @@ func (gc *gitlabClient) GetGroupIdByPath(ctx context.Context, path string) (grou
 		Search: g.Ptr(path),
 	}
 
-	g, _, err := gc.client.Groups.ListGroups(l, g.WithContext(ctx))
+	groups, _, err := gc.client.Groups.ListGroups(l, g.WithContext(ctx))
 	if err != nil {
 		return 0, fmt.Errorf("%v", err)
 	}
-	if len(g) == 0 {
+	if len(groups) == 0 {
 		return 0, fmt.Errorf("path '%s' not found: %w", path, ErrInvalidValue)
 	}
-	groupId = g[0].ID
+	groupId = groups[0].ID
 	return groupId, nil
 
 }

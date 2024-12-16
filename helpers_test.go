@@ -177,6 +177,7 @@ type inMemoryClient struct {
 	revokeGroupDeployTokenError                       bool
 	createProjectDeployTokenError                     bool
 	createGroupDeployTokenError                       bool
+	getProjectIdByPathError                           bool
 
 	calledMainToken       int
 	calledRotateMainToken int
@@ -186,6 +187,15 @@ type inMemoryClient struct {
 	rotateMainToken gitlab.EntryToken
 
 	accessTokens map[string]gitlab.EntryToken
+
+	valueGetProjectIdByPath int
+}
+
+func (i *inMemoryClient) GetProjectIdByPath(ctx context.Context, path string) (int, error) {
+	if i.getProjectIdByPathError {
+		return -1, fmt.Errorf("unable to get project id by path")
+	}
+	return i.valueGetProjectIdByPath, nil
 }
 
 func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path string, projectId int, name string, expiresAt *time.Time, scopes []string) (et *gitlab.EntryToken, err error) {
