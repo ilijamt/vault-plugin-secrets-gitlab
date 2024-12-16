@@ -111,9 +111,37 @@ The current authentication model requires providing Vault with a Gitlab Token.
 
 #### path
 
+##### `token_type` is `personal`
+
+Format of the path is `{username}` example `admin`.
+
+##### `token_type` is `project`
+
+Format of the path is the full path of the project for example `group/project` or `group/subgroup/project`
+
+##### `token_type` is `group`
+
+Format of the path is the full path of the project for example `group` or `group/subgroup`
+
+##### `token_type` is `user-service-account`
+
+Format of the path is `{username}` example `service_account_65c74d39b4f71fc3fdc72330fce28c28`.
+
 ##### `token_type` is `group-service-account`
 
 Format of the path is `{groupId}/{serviceAccountName}` example `265/service_account_65c74d39b4f71fc3fdc72330fce28c28`.
+
+##### `token_type` is `project-deploy`
+
+Format of the path is the full path of the project for example `group/project` or `group/subgroup/project`
+
+##### `token_type` is `group-deploy`
+
+Format of the path is the full path of the project for example `group` or `group/subgroup`
+
+##### `token_type` is `pipeline-project-trigger`
+
+Format of the path is the full path of the project for example `group/project` or `group/subgroup/project`
 
 #### name
 
