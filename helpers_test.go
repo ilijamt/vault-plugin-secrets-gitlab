@@ -1,3 +1,5 @@
+//go:build unit || saas || selfhosted || local
+
 package gitlab_test
 
 import (
@@ -8,21 +10,25 @@ import (
 	"io"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 	"unicode"
 
+	"github.com/google/uuid"
 	log "github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/helper/logging"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "github.com/xanzy/go-gitlab"
+	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
+
+var _ gitlab.Client = new(inMemoryClient)
 
 var (
 	gitlabComPersonalAccessToken = cmp.Or(os.Getenv("GITLAB_COM_TOKEN"), "glpat-invalid-value")
@@ -164,6 +170,14 @@ type inMemoryClient struct {
 	revokeGroupServiceAccountPersonalAccessTokenError bool
 	createUserServiceAccountAccessTokenError          bool
 	createGroupServiceAccountAccessTokenError         bool
+	createPipelineProjectTriggerAccessTokenError      bool
+	revokePipelineProjectTriggerAccessTokenError      bool
+	metadataError                                     bool
+	revokeProjectDeployTokenError                     bool
+	revokeGroupDeployTokenError                       bool
+	createProjectDeployTokenError                     bool
+	createGroupDeployTokenError                       bool
+	getProjectIdByPathError                           bool
 
 	calledMainToken       int
 	calledRotateMainToken int
@@ -173,6 +187,128 @@ type inMemoryClient struct {
 	rotateMainToken gitlab.EntryToken
 
 	accessTokens map[string]gitlab.EntryToken
+
+	valueGetProjectIdByPath int
+}
+
+func (i *inMemoryClient) GetProjectIdByPath(ctx context.Context, path string) (int, error) {
+	if i.getProjectIdByPathError {
+		return -1, fmt.Errorf("unable to get project id by path")
+	}
+	return i.valueGetProjectIdByPath, nil
+}
+
+func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path string, projectId int, name string, expiresAt *time.Time, scopes []string) (et *gitlab.EntryToken, err error) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.createProjectDeployTokenError {
+		return nil, fmt.Errorf("unable to create project deploy token")
+	}
+	i.internalCounter++
+	var tokenId = i.internalCounter
+	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeProjectDeploy.String(), projectId, tokenId)
+	var entryToken = gitlab.EntryToken{
+		TokenID:   tokenId,
+		ParentID:  strconv.Itoa(projectId),
+		Path:      path,
+		Name:      name,
+		Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
+		TokenType: gitlab.TokenTypeProjectDeploy,
+		ExpiresAt: expiresAt,
+		CreatedAt: g.Ptr(time.Now()),
+	}
+	i.accessTokens[key] = entryToken
+	return &entryToken, nil
+}
+
+func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string, groupId int, name string, expiresAt *time.Time, scopes []string) (et *gitlab.EntryToken, err error) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.createGroupDeployTokenError {
+		return nil, fmt.Errorf("unable to create project deploy token")
+	}
+	i.internalCounter++
+	var tokenId = i.internalCounter
+	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeGroupDeploy.String(), groupId, tokenId)
+	var entryToken = gitlab.EntryToken{
+		TokenID:   tokenId,
+		ParentID:  strconv.Itoa(groupId),
+		Path:      path,
+		Name:      name,
+		Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
+		TokenType: gitlab.TokenTypeGroupDeploy,
+		ExpiresAt: expiresAt,
+		CreatedAt: g.Ptr(time.Now()),
+	}
+	i.accessTokens[key] = entryToken
+	return &entryToken, nil
+}
+
+func (i *inMemoryClient) RevokeProjectDeployToken(ctx context.Context, projectId, deployTokenId int) (err error) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.revokeProjectDeployTokenError {
+		return errors.New("revoke project deploy token error")
+	}
+	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeProjectDeploy.String(), projectId, deployTokenId)
+	delete(i.accessTokens, key)
+	return nil
+}
+
+func (i *inMemoryClient) RevokeGroupDeployToken(ctx context.Context, groupId, deployTokenId int) (err error) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.revokeGroupDeployTokenError {
+		return errors.New("revoke group deploy token error")
+	}
+	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeGroupDeploy.String(), groupId, deployTokenId)
+	delete(i.accessTokens, key)
+	return nil
+}
+
+func (i *inMemoryClient) Metadata(ctx context.Context) (*g.Metadata, error) {
+	if i.metadataError {
+		return nil, errors.New("metadata error")
+	}
+	return &g.Metadata{
+		Version:    "version",
+		Revision:   "revision",
+		Enterprise: false,
+	}, nil
+}
+
+func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, path, name string, projectId int, description string, expiresAt *time.Time) (et *gitlab.EntryToken, err error) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.createPipelineProjectTriggerAccessTokenError {
+		return nil, fmt.Errorf("CreatePipelineProjectTriggerAccessToken")
+	}
+	i.internalCounter++
+	var tokenId = i.internalCounter
+	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypePipelineProjectTrigger.String(), projectId, tokenId)
+	var entryToken = gitlab.EntryToken{
+		TokenID:   tokenId,
+		ParentID:  strconv.Itoa(projectId),
+		Path:      strconv.Itoa(projectId),
+		Name:      name,
+		Token:     fmt.Sprintf("glptt-%s", uuid.New().String()),
+		TokenType: gitlab.TokenTypePipelineProjectTrigger,
+		ExpiresAt: expiresAt,
+		CreatedAt: g.Ptr(time.Now()),
+	}
+	i.accessTokens[key] = entryToken
+	return &entryToken, nil
+}
+
+func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, tokenId int) error {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if i.revokePipelineProjectTriggerAccessTokenError {
+		return fmt.Errorf("RevokePipelineProjectTriggerAccessToken")
+	}
+	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypePipelineProjectTrigger.String(), projectId, tokenId)
+	delete(i.accessTokens, key)
+	return nil
 }
 
 func (i *inMemoryClient) GetGroupIdByPath(ctx context.Context, path string) (int, error) {
@@ -361,8 +497,6 @@ func (i *inMemoryClient) GetUserIdByUsername(ctx context.Context, username strin
 	return idx, nil
 }
 
-var _ gitlab.Client = new(inMemoryClient)
-
 func sanitizePath(path string) string {
 	var builder strings.Builder
 
@@ -377,22 +511,34 @@ func sanitizePath(path string) string {
 	return strings.ReplaceAll(builder.String(), "__", "_")
 }
 
-func getCtxGitlabClient(t *testing.T) context.Context {
-	httpClient, _ := getClient(t)
+func getCtxGitlabClient(t *testing.T, target string) context.Context {
+	httpClient, _ := getClient(t, target)
 	return gitlab.HttpClientNewContext(context.Background(), httpClient)
 }
 
-func getCtxGitlabClientWithUrl(t *testing.T) (context.Context, string) {
-	httpClient, url := getClient(t)
+func getCtxGitlabClientWithUrl(t *testing.T, target string) (context.Context, string) {
+	httpClient, url := getClient(t, target)
 	return gitlab.HttpClientNewContext(context.Background(), httpClient), url
 }
 
 func ctxTestTime(ctx context.Context, tn string) (_ context.Context, t time.Time) {
 	switch tn {
 	case "TestGitlabClient_RotateCurrentToken", "TestWithGitlabUser_RotateToken":
-		t = time.Date(2024, 8, 12, 0, 0, 0, 0, time.UTC)
-	default:
 		t = time.Date(2024, 12, 12, 0, 0, 0, 0, time.UTC)
+	default:
+		t = time.Date(2025, 3, 12, 0, 0, 0, 0, time.UTC)
 	}
 	return gitlab.WithStaticTime(ctx, t), t
+}
+
+func filterSlice[T any, Slice ~[]T](collection Slice, predicate func(item T, index int) bool) Slice {
+	result := make(Slice, 0, len(collection))
+
+	for i := range collection {
+		if predicate(collection[i], i) {
+			result = append(result, collection[i])
+		}
+	}
+
+	return result
 }

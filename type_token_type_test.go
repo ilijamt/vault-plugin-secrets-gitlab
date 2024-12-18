@@ -1,3 +1,5 @@
+//go:build unit
+
 package gitlab_test
 
 import (
@@ -33,6 +35,18 @@ func TestTokenType(t *testing.T) {
 		{
 			expected: gitlab.TokenTypeGroupServiceAccount,
 			input:    gitlab.TokenTypeGroupServiceAccount.String(),
+		},
+		{
+			expected: gitlab.TokenTypePipelineProjectTrigger,
+			input:    gitlab.TokenTypePipelineProjectTrigger.String(),
+		},
+		{
+			expected: gitlab.TokenTypeProjectDeploy,
+			input:    gitlab.TokenTypeProjectDeploy.String(),
+		},
+		{
+			expected: gitlab.TokenTypeGroupDeploy,
+			input:    gitlab.TokenTypeGroupDeploy.String(),
 		},
 		{
 			expected: gitlab.TokenTypeUnknown,

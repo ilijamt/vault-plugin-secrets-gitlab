@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+	g "gitlab.com/gitlab-org/api/client-go"
 )
 
 const (
@@ -170,6 +171,13 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfi
 	config.TokenExpiresAt = *et.ExpiresAt
 	config.TokenId = et.TokenID
 	config.Scopes = et.Scopes
+
+	var metadata *g.Metadata
+	if metadata, err = client.Metadata(ctx); err == nil {
+		config.GitlabVersion = metadata.Version
+		config.GitlabRevision = metadata.Revision
+		config.GitlabIsEnterprise = metadata.Enterprise
+	}
 
 	return et, nil
 }

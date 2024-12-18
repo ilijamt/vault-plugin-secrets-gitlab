@@ -1,3 +1,5 @@
+//go:build unit
+
 package gitlab_test
 
 import (
@@ -12,7 +14,7 @@ import (
 )
 
 func TestSecretAccessTokenRevokeToken(t *testing.T) {
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "unit")
 	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)

@@ -1,3 +1,5 @@
+//go:build local
+
 package gitlab_test
 
 import (
@@ -11,13 +13,13 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "github.com/xanzy/go-gitlab"
+	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
 
 func TestWithNormalUser_ProjectAT(t *testing.T) {
-	httpClient, url := getClient(t)
+	httpClient, url := getClient(t, "local")
 	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)

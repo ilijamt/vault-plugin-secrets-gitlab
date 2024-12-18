@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/xanzy/go-gitlab"
+	g "gitlab.com/gitlab-org/api/client-go"
 )
 
 type AccessLevel string
@@ -57,6 +57,10 @@ var (
 		AccessLevelMaintainerPermissions.String(),
 		AccessLevelOwnerPermissions.String(),
 	}
+
+	ValidPipelineProjectTriggerAccessLevels = []string{AccessLevelUnknown.String()}
+	ValidProjectDeployAccessLevels          = []string{AccessLevelUnknown.String()}
+	ValidGroupDeployAccessLevels            = []string{AccessLevelUnknown.String()}
 )
 
 func (i AccessLevel) String() string {
@@ -66,19 +70,19 @@ func (i AccessLevel) String() string {
 func (i AccessLevel) Value() int {
 	switch i {
 	case AccessLevelNoPermissions:
-		return int(gitlab.NoPermissions)
+		return int(g.NoPermissions)
 	case AccessLevelMinimalAccessPermissions:
-		return int(gitlab.MinimalAccessPermissions)
+		return int(g.MinimalAccessPermissions)
 	case AccessLevelGuestPermissions:
-		return int(gitlab.GuestPermissions)
+		return int(g.GuestPermissions)
 	case AccessLevelReporterPermissions:
-		return int(gitlab.ReporterPermissions)
+		return int(g.ReporterPermissions)
 	case AccessLevelDeveloperPermissions:
-		return int(gitlab.DeveloperPermissions)
+		return int(g.DeveloperPermissions)
 	case AccessLevelMaintainerPermissions:
-		return int(gitlab.MaintainerPermissions)
+		return int(g.MaintainerPermissions)
 	case AccessLevelOwnerPermissions:
-		return int(gitlab.OwnerPermissions)
+		return int(g.OwnerPermissions)
 	}
 
 	return -1

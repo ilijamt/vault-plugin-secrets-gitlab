@@ -1,3 +1,5 @@
+//go:build unit
+
 package gitlab_test
 
 import (
@@ -14,7 +16,7 @@ import (
 
 func TestPathConfig_AutoRotate(t *testing.T) {
 	t.Run("auto_rotate_token should be false if not specified", func(t *testing.T) {
-		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -32,7 +34,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before cannot be more than the minimal value", func(t *testing.T) {
-		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -51,7 +53,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before should be less than the maximal limit", func(t *testing.T) {
-		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -69,7 +71,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before should be set to correct value", func(t *testing.T) {
-		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -88,7 +90,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before should be more than the minimal limit", func(t *testing.T) {
-		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -106,7 +108,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before should be set to min if not specified", func(t *testing.T) {
-		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -124,7 +126,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 	})
 
 	t.Run("auto_rotate_before should be between the min and max value", func(t *testing.T) {
-		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -144,7 +146,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 
 func TestPathConfig_AutoRotateToken(t *testing.T) {
 	t.Run("no error when auto rotate is disabled and config is not set", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t)
+		ctx := getCtxGitlabClient(t, "unit")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 
@@ -154,7 +156,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 
 	t.Run("no error when auto rotate is disabled and config is set", func(t *testing.T) {
 		var client = newInMemoryClient(true)
-		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
 		ctx = gitlab.GitlabClientNewContext(ctx, client)
 		b, l, err := getBackendWithConfig(ctx, map[string]any{
 			"token":    "glpat-secret-token",
@@ -170,7 +172,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 
 	t.Run("call auto rotate the main token and rotate the token", func(t *testing.T) {
 		var client = newInMemoryClient(true)
-		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
 		ctx = gitlab.GitlabClientNewContext(ctx, newInMemoryClient(true))
 		b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
 			"token":              "token",
@@ -221,7 +223,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 
 	t.Run("call auto rotate the main token but the token is still valid", func(t *testing.T) {
 		var client = newInMemoryClient(true)
-		ctx, url := getCtxGitlabClientWithUrl(t)
+		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
 		ctx = gitlab.GitlabClientNewContext(ctx, newInMemoryClient(true))
 		b, l, err := getBackendWithConfig(ctx, map[string]any{
 			"token":              "token",

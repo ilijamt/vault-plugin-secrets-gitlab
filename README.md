@@ -17,6 +17,8 @@ through Vault.
 - Gitlab Group Access Tokens - https://docs.gitlab.com/ee/api/group_access_tokens.html
 - Gitlab User Service Account Tokens - https://docs.gitlab.com/ee/api/users.html#create-service-account-user
 - Gitlab Group Service Account Tokens - https://docs.gitlab.com/ee/api/group_service_accounts.html
+- Gitlab Pipeline Project Trigger Tokens - https://docs.gitlab.com/ee/api/pipeline_triggers.html
+- Gitlab Group/Project Deploy Tokens - https://docs.gitlab.com/ee/user/project/deploy_tokens
 
 ## Getting Started
 
@@ -92,7 +94,7 @@ The current authentication model requires providing Vault with a Gitlab Token.
 |      base_url      |   yes    |      n/a      |    no     | The address to access Gitlab                                                                                                                  |
 | auto_rotate_token  |    no    |      no       |    no     | Should we autorotate the token when it's close to expiry? (Experimental)                                                                      |
 | auto_rotate_before |    no    |      24h      |    no     | How much time should be remaining on the token validity before we should rotate it? Minimum can be set to 24h and maximum to 730h             |
-|        type        |   yes    |      n/a      |    no     | The type of gitlab instance that we use can be one of saas, self-managed or dedicated                                                          |
+|        type        |   yes    |      n/a      |    no     | The type of gitlab instance that we use can be one of saas, self-managed or dedicated                                                         |
 
 ### Role
 
@@ -105,11 +107,41 @@ The current authentication model requires providing Vault with a Gitlab Token.
 |        scopes        |    no    |      []       |    no     | List of scopes                                                                                                       |
 |      token_type      |   yes    |      n/a      |    no     | Access token type                                                                                                    |
 | gitlab_revokes_token |    no    |      no       |    no     | Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires                      |
-|        config_name   |    no    |    default    |    no     | The configuration to use for the role                                                                                |
+|     config_name      |    no    |    default    |    no     | The configuration to use for the role                                                                                |
 
 #### path
 
-If `token_type` is `group-service-account` then the format of the path is `{groupId}/{serviceAccountName}` example `265/service_account_65c74d39b4f71fc3fdc72330fce28c28`.
+##### `token_type` is `personal`
+
+Format of the path is `{username}` example `admin`.
+
+##### `token_type` is `project`
+
+Format of the path is the full path of the project for example `group/project` or `group/subgroup/project`
+
+##### `token_type` is `group`
+
+Format of the path is the full path of the project for example `group` or `group/subgroup`
+
+##### `token_type` is `user-service-account`
+
+Format of the path is `{username}` example `service_account_65c74d39b4f71fc3fdc72330fce28c28`.
+
+##### `token_type` is `group-service-account`
+
+Format of the path is `{groupId}/{serviceAccountName}` example `265/service_account_65c74d39b4f71fc3fdc72330fce28c28`.
+
+##### `token_type` is `project-deploy`
+
+Format of the path is the full path of the project for example `group/project` or `group/subgroup/project`
+
+##### `token_type` is `group-deploy`
+
+Format of the path is the full path of the project for example `group` or `group/subgroup`
+
+##### `token_type` is `pipeline-project-trigger`
+
+Format of the path is the full path of the project for example `group/project` or `group/subgroup/project`
 
 #### name
 
@@ -154,17 +186,20 @@ Depending on `gitlab_revokes_token` the TTL will change.
 
 #### access_level 
 
-It's not required if `token_type` is set to `personal`. 
+It's not required if `token_type` is set to `personal`, `pipeline-project-trigger`, `project-deploy`, `group-deploy`.
 
 For a list of available roles check https://docs.gitlab.com/ee/user/permissions.html
 
 #### scopes
+
+It's not required if `token_type` is set to `pipeline-project-trigger`.
 
 Depending on the type of token you have different scopes:
 
 * `Personal` - https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#personal-access-token-scopes
 * `Project` - https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#scopes-for-a-project-access-token
 * `Group` - https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html#scopes-for-a-group-access-token
+* `Deploy` - https://docs.gitlab.com/ee/user/project/deploy_tokens/#scope
 
 #### token_types
 
@@ -175,6 +210,9 @@ Can be
 * group
 * user-service-account
 * group-service-account
+* pipeline-project-trigger
+* project-deploy
+* group-deploy
 
 #### gitlab_revokes_token
 
@@ -223,6 +261,9 @@ token_expires_at      2025-07-11T00:00:00Z
 token_id              1
 token_sha1_hash       9441e6e07d77a2d5601ab5d7cac5868d358d885c
 type                  self-managed
+gitlab_version        17.5.3-ee
+gitlab_revision       9d81c27eee7
+gitlab_is_enterprise  true
 ```
 
 After initial setup should you wish to change any value you can do so by using the patch command for example
@@ -241,6 +282,9 @@ token_expires_at      2025-07-11T00:00:00Z
 token_id              2
 token_sha1_hash       c6e762667cadb936f0c8439b0d240661a270eba1
 type                  saas
+gitlab_version        17.7.0-pre
+gitlab_revision       22e9474dc6b
+gitlab_is_enterprise  true
 ```
 
 All the config properties as defined above in the Config section can be patched.
@@ -257,8 +301,6 @@ $ vault secrets tune -max-lease-ttl=8784h -default-lease-ttl=168h gitlab/
 Check https://developer.hashicorp.com/vault/docs/commands/secrets/tune for more information.
 
 There is a periodic func that runs that is responsible for autorotation and main token expiry time. 
-So in the beginning you may see  `token_expires_at n/a`. But when the function runs it will update itself 
-with the correct expiry date and the corresponding `token_id`.
 
 ### Roles
 
@@ -326,7 +368,7 @@ token_sha1_hash       91a91bb30f816770081c570504c5e2723bcb1f38
 type                  self-managed
 ```
 
-**Important**: Token will be showed after rotation, it will not be shown again.
+**Important**: Token will be shown only after rotation, and it will not be shown again.
 
 ## Upgrading
 

@@ -1,3 +1,5 @@
+//go:build unit
+
 package gitlab_test
 
 import (
@@ -53,6 +55,14 @@ func TestTokenScope(t *testing.T) {
 		{
 			expected: gitlab.TokenScopeAdminMode,
 			input:    gitlab.TokenScopeAdminMode.String(),
+		},
+		{
+			expected: gitlab.TokenScopeReadPackageRegistry,
+			input:    gitlab.TokenScopeReadPackageRegistry.String(),
+		},
+		{
+			expected: gitlab.TokenScopeWritePackageRegistry,
+			input:    gitlab.TokenScopeWritePackageRegistry.String(),
 		},
 		{
 			expected: gitlab.TokenScopeUnknown,

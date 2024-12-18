@@ -59,7 +59,7 @@ var (
 		"ttl": {
 			Type:        framework.TypeDurationSecond,
 			Description: "The TTL of the token",
-			Required:    true,
+			Required:    false,
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Token TTL",
 			},
@@ -103,13 +103,16 @@ var (
 	}
 )
 
-func (b *Backend) pathRolesList(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	roles, err := req.Storage.List(ctx, fmt.Sprintf("%s/", PathRoleStorage))
-	if err != nil {
-		return logical.ErrorResponse("Error listing roles"), err
+func (b *Backend) pathRolesList(ctx context.Context, req *logical.Request, data *framework.FieldData) (l *logical.Response, err error) {
+	var roles []string
+	defer func() {
+		b.Logger().Debug("Available", "roles", roles, "err", err)
+	}()
+	l = logical.ErrorResponse("Error listing roles")
+	if roles, err = req.Storage.List(ctx, fmt.Sprintf("%s/", PathRoleStorage)); err == nil {
+		l = logical.ListResponse(roles)
 	}
-	b.Logger().Debug("Available", "roles", roles)
-	return logical.ListResponse(roles), nil
+	return l, err
 }
 
 func pathListRoles(b *Backend) *framework.Path {
@@ -143,12 +146,7 @@ func pathListRoles(b *Backend) *framework.Path {
 func (b *Backend) pathRolesDelete(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var resp *logical.Response
 	var err error
-	var roleName string
-
-	if roleName = data.Get("role_name").(string); roleName == "" {
-		return logical.ErrorResponse("Unable to delete, missing role name"), nil
-	}
-
+	var roleName = data.Get("role_name").(string)
 	lock := locksutil.LockForKey(b.roleLocks, roleName)
 	lock.RLock()
 	defer lock.RUnlock()
@@ -174,10 +172,7 @@ func (b *Backend) pathRolesDelete(ctx context.Context, req *logical.Request, dat
 }
 
 func (b *Backend) pathRolesRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	var roleName string
-	if roleName = data.Get("role_name").(string); roleName == "" {
-		return logical.ErrorResponse("Unable to read, missing role name"), nil
-	}
+	var roleName = data.Get("role_name").(string)
 
 	lock := locksutil.LockForKey(b.roleLocks, roleName)
 	lock.RLock()
@@ -200,11 +195,7 @@ func (b *Backend) pathRolesRead(ctx context.Context, req *logical.Request, data 
 }
 
 func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	var roleName string
-	if roleName = data.Get("role_name").(string); roleName == "" {
-		return logical.ErrorResponse("Unable to write, missing role name"), nil
-	}
-
+	var roleName = data.Get("role_name").(string)
 	var config *EntryConfig
 	var err error
 	var warnings []string
@@ -250,22 +241,45 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	var skipFields = []string{"config_name"}
 
-	// validate access level
+	// validate access level and which fields to skip for validation
 	var validAccessLevels []string
+	var invalidScopes []string
+	var validScopes []string
+	var noEmptyScopes bool
+
 	switch tokenType {
 	case TokenTypePersonal:
 		validAccessLevels = ValidPersonalAccessLevels
+		validScopes = slices.Concat(validTokenScopes, ValidPersonalTokenScopes)
 		skipFields = append(skipFields, "access_level")
 	case TokenTypeGroup:
 		validAccessLevels = ValidGroupAccessLevels
+		validScopes = validTokenScopes
 	case TokenTypeProject:
 		validAccessLevels = ValidProjectAccessLevels
+		validScopes = validTokenScopes
 	case TokenTypeUserServiceAccount:
 		validAccessLevels = ValidUserServiceAccountAccessLevels
+		validScopes = slices.Concat(validTokenScopes, ValidPersonalTokenScopes, ValidUserServiceAccountTokenScopes)
 		skipFields = append(skipFields, "access_level")
 	case TokenTypeGroupServiceAccount:
 		validAccessLevels = ValidGroupServiceAccountAccessLevels
+		validScopes = slices.Concat(validTokenScopes, ValidPersonalTokenScopes, ValidGroupServiceAccountTokenScopes)
 		skipFields = append(skipFields, "access_level")
+	case TokenTypePipelineProjectTrigger:
+		validAccessLevels = ValidPipelineProjectTriggerAccessLevels
+		validScopes = []string{}
+		skipFields = append(skipFields, "access_level", "scopes")
+	case TokenTypeProjectDeploy:
+		validAccessLevels = ValidProjectDeployAccessLevels
+		validScopes = ValidProjectDeployTokenScopes
+		skipFields = append(skipFields, "access_level")
+		noEmptyScopes = true
+	case TokenTypeGroupDeploy:
+		validAccessLevels = ValidGroupDeployAccessLevels
+		validScopes = ValidGroupDeployTokenScopes
+		skipFields = append(skipFields, "access_level")
+		noEmptyScopes = true
 	}
 
 	// check if all required fields are set
@@ -273,46 +287,41 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		if slices.Contains(skipFields, name) {
 			continue
 		}
+
 		val, ok, _ := data.GetOkErr(name)
 		if (tokenType == TokenTypePersonal && name == "access_level") ||
 			name == "gitlab_revokes_token" {
 			continue
 		}
-		if field.Required && !ok {
+
+		var required = field.Required
+		if name == "ttl" && !slices.Contains([]TokenType{TokenTypePipelineProjectTrigger}, tokenType) {
+			required = true
+		}
+
+		if required && !ok {
 			err = multierror.Append(err, fmt.Errorf("%s: %w", name, ErrFieldRequired))
-		} else if !field.Required && val == nil {
+		} else if !required && val == nil {
 			warnings = append(warnings, fmt.Sprintf("field '%s' is using expected default value of %v", name, val))
 		}
-	}
 
-	if role.TTL > DefaultAccessTokenMaxPossibleTTL {
-		err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl <= max_ttl = %s]: %w", role.TTL.String(), DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
-	}
-
-	if role.GitlabRevokesTokens && role.TTL < 24*time.Hour {
-		err = multierror.Append(err, fmt.Errorf("ttl = %s [%s <= ttl <= %s]: %w", role.TTL, DefaultAccessTokenMinTTL, DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
-	}
-
-	if !role.GitlabRevokesTokens && role.TTL < time.Hour {
-		err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl >= 1h]: %w", role.TTL, ErrInvalidValue))
+		if required && name == "ttl" {
+			if role.TTL > DefaultAccessTokenMaxPossibleTTL {
+				err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl <= max_ttl = %s]: %w", role.TTL.String(), DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
+			}
+			if role.GitlabRevokesTokens && role.TTL < 24*time.Hour {
+				err = multierror.Append(err, fmt.Errorf("ttl = %s [%s <= ttl <= %s]: %w", role.TTL, DefaultAccessTokenMinTTL, DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
+			}
+			if !role.GitlabRevokesTokens && role.TTL < time.Hour {
+				err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl >= 1h]: %w", role.TTL, ErrInvalidValue))
+			}
+		}
 	}
 
 	if !slices.Contains(validAccessLevels, accessLevel.String()) {
 		err = multierror.Append(err, fmt.Errorf("access_level='%s', should be one of %v: %w", data.Get("access_level").(string), validAccessLevels, ErrFieldInvalidValue))
 	}
 
-	// validate scopes
-	var invalidScopes []string
-	var validScopes = validTokenScopes
-	if tokenType == TokenTypePersonal || tokenType == TokenTypeUserServiceAccount || tokenType == TokenTypeGroupServiceAccount {
-		validScopes = append(validScopes, ValidPersonalTokenScopes...)
-	}
-	if tokenType == TokenTypeUserServiceAccount {
-		validScopes = append(validScopes, ValidUserServiceAccountTokenScopes...)
-	}
-	if tokenType == TokenTypeGroupServiceAccount {
-		validScopes = append(validScopes, ValidGroupServiceAccountTokenScopes...)
-	}
 	for _, scope := range role.Scopes {
 		if !slices.Contains(validScopes, scope) {
 			invalidScopes = append(invalidScopes, scope)
@@ -321,6 +330,10 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	if len(invalidScopes) > 0 {
 		err = multierror.Append(err, fmt.Errorf("scopes='%v', should be one or more of '%v': %w", invalidScopes, validScopes, ErrFieldInvalidValue))
+	}
+
+	if noEmptyScopes && len(role.Scopes) == 0 {
+		err = multierror.Append(err, fmt.Errorf("should be one or more of '%v': %w", validScopes, ErrFieldInvalidValue))
 	}
 
 	if tokenType == TokenTypeUserServiceAccount && (config.Type == TypeSaaS || config.Type == TypeDedicated) {
@@ -345,8 +358,9 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	}
 
 	event(ctx, b.Backend, "role-write", map[string]string{
-		"path":      "roles",
-		"role_name": roleName,
+		"path":        "roles",
+		"role_name":   roleName,
+		"config_name": role.ConfigName,
 	})
 
 	b.Logger().Debug("Role written", "role", roleName)
@@ -359,7 +373,6 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 func (b *Backend) pathRoleExistenceCheck(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
 	name := data.Get("role_name").(string)
-
 	role, err := getRole(ctx, name, req.Storage)
 	if err != nil {
 		if strings.Contains(err.Error(), logical.ErrReadOnly.Error()) {

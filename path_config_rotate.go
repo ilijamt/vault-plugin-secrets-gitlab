@@ -108,12 +108,13 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	lResp = &logical.Response{Data: config.LogicalResponseData()}
 	lResp.Data["token"] = config.Token
 	event(ctx, b.Backend, "config-token-rotate", map[string]string{
-		"path":       fmt.Sprintf("%s/%s", PathConfigStorage, name),
-		"expires_at": entryToken.ExpiresAt.Format(time.RFC3339),
-		"created_at": entryToken.CreatedAt.Format(time.RFC3339),
-		"scopes":     strings.Join(entryToken.Scopes, ", "),
-		"token_id":   strconv.Itoa(entryToken.TokenID),
-		"name":       entryToken.Name,
+		"path":        fmt.Sprintf("%s/%s", PathConfigStorage, name),
+		"expires_at":  entryToken.ExpiresAt.Format(time.RFC3339),
+		"created_at":  entryToken.CreatedAt.Format(time.RFC3339),
+		"scopes":      strings.Join(entryToken.Scopes, ", "),
+		"token_id":    strconv.Itoa(entryToken.TokenID),
+		"name":        entryToken.Name,
+		"config_name": entryToken.ConfigName,
 	})
 
 	b.SetClient(nil, name)

@@ -1,3 +1,5 @@
+//go:build unit
+
 package gitlab_test
 
 import (
@@ -16,7 +18,7 @@ import (
 
 func TestPathConfigList(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t)
+		ctx := getCtxGitlabClient(t, "unit")
 		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -30,7 +32,7 @@ func TestPathConfigList(t *testing.T) {
 	})
 
 	t.Run("multiple configs", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t)
+		ctx := getCtxGitlabClient(t, "unit")
 		var b, l, events, err = getBackendWithEventsAndConfigName(ctx,
 			map[string]any{
 				"token":    "glpat-secret-random-token",

@@ -68,12 +68,6 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		configName = val.(string)
 	}
 
-	// var config *EntryConfig
-	// config, err = getConfig(ctx, req.Storage, configName)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	var tokenId int
 	tokenId, err = convertToInt(req.Secret.InternalData["token_id"])
 	if err != nil {
@@ -91,7 +85,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		var client Client
 		client, err = b.getClient(ctx, req.Storage, configName)
 		if err != nil {
-			return nil, fmt.Errorf("revoke token cannot get client: %w", err)
+			return nil, fmt.Errorf("revoke token cannot get client got %s config: %w", configName, err)
 		}
 
 		switch tokenType {
@@ -107,6 +101,21 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		case TokenTypeGroupServiceAccount:
 			var token = req.Secret.InternalData["token"].(string)
 			err = client.RevokeGroupServiceAccountAccessToken(ctx, token)
+		case TokenTypePipelineProjectTrigger:
+			var projectId int
+			if projectId, err = strconv.Atoi(parentId); err == nil {
+				err = client.RevokePipelineProjectTriggerAccessToken(ctx, projectId, tokenId)
+			}
+		case TokenTypeGroupDeploy:
+			var groupId int
+			if groupId, err = strconv.Atoi(parentId); err == nil {
+				err = client.RevokeGroupDeployToken(ctx, groupId, tokenId)
+			}
+		case TokenTypeProjectDeploy:
+			var projectId int
+			if projectId, err = strconv.Atoi(parentId); err == nil {
+				err = client.RevokeProjectDeployToken(ctx, projectId, tokenId)
+			}
 		}
 
 		if err != nil && !errors.Is(err, ErrAccessTokenNotFound) {
@@ -120,6 +129,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		"name":                 req.Secret.InternalData["name"].(string),
 		"token_id":             strconv.Itoa(tokenId),
 		"token_type":           tokenTypeValue,
+		"config_name":          configName,
 		"gitlab_revokes_token": strconv.FormatBool(gitlabRevokesToken),
 	})
 

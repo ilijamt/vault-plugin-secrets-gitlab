@@ -1,0 +1,460 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/self
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"id":2,"name":"Initial token","revoked":false,"created_at":"2024-07-11T18:53:46.924Z","scopes":["api","read_api","read_user","sudo","admin_mode","create_runner","k8s_proxy","read_repository","write_repository","ai_features","read_service_ping"],"user_id":2,"last_used_at":"2024-12-14T22:52:51.011Z","active":true,"expires_at":"2025-07-11"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Type:
+                - application/json
+            Date:
+                - Sat, 14 Dec 2024 22:56:07 GMT
+            Etag:
+                - W/"294f5bcfa91aa421ae25d18cbc532b92"
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Accept-Encoding
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01JF3P5SMB8BSHECD0B5AT06ER","version":"1"}'
+            X-Request-Id:
+                - 01JF3P5SMB8BSHECD0B5AT06ER
+            X-Runtime:
+                - "0.010411"
+        status: 200 OK
+        code: 200
+        duration: 13.036583ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/metadata
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 162
+        uncompressed: false
+        body: '{"version":"16.11.6","revision":"4684e042d0b","kas":{"enabled":true,"externalUrl":"ws://7b1d891ab6bb/-/kubernetes-agent/","version":"16.11.6"},"enterprise":false}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "162"
+            Content-Type:
+                - application/json
+            Date:
+                - Sat, 14 Dec 2024 22:56:07 GMT
+            Etag:
+                - W/"a29dcadce9c4771a1b7b66cc326f6617"
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01JF3P5SN7F65HX3NHVE2WTG1T","version":"1"}'
+            X-Request-Id:
+                - 01JF3P5SN7F65HX3NHVE2WTG1T
+            X-Runtime:
+                - "0.012643"
+        status: 200 OK
+        code: 200
+        duration: 15.251125ms
+    - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/users?username=admin-user
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '[{"id":2,"username":"admin-user","name":"Admin User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/af0325f5b5bc22760340e6e28bbe467949a83cf3a620329417c7718f89e0f7c5?s=80\u0026d=identicon","web_url":"http://7b1d891ab6bb/admin-user","created_at":"2024-07-11T18:52:45.504Z","bio":"","location":"","public_email":null,"skype":"","linkedin":"","twitter":"","discord":"","website_url":"","organization":"","job_title":"","pronouns":null,"bot":false,"work_information":null,"local_time":null,"last_sign_in_at":null,"confirmed_at":"2024-07-11T18:52:45.443Z","last_activity_on":"2024-12-14","email":"admin@local","theme_id":3,"color_scheme_id":1,"projects_limit":100000,"current_sign_in_at":null,"identities":[],"can_create_group":true,"can_create_project":true,"two_factor_enabled":false,"external":false,"private_profile":false,"commit_email":"admin@local","is_admin":true,"note":null,"namespace_id":2,"created_by":null,"email_reset_offered_at":null}]'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Type:
+                - application/json
+            Date:
+                - Sat, 14 Dec 2024 22:56:08 GMT
+            Etag:
+                - W/"f223064819d31c48a0be4d173becf031"
+            Link:
+                - <http://7b1d891ab6bb/api/v4/users?active=false&admins=false&blocked=false&exclude_external=false&exclude_internal=false&external=false&order_by=id&page=1&per_page=20&sort=desc&username=admin-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://7b1d891ab6bb/api/v4/users?active=false&admins=false&blocked=false&exclude_external=false&exclude_internal=false&external=false&order_by=id&page=1&per_page=20&sort=desc&username=admin-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Accept-Encoding
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01JF3P5SPARHZAZ90WWSNP66P7","version":"1"}'
+            X-Next-Page:
+                - ""
+            X-Page:
+                - "1"
+            X-Per-Page:
+                - "20"
+            X-Prev-Page:
+                - ""
+            X-Request-Id:
+                - 01JF3P5SPARHZAZ90WWSNP66P7
+            X-Runtime:
+                - "0.131789"
+            X-Total:
+                - "1"
+            X-Total-Pages:
+                - "1"
+        status: 200 OK
+        code: 200
+        duration: 134.791042ms
+    - id: 3
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 67
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: '{"name":"personal","expires_at":"2025-03-13","scopes":["read_api"]}'
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/users/2/personal_access_tokens
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 214
+        uncompressed: false
+        body: '{"id":52,"name":"personal","revoked":false,"created_at":"2024-12-14T22:56:08.194Z","scopes":["read_api"],"user_id":2,"last_used_at":null,"active":true,"expires_at":"2025-03-13","token":"glpat-TzZy7BVeT6B5cdfKVeLa"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "214"
+            Content-Type:
+                - application/json
+            Date:
+                - Sat, 14 Dec 2024 22:56:08 GMT
+            Etag:
+                - W/"1e2b1f243fd6e6a99d1ce985eee3c08e"
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01JF3P5SYXHZHJR1864Z96M9VC","version":"1"}'
+            X-Request-Id:
+                - 01JF3P5SYXHZHJR1864Z96M9VC
+            X-Runtime:
+                - "0.043400"
+        status: 201 Created
+        code: 201
+        duration: 47.590416ms
+    - id: 4
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/self
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 199
+        uncompressed: false
+        body: '{"id":52,"name":"personal","revoked":false,"created_at":"2024-12-14T22:56:08.194Z","scopes":["read_api"],"user_id":2,"last_used_at":"2024-12-14T22:56:08.264Z","active":true,"expires_at":"2025-03-13"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "199"
+            Content-Type:
+                - application/json
+            Date:
+                - Sat, 14 Dec 2024 22:56:08 GMT
+            Etag:
+                - W/"0ed6dac59f84c605d1dc9b155a193723"
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01JF3P5T1YC2MSFR0BZZ517PHE","version":"1"}'
+            X-Request-Id:
+                - 01JF3P5T1YC2MSFR0BZZ517PHE
+            X-Runtime:
+                - "0.013308"
+        status: 200 OK
+        code: 200
+        duration: 16.454167ms
+    - id: 5
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/52
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 0
+        uncompressed: false
+        body: ""
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Date:
+                - Sat, 14 Dec 2024 22:56:08 GMT
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01JF3P5T32F4ZYQGX7YAFJKCJS","version":"1"}'
+            X-Request-Id:
+                - 01JF3P5T32F4ZYQGX7YAFJKCJS
+            X-Runtime:
+                - "0.022641"
+        status: 204 No Content
+        code: 204
+        duration: 25.424958ms
+    - id: 6
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:8080
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/self
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 106
+        uncompressed: false
+        body: '{"error":"invalid_token","error_description":"Token was revoked. You have to re-authorize from the user."}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "106"
+            Content-Type:
+                - application/json
+            Date:
+                - Sat, 14 Dec 2024 22:56:08 GMT
+            Server:
+                - nginx
+            Vary:
+                - Origin
+            Www-Authenticate:
+                - Bearer realm="Protected by OAuth 2.0", error="invalid_token", error_description="Token was revoked. You have to re-authorize from the user."
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01JF3P5T4QM20A91RDZKE7TJ7E","version":"1"}'
+            X-Request-Id:
+                - 01JF3P5T4QM20A91RDZKE7TJ7E
+            X-Runtime:
+                - "0.007637"
+        status: 401 Unauthorized
+        code: 401
+        duration: 10.434291ms

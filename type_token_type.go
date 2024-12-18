@@ -9,11 +9,14 @@ import (
 type TokenType string
 
 const (
-	TokenTypePersonal            = TokenType("personal")
-	TokenTypeProject             = TokenType("project")
-	TokenTypeGroup               = TokenType("group")
-	TokenTypeUserServiceAccount  = TokenType("user-service-account")
-	TokenTypeGroupServiceAccount = TokenType("group-service-account")
+	TokenTypePersonal               = TokenType("personal")
+	TokenTypeProject                = TokenType("project")
+	TokenTypeGroup                  = TokenType("group")
+	TokenTypeUserServiceAccount     = TokenType("user-service-account")
+	TokenTypeGroupServiceAccount    = TokenType("group-service-account")
+	TokenTypePipelineProjectTrigger = TokenType("pipeline-project-trigger")
+	TokenTypeProjectDeploy          = TokenType("project-deploy")
+	TokenTypeGroupDeploy            = TokenType("group-deploy")
 
 	TokenTypeUnknown = TokenType("")
 )
@@ -27,6 +30,9 @@ var (
 		TokenTypeGroup.String(),
 		TokenTypeUserServiceAccount.String(),
 		TokenTypeGroupServiceAccount.String(),
+		TokenTypePipelineProjectTrigger.String(),
+		TokenTypeProjectDeploy.String(),
+		TokenTypeGroupDeploy.String(),
 	}
 )
 

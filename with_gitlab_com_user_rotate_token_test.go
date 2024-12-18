@@ -1,3 +1,5 @@
+//go:build saas
+
 package gitlab_test
 
 import (
@@ -8,13 +10,13 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "github.com/xanzy/go-gitlab"
+	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
 
 func TestWithGitlabUser_RotateToken(t *testing.T) {
-	httpClient, _ := getClient(t)
+	httpClient, _ := getClient(t, "saas")
 	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)

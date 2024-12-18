@@ -95,6 +95,8 @@ func (b *Backend) periodicFunc(ctx context.Context, req *logical.Request) (err e
 		unlockLockClientMutex := sync.OnceFunc(func() { b.lockClientMutex.Unlock() })
 		defer unlockLockClientMutex()
 
+		// @TODO: Check and fix this is not correct, the locking mechanism doesn't make sense
+
 		var configs []string
 		configs, err = req.Storage.List(ctx, fmt.Sprintf("%s/", PathConfigStorage))
 

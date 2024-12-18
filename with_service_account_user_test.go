@@ -1,3 +1,5 @@
+//go:build selfhosted
+
 package gitlab_test
 
 import (
@@ -8,13 +10,13 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "github.com/xanzy/go-gitlab"
+	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 )
 
 func TestWithServiceAccountUser(t *testing.T) {
-	httpClient, _ := getClient(t)
+	httpClient, _ := getClient(t, "selfhosted")
 	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)
@@ -42,7 +44,7 @@ func TestWithServiceAccountUser(t *testing.T) {
 	require.NotNil(t, gClient)
 
 	// Create a service account user
-	usr, _, err := gClient.Users.CreateServiceAccountUser()
+	usr, _, err := gClient.Users.CreateServiceAccountUser(&g.CreateServiceAccountUserOptions{})
 	require.NoError(t, err)
 	require.NotNil(t, usr)
 
