@@ -243,29 +243,43 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	// validate access level and which fields to skip for validation
 	var validAccessLevels []string
+	var invalidScopes []string
+	var validScopes []string
+	var noEmptyScopes bool
+
 	switch tokenType {
 	case TokenTypePersonal:
 		validAccessLevels = ValidPersonalAccessLevels
+		validScopes = slices.Concat(validTokenScopes, ValidPersonalTokenScopes)
 		skipFields = append(skipFields, "access_level")
 	case TokenTypeGroup:
 		validAccessLevels = ValidGroupAccessLevels
+		validScopes = validTokenScopes
 	case TokenTypeProject:
 		validAccessLevels = ValidProjectAccessLevels
+		validScopes = validTokenScopes
 	case TokenTypeUserServiceAccount:
 		validAccessLevels = ValidUserServiceAccountAccessLevels
+		validScopes = slices.Concat(validTokenScopes, ValidPersonalTokenScopes, ValidUserServiceAccountTokenScopes)
 		skipFields = append(skipFields, "access_level")
 	case TokenTypeGroupServiceAccount:
 		validAccessLevels = ValidGroupServiceAccountAccessLevels
+		validScopes = slices.Concat(validTokenScopes, ValidPersonalTokenScopes, ValidGroupServiceAccountTokenScopes)
 		skipFields = append(skipFields, "access_level")
 	case TokenTypePipelineProjectTrigger:
 		validAccessLevels = ValidPipelineProjectTriggerAccessLevels
+		validScopes = []string{}
 		skipFields = append(skipFields, "access_level", "scopes")
 	case TokenTypeProjectDeploy:
 		validAccessLevels = ValidProjectDeployAccessLevels
+		validScopes = ValidProjectDeployTokenScopes
 		skipFields = append(skipFields, "access_level")
+		noEmptyScopes = true
 	case TokenTypeGroupDeploy:
 		validAccessLevels = ValidGroupDeployAccessLevels
+		validScopes = ValidGroupDeployTokenScopes
 		skipFields = append(skipFields, "access_level")
+		noEmptyScopes = true
 	}
 
 	// check if all required fields are set
@@ -308,26 +322,6 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		err = multierror.Append(err, fmt.Errorf("access_level='%s', should be one of %v: %w", data.Get("access_level").(string), validAccessLevels, ErrFieldInvalidValue))
 	}
 
-	// validate scopes
-	var invalidScopes []string
-	var validScopes = validTokenScopes
-	if tokenType == TokenTypePersonal || tokenType == TokenTypeUserServiceAccount || tokenType == TokenTypeGroupServiceAccount {
-		validScopes = append(validScopes, ValidPersonalTokenScopes...)
-	}
-
-	switch tokenType {
-	case TokenTypeUserServiceAccount:
-		validScopes = append(validScopes, ValidUserServiceAccountTokenScopes...)
-	case TokenTypeGroupServiceAccount:
-		validScopes = append(validScopes, ValidGroupServiceAccountTokenScopes...)
-	case TokenTypePipelineProjectTrigger:
-		validScopes = []string{}
-	case TokenTypeProjectDeploy:
-		validScopes = ValidProjectDeployTokenScopes
-	case TokenTypeGroupDeploy:
-		validScopes = ValidGroupDeployTokenScopes
-	}
-
 	for _, scope := range role.Scopes {
 		if !slices.Contains(validScopes, scope) {
 			invalidScopes = append(invalidScopes, scope)
@@ -336,6 +330,10 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	if len(invalidScopes) > 0 {
 		err = multierror.Append(err, fmt.Errorf("scopes='%v', should be one or more of '%v': %w", invalidScopes, validScopes, ErrFieldInvalidValue))
+	}
+
+	if noEmptyScopes && len(role.Scopes) == 0 {
+		err = multierror.Append(err, fmt.Errorf("should be one or more of '%v': %w", validScopes, ErrFieldInvalidValue))
 	}
 
 	if tokenType == TokenTypeUserServiceAccount && (config.Type == TypeSaaS || config.Type == TypeDedicated) {

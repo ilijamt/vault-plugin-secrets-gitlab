@@ -109,7 +109,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		case TokenTypeGroupDeploy:
 			var groupId int
 			if groupId, err = strconv.Atoi(parentId); err == nil {
-				err = client.RevokeProjectDeployToken(ctx, groupId, tokenId)
+				err = client.RevokeGroupDeployToken(ctx, groupId, tokenId)
 			}
 		case TokenTypeProjectDeploy:
 			var projectId int
