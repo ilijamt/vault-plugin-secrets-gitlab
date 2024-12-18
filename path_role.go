@@ -103,13 +103,16 @@ var (
 	}
 )
 
-func (b *Backend) pathRolesList(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	roles, err := req.Storage.List(ctx, fmt.Sprintf("%s/", PathRoleStorage))
-	if err != nil {
-		return logical.ErrorResponse("Error listing roles"), err
+func (b *Backend) pathRolesList(ctx context.Context, req *logical.Request, data *framework.FieldData) (l *logical.Response, err error) {
+	var roles []string
+	defer func() {
+		b.Logger().Debug("Available", "roles", roles, "err", err)
+	}()
+	l = logical.ErrorResponse("Error listing roles")
+	if roles, err = req.Storage.List(ctx, fmt.Sprintf("%s/", PathRoleStorage)); err == nil {
+		l = logical.ListResponse(roles)
 	}
-	b.Logger().Debug("Available", "roles", roles)
-	return logical.ListResponse(roles), nil
+	return l, err
 }
 
 func pathListRoles(b *Backend) *framework.Path {
@@ -143,12 +146,7 @@ func pathListRoles(b *Backend) *framework.Path {
 func (b *Backend) pathRolesDelete(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var resp *logical.Response
 	var err error
-	var roleName string
-
-	if roleName = data.Get("role_name").(string); roleName == "" {
-		return logical.ErrorResponse("Unable to delete, missing role name"), nil
-	}
-
+	var roleName = data.Get("role_name").(string)
 	lock := locksutil.LockForKey(b.roleLocks, roleName)
 	lock.RLock()
 	defer lock.RUnlock()
@@ -174,10 +172,7 @@ func (b *Backend) pathRolesDelete(ctx context.Context, req *logical.Request, dat
 }
 
 func (b *Backend) pathRolesRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	var roleName string
-	if roleName = data.Get("role_name").(string); roleName == "" {
-		return logical.ErrorResponse("Unable to read, missing role name"), nil
-	}
+	var roleName = data.Get("role_name").(string)
 
 	lock := locksutil.LockForKey(b.roleLocks, roleName)
 	lock.RLock()
@@ -200,11 +195,7 @@ func (b *Backend) pathRolesRead(ctx context.Context, req *logical.Request, data 
 }
 
 func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	var roleName string
-	if roleName = data.Get("role_name").(string); roleName == "" {
-		return logical.ErrorResponse("Unable to write, missing role name"), nil
-	}
-
+	var roleName = data.Get("role_name").(string)
 	var config *EntryConfig
 	var err error
 	var warnings []string
@@ -384,7 +375,6 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 func (b *Backend) pathRoleExistenceCheck(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
 	name := data.Get("role_name").(string)
-
 	role, err := getRole(ctx, name, req.Storage)
 	if err != nil {
 		if strings.Contains(err.Error(), logical.ErrReadOnly.Error()) {
