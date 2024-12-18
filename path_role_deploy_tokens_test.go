@@ -9,9 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/logical"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
@@ -35,12 +33,12 @@ func TestPathRolesDeployTokens(t *testing.T) {
 		{
 			tokenType: gitlab.TokenTypeProjectDeploy,
 			path:      "example/example",
-			scopes:    []string{gitlab.TokenScopeApi.String()},
+			scopes:    []string{gitlab.TokenScopeReadRepository.String()},
 		},
 		{
 			tokenType: gitlab.TokenTypeGroupDeploy,
 			path:      "test/test1",
-			scopes:    []string{gitlab.TokenScopeApi.String()},
+			scopes:    []string{gitlab.TokenScopeReadRepository.String()},
 		},
 	}
 
@@ -56,16 +54,14 @@ func TestPathRolesDeployTokens(t *testing.T) {
 					Data: map[string]any{
 						"path":         tt.path,
 						"name":         tt.name,
-						"access_level": cmp.Or(tt.accessLevel, gitlab.AccessLevelNoPermissions).String(),
+						"access_level": cmp.Or(tt.accessLevel, gitlab.AccessLevelUnknown).String(),
 						"token_type":   tt.tokenType.String(),
 						"scopes":       tt.scopes,
 						"ttl":          cmp.Or(tt.ttl, "1h"),
 					},
 				})
-				require.Error(t, err)
+				require.NoError(t, err)
 				require.NotNil(t, resp)
-				var errorMap = countErrByName(err.(*multierror.Error))
-				assert.EqualValues(t, 2, errorMap[gitlab.ErrFieldInvalidValue.Error()])
 			})
 		})
 	}
