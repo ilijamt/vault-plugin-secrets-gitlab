@@ -1,11 +1,21 @@
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "daily"
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: "daily"
 
-  - package-ecosystem: "gomod"
-    directory: "/"
-    schedule:
-      interval: "daily"
+- package-ecosystem: "gomod"
+  directory: "/"
+  schedule:
+    interval: "daily"
+  groups:
+    hashicorp:
+      patterns:
+      - github.com/hashicorp/go-hclog
+      - github.com/hashicorp/go-multierror
+      - github.com/hashicorp/vault/api
+      - github.com/hashicorp/vault/sdk
+      update-types:
+      - minor
+      - patch
