@@ -11,7 +11,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	gitlab.com/gitlab-org/api/client-go v0.119.0
 	golang.org/x/time v0.9.0
-	google.golang.org/protobuf v1.36.1
+	google.golang.org/protobuf v1.36.2
 	gopkg.in/dnaeon/go-vcr.v4 v4.0.2
 )
 
