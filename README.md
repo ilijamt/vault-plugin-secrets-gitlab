@@ -9,7 +9,7 @@ This is a standalone backend plugin for use with Hashicorp Vault. This plugin al
 project and group access tokens. This was created so we can automate the creation/revocation of access tokens
 through Vault.
 
-**IMPORTANT**: Upgrading to 0.7.x will require you to revoke, remove all the paths, and remove the mount path. This is required because the paths internally have changed to accomodate config per role.
+**IMPORTANT**: Upgrading to >= 0.7.x will require you to revoke, remove all the paths, and remove the mount path. This is required because the paths internally have changed to accomodate config per role.
 
 ## Quick Links
 
