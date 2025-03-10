@@ -17,6 +17,8 @@ var (
 func main() {
 	apiClientMeta := &api.PluginAPIClientMeta{}
 	flags := apiClientMeta.FlagSet()
+	pf := &gat.Flags{}
+	pf.FlagSet(flags)
 
 	fatalIfError(flags.Parse(os.Args[1:]))
 
@@ -24,8 +26,9 @@ func main() {
 	tlsProviderFunc := api.VaultPluginTLSProvider(tlsConfig)
 
 	fatalIfError(plugin.ServeMultiplex(&plugin.ServeOpts{
-		BackendFactoryFunc: gat.Factory,
+		BackendFactoryFunc: gat.Factory(*pf),
 		TLSProviderFunc:    tlsProviderFunc,
+		Logger:             logger,
 	}))
 }
 

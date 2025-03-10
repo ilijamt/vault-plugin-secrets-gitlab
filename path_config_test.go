@@ -102,6 +102,61 @@ func TestPathConfig(t *testing.T) {
 		})
 	})
 
+	t.Run("write, read, delete and read config with show config token", func(t *testing.T) {
+		httpClient, url := getClient(t, "unit")
+		ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
+
+		b, l, events, err := getBackendWithFlagsWithEvents(ctx, gitlab.Flags{ShowConfigToken: true})
+		require.NoError(t, err)
+
+		resp, err := b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.UpdateOperation,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Data: map[string]any{
+				"token":    "glpat-secret-random-token",
+				"base_url": url,
+				"type":     gitlab.TypeSelfManaged.String(),
+			},
+		})
+
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NoError(t, resp.Error())
+
+		resp, err = b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+		})
+
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NoError(t, resp.Error())
+		assert.NotEmpty(t, resp.Data["token_sha1_hash"])
+		assert.NotEmpty(t, resp.Data["base_url"])
+		require.Len(t, events.eventsProcessed, 1)
+		require.NotEmpty(t, resp.Data["token"])
+
+		resp, err = b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.DeleteOperation,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+		})
+		require.NoError(t, err)
+		require.Nil(t, resp)
+		require.Len(t, events.eventsProcessed, 2)
+
+		resp, err = b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.Error(t, resp.Error())
+
+		events.expectEvents(t, []expectedEvent{
+			{eventType: "gitlab/config-write"},
+			{eventType: "gitlab/config-delete"},
+		})
+	})
 	t.Run("invalid token", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
 		ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)

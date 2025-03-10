@@ -27,11 +27,18 @@ with the "^config/(?P<config_name>\w(([\w-.@]+)?\w)?)$" endpoints.
 `
 )
 
+func Factory(flags Flags) logical.Factory {
+	return func(ctx context.Context, config *logical.BackendConfig) (logical.Backend, error) {
+		return factory(ctx, config, flags)
+	}
+}
+
 // Factory returns expected new Backend as logical.Backend
-func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend, error) {
+func factory(ctx context.Context, conf *logical.BackendConfig, flags Flags) (logical.Backend, error) {
 	var b = &Backend{
 		roleLocks: locksutil.CreateLocks(),
 		clients:   sync.Map{},
+		flags:     flags,
 	}
 
 	b.Backend = &framework.Backend{
@@ -73,6 +80,8 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 
 type Backend struct {
 	*framework.Backend
+
+	flags Flags
 
 	// The client that we can use to create and revoke the access tokens
 	clients sync.Map

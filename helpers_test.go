@@ -92,6 +92,10 @@ func (m *mockEventsSender) expectEvents(t *testing.T, expectedEvents []expectedE
 }
 
 func getBackendWithEvents(ctx context.Context) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
+	return getBackendWithFlagsWithEvents(ctx, gitlab.Flags{})
+}
+
+func getBackendWithFlagsWithEvents(ctx context.Context, flags gitlab.Flags) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
 	events := &mockEventsSender{}
 	config := &logical.BackendConfig{
 		Logger:       logging.NewVaultLoggerWithWriter(io.Discard, log.NoLevel),
@@ -101,7 +105,7 @@ func getBackendWithEvents(ctx context.Context) (*gitlab.Backend, logical.Storage
 		EventsSender: events,
 	}
 
-	b, err := gitlab.Factory(ctx, config)
+	b, err := gitlab.Factory(flags)(ctx, config)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("unable to create Backend: %w", err)
 	}

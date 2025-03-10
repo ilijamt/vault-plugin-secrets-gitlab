@@ -105,7 +105,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		return nil, err
 	}
 
-	lResp = &logical.Response{Data: config.LogicalResponseData()}
+	lResp = &logical.Response{Data: config.LogicalResponseData(b.flags.ShowConfigToken)}
 	lResp.Data["token"] = config.Token
 	event(ctx, b.Backend, "config-token-rotate", map[string]string{
 		"path":        fmt.Sprintf("%s/%s", PathConfigStorage, name),
