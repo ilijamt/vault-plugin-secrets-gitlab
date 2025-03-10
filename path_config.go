@@ -108,9 +108,9 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 		if config == nil {
 			return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
 		}
-		lrd := config.LogicalResponseData()
+		lrd := config.LogicalResponseData(b.flags.ShowConfigToken)
 		b.Logger().Debug("Reading configuration info", "info", lrd)
-		lResp = &logical.Response{Data: config.LogicalResponseData()}
+		lResp = &logical.Response{Data: lrd}
 	}
 	return lResp, err
 }
@@ -142,7 +142,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()
 	if err = saveConfig(ctx, *config, req.Storage); err == nil {
-		lrd := config.LogicalResponseData()
+		lrd := config.LogicalResponseData(b.flags.ShowConfigToken)
 		event(ctx, b.Backend, "config-patch", changes)
 		b.SetClient(nil, name)
 		b.Logger().Debug("Patched config", "lrd", lrd, "warnings", warnings)
@@ -214,7 +214,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		})
 
 		b.SetClient(nil, name)
-		lrd := config.LogicalResponseData()
+		lrd := config.LogicalResponseData(b.flags.ShowConfigToken)
 		b.Logger().Debug("Wrote new config", "lrd", lrd, "warnings", warnings)
 		lResp = &logical.Response{Data: lrd, Warnings: warnings}
 	}

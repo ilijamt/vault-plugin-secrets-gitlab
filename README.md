@@ -81,6 +81,14 @@ you may or may not be able to access certain paths.
     ^token/(?P<role_name>\w(([\w-.]+)?\w)?)$
         Generate an access token based on the specified role
 ```
+## Flags
+
+There are some flags we can specify to enable/disable some functionality in the vault plugin.
+
+
+|       Flag        | Default value | Description                                                                            |
+|:-----------------:|:-------------:|:---------------------------------------------------------------------------------------|
+| show-config-token |     false     | Display the token value when reading a config on it's endpoint like `/config/default`. |
 
 ## Security Model
 
@@ -370,7 +378,7 @@ token_sha1_hash       91a91bb30f816770081c570504c5e2723bcb1f38
 type                  self-managed
 ```
 
-**Important**: Token will be shown only after rotation, and it will not be shown again.
+**Important**: Token will be shown only after rotation, and it will not be shown again. (Unless the plugin is started with the `-show-config-token` flag)
 
 ## Upgrading
 

@@ -139,7 +139,7 @@ func (e *EntryConfig) UpdateFromFieldData(data *framework.FieldData) (warnings [
 	return warnings, err
 }
 
-func (e *EntryConfig) LogicalResponseData() map[string]any {
+func (e *EntryConfig) LogicalResponseData(includeToken bool) (data map[string]any) {
 	var tokenExpiresAt, tokenCreatedAt = "", ""
 	if !e.TokenExpiresAt.IsZero() {
 		tokenExpiresAt = e.TokenExpiresAt.Format(time.RFC3339)
@@ -148,7 +148,7 @@ func (e *EntryConfig) LogicalResponseData() map[string]any {
 		tokenCreatedAt = e.TokenCreatedAt.Format(time.RFC3339)
 	}
 
-	return map[string]any{
+	data = map[string]any{
 		"base_url":             e.BaseURL,
 		"auto_rotate_token":    e.AutoRotateToken,
 		"auto_rotate_before":   e.AutoRotateBefore.String(),
@@ -163,6 +163,12 @@ func (e *EntryConfig) LogicalResponseData() map[string]any {
 		"type":                 e.Type.String(),
 		"name":                 e.Name,
 	}
+
+	if includeToken {
+		data["token"] = e.Token
+	}
+
+	return data
 }
 
 func getConfig(ctx context.Context, s logical.Storage, name string) (cfg *EntryConfig, err error) {
