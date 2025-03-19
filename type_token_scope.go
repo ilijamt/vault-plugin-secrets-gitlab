@@ -71,7 +71,7 @@ var (
 
 	ValidProjectDeployTokenScopes = []string{
 		TokenScopeReadRepository.String(),
-		TokenScopeReadRepository.String(),
+		TokenScopeReadRegistry.String(),
 		TokenScopeWriteRegistry.String(),
 		TokenScopeReadPackageRegistry.String(),
 		TokenScopeWritePackageRegistry.String(),
@@ -79,7 +79,7 @@ var (
 
 	ValidGroupDeployTokenScopes = []string{
 		TokenScopeReadRepository.String(),
-		TokenScopeReadRepository.String(),
+		TokenScopeReadRegistry.String(),
 		TokenScopeWriteRegistry.String(),
 		TokenScopeReadPackageRegistry.String(),
 		TokenScopeWritePackageRegistry.String(),
