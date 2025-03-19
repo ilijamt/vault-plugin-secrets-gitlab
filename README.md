@@ -72,6 +72,9 @@ you may or may not be able to access certain paths.
     ^config?/?$
         Lists existing configs
 
+    ^flags$
+        Flags for the plugins.
+
     ^roles/(?P<role_name>\w(([\w-.]+)?\w)?)$
         Create a role with parameters that are used to generate a various access tokens.
 
@@ -86,9 +89,10 @@ you may or may not be able to access certain paths.
 There are some flags we can specify to enable/disable some functionality in the vault plugin.
 
 
-|       Flag        | Default value | Description                                                                            |
-|:-----------------:|:-------------:|:---------------------------------------------------------------------------------------|
-| show-config-token |     false     | Display the token value when reading a config on it's endpoint like `/config/default`. |
+|            Flag            | Default value | Description                                                                            |
+|:--------------------------:|:-------------:|:---------------------------------------------------------------------------------------|
+|     show-config-token      |     false     | Display the token value when reading a config on it's endpoint like `/config/default`. |
+| allow-runtime-flags-change |     false     | Allows you to change the flags at runtime                                              |
 
 ## Security Model
 

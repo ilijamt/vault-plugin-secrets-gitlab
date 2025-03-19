@@ -62,6 +62,7 @@ func factory(ctx context.Context, conf *logical.BackendConfig, flags Flags) (log
 
 		Paths: framework.PathAppend(
 			[]*framework.Path{
+				pathFlags(b),
 				pathConfig(b),
 				pathListConfig(b),
 				pathConfigTokenRotate(b),
@@ -89,6 +90,10 @@ type Backend struct {
 	// Mutex to protect access to gitlab clients and client configs, a change to the gitlab client config
 	// would invalidate the gitlab client, so it will need to be reinitialized
 	lockClientMutex sync.RWMutex
+
+	// Mutex to protect flags change, this is required as it could require reinitialization of some components
+	// of the plugin
+	lockFlagsMutex sync.RWMutex
 
 	// roleLocks to protect access for roles, during modifications, deletion
 	roleLocks []*locksutil.LockEntry

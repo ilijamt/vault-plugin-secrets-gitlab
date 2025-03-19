@@ -16,6 +16,8 @@ func TestFlags_FlagSet(t *testing.T) {
 	flags.FlagSet(fs)
 
 	assert.False(t, flags.ShowConfigToken)
-	assert.NoError(t, fs.Parse([]string{"-show-config-token"}))
+	assert.False(t, flags.AllowRuntimeFlagsChange)
+	assert.NoError(t, fs.Parse([]string{"-show-config-token", "-allow-runtime-flags-change"}))
 	assert.True(t, flags.ShowConfigToken)
+	assert.True(t, flags.AllowRuntimeFlagsChange)
 }
