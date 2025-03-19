@@ -74,7 +74,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		return nil, fmt.Errorf("token_id: %w", err)
 	}
 
-	var gitlabRevokesToken, _ = strconv.ParseBool(req.Secret.InternalData["gitlab_revokes_token"].(string))
+	var gitlabRevokesToken = req.Secret.InternalData["gitlab_revokes_token"].(bool)
 	var vaultRevokesToken = !gitlabRevokesToken
 	var parentId = req.Secret.InternalData["parent_id"].(string)
 	var tokenType TokenType
