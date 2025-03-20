@@ -150,10 +150,24 @@ func newInMemoryClient(valid bool) *inMemoryClient {
 	return &inMemoryClient{
 		users:        make([]string, 0),
 		valid:        valid,
-		accessTokens: make(map[string]gitlab.EntryToken),
+		accessTokens: make(map[string]gitlab.IToken),
 
-		mainTokenInfo:   gitlab.EntryToken{CreatedAt: g.Ptr(time.Now()), ExpiresAt: g.Ptr(time.Now())},
-		rotateMainToken: gitlab.EntryToken{CreatedAt: g.Ptr(time.Now()), ExpiresAt: g.Ptr(time.Now())},
+		mainTokenInfo: gitlab.TokenConfig{
+			TokenWithScopes: gitlab.TokenWithScopes{
+				Token: gitlab.Token{
+					CreatedAt: g.Ptr(time.Now()),
+					ExpiresAt: g.Ptr(time.Now()),
+				},
+			},
+		},
+		rotateMainToken: gitlab.TokenConfig{
+			TokenWithScopes: gitlab.TokenWithScopes{
+				Token: gitlab.Token{
+					CreatedAt: g.Ptr(time.Now()),
+					ExpiresAt: g.Ptr(time.Now()),
+				},
+			},
+		},
 	}
 }
 
@@ -187,10 +201,10 @@ type inMemoryClient struct {
 	calledRotateMainToken int
 	calledValid           int
 
-	mainTokenInfo   gitlab.EntryToken
-	rotateMainToken gitlab.EntryToken
+	mainTokenInfo   gitlab.TokenConfig
+	rotateMainToken gitlab.TokenConfig
 
-	accessTokens map[string]gitlab.EntryToken
+	accessTokens map[string]gitlab.IToken
 
 	valueGetProjectIdByPath int
 }
@@ -202,7 +216,7 @@ func (i *inMemoryClient) GetProjectIdByPath(ctx context.Context, path string) (i
 	return i.valueGetProjectIdByPath, nil
 }
 
-func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path string, projectId int, name string, expiresAt *time.Time, scopes []string) (et *gitlab.EntryToken, err error) {
+func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path string, projectId int, name string, expiresAt *time.Time, scopes []string) (et *gitlab.TokenProjectDeploy, err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.createProjectDeployTokenError {
@@ -211,21 +225,26 @@ func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path stri
 	i.internalCounter++
 	var tokenId = i.internalCounter
 	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeProjectDeploy.String(), projectId, tokenId)
-	var entryToken = gitlab.EntryToken{
-		TokenID:   tokenId,
-		ParentID:  strconv.Itoa(projectId),
-		Path:      path,
-		Name:      name,
-		Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
-		TokenType: gitlab.TokenTypeProjectDeploy,
-		ExpiresAt: expiresAt,
-		CreatedAt: g.Ptr(time.Now()),
+	var entryToken = &gitlab.TokenProjectDeploy{
+		TokenWithScopes: gitlab.TokenWithScopes{
+			Token: gitlab.Token{
+				TokenID:   tokenId,
+				ParentID:  strconv.Itoa(projectId),
+				Path:      path,
+				Name:      name,
+				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
+				TokenType: gitlab.TokenTypeProjectDeploy,
+				ExpiresAt: expiresAt,
+				CreatedAt: g.Ptr(time.Now())},
+			Scopes: scopes,
+		},
+		Username: uuid.New().String(),
 	}
 	i.accessTokens[key] = entryToken
-	return &entryToken, nil
+	return entryToken, nil
 }
 
-func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string, groupId int, name string, expiresAt *time.Time, scopes []string) (et *gitlab.EntryToken, err error) {
+func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string, groupId int, name string, expiresAt *time.Time, scopes []string) (et *gitlab.TokenGroupDeploy, err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.createGroupDeployTokenError {
@@ -234,18 +253,24 @@ func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string
 	i.internalCounter++
 	var tokenId = i.internalCounter
 	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeGroupDeploy.String(), groupId, tokenId)
-	var entryToken = gitlab.EntryToken{
-		TokenID:   tokenId,
-		ParentID:  strconv.Itoa(groupId),
-		Path:      path,
-		Name:      name,
-		Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
-		TokenType: gitlab.TokenTypeGroupDeploy,
-		ExpiresAt: expiresAt,
-		CreatedAt: g.Ptr(time.Now()),
+	var entryToken = &gitlab.TokenGroupDeploy{
+		TokenWithScopes: gitlab.TokenWithScopes{
+			Token: gitlab.Token{
+				TokenID:   tokenId,
+				ParentID:  strconv.Itoa(groupId),
+				Path:      path,
+				Name:      name,
+				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
+				TokenType: gitlab.TokenTypeGroupDeploy,
+				ExpiresAt: expiresAt,
+				CreatedAt: g.Ptr(time.Now()),
+			},
+			Scopes: scopes,
+		},
+		Username: uuid.New().String(),
 	}
 	i.accessTokens[key] = entryToken
-	return &entryToken, nil
+	return entryToken, nil
 }
 
 func (i *inMemoryClient) RevokeProjectDeployToken(ctx context.Context, projectId, deployTokenId int) (err error) {
@@ -281,7 +306,7 @@ func (i *inMemoryClient) Metadata(ctx context.Context) (*g.Metadata, error) {
 	}, nil
 }
 
-func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, path, name string, projectId int, description string, expiresAt *time.Time) (et *gitlab.EntryToken, err error) {
+func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, path, name string, projectId int, description string, expiresAt *time.Time) (et *gitlab.TokenPipelineProjectTrigger, err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.createPipelineProjectTriggerAccessTokenError {
@@ -290,18 +315,20 @@ func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Con
 	i.internalCounter++
 	var tokenId = i.internalCounter
 	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypePipelineProjectTrigger.String(), projectId, tokenId)
-	var entryToken = gitlab.EntryToken{
-		TokenID:   tokenId,
-		ParentID:  strconv.Itoa(projectId),
-		Path:      strconv.Itoa(projectId),
-		Name:      name,
-		Token:     fmt.Sprintf("glptt-%s", uuid.New().String()),
-		TokenType: gitlab.TokenTypePipelineProjectTrigger,
-		ExpiresAt: expiresAt,
-		CreatedAt: g.Ptr(time.Now()),
+	var entryToken = &gitlab.TokenPipelineProjectTrigger{
+		Token: gitlab.Token{
+			TokenID:   tokenId,
+			ParentID:  strconv.Itoa(projectId),
+			Path:      strconv.Itoa(projectId),
+			Name:      name,
+			Token:     fmt.Sprintf("glptt-%s", uuid.New().String()),
+			TokenType: gitlab.TokenTypePipelineProjectTrigger,
+			ExpiresAt: expiresAt,
+			CreatedAt: g.Ptr(time.Now()),
+		},
 	}
 	i.accessTokens[key] = entryToken
-	return &entryToken, nil
+	return entryToken, nil
 }
 
 func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, tokenId int) error {
@@ -328,7 +355,7 @@ func (i *inMemoryClient) GitlabClient(ctx context.Context) *g.Client {
 	return nil
 }
 
-func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Context, path string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Context, path string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.TokenGroupServiceAccount, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.createGroupServiceAccountAccessTokenError {
@@ -337,14 +364,35 @@ func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Contex
 	return nil, nil
 }
 
-func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.TokenUserServiceAccount, error) {
 	i.muLock.Lock()
 	if i.createUserServiceAccountAccessTokenError {
 		i.muLock.Unlock()
 		return nil, fmt.Errorf("CreateUserServiceAccountAccessToken")
 	}
 	i.muLock.Unlock()
-	return i.CreatePersonalAccessToken(ctx, username, userId, name, expiresAt, scopes)
+	var t *gitlab.TokenUserServiceAccount
+	var err error
+	var cpat *gitlab.TokenPersonal
+	if cpat, err = i.CreatePersonalAccessToken(ctx, username, userId, name, expiresAt, scopes); err != nil && cpat != nil {
+		t = &gitlab.TokenUserServiceAccount{
+			TokenWithScopes: gitlab.TokenWithScopes{
+				Token: gitlab.Token{
+					CreatedAt: cpat.CreatedAt,
+					ExpiresAt: cpat.ExpiresAt,
+					TokenType: gitlab.TokenTypeUserServiceAccount,
+					Token:     cpat.Token.Token,
+					TokenID:   cpat.TokenID,
+					ParentID:  cpat.ParentID,
+					Name:      cpat.Name,
+					Path:      cpat.Path,
+				},
+				Scopes: cpat.Scopes,
+			},
+		}
+
+	}
+	return t, err
 }
 
 func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(ctx context.Context, token string) error {
@@ -367,14 +415,14 @@ func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(ctx context.Contex
 	return nil
 }
 
-func (i *inMemoryClient) CurrentTokenInfo(ctx context.Context) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CurrentTokenInfo(ctx context.Context) (*gitlab.TokenConfig, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	i.calledMainToken++
 	return &i.mainTokenInfo, nil
 }
 
-func (i *inMemoryClient) RotateCurrentToken(ctx context.Context) (*gitlab.EntryToken, *gitlab.EntryToken, error) {
+func (i *inMemoryClient) RotateCurrentToken(ctx context.Context) (*gitlab.TokenConfig, *gitlab.TokenConfig, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	i.calledRotateMainToken++
@@ -388,7 +436,7 @@ func (i *inMemoryClient) Valid(ctx context.Context) bool {
 	return i.valid
 }
 
-func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*gitlab.TokenPersonal, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.personalAccessTokenCreateError {
@@ -396,23 +444,27 @@ func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username
 	}
 	i.internalCounter++
 	var tokenId = i.internalCounter
-	var entryToken = gitlab.EntryToken{
-		TokenID:   tokenId,
-		UserID:    userId,
-		ParentID:  "",
-		Path:      username,
-		Name:      name,
-		Token:     "",
-		TokenType: gitlab.TokenTypePersonal,
-		CreatedAt: g.Ptr(time.Now()),
-		ExpiresAt: &expiresAt,
-		Scopes:    scopes,
+	var entryToken = &gitlab.TokenPersonal{
+		TokenWithScopes: gitlab.TokenWithScopes{
+			Token: gitlab.Token{
+				TokenID:   tokenId,
+				ParentID:  "",
+				Path:      username,
+				Name:      name,
+				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
+				TokenType: gitlab.TokenTypePersonal,
+				CreatedAt: g.Ptr(time.Now()),
+				ExpiresAt: &expiresAt,
+			},
+			Scopes: scopes,
+		},
+		UserID: userId,
 	}
 	i.accessTokens[fmt.Sprintf("%s_%v", gitlab.TokenTypePersonal.String(), tokenId)] = entryToken
-	return &entryToken, nil
+	return entryToken, nil
 }
 
-func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel gitlab.AccessLevel) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel gitlab.AccessLevel) (*gitlab.TokenGroup, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.groupAccessTokenCreateError {
@@ -420,24 +472,27 @@ func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId str
 	}
 	i.internalCounter++
 	var tokenId = i.internalCounter
-	var entryToken = gitlab.EntryToken{
-		TokenID:     tokenId,
-		UserID:      0,
-		ParentID:    groupId,
-		Path:        groupId,
-		Name:        name,
-		Token:       "",
-		TokenType:   gitlab.TokenTypeGroup,
-		CreatedAt:   g.Ptr(time.Now()),
-		ExpiresAt:   &expiresAt,
-		Scopes:      scopes,
-		AccessLevel: accessLevel,
+	var entryToken = &gitlab.TokenGroup{
+		TokenWithScopesAndAccessLevel: gitlab.TokenWithScopesAndAccessLevel{
+			Token: gitlab.Token{
+				TokenID:   tokenId,
+				ParentID:  groupId,
+				Path:      groupId,
+				Name:      name,
+				Token:     fmt.Sprintf("glgat-%s", uuid.New().String()),
+				TokenType: gitlab.TokenTypeGroup,
+				CreatedAt: g.Ptr(time.Now()),
+				ExpiresAt: &expiresAt,
+			},
+			Scopes:      scopes,
+			AccessLevel: accessLevel,
+		},
 	}
 	i.accessTokens[fmt.Sprintf("%s_%v", gitlab.TokenTypeGroup.String(), tokenId)] = entryToken
-	return &entryToken, nil
+	return entryToken, nil
 }
 
-func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel gitlab.AccessLevel) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel gitlab.AccessLevel) (*gitlab.TokenProject, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.projectAccessTokenCreateError {
@@ -445,21 +500,24 @@ func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId
 	}
 	i.internalCounter++
 	var tokenId = i.internalCounter
-	var entryToken = gitlab.EntryToken{
-		TokenID:     tokenId,
-		UserID:      0,
-		ParentID:    projectId,
-		Path:        projectId,
-		Name:        name,
-		Token:       "",
-		TokenType:   gitlab.TokenTypeProject,
-		CreatedAt:   g.Ptr(time.Now()),
-		ExpiresAt:   &expiresAt,
-		Scopes:      scopes,
-		AccessLevel: accessLevel,
+	var entryToken = &gitlab.TokenProject{
+		TokenWithScopesAndAccessLevel: gitlab.TokenWithScopesAndAccessLevel{
+			Token: gitlab.Token{
+				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
+				TokenType: gitlab.TokenTypeProject,
+				CreatedAt: g.Ptr(time.Now()),
+				ExpiresAt: &expiresAt,
+				TokenID:   tokenId,
+				ParentID:  projectId,
+				Name:      name,
+				Path:      projectId,
+			},
+			Scopes:      scopes,
+			AccessLevel: accessLevel,
+		},
 	}
 	i.accessTokens[fmt.Sprintf("%s_%v", gitlab.TokenTypeProject.String(), tokenId)] = entryToken
-	return &entryToken, nil
+	return entryToken, nil
 }
 
 func (i *inMemoryClient) RevokePersonalAccessToken(ctx context.Context, tokenId int) error {

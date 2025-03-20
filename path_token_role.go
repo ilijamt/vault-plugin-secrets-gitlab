@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -57,7 +56,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	defer b.Logger().Debug("Created token for role", "role_name", roleName, "token_type", role.TokenType.String())
 
 	var name string
-	var token *EntryToken
+	var token IToken
 	var expiresAt time.Time
 	var startTime = TimeFromContext(ctx).UTC()
 
@@ -132,39 +131,30 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		return nil, cmp.Or(err, fmt.Errorf("%w: token is nil", ErrNilValue))
 	}
 
-	token.ConfigName = cmp.Or(role.ConfigName, DefaultConfigName)
-	token.RoleName = role.RoleName
-	token.GitlabRevokesToken = role.GitlabRevokesTokens
+	token.SetConfigName(cmp.Or(role.ConfigName, DefaultConfigName))
+	token.SetRoleName(role.RoleName)
+	token.SetGitlabRevokesToken(role.GitlabRevokesTokens)
 
 	if vaultRevokesTokens {
 		// since vault is controlling the expiry we need to override here
 		// and make the expiry time accurate
 		expiresAt = startTime.Add(role.TTL)
-		token.ExpiresAt = &expiresAt
+		token.SetExpiresAt(&expiresAt)
 	}
 
-	var secretData, secretInternal = token.SecretResponse()
-	resp = b.Secret(SecretAccessTokenType).Response(secretData, secretInternal)
+	resp = b.Secret(SecretAccessTokenType).Response(token.Data(), token.Internal())
 
 	resp.Secret.MaxTTL = role.TTL
 	resp.Secret.TTL = role.TTL
 	resp.Secret.IssueTime = startTime
 	if gitlabRevokesTokens {
-		resp.Secret.TTL = token.ExpiresAt.Sub(*token.CreatedAt)
+		resp.Secret.TTL = token.TTL()
 	}
 
-	event(ctx, b.Backend, "token-write", map[string]string{
-		"path":         fmt.Sprintf("%s/%s", PathRoleStorage, roleName),
-		"name":         name,
-		"parent_id":    role.Path,
-		"ttl":          resp.Secret.TTL.String(),
-		"role_name":    roleName,
-		"token_id":     strconv.Itoa(token.TokenID),
-		"token_type":   role.TokenType.String(),
-		"scopes":       strings.Join(role.Scopes, ","),
-		"access_level": role.AccessLevel.String(),
-		"config_name":  token.ConfigName,
-	})
+	event(
+		ctx, b.Backend, "token-write",
+		token.Event(map[string]string{"path": fmt.Sprintf("%s/%s", PathRoleStorage, roleName)}),
+	)
 	return resp, nil
 }
 

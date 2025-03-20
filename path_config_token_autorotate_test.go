@@ -183,7 +183,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		client.rotateMainToken.Token = "new token"
+		client.rotateMainToken.Token.Token = "new token"
 		b.SetClient(client, gitlab.DefaultConfigName)
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
