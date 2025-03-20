@@ -25,8 +25,8 @@ type Client interface {
 	GitlabClient(ctx context.Context) *g.Client
 	Valid(ctx context.Context) bool
 	Metadata(ctx context.Context) (*g.Metadata, error)
-	CurrentTokenInfo(ctx context.Context) (*EntryToken, error)
-	RotateCurrentToken(ctx context.Context) (newToken *EntryToken, oldToken *EntryToken, err error)
+	CurrentTokenInfo(ctx context.Context) (*TokenConfig, error)
+	RotateCurrentToken(ctx context.Context) (newToken *TokenConfig, oldToken *TokenConfig, err error)
 	CreatePersonalAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*TokenPersonal, error)
 	CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*TokenGroup, error)
 	CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*TokenProject, error)
@@ -85,8 +85,8 @@ func (gc *gitlabClient) CreateGroupDeployToken(ctx context.Context, path string,
 		g.WithContext(ctx),
 	); err == nil {
 		et = &TokenGroupDeploy{
-			TokenWithScopes: &TokenWithScopes{
-				Token: &Token{
+			TokenWithScopes: TokenWithScopes{
+				Token: Token{
 					TokenID:   dt.ID,
 					ParentID:  strconv.Itoa(groupId),
 					Path:      path,
@@ -118,8 +118,8 @@ func (gc *gitlabClient) CreateProjectDeployToken(ctx context.Context, path strin
 		g.WithContext(ctx),
 	); err == nil {
 		et = &TokenProjectDeploy{
-			TokenWithScopes: &TokenWithScopes{
-				Token: &Token{
+			TokenWithScopes: TokenWithScopes{
+				Token: Token{
 					TokenID:   dt.ID,
 					ParentID:  strconv.Itoa(projectId),
 					Path:      path,
@@ -175,7 +175,7 @@ func (gc *gitlabClient) CreatePipelineProjectTriggerAccessToken(ctx context.Cont
 		g.WithContext(ctx),
 	); err == nil {
 		et = &TokenPipelineProjectTrigger{
-			Token: &Token{
+			Token: Token{
 				TokenID:   pt.ID,
 				ParentID:  strconv.Itoa(projectId),
 				Path:      path,
@@ -237,8 +237,8 @@ func (gc *gitlabClient) CreateGroupServiceAccountAccessToken(ctx context.Context
 	}, g.WithContext(ctx))
 	if err == nil {
 		et = &TokenGroupServiceAccount{
-			TokenWithScopes: &TokenWithScopes{
-				Token: &Token{
+			TokenWithScopes: TokenWithScopes{
+				Token: Token{
 					TokenID:   at.ID,
 					ParentID:  groupId,
 					Path:      path,
@@ -264,8 +264,8 @@ func (gc *gitlabClient) CreateUserServiceAccountAccessToken(ctx context.Context,
 	etp, err = gc.CreatePersonalAccessToken(ctx, username, userId, name, expiresAt, scopes)
 	if err == nil && etp != nil {
 		et = &TokenUserServiceAccount{
-			TokenWithScopes: &TokenWithScopes{
-				Token: &Token{
+			TokenWithScopes: TokenWithScopes{
+				Token: Token{
 					TokenID:   etp.TokenID,
 					ParentID:  etp.ParentID,
 					Path:      etp.Path,
@@ -318,28 +318,29 @@ func (gc *gitlabClient) RevokeGroupServiceAccountAccessToken(ctx context.Context
 	return err
 }
 
-func (gc *gitlabClient) CurrentTokenInfo(ctx context.Context) (et *EntryToken, err error) {
+func (gc *gitlabClient) CurrentTokenInfo(ctx context.Context) (et *TokenConfig, err error) {
 	var pat *g.PersonalAccessToken
 	defer func() { gc.logger.Debug("Current token info", "token", et, "error", err) }()
 	if pat, _, err = gc.client.PersonalAccessTokens.GetSinglePersonalAccessToken(g.WithContext(ctx)); err == nil {
-		et = &EntryToken{
-			TokenID:     pat.ID,
-			UserID:      pat.UserID,
-			ParentID:    "",
-			Path:        "",
-			Name:        pat.Name,
-			Token:       pat.Token,
-			TokenType:   TokenTypePersonal,
-			CreatedAt:   pat.CreatedAt,
-			ExpiresAt:   (*time.Time)(pat.ExpiresAt),
-			Scopes:      pat.Scopes,
-			AccessLevel: "",
+		et = &TokenConfig{
+			TokenWithScopes: TokenWithScopes{
+				Token: Token{
+					TokenID:   pat.ID,
+					Name:      pat.Name,
+					Token:     pat.Token,
+					TokenType: TokenTypePersonal,
+					CreatedAt: pat.CreatedAt,
+					ExpiresAt: (*time.Time)(pat.ExpiresAt),
+				},
+				Scopes: pat.Scopes,
+			},
+			UserID: pat.UserID,
 		}
 	}
 	return et, err
 }
 
-func (gc *gitlabClient) RotateCurrentToken(ctx context.Context) (token *EntryToken, currentEntryToken *EntryToken, err error) {
+func (gc *gitlabClient) RotateCurrentToken(ctx context.Context) (token *TokenConfig, currentEntryToken *TokenConfig, err error) {
 	var expiresAt time.Time
 	defer func() {
 		gc.logger.Debug("Rotate current token", "token", token, "currentEntryToken", currentEntryToken, "expiresAt", expiresAt, "error", err)
@@ -368,21 +369,24 @@ func (gc *gitlabClient) RotateCurrentToken(ctx context.Context) (token *EntryTok
 		return nil, nil, err
 	}
 
-	token = &EntryToken{
-		TokenID:     pat.ID,
-		UserID:      pat.UserID,
-		ParentID:    "",
-		Path:        usr.Username,
-		Name:        pat.Name,
-		Token:       pat.Token,
-		TokenType:   TokenTypePersonal,
-		CreatedAt:   pat.CreatedAt,
-		ExpiresAt:   (*time.Time)(pat.ExpiresAt),
-		Scopes:      pat.Scopes,
-		AccessLevel: AccessLevelUnknown,
+	token = &TokenConfig{
+		TokenWithScopes: TokenWithScopes{
+			Token: Token{
+				TokenID:   pat.ID,
+				ParentID:  "",
+				Path:      usr.Username,
+				Name:      pat.Name,
+				Token:     pat.Token,
+				TokenType: TokenTypePersonal,
+				CreatedAt: pat.CreatedAt,
+				ExpiresAt: (*time.Time)(pat.ExpiresAt),
+			},
+			Scopes: pat.Scopes,
+		},
+		UserID: pat.UserID,
 	}
 
-	gc.config.Token = token.Token
+	gc.config.Token = token.Token.Token
 	gc.config.TokenId = token.TokenID
 	gc.config.Scopes = token.Scopes
 	if token.CreatedAt != nil {
@@ -427,8 +431,8 @@ func (gc *gitlabClient) CreatePersonalAccessToken(ctx context.Context, username 
 		Scopes:    &scopes,
 	}, g.WithContext(ctx)); err == nil {
 		et = &TokenPersonal{
-			TokenWithScopes: &TokenWithScopes{
-				Token: &Token{
+			TokenWithScopes: TokenWithScopes{
+				Token: Token{
 					TokenID:   at.ID,
 					Path:      username,
 					Name:      name,
@@ -459,8 +463,8 @@ func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId stri
 		AccessLevel: al,
 	}, g.WithContext(ctx)); err == nil {
 		et = &TokenGroup{
-			TokenWithScopesAndAccessLevel: &TokenWithScopesAndAccessLevel{
-				Token: &Token{
+			TokenWithScopesAndAccessLevel: TokenWithScopesAndAccessLevel{
+				Token: Token{
 					TokenID:   at.ID,
 					ParentID:  groupId,
 					Path:      groupId,
@@ -492,8 +496,8 @@ func (gc *gitlabClient) CreateProjectAccessToken(ctx context.Context, projectId 
 		AccessLevel: al,
 	}, g.WithContext(ctx)); err == nil {
 		et = &TokenProject{
-			TokenWithScopesAndAccessLevel: &TokenWithScopesAndAccessLevel{
-				Token: &Token{
+			TokenWithScopesAndAccessLevel: TokenWithScopesAndAccessLevel{
+				Token: Token{
 					TokenID:   at.ID,
 					ParentID:  projectId,
 					Path:      projectId,

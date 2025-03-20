@@ -5,7 +5,7 @@ import (
 )
 
 type TokenGroupDeploy struct {
-	*TokenWithScopes `json:",inline"`
+	TokenWithScopes `json:",inline"`
 
 	Username string `json:"username"`
 }

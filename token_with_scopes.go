@@ -6,7 +6,7 @@ import (
 )
 
 type TokenWithScopes struct {
-	*Token `json:",inline"`
+	Token `json:",inline"`
 
 	Scopes []string `json:"scopes"`
 }

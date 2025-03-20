@@ -6,7 +6,7 @@ import (
 )
 
 type TokenPersonal struct {
-	*TokenWithScopes `json:",inline"`
+	TokenWithScopes `json:",inline"`
 
 	UserID int `json:"user_id"`
 }

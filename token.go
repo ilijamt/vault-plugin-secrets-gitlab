@@ -1,6 +1,8 @@
 package gitlab
 
 import (
+	"crypto/sha1"
+	"fmt"
 	"maps"
 	"strconv"
 	"time"
@@ -74,16 +76,17 @@ func (t *Token) Internal() map[string]any {
 
 func (t *Token) Data() map[string]any {
 	return map[string]any{
-		"path":        t.Path,
-		"name":        t.Name,
-		"token":       t.Token,
-		"token_id":    t.TokenID,
-		"token_type":  t.Type().String(),
-		"parent_id":   t.ParentID,
-		"role_name":   t.RoleName,
-		"config_name": t.ConfigName,
-		"created_at":  t.CreatedAt,
-		"expires_at":  t.ExpiresAt,
+		"path":            t.Path,
+		"name":            t.Name,
+		"token":           t.Token,
+		"token_sha1_hash": fmt.Sprintf("%x", sha1.Sum([]byte(t.Token))),
+		"token_id":        t.TokenID,
+		"token_type":      t.Type().String(),
+		"parent_id":       t.ParentID,
+		"role_name":       t.RoleName,
+		"config_name":     t.ConfigName,
+		"created_at":      t.CreatedAt,
+		"expires_at":      t.ExpiresAt,
 	}
 }
 

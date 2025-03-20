@@ -3,7 +3,7 @@ package gitlab
 import "maps"
 
 type TokenProjectDeploy struct {
-	*TokenWithScopes `json:",inline"`
+	TokenWithScopes `json:",inline"`
 
 	Username string `json:"username"`
 }

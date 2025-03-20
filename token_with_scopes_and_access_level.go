@@ -6,7 +6,7 @@ import (
 )
 
 type TokenWithScopesAndAccessLevel struct {
-	*Token `json:",inline"`
+	Token `json:",inline"`
 
 	Scopes      []string    `json:"scopes"`
 	AccessLevel AccessLevel `json:"access_level"`

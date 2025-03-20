@@ -1,5 +1,5 @@
 package gitlab
 
 type TokenUserServiceAccount struct {
-	*TokenWithScopes `json:",inline"`
+	TokenWithScopes `json:",inline"`
 }

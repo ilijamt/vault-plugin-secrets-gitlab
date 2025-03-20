@@ -152,13 +152,15 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 	return lResp, err
 }
 
-func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfig) (et *EntryToken, err error) {
+func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfig) (et *TokenConfig, err error) {
 	var httpClient *http.Client
 	var client Client
 	httpClient, _ = HttpClientFromContext(ctx)
 	if client, _ = GitlabClientFromContext(ctx); client == nil {
 		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
 			b.SetClient(client, config.Name)
+		} else {
+			return nil, err
 		}
 	}
 

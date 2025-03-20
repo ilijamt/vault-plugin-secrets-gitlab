@@ -152,8 +152,22 @@ func newInMemoryClient(valid bool) *inMemoryClient {
 		valid:        valid,
 		accessTokens: make(map[string]gitlab.IToken),
 
-		mainTokenInfo:   gitlab.EntryToken{CreatedAt: g.Ptr(time.Now()), ExpiresAt: g.Ptr(time.Now())},
-		rotateMainToken: gitlab.EntryToken{CreatedAt: g.Ptr(time.Now()), ExpiresAt: g.Ptr(time.Now())},
+		mainTokenInfo: gitlab.TokenConfig{
+			TokenWithScopes: gitlab.TokenWithScopes{
+				Token: gitlab.Token{
+					CreatedAt: g.Ptr(time.Now()),
+					ExpiresAt: g.Ptr(time.Now()),
+				},
+			},
+		},
+		rotateMainToken: gitlab.TokenConfig{
+			TokenWithScopes: gitlab.TokenWithScopes{
+				Token: gitlab.Token{
+					CreatedAt: g.Ptr(time.Now()),
+					ExpiresAt: g.Ptr(time.Now()),
+				},
+			},
+		},
 	}
 }
 
@@ -187,8 +201,8 @@ type inMemoryClient struct {
 	calledRotateMainToken int
 	calledValid           int
 
-	mainTokenInfo   gitlab.EntryToken
-	rotateMainToken gitlab.EntryToken
+	mainTokenInfo   gitlab.TokenConfig
+	rotateMainToken gitlab.TokenConfig
 
 	accessTokens map[string]gitlab.IToken
 
@@ -212,8 +226,8 @@ func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path stri
 	var tokenId = i.internalCounter
 	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeProjectDeploy.String(), projectId, tokenId)
 	var entryToken = &gitlab.TokenProjectDeploy{
-		TokenWithScopes: &gitlab.TokenWithScopes{
-			Token: &gitlab.Token{
+		TokenWithScopes: gitlab.TokenWithScopes{
+			Token: gitlab.Token{
 				TokenID:   tokenId,
 				ParentID:  strconv.Itoa(projectId),
 				Path:      path,
@@ -240,8 +254,8 @@ func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string
 	var tokenId = i.internalCounter
 	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeGroupDeploy.String(), groupId, tokenId)
 	var entryToken = &gitlab.TokenGroupDeploy{
-		TokenWithScopes: &gitlab.TokenWithScopes{
-			Token: &gitlab.Token{
+		TokenWithScopes: gitlab.TokenWithScopes{
+			Token: gitlab.Token{
 				TokenID:   tokenId,
 				ParentID:  strconv.Itoa(groupId),
 				Path:      path,
@@ -302,7 +316,7 @@ func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Con
 	var tokenId = i.internalCounter
 	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypePipelineProjectTrigger.String(), projectId, tokenId)
 	var entryToken = &gitlab.TokenPipelineProjectTrigger{
-		Token: &gitlab.Token{
+		Token: gitlab.Token{
 			TokenID:   tokenId,
 			ParentID:  strconv.Itoa(projectId),
 			Path:      strconv.Itoa(projectId),
@@ -362,8 +376,8 @@ func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context
 	var cpat *gitlab.TokenPersonal
 	if cpat, err = i.CreatePersonalAccessToken(ctx, username, userId, name, expiresAt, scopes); err != nil && cpat != nil {
 		t = &gitlab.TokenUserServiceAccount{
-			TokenWithScopes: &gitlab.TokenWithScopes{
-				Token: &gitlab.Token{
+			TokenWithScopes: gitlab.TokenWithScopes{
+				Token: gitlab.Token{
 					CreatedAt: cpat.CreatedAt,
 					ExpiresAt: cpat.ExpiresAt,
 					TokenType: gitlab.TokenTypeUserServiceAccount,
@@ -401,14 +415,14 @@ func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(ctx context.Contex
 	return nil
 }
 
-func (i *inMemoryClient) CurrentTokenInfo(ctx context.Context) (*gitlab.EntryToken, error) {
+func (i *inMemoryClient) CurrentTokenInfo(ctx context.Context) (*gitlab.TokenConfig, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	i.calledMainToken++
 	return &i.mainTokenInfo, nil
 }
 
-func (i *inMemoryClient) RotateCurrentToken(ctx context.Context) (*gitlab.EntryToken, *gitlab.EntryToken, error) {
+func (i *inMemoryClient) RotateCurrentToken(ctx context.Context) (*gitlab.TokenConfig, *gitlab.TokenConfig, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	i.calledRotateMainToken++
@@ -431,8 +445,8 @@ func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username
 	i.internalCounter++
 	var tokenId = i.internalCounter
 	var entryToken = &gitlab.TokenPersonal{
-		TokenWithScopes: &gitlab.TokenWithScopes{
-			Token: &gitlab.Token{
+		TokenWithScopes: gitlab.TokenWithScopes{
+			Token: gitlab.Token{
 				TokenID:   tokenId,
 				ParentID:  "",
 				Path:      username,
@@ -459,8 +473,8 @@ func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId str
 	i.internalCounter++
 	var tokenId = i.internalCounter
 	var entryToken = &gitlab.TokenGroup{
-		TokenWithScopesAndAccessLevel: &gitlab.TokenWithScopesAndAccessLevel{
-			Token: &gitlab.Token{
+		TokenWithScopesAndAccessLevel: gitlab.TokenWithScopesAndAccessLevel{
+			Token: gitlab.Token{
 				TokenID:   tokenId,
 				ParentID:  groupId,
 				Path:      groupId,
@@ -487,8 +501,8 @@ func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId
 	i.internalCounter++
 	var tokenId = i.internalCounter
 	var entryToken = &gitlab.TokenProject{
-		TokenWithScopesAndAccessLevel: &gitlab.TokenWithScopesAndAccessLevel{
-			Token: &gitlab.Token{
+		TokenWithScopesAndAccessLevel: gitlab.TokenWithScopesAndAccessLevel{
+			Token: gitlab.Token{
 				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
 				TokenType: gitlab.TokenTypeProject,
 				CreatedAt: g.Ptr(time.Now()),

@@ -1,5 +1,5 @@
 package gitlab
 
 type TokenProject struct {
-	*TokenWithScopesAndAccessLevel `json:",inline"`
+	TokenWithScopesAndAccessLevel `json:",inline"`
 }
