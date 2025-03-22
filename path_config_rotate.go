@@ -43,18 +43,14 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *EntryConfig) error {
 	var err error
 	b.Logger().Debug("Running check and rotate config token")
-
-	if time.Until(config.TokenExpiresAt) > config.AutoRotateBefore {
-		b.Logger().Debug("Nothing to do it's not yet time to rotate the token")
-		return nil
+	if time.Until(config.TokenExpiresAt) <= config.AutoRotateBefore {
+		_, err = b.pathConfigTokenRotate(ctx, request, &framework.FieldData{
+			Raw: map[string]interface{}{
+				"config_name": cmp.Or(config.Name, TypeConfigDefault),
+			},
+			Schema: FieldSchemaConfig,
+		})
 	}
-
-	_, err = b.pathConfigTokenRotate(ctx, request, &framework.FieldData{
-		Raw: map[string]interface{}{
-			"config_name": cmp.Or(config.Name, TypeConfigDefault),
-		},
-		Schema: FieldSchemaConfig,
-	})
 	return err
 }
 
