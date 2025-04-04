@@ -42,9 +42,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 14 Dec 2024 22:52:51 GMT
+                - Fri, 04 Apr 2025 19:59:23 GMT
             Server:
                 - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
             Vary:
                 - Origin
             X-Content-Type-Options:
@@ -52,11 +54,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF3NZSPMX1T2Z2893ZJYXDE2","version":"1"}'
+                - '{"correlation_id":"01JR165Z2B40TPKJQS6CW3EZF0","version":"1"}'
             X-Request-Id:
-                - 01JF3NZSPMX1T2Z2893ZJYXDE2
+                - 01JR165Z2B40TPKJQS6CW3EZF0
             X-Runtime:
-                - "0.011889"
+                - "0.010139"
         status: 401 Unauthorized
         code: 401
-        duration: 14.563917ms
+        duration: 13.059584ms

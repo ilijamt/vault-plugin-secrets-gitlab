@@ -19,6 +19,7 @@ func getClient(t *testing.T, target string) (client *http.Client, u string) {
 	filename := fmt.Sprintf("testdata/%s/%s", target, sanitizePath(t.Name()))
 	r, err := recorder.New(filename,
 		[]recorder.Option{
+			recorder.WithSkipRequestLatency(false),
 			recorder.WithMode(recorder.ModeRecordOnce),
 			recorder.WithMatcher(
 				cassette.NewDefaultMatcher(

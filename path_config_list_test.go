@@ -35,7 +35,7 @@ func TestPathConfigList(t *testing.T) {
 		ctx := getCtxGitlabClient(t, "unit")
 		var b, l, events, err = getBackendWithEventsAndConfigName(ctx,
 			map[string]any{
-				"token":    "glpat-secret-random-token",
+				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
 				"type":     gitlab.TypeSaaS.String(),
 			},
@@ -49,7 +49,7 @@ func TestPathConfigList(t *testing.T) {
 		require.NoError(t,
 			writeBackendConfigWithName(ctx, b, l,
 				map[string]any{
-					"token":    "glpat-secret-admin-token",
+					"token":    getGitlabToken("admin_user_initial_token").Token,
 					"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
 					"type":     gitlab.TypeSelfManaged.String(),
 				},
@@ -60,7 +60,7 @@ func TestPathConfigList(t *testing.T) {
 		require.NoError(t,
 			writeBackendConfigWithName(ctx, b, l,
 				map[string]any{
-					"token":    "glpat-secret-normal-token",
+					"token":    getGitlabToken("normal_user_initial_token").Token,
 					"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
 					"type":     gitlab.TypeDedicated.String(),
 				},

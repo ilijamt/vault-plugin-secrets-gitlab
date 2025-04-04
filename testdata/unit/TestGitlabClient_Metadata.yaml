@@ -29,22 +29,22 @@ interactions:
         proto_minor: 1
         transfer_encoding: []
         trailer: {}
-        content_length: 162
+        content_length: 236
         uncompressed: false
-        body: '{"version":"16.11.6","revision":"4684e042d0b","kas":{"enabled":true,"externalUrl":"ws://7b1d891ab6bb/-/kubernetes-agent/","version":"16.11.6"},"enterprise":false}'
+        body: '{"version":"17.10.3","revision":"22d4014a923","kas":{"enabled":true,"externalUrl":"ws://dce56ec495e2/-/kubernetes-agent/","externalK8sProxyUrl":"http://dce56ec495e2/-/kubernetes-agent/k8s-proxy/","version":"17.10.3"},"enterprise":false}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Connection:
                 - keep-alive
             Content-Length:
-                - "162"
+                - "236"
             Content-Type:
                 - application/json
             Date:
-                - Sat, 14 Dec 2024 22:54:30 GMT
+                - Fri, 04 Apr 2025 19:59:20 GMT
             Etag:
-                - W/"a29dcadce9c4771a1b7b66cc326f6617"
+                - W/"c7db13e569c99229215906145ea2e48a"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -58,11 +58,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF3P2TZFPQNHDHSVSFM1P4NQ","version":"1"}'
+                - '{"correlation_id":"01JR165W9KH5PZ7E5FGNSFP122","version":"1"}'
             X-Request-Id:
-                - 01JF3P2TZFPQNHDHSVSFM1P4NQ
+                - 01JR165W9KH5PZ7E5FGNSFP122
             X-Runtime:
-                - "0.039610"
+                - "0.111073"
         status: 200 OK
         code: 200
-        duration: 70.684625ms
+        duration: 114.099ms

@@ -9,7 +9,7 @@ import (
 type TokenScope string
 
 const (
-	// TokenScopeApi grants complete read and write access to the scoped group and related project API, including the Package Registry
+	// TokenScopeApi grants complete read/write access to the API, including all groups and projects, the container registry, the dependency proxy, and the package registry. Also grants complete read/write access to the registry and repository using Git over HTTP
 	TokenScopeApi = TokenScope("api")
 	// TokenScopeReadApi grants read access to the scoped group and related project API, including the Package Registry
 	TokenScopeReadApi = TokenScope("read_api")
@@ -46,13 +46,41 @@ const (
 	// TokenScopeReadServicePing grant access to download Service Ping payload through the API when authenticated as an admin use.
 	TokenScopeReadServicePing = TokenScope("read_service_ping")
 
+	// TokenScopeSelfRotate grants permission to rotate this token using the personal access token API. Does not allow rotation of other tokens.
+	TokenScopeSelfRotate = TokenScope("self_rotate")
+	// TokenScopeReadVirtualRegistry if a project is private and authorization is required, grants read-only (pull) access to container images through the dependency proxy. Available only when the dependency proxy is enabled.
+	TokenScopeReadVirtualRegistry = TokenScope("read_virtual_registry")
+	// TokenScopeWriteVirtualRegistry if a project is private and authorization is required, grants read (pull), write (push), and delete access to container images through the dependency proxy. Available only when the dependency proxy is enabled.
+	TokenScopeWriteVirtualRegistry = TokenScope("write_virtual_registry")
+
 	TokenScopeUnknown = TokenScope("")
 )
 
 var (
 	ErrUnknownTokenScope = errors.New("unknown token scope")
 
-	validTokenScopes = []string{
+	// ValidPersonalTokenScopes defines the actions you can perform when you authenticate with a project access token.
+	ValidPersonalTokenScopes = []string{
+		TokenScopeApi.String(),
+		TokenScopeReadUser.String(),
+		TokenScopeReadApi.String(),
+		TokenScopeReadRepository.String(),
+		TokenScopeWriteRepository.String(),
+		TokenScopeReadRegistry.String(),
+		TokenScopeWriteRegistry.String(),
+		TokenScopeReadVirtualRegistry.String(),
+		TokenScopeWriteVirtualRegistry.String(),
+		TokenScopeSudo.String(),
+		TokenScopeAdminMode.String(),
+		TokenScopeCreateRunner.String(),
+		TokenScopeManageRunner.String(),
+		TokenScopeAiFeatures.String(),
+		TokenScopeK8SProxy.String(),
+		TokenScopeSelfRotate.String(),
+		TokenScopeReadServicePing.String(),
+	}
+
+	ValidProjectTokenScopes = []string{
 		TokenScopeApi.String(),
 		TokenScopeReadApi.String(),
 		TokenScopeReadRegistry.String(),
@@ -63,16 +91,37 @@ var (
 		TokenScopeManageRunner.String(),
 		TokenScopeAiFeatures.String(),
 		TokenScopeK8SProxy.String(),
+		TokenScopeSelfRotate.String(),
 	}
 
+	ValidGroupTokenScopes = []string{
+		TokenScopeApi.String(),
+		TokenScopeReadApi.String(),
+		TokenScopeReadRegistry.String(),
+		TokenScopeWriteRegistry.String(),
+		TokenScopeReadVirtualRegistry.String(),
+		TokenScopeWriteVirtualRegistry.String(),
+		TokenScopeReadRepository.String(),
+		TokenScopeWriteRepository.String(),
+		TokenScopeCreateRunner.String(),
+		TokenScopeManageRunner.String(),
+		TokenScopeAiFeatures.String(),
+		TokenScopeK8SProxy.String(),
+		TokenScopeSelfRotate.String(),
+	}
+
+	ValidUserServiceAccountTokenScopes = ValidPersonalTokenScopes
+
+	ValidGroupServiceAccountTokenScopes = ValidGroupTokenScopes
+
 	ValidPipelineProjectTokenScopes []string
-	ValidGroupTokenScopes           = validTokenScopes
-	ValidProjectTokenScopes         = validTokenScopes
 
 	ValidProjectDeployTokenScopes = []string{
 		TokenScopeReadRepository.String(),
 		TokenScopeReadRegistry.String(),
 		TokenScopeWriteRegistry.String(),
+		TokenScopeReadVirtualRegistry.String(),
+		TokenScopeWriteVirtualRegistry.String(),
 		TokenScopeReadPackageRegistry.String(),
 		TokenScopeWritePackageRegistry.String(),
 	}
@@ -81,29 +130,10 @@ var (
 		TokenScopeReadRepository.String(),
 		TokenScopeReadRegistry.String(),
 		TokenScopeWriteRegistry.String(),
+		TokenScopeReadVirtualRegistry.String(),
+		TokenScopeWriteVirtualRegistry.String(),
 		TokenScopeReadPackageRegistry.String(),
 		TokenScopeWritePackageRegistry.String(),
-	}
-
-	ValidPersonalTokenScopes = []string{
-		TokenScopeReadServicePing.String(),
-		TokenScopeReadUser.String(),
-		TokenScopeSudo.String(),
-		TokenScopeAdminMode.String(),
-	}
-
-	ValidUserServiceAccountTokenScopes = []string{
-		TokenScopeReadServicePing.String(),
-		TokenScopeReadUser.String(),
-		TokenScopeSudo.String(),
-		TokenScopeAdminMode.String(),
-	}
-
-	ValidGroupServiceAccountTokenScopes = []string{
-		TokenScopeReadServicePing.String(),
-		TokenScopeReadUser.String(),
-		TokenScopeSudo.String(),
-		TokenScopeAdminMode.String(),
 	}
 )
 

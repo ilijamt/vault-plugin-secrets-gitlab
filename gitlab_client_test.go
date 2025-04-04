@@ -3,7 +3,6 @@
 package gitlab_test
 
 import (
-	"context"
 	"io"
 	"net/http"
 	"testing"
@@ -45,7 +44,7 @@ func TestGitlabClient(t *testing.T) {
 	})
 
 	t.Run("revoke service account token with empty token", func(t *testing.T) {
-		var ctx = context.Background()
+		var ctx = t.Context()
 		var client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
 			Token:   "token",
 			BaseURL: "https://example.com",
@@ -58,12 +57,13 @@ func TestGitlabClient(t *testing.T) {
 }
 
 func TestGitlabClient_InvalidToken(t *testing.T) {
-	ctx, timeExpiresAt := ctxTestTime(context.Background(), t.Name())
+	var tokenName = "super-secret-token"
+	ctx, timeExpiresAt := ctxTestTime(t.Context(), t.Name(), tokenName)
 	var err error
 	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "super-secret-token",
+		Token:   tokenName,
 		BaseURL: url,
 	}, httpClient, nil)
 	require.NoError(t, err)
@@ -101,12 +101,12 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 }
 
 func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
-	var ctx = context.Background()
+	var ctx = t.Context()
 	var err error
 	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "glpat-secret-random-token",
+		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
 	}, httpClient, nil)
 	require.NoError(t, err)
@@ -120,12 +120,13 @@ func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
 }
 
 func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
-	var ctx = context.Background()
+	var ctx = t.Context()
 	var err error
+	var tokenName = "admin_user_root"
 	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "glpat-secret-random-token",
+		Token:   getGitlabToken(tokenName).Token,
 		BaseURL: url,
 	}, httpClient, nil)
 	require.NoError(t, err)
@@ -134,19 +135,19 @@ func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 
 	groupId, err := client.GetGroupIdByPath(ctx, "test")
 	require.NoError(t, err)
-	require.EqualValues(t, 37, groupId)
+	require.EqualValues(t, 3, groupId)
 
 	_, err = client.GetGroupIdByPath(ctx, "nonexistent")
 	require.ErrorIs(t, err, gitlab.ErrInvalidValue)
 }
 
 func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
-	var ctx = context.Background()
+	var ctx = t.Context()
 	var err error
 	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "glpat-secret-random-token",
+		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
 	}, httpClient, nil)
 	require.NoError(t, err)
@@ -160,11 +161,11 @@ func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
 
 func TestGitlabClient_GetUserIdByUsernameDoesNotMatch(t *testing.T) {
 	var err error
-	var ctx = context.Background()
+	var ctx = t.Context()
 	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "glpat-secret-random-token",
+		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
 	}, httpClient, nil)
 	require.NoError(t, err)
@@ -181,12 +182,12 @@ func TestGitlabClient_GetUserIdByUsernameDoesNotMatch(t *testing.T) {
 }
 
 func TestGitlabClient_Revoke_NonExistingTokens(t *testing.T) {
-	var ctx = context.Background()
+	var ctx = t.Context()
 	var err error
 	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "glpat-secret-random-token",
+		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
 	}, httpClient, nil)
 	require.NoError(t, err)
@@ -200,11 +201,11 @@ func TestGitlabClient_Revoke_NonExistingTokens(t *testing.T) {
 
 func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 	var err error
-	var ctx = context.Background()
+	var ctx = t.Context()
 	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "glpat-secret-random-token",
+		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
 	}, httpClient, nil)
 	require.NoError(t, err)
@@ -219,11 +220,11 @@ func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 
 func TestGitlabClient_Metadata(t *testing.T) {
 	var err error
-	var ctx = context.Background()
+	var ctx = t.Context()
 	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "glpat-secret-random-token",
+		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
 	}, httpClient, nil)
 	require.NoError(t, err)
@@ -237,11 +238,12 @@ func TestGitlabClient_Metadata(t *testing.T) {
 
 func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	var err error
-	ctx, timeExpiresAt := ctxTestTime(context.Background(), t.Name())
+	var tokenName = "admin_user_root"
+	ctx, timeExpiresAt := ctxTestTime(t.Context(), t.Name(), tokenName)
 	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "glpat-secret-random-token",
+		Token:   getGitlabToken(tokenName).Token,
 		BaseURL: url,
 	}, httpClient, nil)
 	require.NoError(t, err)
@@ -293,18 +295,19 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 
 func TestGitlabClient_RotateCurrentToken(t *testing.T) {
 	var err error
-	var ctx = context.Background()
+	var ctx = t.Context()
 	httpClient, url := getClient(t, "unit")
 	var client gitlab.Client
+	var tokenName = "admin_user_auto_rotate_token_1"
 	client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{
-		Token:   "glpat-secret-admin-token-ar1",
+		Token:   getGitlabToken(tokenName).Token,
 		BaseURL: url,
 	}, httpClient, logging.NewVaultLoggerWithWriter(io.Discard, log.Trace))
 
 	require.NoError(t, err)
 	require.NotNil(t, client)
 	require.True(t, client.Valid(ctx))
-	ctx, _ = ctxTestTime(ctx, t.Name())
+	ctx, _ = ctxTestTime(ctx, t.Name(), tokenName)
 	newToken, oldToken, err := client.RotateCurrentToken(ctx)
 	require.NoError(t, err)
 	require.NotNil(t, newToken)

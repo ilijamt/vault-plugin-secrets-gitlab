@@ -3,7 +3,6 @@
 package gitlab_test
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -20,16 +19,17 @@ import (
 
 func TestWithAdminUser_PAT_AdminUser_GitlabRevokesToken(t *testing.T) {
 	httpClient, url := getClient(t, "local")
-	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
+	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)
 	require.NoError(t, err)
+	var tokenName = "admin_user_initial_token"
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
 		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		Data: map[string]any{
-			"token":              "glpat-secret-admin-token",
+			"token":              getGitlabToken(tokenName).Token,
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
@@ -70,7 +70,7 @@ func TestWithAdminUser_PAT_AdminUser_GitlabRevokesToken(t *testing.T) {
 
 	// issue a personal access token
 	{
-		ctxIssueToken, _ := ctxTestTime(ctx, t.Name())
+		ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
 		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
 			Operation: logical.ReadOperation, Storage: l,
 			Path: fmt.Sprintf("%s/normal-user", gitlab.PathTokenRoleStorage),

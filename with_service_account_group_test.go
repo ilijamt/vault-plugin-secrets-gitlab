@@ -3,7 +3,6 @@
 package gitlab_test
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -18,7 +17,8 @@ import (
 
 func TestWithServiceAccountGroup(t *testing.T) {
 	httpClient, _ := getClient(t, "selfhosted")
-	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
+	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+	var tokenName = ""
 
 	b, l, events, err := getBackendWithEvents(ctx)
 	require.NoError(t, err)
@@ -74,7 +74,7 @@ func TestWithServiceAccountGroup(t *testing.T) {
 	require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
 
 	// Get a new token for the service account
-	ctxIssueToken, _ := ctxTestTime(ctx, t.Name())
+	ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
 	resp, err = b.HandleRequest(ctxIssueToken, &logical.Request{
 		Operation: logical.ReadOperation, Storage: l,
 		Path: fmt.Sprintf("%s/group-service-account", gitlab.PathTokenRoleStorage),

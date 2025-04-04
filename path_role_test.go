@@ -35,7 +35,7 @@ func TestPathRolesList(t *testing.T) {
 
 func TestPathRoles(t *testing.T) {
 	var defaultConfig = map[string]any{
-		"token":    "glpat-secret-random-token",
+		"token":    getGitlabToken("admin_user_root").Token,
 		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
 		"type":     gitlab.TypeSelfManaged.String(),
 	}
@@ -398,7 +398,7 @@ func TestPathRoles(t *testing.T) {
 		require.NoError(t, err)
 
 		var defaultConfig = map[string]any{
-			"token":    "glpat-secret-random-token",
+			"token":    getGitlabToken("admin_user_root").Token,
 			"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
 			"type":     gitlab.TypeSelfManaged.String(),
 		}

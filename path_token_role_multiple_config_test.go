@@ -3,7 +3,6 @@
 package gitlab_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -16,7 +15,7 @@ import (
 
 func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 	httpClient, gitlabUrl := getClient(t, "unit")
-	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
+	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)
 	require.NoError(t, err)
@@ -25,7 +24,11 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 	require.NotNil(t, b)
 	require.NotNil(t, l)
 
-	var configs = map[string]string{"root": "glpat-secret-random-token", "admin": "glpat-secret-admin-token", "normal": "glpat-secret-normal-token"}
+	var configs = map[string]string{
+		"root":   getGitlabToken("admin_user_root").Token,
+		"admin":  getGitlabToken("admin_user_initial_token").Token,
+		"normal": getGitlabToken("normal_user_initial_token").Token,
+	}
 	for name, token := range configs {
 		require.NoError(t,
 			writeBackendConfigWithName(ctx, b, l,
@@ -40,46 +43,73 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 	}
 
 	type roleData struct {
-		rn, path string
-		tt       gitlab.TokenType
-		al       gitlab.AccessLevel
-		scopes   []string
+		roleName, path, tokenName string
+		tokenType                 gitlab.TokenType
+		accessLevel               gitlab.AccessLevel
+		scopes                    []string
 	}
 	var roles = map[string][]roleData{
 		"root": {
-			{rn: "root-root", path: "root", tt: gitlab.TokenTypePersonal, scopes: gitlab.ValidPersonalTokenScopes},
-			{rn: "root-normal-user", path: "normal-user", tt: gitlab.TokenTypePersonal, scopes: gitlab.ValidPersonalTokenScopes},
+			{
+				roleName:  "root-root",
+				path:      "root",
+				tokenType: gitlab.TokenTypePersonal,
+				scopes:    []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				tokenName: "admin_user_root",
+			},
+			{
+				roleName:  "root-normal-user",
+				path:      "normal-user",
+				tokenType: gitlab.TokenTypePersonal,
+				scopes:    []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				tokenName: "admin_user_root",
+			},
 		},
 		"admin": {
-			{rn: "admin-example-example", path: "example/example", tt: gitlab.TokenTypeProject, al: gitlab.AccessLevelGuestPermissions, scopes: []string{gitlab.TokenScopeApi.String()}},
+			{
+				roleName:    "admin-example-example",
+				path:        "example/example",
+				tokenType:   gitlab.TokenTypeProject,
+				accessLevel: gitlab.AccessLevelGuestPermissions,
+				scopes:      []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				tokenName:   "admin_user_initial_token",
+			},
 		},
 		"normal": {
-			{rn: "normal-example", path: "example", tt: gitlab.TokenTypeGroup, al: gitlab.AccessLevelGuestPermissions, scopes: []string{gitlab.TokenScopeApi.String()}},
+			{
+				roleName:    "normal-example",
+				path:        "example",
+				tokenType:   gitlab.TokenTypeGroup,
+				accessLevel: gitlab.AccessLevelGuestPermissions,
+				scopes:      []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				tokenName:   "normal_user_initial_token",
+			},
 		},
 	}
 
 	for cfg, rds := range roles {
 		for _, rd := range rds {
+			var tokenName = rd.tokenName
 			var data = map[string]any{
 				"name":       fmt.Sprintf("%s-{{ .role_name }}-{{ .config_name }}-{{ .token_type }}", rd.path),
-				"token_type": rd.tt.String(), "path": rd.path, "config_name": cfg, "ttl": gitlab.DefaultAccessTokenMinTTL,
+				"token_type": rd.tokenType.String(), "path": rd.path, "config_name": cfg, "ttl": gitlab.DefaultAccessTokenMinTTL,
 			}
 
-			switch rd.tt {
+			switch rd.tokenType {
 			case gitlab.TokenTypePersonal:
-				data["access_level"] = rd.al.String()
+				data["access_level"] = rd.accessLevel.String()
 				data["scopes"] = rd.scopes
 			case gitlab.TokenTypeGroup:
-				data["access_level"] = rd.al.String()
+				data["access_level"] = rd.accessLevel.String()
 				data["scopes"] = rd.scopes
 			case gitlab.TokenTypeProject:
-				data["access_level"] = rd.al.String()
+				data["access_level"] = rd.accessLevel.String()
 				data["scopes"] = rd.scopes
 			}
 
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/%s", gitlab.PathRoleStorage, rd.rn), Storage: l,
+				Path:      fmt.Sprintf("%s/%s", gitlab.PathRoleStorage, rd.roleName), Storage: l,
 				Data: data,
 			})
 			require.NoError(t, err)
@@ -88,10 +118,10 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			require.Empty(t, resp.Warnings)
 			require.EqualValues(t, cfg, resp.Data["config_name"])
 
-			ctxIssueToken, _ := ctxTestTime(ctx, t.Name())
+			ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
 			resp, err = b.HandleRequest(ctxIssueToken, &logical.Request{
 				Operation: logical.ReadOperation, Storage: l,
-				Path: fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, rd.rn),
+				Path: fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, rd.roleName),
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)

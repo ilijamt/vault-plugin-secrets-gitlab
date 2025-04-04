@@ -54,7 +54,7 @@ var (
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Scopes",
 			},
-			AllowedValues: allowedValues(append(validTokenScopes, ValidPersonalTokenScopes...)...),
+			AllowedValues: allowedValues(ValidPersonalTokenScopes...),
 		},
 		"ttl": {
 			Type:        framework.TypeDurationSecond,
@@ -239,48 +239,56 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		err = multierror.Append(err, fmt.Errorf("token_type='%s', should be one of %v: %w", data.Get("token_type").(string), validTokenTypes, ErrFieldInvalidValue))
 	}
 
-	var skipFields = []string{"config_name"}
-
 	// validate access level and which fields to skip for validation
 	var validAccessLevels []string
-	var invalidScopes []string
 	var validScopes []string
 	var noEmptyScopes bool
+	var skipFields []string
 
 	switch tokenType {
 	case TokenTypePersonal:
 		validAccessLevels = ValidPersonalAccessLevels
-		validScopes = slices.Concat(validTokenScopes, ValidPersonalTokenScopes)
-		skipFields = append(skipFields, "access_level")
+		validScopes = ValidPersonalTokenScopes
+		noEmptyScopes = false
+		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroup:
 		validAccessLevels = ValidGroupAccessLevels
-		validScopes = validTokenScopes
+		validScopes = ValidGroupTokenScopes
+		noEmptyScopes = false
+		skipFields = []string{"config_name"}
 	case TokenTypeProject:
 		validAccessLevels = ValidProjectAccessLevels
-		validScopes = validTokenScopes
+		validScopes = ValidProjectTokenScopes
+		noEmptyScopes = false
+		skipFields = []string{"config_name"}
 	case TokenTypeUserServiceAccount:
 		validAccessLevels = ValidUserServiceAccountAccessLevels
-		validScopes = slices.Concat(validTokenScopes, ValidPersonalTokenScopes, ValidUserServiceAccountTokenScopes)
-		skipFields = append(skipFields, "access_level")
+		validScopes = ValidUserServiceAccountTokenScopes
+		noEmptyScopes = false
+		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroupServiceAccount:
 		validAccessLevels = ValidGroupServiceAccountAccessLevels
-		validScopes = slices.Concat(validTokenScopes, ValidPersonalTokenScopes, ValidGroupServiceAccountTokenScopes)
-		skipFields = append(skipFields, "access_level")
+		validScopes = ValidGroupServiceAccountTokenScopes
+		noEmptyScopes = false
+		skipFields = []string{"config_name", "access_level"}
 	case TokenTypePipelineProjectTrigger:
 		validAccessLevels = ValidPipelineProjectTriggerAccessLevels
 		validScopes = []string{}
-		skipFields = append(skipFields, "access_level", "scopes")
+		noEmptyScopes = false
+		skipFields = []string{"config_name", "access_level", "scopes"}
 	case TokenTypeProjectDeploy:
 		validAccessLevels = ValidProjectDeployAccessLevels
 		validScopes = ValidProjectDeployTokenScopes
-		skipFields = append(skipFields, "access_level")
 		noEmptyScopes = true
+		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroupDeploy:
 		validAccessLevels = ValidGroupDeployAccessLevels
 		validScopes = ValidGroupDeployTokenScopes
-		skipFields = append(skipFields, "access_level")
 		noEmptyScopes = true
+		skipFields = []string{"config_name", "access_level"}
 	}
+
+	var invalidScopes []string
 
 	// check if all required fields are set
 	for name, field := range FieldSchemaRoles {

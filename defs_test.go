@@ -3,7 +3,6 @@
 package gitlab_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -12,13 +11,13 @@ import (
 )
 
 func TestEmptyGitlabClientFromContext(t *testing.T) {
-	c, ok := gitlab.GitlabClientFromContext(context.Background())
+	c, ok := gitlab.GitlabClientFromContext(t.Context())
 	require.False(t, ok)
 	require.Nil(t, c)
 }
 
 func TestEmptyHttpClientFromContext(t *testing.T) {
-	c, ok := gitlab.HttpClientFromContext(context.Background())
+	c, ok := gitlab.HttpClientFromContext(t.Context())
 	require.False(t, ok)
 	require.Nil(t, c)
 }

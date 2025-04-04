@@ -5,6 +5,7 @@ package gitlab_test
 import (
 	"cmp"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -575,20 +576,45 @@ func sanitizePath(path string) string {
 
 func getCtxGitlabClient(t *testing.T, target string) context.Context {
 	httpClient, _ := getClient(t, target)
-	return gitlab.HttpClientNewContext(context.Background(), httpClient)
+	return gitlab.HttpClientNewContext(t.Context(), httpClient)
 }
 
 func getCtxGitlabClientWithUrl(t *testing.T, target string) (context.Context, string) {
 	httpClient, url := getClient(t, target)
-	return gitlab.HttpClientNewContext(context.Background(), httpClient), url
+	return gitlab.HttpClientNewContext(t.Context(), httpClient), url
 }
 
-func ctxTestTime(ctx context.Context, tn string) (_ context.Context, t time.Time) {
-	switch tn {
-	case "TestGitlabClient_RotateCurrentToken", "TestWithGitlabUser_RotateToken":
-		t = time.Date(2024, 12, 12, 0, 0, 0, 0, time.UTC)
-	default:
-		t = time.Date(2025, 3, 12, 0, 0, 0, 0, time.UTC)
+func parseTimeFromFile(name string) (t time.Time, err error) {
+	var buff []byte
+	if buff, err = os.ReadFile(fmt.Sprintf("./testdata/%s", name)); err != nil {
+		return t, err
+	}
+	return time.Parse(time.RFC3339, string(buff))
+}
+
+func ctxTestTime(ctx context.Context, testName string, tokenName string) (_ context.Context, t time.Time) {
+	var token = getGitlabToken(tokenName)
+	if token.Empty() {
+		var err error
+		switch testName {
+		case "TestGitlabClient_InvalidToken":
+			// no token for this test
+		case "TestWithGitlabUser_RotateToken":
+			if t, err = parseTimeFromFile("gitlab-com"); err != nil {
+				panic(err)
+			}
+		case "TestWithServiceAccountUser",
+			"TestWithServiceAccountGroup",
+			"TestWithServiceAccountUserFail_dedicated",
+			"TestWithServiceAccountUserFail_saas":
+			if t, err = parseTimeFromFile("gitlab-selfhosted"); err != nil {
+				panic(err)
+			}
+		default:
+			panic(fmt.Errorf("unknown test name %s", testName))
+		}
+	} else {
+		t = token.CreatedAtTime()
 	}
 	return gitlab.WithStaticTime(ctx, t), t
 }
@@ -603,4 +629,43 @@ func filterSlice[T any, Slice ~[]T](collection Slice, predicate func(item T, ind
 	}
 
 	return result
+}
+
+type generatedToken struct {
+	ID        string `json:"id"`
+	Token     string `json:"token"`
+	CreatedAt string `json:"created_at"`
+}
+
+func (g generatedToken) Empty() bool {
+	return generatedToken{} == g
+}
+
+const (
+	gitlabTimeLayout = "2006-01-02 15:04:05.000 -0700 MST"
+)
+
+func (g generatedToken) CreatedAtTime() (t time.Time) {
+	t, _ = time.Parse(gitlabTimeLayout, g.CreatedAt)
+	return t
+}
+
+type generatedTokens map[string]generatedToken
+
+var loadTokens = sync.OnceValues(func() (t generatedTokens, err error) {
+	var payload []byte
+	if payload, err = os.ReadFile("./testdata/tokens.json"); err != nil {
+		return t, err
+	}
+
+	err = json.Unmarshal(payload, &t)
+	return t, err
+})
+
+func getGitlabToken(name string) generatedToken {
+	var tokens, _ = loadTokens()
+	if token, ok := tokens[name]; ok {
+		return token
+	}
+	return generatedToken{}
 }

@@ -17,7 +17,7 @@ through Vault.
 - Gitlab Personal Access Tokens - https://docs.gitlab.com/ee/api/personal_access_tokens.html
 - Gitlab Project Access Tokens - https://docs.gitlab.com/ee/api/project_access_tokens.html
 - Gitlab Group Access Tokens - https://docs.gitlab.com/ee/api/group_access_tokens.html
-- Gitlab User Service Account Tokens - https://docs.gitlab.com/ee/api/users.html#create-service-account-user
+- Gitlab User Service Account Tokens - https://docs.gitlab.com/api/user_service_accounts/
 - Gitlab Group Service Account Tokens - https://docs.gitlab.com/ee/api/group_service_accounts.html
 - Gitlab Pipeline Project Trigger Tokens - https://docs.gitlab.com/ee/api/pipeline_triggers.html
 - Gitlab Group/Project Deploy Tokens - https://docs.gitlab.com/ee/user/project/deploy_tokens
@@ -34,7 +34,7 @@ To learn specifically about how plugins work, see documentation on [Vault plugin
 
 ## GitLab
 
-- GitLab CE/EE - Self Managed
+- GitLab CE/EE - Self Managed (tested against 17.10.3)
 - gitlab.com (cannot use personal access token, and user service account)
 - Dedicated Instance (cannot use personal access token, and user service account)
 

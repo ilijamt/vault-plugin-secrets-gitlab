@@ -1,7 +1,7 @@
 name: vpsg
 services:
   web:
-    image: 'gitlab/gitlab-ce:16.11.6-ce.0'
+    image: 'gitlab/gitlab-ce:17.10.3-ce.0'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         gitlab_rails['gitlab_shell_ssh_port'] = 2224

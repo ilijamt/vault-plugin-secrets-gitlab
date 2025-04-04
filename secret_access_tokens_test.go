@@ -3,7 +3,6 @@
 package gitlab_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -15,7 +14,7 @@ import (
 
 func TestSecretAccessTokenRevokeToken(t *testing.T) {
 	httpClient, url := getClient(t, "unit")
-	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
+	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)
 	require.NoError(t, err)
@@ -35,7 +34,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
-				"token":              "glpat-secret-random-token",
+				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_token":  true,
 				"auto_rotate_before": "24h",
@@ -65,7 +64,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
-				"token":              "glpat-secret-random-token",
+				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_token":  true,
 				"auto_rotate_before": "24h",

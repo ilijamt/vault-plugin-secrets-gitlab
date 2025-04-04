@@ -3,7 +3,6 @@
 package gitlab_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/hashicorp/vault/sdk/logical"
@@ -13,7 +12,7 @@ import (
 )
 
 func TestPathFlags(t *testing.T) {
-	var ctx = context.Background()
+	var ctx = t.Context()
 	b, l, events, err := getBackendWithFlagsWithEvents(ctx, gitlab.Flags{AllowRuntimeFlagsChange: true})
 	require.NoError(t, err)
 

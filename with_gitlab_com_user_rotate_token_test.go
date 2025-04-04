@@ -3,7 +3,6 @@
 package gitlab_test
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -17,7 +16,8 @@ import (
 
 func TestWithGitlabUser_RotateToken(t *testing.T) {
 	httpClient, _ := getClient(t, "saas")
-	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
+	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+	var tokenName = ""
 
 	b, l, events, err := getBackendWithEvents(ctx)
 	require.NoError(t, err)
@@ -44,7 +44,7 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 
 	// Rotate the main token
 	{
-		ctxRotate, _ := ctxTestTime(ctx, t.Name())
+		ctxRotate, _ := ctxTestTime(ctx, t.Name(), tokenName)
 		resp, err := b.HandleRequest(ctxRotate, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s/rotate", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,

@@ -3,7 +3,6 @@
 package gitlab_test
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 	"testing"
@@ -18,7 +17,8 @@ import (
 
 func TestWithProjectDeployToken(t *testing.T) {
 	httpClient, url := getClient(t, "local")
-	ctx := gitlab.HttpClientNewContext(context.Background(), httpClient)
+	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+	var tokenName = "normal_user_initial_token"
 
 	b, l, events, err := getBackendWithEvents(ctx)
 	require.NoError(t, err)
@@ -27,7 +27,7 @@ func TestWithProjectDeployToken(t *testing.T) {
 		Operation: logical.UpdateOperation,
 		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 		Data: map[string]any{
-			"token":              "glpat-secret-normal-token",
+			"token":              getGitlabToken(tokenName).Token,
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
@@ -63,7 +63,7 @@ func TestWithProjectDeployToken(t *testing.T) {
 	}
 
 	{
-		ctxIssueToken, _ := ctxTestTime(ctx, t.Name())
+		ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
 		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
 			Operation: logical.ReadOperation, Storage: l,
 			Path: fmt.Sprintf("%s/role", gitlab.PathTokenRoleStorage),

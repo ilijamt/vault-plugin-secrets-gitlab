@@ -12,7 +12,7 @@ resource "gitlab_project" "project_example" {
 
 resource "gitlab_group_membership" "normal_user" {
   group_id     = gitlab_group.group_example.id
-  user_id      = data.gitlab_user.normal.id
+  user_id      = gitlab_user.normal_user.id
   access_level = "owner"
 }
 

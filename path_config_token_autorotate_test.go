@@ -23,7 +23,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
-				"token":    "glpat-secret-random-token",
+				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
 				"type":     gitlab.TypeSelfManaged.String(),
 			},
@@ -41,7 +41,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
-				"token":              "glpat-secret-random-token",
+				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_before": "2h",
 				"type":               gitlab.TypeSelfManaged.String(),
@@ -60,7 +60,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
-				"token":              "glpat-secret-random-token",
+				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMaxTTL + time.Hour).String(),
 				"type":               gitlab.TypeSelfManaged.String(),
@@ -78,7 +78,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
-				"token":              "glpat-secret-random-token",
+				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_before": "48h",
 				"type":               gitlab.TypeSelfManaged.String(),
@@ -97,7 +97,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
-				"token":              "glpat-secret-random-token",
+				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMinTTL - time.Hour).String(),
 				"type":               gitlab.TypeSelfManaged.String(),
@@ -115,7 +115,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
-				"token":    "glpat-secret-random-token",
+				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
 				"type":     gitlab.TypeSelfManaged.String(),
 			},
@@ -133,7 +133,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
 			Data: map[string]any{
-				"token":              "glpat-secret-random-token",
+				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_before": "10h",
 				"type":               gitlab.TypeSelfManaged.String(),

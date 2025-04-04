@@ -19,7 +19,7 @@ func (t *TokenGroupServiceAccount) Internal() (d map[string]any) {
 
 func (t *TokenGroupServiceAccount) Data() (d map[string]any) {
 	d = map[string]any{"user_id": t.UserID}
-	maps.Copy(d, t.TokenWithScopes.Internal())
+	maps.Copy(d, t.TokenWithScopes.Data())
 	return d
 }
 

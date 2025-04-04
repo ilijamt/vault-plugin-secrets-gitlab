@@ -42,9 +42,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 14 Dec 2024 22:52:46 GMT
+                - Fri, 04 Apr 2025 19:59:17 GMT
             Server:
                 - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
             Vary:
                 - Origin
             X-Content-Type-Options:
@@ -52,14 +54,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF3NZN00MY6YACGC7YXPQHXJ","version":"1"}'
+                - '{"correlation_id":"01JR165S1NFVA9ZA9REQ4FMK7Y","version":"1"}'
             X-Request-Id:
-                - 01JF3NZN00MY6YACGC7YXPQHXJ
+                - 01JR165S1NFVA9ZA9REQ4FMK7Y
             X-Runtime:
-                - "0.051312"
+                - "0.117977"
         status: 401 Unauthorized
         code: 401
-        duration: 75.880875ms
+        duration: 142.752875ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -101,9 +103,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 14 Dec 2024 22:52:46 GMT
+                - Fri, 04 Apr 2025 19:59:17 GMT
             Server:
                 - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
             Vary:
                 - Origin
             X-Content-Type-Options:
@@ -111,14 +115,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF3NZN4ACR3A51WN94SX3KZC","version":"1"}'
+                - '{"correlation_id":"01JR165SA7S9NN17J8EK1XE9C5","version":"1"}'
             X-Request-Id:
-                - 01JF3NZN4ACR3A51WN94SX3KZC
+                - 01JR165SA7S9NN17J8EK1XE9C5
             X-Runtime:
-                - "0.010034"
+                - "0.013344"
         status: 401 Unauthorized
         code: 401
-        duration: 13.204166ms
+        duration: 17.959125ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -160,9 +164,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 14 Dec 2024 22:52:46 GMT
+                - Fri, 04 Apr 2025 19:59:17 GMT
             Server:
                 - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
             Vary:
                 - Origin
             X-Content-Type-Options:
@@ -170,14 +176,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF3NZN56Z5CVNYVDE1PP192D","version":"1"}'
+                - '{"correlation_id":"01JR165SBDW74Q4939VZJMYP9C","version":"1"}'
             X-Request-Id:
-                - 01JF3NZN56Z5CVNYVDE1PP192D
+                - 01JR165SBDW74Q4939VZJMYP9C
             X-Runtime:
-                - "0.014313"
+                - "0.033120"
         status: 401 Unauthorized
         code: 401
-        duration: 18.160125ms
+        duration: 37.485375ms
     - id: 3
       request:
         proto: HTTP/1.1
@@ -219,9 +225,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 14 Dec 2024 22:52:46 GMT
+                - Fri, 04 Apr 2025 19:59:17 GMT
             Server:
                 - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
             Vary:
                 - Origin
             X-Content-Type-Options:
@@ -229,14 +237,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF3NZN6DG8DZJHP0SF2TTR5P","version":"1"}'
+                - '{"correlation_id":"01JR165SDT7ZD026XSYPEJR0YP","version":"1"}'
             X-Request-Id:
-                - 01JF3NZN6DG8DZJHP0SF2TTR5P
+                - 01JR165SDT7ZD026XSYPEJR0YP
             X-Runtime:
-                - "0.013139"
+                - "0.011574"
         status: 401 Unauthorized
         code: 401
-        duration: 16.53575ms
+        duration: 14.375834ms
     - id: 4
       request:
         proto: HTTP/1.1
@@ -278,9 +286,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 14 Dec 2024 22:52:46 GMT
+                - Fri, 04 Apr 2025 19:59:17 GMT
             Server:
                 - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
             Vary:
                 - Origin
             X-Content-Type-Options:
@@ -288,14 +298,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF3NZN7H3YG7DVKFYHQVH6CW","version":"1"}'
+                - '{"correlation_id":"01JR165SER8X1RNABR1ERG2MJX","version":"1"}'
             X-Request-Id:
-                - 01JF3NZN7H3YG7DVKFYHQVH6CW
+                - 01JR165SER8X1RNABR1ERG2MJX
             X-Runtime:
-                - "0.039589"
+                - "0.012363"
         status: 401 Unauthorized
         code: 401
-        duration: 42.624834ms
+        duration: 15.483ms
     - id: 5
       request:
         proto: HTTP/1.1
@@ -337,9 +347,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 14 Dec 2024 22:52:46 GMT
+                - Fri, 04 Apr 2025 19:59:18 GMT
             Server:
                 - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
             Vary:
                 - Origin
             X-Content-Type-Options:
@@ -347,14 +359,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF3NZNA8HHTM7MBBHE59TT98","version":"1"}'
+                - '{"correlation_id":"01JR165SFSJW1434F83FQDAHJY","version":"1"}'
             X-Request-Id:
-                - 01JF3NZNA8HHTM7MBBHE59TT98
+                - 01JR165SFSJW1434F83FQDAHJY
             X-Runtime:
-                - "0.042497"
+                - "0.010859"
         status: 401 Unauthorized
         code: 401
-        duration: 46.19525ms
+        duration: 13.891583ms
     - id: 6
       request:
         proto: HTTP/1.1
@@ -366,7 +378,7 @@ interactions:
         host: localhost:8080
         remote_addr: ""
         request_uri: ""
-        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2025-03-12"}'
+        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2025-10-12"}'
         form: {}
         headers:
             Accept:
@@ -398,9 +410,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 14 Dec 2024 22:52:46 GMT
+                - Fri, 04 Apr 2025 19:59:18 GMT
             Server:
                 - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
             Vary:
                 - Origin
             X-Content-Type-Options:
@@ -408,14 +422,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF3NZND8Y1HV7DRZ0MV81ZVR","version":"1"}'
+                - '{"correlation_id":"01JR165SGSYFB06JW0CJHAY231","version":"1"}'
             X-Request-Id:
-                - 01JF3NZND8Y1HV7DRZ0MV81ZVR
+                - 01JR165SGSYFB06JW0CJHAY231
             X-Runtime:
-                - "0.015286"
+                - "0.014972"
         status: 401 Unauthorized
         code: 401
-        duration: 19.381334ms
+        duration: 20.648334ms
     - id: 7
       request:
         proto: HTTP/1.1
@@ -427,7 +441,7 @@ interactions:
         host: localhost:8080
         remote_addr: ""
         request_uri: ""
-        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2025-03-12"}'
+        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2025-10-12"}'
         form: {}
         headers:
             Accept:
@@ -459,9 +473,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 14 Dec 2024 22:52:46 GMT
+                - Fri, 04 Apr 2025 19:59:18 GMT
             Server:
                 - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
             Vary:
                 - Origin
             X-Content-Type-Options:
@@ -469,14 +485,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF3NZNEHA4ANMY8C1TMBW6Y2","version":"1"}'
+                - '{"correlation_id":"01JR165SJ3Y9S21725Q5TXV52K","version":"1"}'
             X-Request-Id:
-                - 01JF3NZNEHA4ANMY8C1TMBW6Y2
+                - 01JR165SJ3Y9S21725Q5TXV52K
             X-Runtime:
-                - "0.014890"
+                - "0.011764"
         status: 401 Unauthorized
         code: 401
-        duration: 18.5075ms
+        duration: 14.768833ms
     - id: 8
       request:
         proto: HTTP/1.1
@@ -488,7 +504,7 @@ interactions:
         host: localhost:8080
         remote_addr: ""
         request_uri: ""
-        body: '{"name":"name","expires_at":"2025-03-12","scopes":["scope"]}'
+        body: '{"name":"name","expires_at":"2025-10-12","scopes":["scope"]}'
         form: {}
         headers:
             Accept:
@@ -520,9 +536,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Sat, 14 Dec 2024 22:52:46 GMT
+                - Fri, 04 Apr 2025 19:59:18 GMT
             Server:
                 - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
             Vary:
                 - Origin
             X-Content-Type-Options:
@@ -530,11 +548,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF3NZNFRP24MX116GCVW34YZ","version":"1"}'
+                - '{"correlation_id":"01JR165SK3JZZ1X7ZGDCJV565T","version":"1"}'
             X-Request-Id:
-                - 01JF3NZNFRP24MX116GCVW34YZ
+                - 01JR165SK3JZZ1X7ZGDCJV565T
             X-Runtime:
-                - "0.013126"
+                - "0.011096"
         status: 401 Unauthorized
         code: 401
-        duration: 17.048209ms
+        duration: 13.912459ms

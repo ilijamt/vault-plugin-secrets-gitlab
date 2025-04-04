@@ -19,7 +19,7 @@ import (
 
 func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 	var defaultConfig = map[string]any{
-		"token":    "glpat-secret-random-token",
+		"token":    getGitlabToken("admin_user_root").Token,
 		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
 		"type":     gitlab.TypeSelfManaged.String(),
 	}

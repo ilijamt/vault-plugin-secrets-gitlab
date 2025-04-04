@@ -27,23 +27,24 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        transfer_encoding:
-            - chunked
+        transfer_encoding: []
         trailer: {}
-        content_length: -1
-        uncompressed: true
-        body: '{"id":1,"name":"Initial token","revoked":false,"created_at":"2024-07-11T18:53:26.792Z","scopes":["api","read_api","read_user","sudo","admin_mode","create_runner","k8s_proxy","read_repository","write_repository","ai_features","read_service_ping"],"user_id":1,"last_used_at":"2024-12-16T22:16:28.989Z","active":true,"expires_at":"2025-07-11"}'
+        content_length: 234
+        uncompressed: false
+        body: '{"id":3,"name":"Root token","revoked":false,"created_at":"2025-04-04T18:35:29.407Z","description":null,"scopes":["admin_mode","api","sudo"],"user_id":3,"last_used_at":"2025-04-04T19:59:18.239Z","active":true,"expires_at":"2026-04-03"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Connection:
                 - keep-alive
+            Content-Length:
+                - "234"
             Content-Type:
                 - application/json
             Date:
-                - Mon, 16 Dec 2024 22:16:29 GMT
+                - Fri, 04 Apr 2025 19:59:25 GMT
             Etag:
-                - W/"e1aafb8f3818f86c86de0802724ad3c3"
+                - W/"dc59f4cab933045578c753eb12954522"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -51,21 +52,20 @@ interactions:
             Strict-Transport-Security:
                 - max-age=63072000
             Vary:
-                - Accept-Encoding
                 - Origin
             X-Content-Type-Options:
                 - nosniff
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF8RPMG0EYKEXHHZVQPCFX70","version":"1"}'
+                - '{"correlation_id":"01JR1660H06G6YDZMA0RF38BM6","version":"1"}'
             X-Request-Id:
-                - 01JF8RPMG0EYKEXHHZVQPCFX70
+                - 01JR1660H06G6YDZMA0RF38BM6
             X-Runtime:
-                - "0.163519"
+                - "0.020135"
         status: 200 OK
         code: 200
-        duration: 175.04ms
+        duration: 23.147875ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -94,22 +94,22 @@ interactions:
         proto_minor: 1
         transfer_encoding: []
         trailer: {}
-        content_length: 162
+        content_length: 236
         uncompressed: false
-        body: '{"version":"16.11.6","revision":"4684e042d0b","kas":{"enabled":true,"externalUrl":"ws://7b1d891ab6bb/-/kubernetes-agent/","version":"16.11.6"},"enterprise":false}'
+        body: '{"version":"17.10.3","revision":"22d4014a923","kas":{"enabled":true,"externalUrl":"ws://dce56ec495e2/-/kubernetes-agent/","externalK8sProxyUrl":"http://dce56ec495e2/-/kubernetes-agent/k8s-proxy/","version":"17.10.3"},"enterprise":false}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Connection:
                 - keep-alive
             Content-Length:
-                - "162"
+                - "236"
             Content-Type:
                 - application/json
             Date:
-                - Mon, 16 Dec 2024 22:16:29 GMT
+                - Fri, 04 Apr 2025 19:59:25 GMT
             Etag:
-                - W/"a29dcadce9c4771a1b7b66cc326f6617"
+                - W/"c7db13e569c99229215906145ea2e48a"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -123,11 +123,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JF8RPMTT6268RJVYWCBNSGMF","version":"1"}'
+                - '{"correlation_id":"01JR1660JGSRB8G7HASAC0QEJ9","version":"1"}'
             X-Request-Id:
-                - 01JF8RPMTT6268RJVYWCBNSGMF
+                - 01JR1660JGSRB8G7HASAC0QEJ9
             X-Runtime:
-                - "0.035333"
+                - "0.018409"
         status: 200 OK
         code: 200
-        duration: 41.311625ms
+        duration: 21.21325ms
