@@ -16,7 +16,7 @@ func (t *TokenProjectDeploy) Internal() (d map[string]any) {
 
 func (t *TokenProjectDeploy) Data() (d map[string]any) {
 	d = map[string]any{"username": t.Username}
-	maps.Copy(d, t.TokenWithScopes.Internal())
+	maps.Copy(d, t.TokenWithScopes.Data())
 	return d
 }
 

@@ -19,7 +19,7 @@ func (t *TokenPersonal) Internal() (d map[string]any) {
 
 func (t *TokenPersonal) Data() (d map[string]any) {
 	d = map[string]any{"user_id": t.UserID}
-	maps.Copy(d, t.TokenWithScopes.Internal())
+	maps.Copy(d, t.TokenWithScopes.Data())
 	return d
 }
 
