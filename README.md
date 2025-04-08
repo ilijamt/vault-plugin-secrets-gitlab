@@ -4,6 +4,7 @@ Vault Plugin for Gitlab Access Token
 [![Codecov](https://img.shields.io/codecov/c/gh/ilijamt/vault-plugin-secrets-gitlab)](https://app.codecov.io/gh/ilijamt/vault-plugin-secrets-gitlab)
 [![GitHub go.mod Go version (subdirectory of monorepo)](https://img.shields.io/github/go-mod/go-version/ilijamt/vault-plugin-secrets-gitlab)](go.mod)
 [![GitHub](https://img.shields.io/github/license/ilijamt/vault-plugin-secrets-gitlab)](LICENSE)
+[![Release](https://img.shields.io/github/release/ilijamt/vault-plugin-secrets-gitlab.svg)](https://github.com/ilijamt/vault-plugin-secrets-gitlab/releases/latest)
 
 This is a standalone backend plugin for use with Hashicorp Vault. This plugin allows for Gitlab to generate personal,
 project and group access tokens. This was created so we can automate the creation/revocation of access tokens
