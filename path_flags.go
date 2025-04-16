@@ -22,6 +22,18 @@ var FieldSchemaFlags = map[string]*framework.FieldSchema{
 		Default:      false,
 		DisplayAttrs: &framework.DisplayAttributes{Name: "Show Config Token"},
 	},
+	"telemetry_collection": {
+		Type:         framework.TypeBool,
+		Description:  "Should we collect telemetry data?",
+		Default:      false,
+		DisplayAttrs: &framework.DisplayAttributes{Name: "Collect Telemetry Data"},
+	},
+	"telemetry_endpoint": {
+		Type:         framework.TypeString,
+		Description:  "The endpoint for the collection of telemetry data.",
+		Default:      "https://vault-plugin-secrets-gitlab-telemetry.matoski.com",
+		DisplayAttrs: &framework.DisplayAttributes{Name: "Telemetry collection endpoint"},
+	},
 }
 
 func (b *Backend) pathFlagsRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
@@ -41,6 +53,16 @@ func (b *Backend) pathFlagsUpdate(ctx context.Context, req *logical.Request, dat
 	if showConfigToken, ok := data.GetOk("show_config_token"); ok {
 		b.flags.ShowConfigToken = showConfigToken.(bool)
 		eventData["show_config_token"] = strconv.FormatBool(b.flags.ShowConfigToken)
+	}
+
+	if telemetryCollection, ok := data.GetOk("telemetry_collection"); ok {
+		b.flags.TelemetryCollection = telemetryCollection.(bool)
+		eventData["telemetry_collection"] = strconv.FormatBool(b.flags.TelemetryCollection)
+	}
+
+	if telemetryEndpoint, ok := data.GetOk("telemetry_endpoint"); ok {
+		b.flags.TelemetryEndpoint = telemetryEndpoint.(string)
+		eventData["telemetry_endpoint"] = b.flags.TelemetryEndpoint
 	}
 
 	event(ctx, b.Backend, "flags-write", eventData)
