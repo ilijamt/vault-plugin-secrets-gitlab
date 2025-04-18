@@ -567,11 +567,11 @@ func (gc *gitlabClient) Valid(ctx context.Context) bool {
 var _ Client = new(gitlabClient)
 
 func newGitlabClient(config *EntryConfig, httpClient *http.Client) (gc *g.Client, err error) {
-	if "" == strings.TrimSpace(config.BaseURL) {
+	if strings.TrimSpace(config.BaseURL) == "" {
 		err = errors.Join(err, fmt.Errorf("gitlab base url: %w", ErrInvalidValue))
 	}
 
-	if "" == strings.TrimSpace(config.Token) {
+	if strings.TrimSpace(config.Token) == "" {
 		err = errors.Join(err, fmt.Errorf("gitlab token: %w", ErrInvalidValue))
 	}
 
