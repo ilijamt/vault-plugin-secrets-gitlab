@@ -1,0 +1,114 @@
+package goreleaser
+
+import "list"
+
+_base: {
+    env: [
+        "CGO_ENABLED=0",
+    ]
+    main:         "./cmd/vault-plugin-secrets-gitlab/main.go"
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    flags: [
+        "-trimpath",
+    ]
+    goos: [
+        "windows",
+        "linux",
+        "darwin",
+        "illumos",
+    ]
+    goarch: [
+        "amd64",
+        "386",
+        "arm",
+        "arm64",
+    ]
+    ignore: [
+        {
+            goos:   "darwin"
+            goarch: "386"
+        },
+    ]
+}
+
+_commonLdflags: [
+    "-s -w",
+    "-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.Version=v{{ .Version }}'",
+    "-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.FullCommit={{ .FullCommit }}'",
+    "-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.BuildDate={{ .Date }}'",
+]
+
+version: 2
+
+builds: [
+    {
+        _base
+        id:     "g16x"
+        binary: "{{ .ProjectName }}16x_v{{ .Version }}"
+        ldflags: list.Concat([
+            _commonLdflags,
+            ["-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.VersionTarget=g16x'"]
+        ])
+        tags: [
+            "g16x"
+        ]
+    },
+    {
+        _base
+        id:     "g17x"
+        binary: "{{ .ProjectName }}17x_v{{ .Version }}"
+        ldflags: list.Concat([
+            _commonLdflags,
+            ["-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.VersionTarget=g17x'"]
+        ])
+    },
+]
+
+archives: [
+    {
+        formats: ["tar.gz"]
+        name_template: """
+            {{ .ProjectName }}_
+            {{- .Os }}_
+            {{- if eq .Arch "amd64" }}x86_64
+            {{- else if eq .Arch "386" }}i386
+            {{- else }}{{ .Arch }}{{ end }}
+            {{- if .Arm }}v{{ .Arm }}{{ end }}
+            """
+        format_overrides: [
+            {
+                goos:    "windows"
+                formats: ["zip"]
+            },
+        ]
+    },
+]
+
+report_sizes: true
+
+sboms: [
+    {
+        artifacts: "archive"
+    },
+]
+
+checksum: {
+    name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
+    algorithm:     "sha256"
+}
+
+changelog: {
+    sort: "asc"
+    use:  "github"
+    filters: {
+        exclude: [
+            "^docs:",
+            "^test:",
+            "merge conflict",
+            "Merge pull request",
+            "Merge remote-tracking branch",
+            "Merge branch",
+            "go mod tidy",
+        ]
+    }
+}

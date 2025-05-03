@@ -11,6 +11,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
 )
 
 func TestPathTokenRolesMultipleConfigs(t *testing.T) {
@@ -45,7 +46,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 	type roleData struct {
 		roleName, path, tokenName string
 		tokenType                 gitlab.TokenType
-		accessLevel               gitlab.AccessLevel
+		accessLevel               access.AccessLevel
 		scopes                    []string
 	}
 	var roles = map[string][]roleData{
@@ -70,7 +71,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 				roleName:    "admin-example-example",
 				path:        "example/example",
 				tokenType:   gitlab.TokenTypeProject,
-				accessLevel: gitlab.AccessLevelGuestPermissions,
+				accessLevel: access.AccessLevelGuestPermissions,
 				scopes:      []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
 				tokenName:   "admin_user_initial_token",
 			},
@@ -80,7 +81,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 				roleName:    "normal-example",
 				path:        "example",
 				tokenType:   gitlab.TokenTypeGroup,
-				accessLevel: gitlab.AccessLevelGuestPermissions,
+				accessLevel: access.AccessLevelGuestPermissions,
 				scopes:      []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
 				tokenName:   "normal_user_initial_token",
 			},

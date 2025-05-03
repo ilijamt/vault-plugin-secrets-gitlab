@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
 )
 
 const (
@@ -71,7 +72,7 @@ var (
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Access Level",
 			},
-			AllowedValues: allowedValues(ValidAccessLevels...),
+			AllowedValues: allowedValues(access.ValidAccessLevels...),
 		},
 		"token_type": {
 			Type:          framework.TypeString,
@@ -200,7 +201,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	var err error
 	var warnings []string
 	var tokenType TokenType
-	var accessLevel AccessLevel
+	var accessLevel access.AccessLevel
 	var configName = cmp.Or(data.Get("config_name").(string), TypeConfigDefault)
 
 	b.lockClientMutex.RLock()
@@ -215,7 +216,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	}
 
 	tokenType, _ = TokenTypeParse(data.Get("token_type").(string))
-	accessLevel, _ = AccessLevelParse(data.Get("access_level").(string))
+	accessLevel, _ = access.AccessLevelParse(data.Get("access_level").(string))
 
 	var role = EntryRole{
 		RoleName:            roleName,
@@ -247,42 +248,42 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	switch tokenType {
 	case TokenTypePersonal:
-		validAccessLevels = ValidPersonalAccessLevels
+		validAccessLevels = access.ValidPersonalAccessLevels
 		validScopes = ValidPersonalTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroup:
-		validAccessLevels = ValidGroupAccessLevels
+		validAccessLevels = access.ValidGroupAccessLevels
 		validScopes = ValidGroupTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name"}
 	case TokenTypeProject:
-		validAccessLevels = ValidProjectAccessLevels
+		validAccessLevels = access.ValidProjectAccessLevels
 		validScopes = ValidProjectTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name"}
 	case TokenTypeUserServiceAccount:
-		validAccessLevels = ValidUserServiceAccountAccessLevels
+		validAccessLevels = access.ValidUserServiceAccountAccessLevels
 		validScopes = ValidUserServiceAccountTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroupServiceAccount:
-		validAccessLevels = ValidGroupServiceAccountAccessLevels
+		validAccessLevels = access.ValidGroupServiceAccountAccessLevels
 		validScopes = ValidGroupServiceAccountTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypePipelineProjectTrigger:
-		validAccessLevels = ValidPipelineProjectTriggerAccessLevels
+		validAccessLevels = access.ValidPipelineProjectTriggerAccessLevels
 		validScopes = []string{}
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level", "scopes"}
 	case TokenTypeProjectDeploy:
-		validAccessLevels = ValidProjectDeployAccessLevels
+		validAccessLevels = access.ValidProjectDeployAccessLevels
 		validScopes = ValidProjectDeployTokenScopes
 		noEmptyScopes = true
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroupDeploy:
-		validAccessLevels = ValidGroupDeployAccessLevels
+		validAccessLevels = access.ValidGroupDeployAccessLevels
 		validScopes = ValidGroupDeployTokenScopes
 		noEmptyScopes = true
 		skipFields = []string{"config_name", "access_level"}

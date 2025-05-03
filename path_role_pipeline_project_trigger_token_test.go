@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
 )
 
 func TestPathRolesPipelineProjectTrigger(t *testing.T) {
@@ -34,7 +35,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",
-				"access_level": gitlab.AccessLevelNoPermissions.String(),
+				"access_level": access.AccessLevelNoPermissions.String(),
 				"token_type":   gitlab.TokenTypePipelineProjectTrigger.String(),
 				"scopes":       []string{gitlab.TokenScopeApi.String()},
 				"ttl":          "1h",
@@ -56,7 +57,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",
-				"access_level": gitlab.AccessLevelUnknown.String(),
+				"access_level": access.AccessLevelUnknown.String(),
 				"token_type":   gitlab.TokenTypePipelineProjectTrigger.String(),
 				"scopes":       []string{},
 				"ttl":          "1h",
@@ -77,7 +78,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",
-				"access_level": gitlab.AccessLevelUnknown.String(),
+				"access_level": access.AccessLevelUnknown.String(),
 				"token_type":   gitlab.TokenTypePipelineProjectTrigger.String(),
 				"scopes":       []string{},
 			},

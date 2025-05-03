@@ -14,6 +14,8 @@ import (
 	"github.com/hashicorp/vault/sdk/helper/logging"
 	g "gitlab.com/gitlab-org/api/client-go"
 	"golang.org/x/time/rate"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
 )
 
 var (
@@ -28,8 +30,8 @@ type Client interface {
 	CurrentTokenInfo(ctx context.Context) (*TokenConfig, error)
 	RotateCurrentToken(ctx context.Context) (newToken *TokenConfig, oldToken *TokenConfig, err error)
 	CreatePersonalAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*TokenPersonal, error)
-	CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*TokenGroup, error)
-	CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (*TokenProject, error)
+	CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel access.AccessLevel) (*TokenGroup, error)
+	CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel access.AccessLevel) (*TokenProject, error)
 	RevokePersonalAccessToken(ctx context.Context, tokenId int) error
 	RevokeProjectAccessToken(ctx context.Context, tokenId int, projectId string) error
 	RevokeGroupAccessToken(ctx context.Context, tokenId int, groupId string) error
@@ -449,7 +451,7 @@ func (gc *gitlabClient) CreatePersonalAccessToken(ctx context.Context, username 
 	return et, err
 }
 
-func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (et *TokenGroup, err error) {
+func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel access.AccessLevel) (et *TokenGroup, err error) {
 	var at *g.GroupAccessToken
 	defer func() {
 		gc.logger.Debug("Create group access token", "gat", at, "et", et, "groupId", groupId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "accessLevel", accessLevel, "error", err)
@@ -482,7 +484,7 @@ func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId stri
 	return et, err
 }
 
-func (gc *gitlabClient) CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel AccessLevel) (et *TokenProject, err error) {
+func (gc *gitlabClient) CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel access.AccessLevel) (et *TokenProject, err error) {
 	var at *g.ProjectAccessToken
 	defer func() {
 		gc.logger.Debug("Create project access token", "gat", at, "et", et, "projectId", projectId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "accessLevel", accessLevel, "error", err)

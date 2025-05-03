@@ -3,13 +3,15 @@ package gitlab
 import (
 	"maps"
 	"strings"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
 )
 
 type TokenWithScopesAndAccessLevel struct {
 	Token `json:",inline"`
 
-	Scopes      []string    `json:"scopes"`
-	AccessLevel AccessLevel `json:"access_level"`
+	Scopes      []string           `json:"scopes"`
+	AccessLevel access.AccessLevel `json:"access_level"`
 }
 
 func (t *TokenWithScopesAndAccessLevel) Internal() (d map[string]any) {

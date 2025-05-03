@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
 )
 
 func TestPathTokenRoles(t *testing.T) {
@@ -35,7 +36,7 @@ func TestPathTokenRoles(t *testing.T) {
 		require.ErrorIs(t, err, gitlab.ErrRoleNotFound)
 	})
 
-	var generalTokenCreation = func(t *testing.T, tokenType gitlab.TokenType, level gitlab.AccessLevel, gitlabRevokesToken bool) {
+	var generalTokenCreation = func(t *testing.T, tokenType gitlab.TokenType, level access.AccessLevel, gitlabRevokesToken bool) {
 		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t", tokenType, level, gitlabRevokesToken)
 		ctx := getCtxGitlabClient(t, "unit")
 		client := newInMemoryClient(true)
@@ -150,17 +151,17 @@ func TestPathTokenRoles(t *testing.T) {
 	}
 
 	t.Run("personal access token", func(t *testing.T) {
-		generalTokenCreation(t, gitlab.TokenTypePersonal, gitlab.AccessLevelUnknown, false)
-		generalTokenCreation(t, gitlab.TokenTypePersonal, gitlab.AccessLevelUnknown, true)
+		generalTokenCreation(t, gitlab.TokenTypePersonal, access.AccessLevelUnknown, false)
+		generalTokenCreation(t, gitlab.TokenTypePersonal, access.AccessLevelUnknown, true)
 	})
 
 	t.Run("project access token", func(t *testing.T) {
-		generalTokenCreation(t, gitlab.TokenTypeProject, gitlab.AccessLevelGuestPermissions, false)
-		generalTokenCreation(t, gitlab.TokenTypeProject, gitlab.AccessLevelGuestPermissions, true)
+		generalTokenCreation(t, gitlab.TokenTypeProject, access.AccessLevelGuestPermissions, false)
+		generalTokenCreation(t, gitlab.TokenTypeProject, access.AccessLevelGuestPermissions, true)
 	})
 
 	t.Run("group access token", func(t *testing.T) {
-		generalTokenCreation(t, gitlab.TokenTypeGroup, gitlab.AccessLevelGuestPermissions, false)
-		generalTokenCreation(t, gitlab.TokenTypeGroup, gitlab.AccessLevelGuestPermissions, true)
+		generalTokenCreation(t, gitlab.TokenTypeGroup, access.AccessLevelGuestPermissions, false)
+		generalTokenCreation(t, gitlab.TokenTypeGroup, access.AccessLevelGuestPermissions, true)
 	})
 }

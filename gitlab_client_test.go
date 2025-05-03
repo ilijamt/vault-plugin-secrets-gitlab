@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
 )
 
 func TestGitlabClient(t *testing.T) {
@@ -87,11 +88,11 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 	_, err = client.GetUserIdByUsername(ctx, "username")
 	require.Error(t, err)
 
-	gatToken, err := client.CreateGroupAccessToken(ctx, "groupId", "name", timeExpiresAt, []string{"scope"}, gitlab.AccessLevelUnknown)
+	gatToken, err := client.CreateGroupAccessToken(ctx, "groupId", "name", timeExpiresAt, []string{"scope"}, access.AccessLevelUnknown)
 	require.Error(t, err)
 	require.Nil(t, gatToken)
 
-	prjAtToken, err := client.CreateProjectAccessToken(ctx, "projectId", "name", timeExpiresAt, []string{"scope"}, gitlab.AccessLevelUnknown)
+	prjAtToken, err := client.CreateProjectAccessToken(ctx, "projectId", "name", timeExpiresAt, []string{"scope"}, access.AccessLevelUnknown)
 	require.Error(t, err)
 	require.Nil(t, prjAtToken)
 
@@ -256,7 +257,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"name",
 		timeExpiresAt,
 		[]string{gitlab.TokenScopeReadApi.String()},
-		gitlab.AccessLevelGuestPermissions,
+		access.AccessLevelGuestPermissions,
 	)
 	require.NoError(t, err)
 	require.NotNil(t, gatToken)
@@ -270,7 +271,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"name",
 		timeExpiresAt,
 		[]string{gitlab.TokenScopeReadApi.String()},
-		gitlab.AccessLevelDeveloperPermissions,
+		access.AccessLevelDeveloperPermissions,
 	)
 	require.NoError(t, err)
 	require.NotNil(t, prjatToken)
