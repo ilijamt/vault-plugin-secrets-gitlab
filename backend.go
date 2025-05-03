@@ -181,7 +181,7 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage, name string)
 
 	var httpClient *http.Client
 	httpClient, _ = HttpClientFromContext(ctx)
-	if client, _ = GitlabClientFromContext(ctx); client == nil {
+	if client, _ = ClientFromContext(ctx); client == nil {
 		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
 			b.SetClient(client, name)
 		}

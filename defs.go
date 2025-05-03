@@ -55,11 +55,11 @@ func HttpClientFromContext(ctx context.Context) (*http.Client, bool) {
 	return u, ok
 }
 
-func GitlabClientNewContext(ctx context.Context, client Client) context.Context {
+func ClientNewContext(ctx context.Context, client Client) context.Context {
 	return context.WithValue(ctx, ctxKeyGitlabClient, client)
 }
 
-func GitlabClientFromContext(ctx context.Context) (Client, bool) {
+func ClientFromContext(ctx context.Context) (Client, bool) {
 	u, ok := ctx.Value(ctxKeyGitlabClient).(Client)
 	if !ok {
 		u = nil

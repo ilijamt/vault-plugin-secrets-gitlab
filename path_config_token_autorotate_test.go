@@ -157,7 +157,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 	t.Run("no error when auto rotate is disabled and config is set", func(t *testing.T) {
 		var client = newInMemoryClient(true)
 		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
-		ctx = gitlab.GitlabClientNewContext(ctx, client)
+		ctx = gitlab.ClientNewContext(ctx, client)
 		b, l, err := getBackendWithConfig(ctx, map[string]any{
 			"token":    "glpat-secret-token",
 			"base_url": url,
@@ -173,7 +173,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 	t.Run("call auto rotate the main token and rotate the token", func(t *testing.T) {
 		var client = newInMemoryClient(true)
 		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
-		ctx = gitlab.GitlabClientNewContext(ctx, newInMemoryClient(true))
+		ctx = gitlab.ClientNewContext(ctx, newInMemoryClient(true))
 		b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
 			"token":              "token",
 			"base_url":           url,
@@ -224,7 +224,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 	t.Run("call auto rotate the main token but the token is still valid", func(t *testing.T) {
 		var client = newInMemoryClient(true)
 		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
-		ctx = gitlab.GitlabClientNewContext(ctx, newInMemoryClient(true))
+		ctx = gitlab.ClientNewContext(ctx, newInMemoryClient(true))
 		b, l, err := getBackendWithConfig(ctx, map[string]any{
 			"token":              "token",
 			"base_url":           url,
