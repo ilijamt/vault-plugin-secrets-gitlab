@@ -57,7 +57,7 @@ var (
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Scopes",
 			},
-			AllowedValues: allowedValues(token.ValidPersonalTokenScopes...),
+			AllowedValues: allowedValues(token.ValidPersonalScopes...),
 		},
 		"ttl": {
 			Type:        framework.TypeDurationSecond,
@@ -251,27 +251,27 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	switch tokenType {
 	case TokenTypePersonal:
 		validAccessLevels = access.ValidPersonalAccessLevels
-		validScopes = token.ValidPersonalTokenScopes
+		validScopes = token.ValidPersonalScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroup:
 		validAccessLevels = access.ValidGroupAccessLevels
-		validScopes = token.ValidGroupTokenScopes
+		validScopes = token.ValidGroupScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name"}
 	case TokenTypeProject:
 		validAccessLevels = access.ValidProjectAccessLevels
-		validScopes = token.ValidProjectTokenScopes
+		validScopes = token.ValidProjectScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name"}
 	case TokenTypeUserServiceAccount:
 		validAccessLevels = access.ValidUserServiceAccountAccessLevels
-		validScopes = token.ValidUserServiceAccountTokenScopes
+		validScopes = token.ValidUserServiceAccountScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroupServiceAccount:
 		validAccessLevels = access.ValidGroupServiceAccountAccessLevels
-		validScopes = token.ValidGroupServiceAccountTokenScopes
+		validScopes = token.ValidGroupServiceAccountScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypePipelineProjectTrigger:
@@ -281,12 +281,12 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		skipFields = []string{"config_name", "access_level", "scopes"}
 	case TokenTypeProjectDeploy:
 		validAccessLevels = access.ValidProjectDeployAccessLevels
-		validScopes = token.ValidProjectDeployTokenScopes
+		validScopes = token.ValidProjectDeployScopes
 		noEmptyScopes = true
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroupDeploy:
 		validAccessLevels = access.ValidGroupDeployAccessLevels
-		validScopes = token.ValidGroupDeployTokenScopes
+		validScopes = token.ValidGroupDeployScopes
 		noEmptyScopes = true
 		skipFields = []string{"config_name", "access_level"}
 	}

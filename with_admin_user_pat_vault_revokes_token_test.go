@@ -58,7 +58,7 @@ func TestWithAdminUser_PAT_AdminUser_VaultRevokesToken(t *testing.T) {
 				"token_type": gitlab.TokenTypePersonal.String(),
 				"scopes": strings.Join(
 					[]string{
-						token2.TokenScopeReadApi.String(),
+						token2.ScopeReadApi.String(),
 					},
 					","),
 				"ttl":                  time.Hour,

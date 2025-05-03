@@ -37,12 +37,12 @@ func TestPathRolesDeployTokens(t *testing.T) {
 		{
 			tokenType: gitlab.TokenTypeProjectDeploy,
 			path:      "example/example",
-			scopes:    []string{token.TokenScopeReadRepository.String()},
+			scopes:    []string{token.ScopeReadRepository.String()},
 		},
 		{
 			tokenType: gitlab.TokenTypeGroupDeploy,
 			path:      "test/test1",
-			scopes:    []string{token.TokenScopeReadRepository.String()},
+			scopes:    []string{token.ScopeReadRepository.String()},
 		},
 	}
 

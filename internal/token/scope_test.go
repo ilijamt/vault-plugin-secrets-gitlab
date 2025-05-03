@@ -17,60 +17,60 @@ func TestScope(t *testing.T) {
 		err      bool
 	}{
 		{
-			expected: token.TokenScopeApi,
-			input:    token.TokenScopeApi.String(),
+			expected: token.ScopeApi,
+			input:    token.ScopeApi.String(),
 		},
 		{
-			expected: token.TokenScopeReadApi,
-			input:    token.TokenScopeReadApi.String(),
+			expected: token.ScopeReadApi,
+			input:    token.ScopeReadApi.String(),
 		},
 		{
-			expected: token.TokenScopeReadRegistry,
-			input:    token.TokenScopeReadRegistry.String(),
+			expected: token.ScopeReadRegistry,
+			input:    token.ScopeReadRegistry.String(),
 		},
 		{
-			expected: token.TokenScopeWriteRegistry,
-			input:    token.TokenScopeWriteRegistry.String(),
+			expected: token.ScopeWriteRegistry,
+			input:    token.ScopeWriteRegistry.String(),
 		},
 		{
-			expected: token.TokenScopeReadRepository,
-			input:    token.TokenScopeReadRepository.String(),
+			expected: token.ScopeReadRepository,
+			input:    token.ScopeReadRepository.String(),
 		},
 		{
-			expected: token.TokenScopeWriteRepository,
-			input:    token.TokenScopeWriteRepository.String(),
+			expected: token.ScopeWriteRepository,
+			input:    token.ScopeWriteRepository.String(),
 		},
 		{
-			expected: token.TokenScopeCreateRunner,
-			input:    token.TokenScopeCreateRunner.String(),
+			expected: token.ScopeCreateRunner,
+			input:    token.ScopeCreateRunner.String(),
 		},
 		{
-			expected: token.TokenScopeReadUser,
-			input:    token.TokenScopeReadUser.String(),
+			expected: token.ScopeReadUser,
+			input:    token.ScopeReadUser.String(),
 		},
 		{
-			expected: token.TokenScopeSudo,
-			input:    token.TokenScopeSudo.String(),
+			expected: token.ScopeSudo,
+			input:    token.ScopeSudo.String(),
 		},
 		{
-			expected: token.TokenScopeAdminMode,
-			input:    token.TokenScopeAdminMode.String(),
+			expected: token.ScopeAdminMode,
+			input:    token.ScopeAdminMode.String(),
 		},
 		{
-			expected: token.TokenScopeReadPackageRegistry,
-			input:    token.TokenScopeReadPackageRegistry.String(),
+			expected: token.ScopeReadPackageRegistry,
+			input:    token.ScopeReadPackageRegistry.String(),
 		},
 		{
-			expected: token.TokenScopeWritePackageRegistry,
-			input:    token.TokenScopeWritePackageRegistry.String(),
+			expected: token.ScopeWritePackageRegistry,
+			input:    token.ScopeWritePackageRegistry.String(),
 		},
 		{
-			expected: token.TokenScopeUnknown,
+			expected: token.ScopeUnknown,
 			input:    "what",
 			err:      true,
 		},
 		{
-			expected: token.TokenScopeUnknown,
+			expected: token.ScopeUnknown,
 			input:    "unknown",
 			err:      true,
 		},
@@ -82,7 +82,7 @@ func TestScope(t *testing.T) {
 		assert.EqualValues(t, test.expected, val)
 		assert.EqualValues(t, test.expected.Value(), test.expected.String())
 		if test.err {
-			assert.ErrorIs(t, err, token.ErrUnknownTokenScope)
+			assert.ErrorIs(t, err, token.ErrUnknownScope)
 		} else {
 			assert.NoError(t, err)
 		}

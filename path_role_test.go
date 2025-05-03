@@ -82,7 +82,7 @@ func TestPathRoles(t *testing.T) {
 						"name":                 gitlab.TokenTypePersonal.String(),
 						"token_type":           gitlab.TokenTypePersonal.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidPersonalTokenScopes,
+						"scopes":               token.ValidPersonalScopes,
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -104,7 +104,7 @@ func TestPathRoles(t *testing.T) {
 						"access_level":         access.AccessLevelOwnerPermissions.String(),
 						"token_type":           gitlab.TokenTypePersonal.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidPersonalTokenScopes,
+						"scopes":               token.ValidPersonalScopes,
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -127,7 +127,7 @@ func TestPathRoles(t *testing.T) {
 						"name":                 gitlab.TokenTypeProject.String(),
 						"token_type":           gitlab.TokenTypeProject.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidProjectTokenScopes,
+						"scopes":               token.ValidProjectScopes,
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -148,7 +148,7 @@ func TestPathRoles(t *testing.T) {
 						"access_level":         access.AccessLevelOwnerPermissions.String(),
 						"token_type":           gitlab.TokenTypeProject.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidProjectTokenScopes,
+						"scopes":               token.ValidProjectScopes,
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -172,7 +172,7 @@ func TestPathRoles(t *testing.T) {
 						"name":                 gitlab.TokenTypeGroup.String(),
 						"token_type":           gitlab.TokenTypeGroup.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidGroupTokenScopes,
+						"scopes":               token.ValidGroupScopes,
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -193,7 +193,7 @@ func TestPathRoles(t *testing.T) {
 						"access_level":         access.AccessLevelOwnerPermissions.String(),
 						"token_type":           gitlab.TokenTypeGroup.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidGroupTokenScopes,
+						"scopes":               token.ValidGroupScopes,
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -236,7 +236,7 @@ func TestPathRoles(t *testing.T) {
 				"name":                 "{{ . } invalid template",
 				"token_type":           gitlab.TokenTypePersonal.String(),
 				"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-				"scopes":               token.ValidPersonalTokenScopes,
+				"scopes":               token.ValidPersonalScopes,
 				"gitlab_revokes_token": false,
 			},
 		})
@@ -260,7 +260,7 @@ func TestPathRoles(t *testing.T) {
 					"access_level": access.AccessLevelOwnerPermissions.String(),
 					"ttl":          "48h",
 					"token_type":   gitlab.TokenTypeProject.String(),
-					"scopes":       token.ValidProjectTokenScopes,
+					"scopes":       token.ValidProjectScopes,
 				},
 			})
 			require.NoError(t, err)
@@ -281,7 +281,7 @@ func TestPathRoles(t *testing.T) {
 					"access_level":         access.AccessLevelOwnerPermissions.String(),
 					"token_type":           gitlab.TokenTypeProject.String(),
 					"ttl":                  "48h",
-					"scopes":               token.ValidPersonalTokenScopes,
+					"scopes":               token.ValidPersonalScopes,
 					"gitlab_revokes_token": false,
 				},
 			})
@@ -305,7 +305,7 @@ func TestPathRoles(t *testing.T) {
 					"name":       "Example user personal token",
 					"ttl":        "48h",
 					"token_type": gitlab.TokenTypePersonal.String(),
-					"scopes":     token.ValidPersonalTokenScopes,
+					"scopes":     token.ValidPersonalScopes,
 				},
 			})
 			require.NoError(t, err)
@@ -350,7 +350,7 @@ func TestPathRoles(t *testing.T) {
 					"ttl":          "48h",
 					"access_level": access.AccessLevelOwnerPermissions.String(),
 					"token_type":   gitlab.TokenTypeGroup.String(),
-					"scopes":       token.ValidProjectTokenScopes,
+					"scopes":       token.ValidProjectScopes,
 				},
 			})
 			require.NoError(t, err)
@@ -370,7 +370,7 @@ func TestPathRoles(t *testing.T) {
 					"name":         "Example user personal token",
 					"access_level": access.AccessLevelOwnerPermissions.String(),
 					"token_type":   gitlab.TokenTypeGroup.String(),
-					"scopes":       token.ValidPersonalTokenScopes,
+					"scopes":       token.ValidPersonalScopes,
 				},
 			})
 			require.Error(t, err)
@@ -423,8 +423,8 @@ func TestPathRoles(t *testing.T) {
 			"ttl":                  int64((5 * 24 * time.Hour).Seconds()),
 			"gitlab_revokes_token": false,
 			"scopes": []string{
-				token.TokenScopeApi.String(),
-				token.TokenScopeReadRegistry.String(),
+				token.ScopeApi.String(),
+				token.ScopeReadRegistry.String(),
 			},
 		}
 

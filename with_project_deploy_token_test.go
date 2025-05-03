@@ -55,7 +55,7 @@ func TestWithProjectDeployToken(t *testing.T) {
 				"token_type":           gitlab.TokenTypeProjectDeploy.String(),
 				"gitlab_revokes_token": strconv.FormatBool(false),
 				"ttl":                  120 * time.Hour,
-				"scopes":               []string{token2.TokenScopeReadRepository.String()},
+				"scopes":               []string{token2.ScopeReadRepository.String()},
 			},
 		})
 		require.NoError(t, err)

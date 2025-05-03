@@ -62,7 +62,7 @@ func TestWithServiceAccountUser(t *testing.T) {
 			"name":                 `vault-generated-{{ .token_type }}-token`,
 			"token_type":           gitlab.TokenTypeUserServiceAccount.String(),
 			"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-			"scopes":               token2.ValidUserServiceAccountTokenScopes,
+			"scopes":               token2.ValidUserServiceAccountScopes,
 			"gitlab_revokes_token": false,
 		},
 	})

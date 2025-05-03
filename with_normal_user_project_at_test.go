@@ -61,7 +61,7 @@ func TestWithNormalUser_ProjectAT(t *testing.T) {
 				"access_level":         access.AccessLevelMaintainerPermissions.String(),
 				"scopes": strings.Join(
 					[]string{
-						token2.TokenScopeReadApi.String(),
+						token2.ScopeReadApi.String(),
 					},
 					","),
 			},

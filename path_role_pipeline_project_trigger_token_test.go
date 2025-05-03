@@ -38,7 +38,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 				"name":         "Example user personal token",
 				"access_level": access.AccessLevelNoPermissions.String(),
 				"token_type":   gitlab.TokenTypePipelineProjectTrigger.String(),
-				"scopes":       []string{token.TokenScopeApi.String()},
+				"scopes":       []string{token.ScopeApi.String()},
 				"ttl":          "1h",
 			},
 		})

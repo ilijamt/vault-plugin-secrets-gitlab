@@ -30,8 +30,8 @@ func TestPathRolesTTL(t *testing.T) {
 			"name":       "Example user personal token",
 			"token_type": gitlab.TokenTypePersonal.String(),
 			"scopes": []string{
-				token.TokenScopeApi.String(),
-				token.TokenScopeReadRegistry.String(),
+				token.ScopeApi.String(),
+				token.ScopeReadRegistry.String(),
 			},
 			"gitlab_revokes_token": false,
 		}
@@ -91,8 +91,8 @@ func TestPathRolesTTL(t *testing.T) {
 			"name":       "Example user personal token",
 			"token_type": gitlab.TokenTypePersonal.String(),
 			"scopes": []string{
-				token.TokenScopeApi.String(),
-				token.TokenScopeReadRegistry.String(),
+				token.ScopeApi.String(),
+				token.ScopeReadRegistry.String(),
 			},
 			"gitlab_revokes_token": false,
 		}
@@ -153,8 +153,8 @@ func TestPathRolesTTL(t *testing.T) {
 			"name":       "Example user personal token",
 			"token_type": gitlab.TokenTypePersonal.String(),
 			"scopes": []string{
-				token.TokenScopeApi.String(),
-				token.TokenScopeReadRegistry.String(),
+				token.ScopeApi.String(),
+				token.ScopeReadRegistry.String(),
 			},
 			"gitlab_revokes_token": true,
 		}
