@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
 )
 
 func TestPathTokenRoles(t *testing.T) {

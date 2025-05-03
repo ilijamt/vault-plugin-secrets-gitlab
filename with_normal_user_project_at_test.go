@@ -15,7 +15,8 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithNormalUser_ProjectAT(t *testing.T) {
@@ -60,7 +61,7 @@ func TestWithNormalUser_ProjectAT(t *testing.T) {
 				"access_level":         access.AccessLevelMaintainerPermissions.String(),
 				"scopes": strings.Join(
 					[]string{
-						gitlab.TokenScopeReadApi.String(),
+						token2.TokenScopeReadApi.String(),
 					},
 					","),
 			},

@@ -14,7 +14,9 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 const (
@@ -55,7 +57,7 @@ var (
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Scopes",
 			},
-			AllowedValues: allowedValues(ValidPersonalTokenScopes...),
+			AllowedValues: allowedValues(token.ValidPersonalTokenScopes...),
 		},
 		"ttl": {
 			Type:        framework.TypeDurationSecond,
@@ -249,27 +251,27 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	switch tokenType {
 	case TokenTypePersonal:
 		validAccessLevels = access.ValidPersonalAccessLevels
-		validScopes = ValidPersonalTokenScopes
+		validScopes = token.ValidPersonalTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroup:
 		validAccessLevels = access.ValidGroupAccessLevels
-		validScopes = ValidGroupTokenScopes
+		validScopes = token.ValidGroupTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name"}
 	case TokenTypeProject:
 		validAccessLevels = access.ValidProjectAccessLevels
-		validScopes = ValidProjectTokenScopes
+		validScopes = token.ValidProjectTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name"}
 	case TokenTypeUserServiceAccount:
 		validAccessLevels = access.ValidUserServiceAccountAccessLevels
-		validScopes = ValidUserServiceAccountTokenScopes
+		validScopes = token.ValidUserServiceAccountTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroupServiceAccount:
 		validAccessLevels = access.ValidGroupServiceAccountAccessLevels
-		validScopes = ValidGroupServiceAccountTokenScopes
+		validScopes = token.ValidGroupServiceAccountTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypePipelineProjectTrigger:
@@ -279,12 +281,12 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		skipFields = []string{"config_name", "access_level", "scopes"}
 	case TokenTypeProjectDeploy:
 		validAccessLevels = access.ValidProjectDeployAccessLevels
-		validScopes = ValidProjectDeployTokenScopes
+		validScopes = token.ValidProjectDeployTokenScopes
 		noEmptyScopes = true
 		skipFields = []string{"config_name", "access_level"}
 	case TokenTypeGroupDeploy:
 		validAccessLevels = access.ValidGroupDeployAccessLevels
-		validScopes = ValidGroupDeployTokenScopes
+		validScopes = token.ValidGroupDeployTokenScopes
 		noEmptyScopes = true
 		skipFields = []string{"config_name", "access_level"}
 	}

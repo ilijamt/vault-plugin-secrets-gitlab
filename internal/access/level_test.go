@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
 )
 
 func TestAccessLevel(t *testing.T) {

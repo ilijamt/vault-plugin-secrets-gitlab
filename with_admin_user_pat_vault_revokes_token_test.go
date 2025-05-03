@@ -15,6 +15,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithAdminUser_PAT_AdminUser_VaultRevokesToken(t *testing.T) {
@@ -57,7 +58,7 @@ func TestWithAdminUser_PAT_AdminUser_VaultRevokesToken(t *testing.T) {
 				"token_type": gitlab.TokenTypePersonal.String(),
 				"scopes": strings.Join(
 					[]string{
-						gitlab.TokenScopeReadApi.String(),
+						token2.TokenScopeReadApi.String(),
 					},
 					","),
 				"ttl":                  time.Hour,

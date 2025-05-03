@@ -13,6 +13,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithProjectDeployToken(t *testing.T) {
@@ -54,7 +55,7 @@ func TestWithProjectDeployToken(t *testing.T) {
 				"token_type":           gitlab.TokenTypeProjectDeploy.String(),
 				"gitlab_revokes_token": strconv.FormatBool(false),
 				"ttl":                  120 * time.Hour,
-				"scopes":               []string{gitlab.TokenScopeReadRepository.String()},
+				"scopes":               []string{token2.TokenScopeReadRepository.String()},
 			},
 		})
 		require.NoError(t, err)

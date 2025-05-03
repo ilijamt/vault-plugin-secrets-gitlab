@@ -15,7 +15,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 	"golang.org/x/time/rate"
 
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
 )
 
 var (

@@ -13,6 +13,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithServiceAccountGroup(t *testing.T) {
@@ -63,7 +64,7 @@ func TestWithServiceAccountGroup(t *testing.T) {
 			"name":                 `vault-generated-{{ .token_type }}-token`,
 			"token_type":           gitlab.TokenTypeGroupServiceAccount.String(),
 			"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-			"scopes":               gitlab.ValidGroupServiceAccountTokenScopes,
+			"scopes":               token2.ValidGroupServiceAccountTokenScopes,
 			"gitlab_revokes_token": false,
 		},
 	})

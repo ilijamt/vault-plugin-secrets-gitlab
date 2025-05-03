@@ -13,7 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestGitlabClient(t *testing.T) {
@@ -256,7 +257,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"example",
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
+		[]string{token.TokenScopeReadApi.String()},
 		access.AccessLevelGuestPermissions,
 	)
 	require.NoError(t, err)
@@ -270,7 +271,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"example/example",
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
+		[]string{token.TokenScopeReadApi.String()},
 		access.AccessLevelDeveloperPermissions,
 	)
 	require.NoError(t, err)
@@ -285,7 +286,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		1,
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
+		[]string{token.TokenScopeReadApi.String()},
 	)
 	require.NoError(t, err)
 	require.NotNil(t, patToken)

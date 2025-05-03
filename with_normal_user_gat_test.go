@@ -15,7 +15,8 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithNormalUser_GAT(t *testing.T) {
@@ -57,7 +58,7 @@ func TestWithNormalUser_GAT(t *testing.T) {
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(false),
 				"access_level":         access.AccessLevelMaintainerPermissions.String(),
-				"scopes":               strings.Join([]string{gitlab.TokenScopeReadApi.String()}, ","),
+				"scopes":               strings.Join([]string{token2.TokenScopeReadApi.String()}, ","),
 			},
 		})
 		require.NoError(t, err)

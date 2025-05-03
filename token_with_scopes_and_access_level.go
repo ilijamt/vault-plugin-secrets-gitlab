@@ -4,7 +4,7 @@ import (
 	"maps"
 	"strings"
 
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
 )
 
 type TokenWithScopesAndAccessLevel struct {

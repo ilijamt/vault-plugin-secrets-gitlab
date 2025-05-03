@@ -11,6 +11,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithServiceAccountUserFail(t *testing.T) {
@@ -58,7 +59,7 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 					"name":                 fmt.Sprintf(`user-service-account-%s`, usr.Username),
 					"token_type":           gitlab.TokenTypeUserServiceAccount.String(),
 					"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-					"scopes":               gitlab.ValidUserServiceAccountTokenScopes,
+					"scopes":               token.ValidUserServiceAccountTokenScopes,
 					"gitlab_revokes_token": false,
 				},
 			})

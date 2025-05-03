@@ -11,7 +11,8 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathTokenRolesMultipleConfigs(t *testing.T) {
@@ -55,14 +56,14 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 				roleName:  "root-root",
 				path:      "root",
 				tokenType: gitlab.TokenTypePersonal,
-				scopes:    []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				scopes:    []string{token.TokenScopeApi.String(), token.TokenScopeSelfRotate.String()},
 				tokenName: "admin_user_root",
 			},
 			{
 				roleName:  "root-normal-user",
 				path:      "normal-user",
 				tokenType: gitlab.TokenTypePersonal,
-				scopes:    []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				scopes:    []string{token.TokenScopeApi.String(), token.TokenScopeSelfRotate.String()},
 				tokenName: "admin_user_root",
 			},
 		},
@@ -72,7 +73,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 				path:        "example/example",
 				tokenType:   gitlab.TokenTypeProject,
 				accessLevel: access.AccessLevelGuestPermissions,
-				scopes:      []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				scopes:      []string{token.TokenScopeApi.String(), token.TokenScopeSelfRotate.String()},
 				tokenName:   "admin_user_initial_token",
 			},
 		},
@@ -82,7 +83,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 				path:        "example",
 				tokenType:   gitlab.TokenTypeGroup,
 				accessLevel: access.AccessLevelGuestPermissions,
-				scopes:      []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				scopes:      []string{token.TokenScopeApi.String(), token.TokenScopeSelfRotate.String()},
 				tokenName:   "normal_user_initial_token",
 			},
 		},

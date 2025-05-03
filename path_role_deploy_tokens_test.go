@@ -15,7 +15,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/pkg/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathRolesDeployTokens(t *testing.T) {
@@ -36,12 +37,12 @@ func TestPathRolesDeployTokens(t *testing.T) {
 		{
 			tokenType: gitlab.TokenTypeProjectDeploy,
 			path:      "example/example",
-			scopes:    []string{gitlab.TokenScopeReadRepository.String()},
+			scopes:    []string{token.TokenScopeReadRepository.String()},
 		},
 		{
 			tokenType: gitlab.TokenTypeGroupDeploy,
 			path:      "test/test1",
-			scopes:    []string{gitlab.TokenScopeReadRepository.String()},
+			scopes:    []string{token.TokenScopeReadRepository.String()},
 		},
 	}
 
