@@ -9,6 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestTokenNameGenerator_RandString(t *testing.T) {
@@ -18,8 +20,8 @@ func TestTokenNameGenerator_RandString(t *testing.T) {
 			TTL:                 time.Hour,
 			Path:                "/path",
 			Name:                "{{ randHexString 8 }}",
-			Scopes:              []string{g.TokenScopeApi.String()},
-			AccessLevel:         g.AccessLevelNoPermissions,
+			Scopes:              []string{token.TokenScopeApi.String()},
+			AccessLevel:         access.AccessLevelNoPermissions,
 			TokenType:           g.TokenTypePersonal,
 			GitlabRevokesTokens: false,
 		},

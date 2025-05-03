@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
@@ -52,7 +53,7 @@ func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 				"gitlab_revokes_token": strconv.FormatBool(true),
 				"scopes": strings.Join(
 					[]string{
-						gitlab.TokenScopeReadApi.String(),
+						token.TokenScopeReadApi.String(),
 					},
 					","),
 			},

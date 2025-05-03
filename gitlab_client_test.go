@@ -13,6 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestGitlabClient(t *testing.T) {
@@ -87,11 +89,11 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 	_, err = client.GetUserIdByUsername(ctx, "username")
 	require.Error(t, err)
 
-	gatToken, err := client.CreateGroupAccessToken(ctx, "groupId", "name", timeExpiresAt, []string{"scope"}, gitlab.AccessLevelUnknown)
+	gatToken, err := client.CreateGroupAccessToken(ctx, "groupId", "name", timeExpiresAt, []string{"scope"}, access.AccessLevelUnknown)
 	require.Error(t, err)
 	require.Nil(t, gatToken)
 
-	prjAtToken, err := client.CreateProjectAccessToken(ctx, "projectId", "name", timeExpiresAt, []string{"scope"}, gitlab.AccessLevelUnknown)
+	prjAtToken, err := client.CreateProjectAccessToken(ctx, "projectId", "name", timeExpiresAt, []string{"scope"}, access.AccessLevelUnknown)
 	require.Error(t, err)
 	require.Nil(t, prjAtToken)
 
@@ -255,8 +257,8 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"example",
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
-		gitlab.AccessLevelGuestPermissions,
+		[]string{token.TokenScopeReadApi.String()},
+		access.AccessLevelGuestPermissions,
 	)
 	require.NoError(t, err)
 	require.NotNil(t, gatToken)
@@ -269,8 +271,8 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"example/example",
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
-		gitlab.AccessLevelDeveloperPermissions,
+		[]string{token.TokenScopeReadApi.String()},
+		access.AccessLevelDeveloperPermissions,
 	)
 	require.NoError(t, err)
 	require.NotNil(t, prjatToken)
@@ -284,7 +286,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		1,
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
+		[]string{token.TokenScopeReadApi.String()},
 	)
 	require.NoError(t, err)
 	require.NotNil(t, patToken)

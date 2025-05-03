@@ -6,11 +6,6 @@ builds:
     mod_timestamp: '{{ .CommitTimestamp }}'
     flags:
       - -trimpath
-    ldflags:
-      - '-s -w'
-      - "-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.Version=v{{ .Version }}'"
-      - "-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.FullCommit={{ .FullCommit }}'"
-      - "-X 'github.com/ilijamt/vault-plugin-secrets-gitlab.BuildDate={{ .Date }}'"
     goos:
       - windows
       - linux
@@ -18,16 +13,53 @@ builds:
       - illumos
     goarch:
       - amd64
-      - '386'
+      - "386"
       - arm
       - arm64
     ignore:
       - goos: darwin
-        goarch: '386'
-    binary: '{{ .ProjectName }}_v{{ .Version }}'
+        goarch: "386"
+    id: g16x
+    binary: '{{ .ProjectName }}16x_v{{ .Version }}'
+    ldflags:
+      - -s -w
+      - -X 'github.com/ilijamt/vault-plugin-secrets-gitlab.Version=v{{ .Version }}'
+      - -X 'github.com/ilijamt/vault-plugin-secrets-gitlab.FullCommit={{ .FullCommit }}'
+      - -X 'github.com/ilijamt/vault-plugin-secrets-gitlab.BuildDate={{ .Date }}'
+      - -X 'github.com/ilijamt/vault-plugin-secrets-gitlab.VersionTarget=g16x'
+    tags:
+      - g16x
+  - env:
+      - CGO_ENABLED=0
+    main: ./cmd/vault-plugin-secrets-gitlab/main.go
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    flags:
+      - -trimpath
+    goos:
+      - windows
+      - linux
+      - darwin
+      - illumos
+    goarch:
+      - amd64
+      - "386"
+      - arm
+      - arm64
+    ignore:
+      - goos: darwin
+        goarch: "386"
+    id: g17x
+    binary: '{{ .ProjectName }}17x_v{{ .Version }}'
+    ldflags:
+      - -s -w
+      - -X 'github.com/ilijamt/vault-plugin-secrets-gitlab.Version=v{{ .Version }}'
+      - -X 'github.com/ilijamt/vault-plugin-secrets-gitlab.FullCommit={{ .FullCommit }}'
+      - -X 'github.com/ilijamt/vault-plugin-secrets-gitlab.BuildDate={{ .Date }}'
+      - -X 'github.com/ilijamt/vault-plugin-secrets-gitlab.VersionTarget=g17x'
 archives:
-  - formats: [ 'tar.gz' ]
-    name_template: >-
+  - formats:
+      - tar.gz
+    name_template: |-
       {{ .ProjectName }}_
       {{- .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
@@ -36,7 +68,8 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
       - goos: windows
-        formats: [ 'zip' ]
+        formats:
+          - zip
 report_sizes: true
 sboms:
   - artifacts: archive
@@ -50,7 +83,7 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-      - "merge conflict"
+      - merge conflict
       - Merge pull request
       - Merge remote-tracking branch
       - Merge branch

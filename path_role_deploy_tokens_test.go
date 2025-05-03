@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathRolesDeployTokens(t *testing.T) {
@@ -26,7 +28,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 
 	var tests = []struct {
 		tokenType   gitlab.TokenType
-		accessLevel gitlab.AccessLevel
+		accessLevel access.AccessLevel
 		scopes      []string
 		ttl         string
 		path        string
@@ -35,12 +37,12 @@ func TestPathRolesDeployTokens(t *testing.T) {
 		{
 			tokenType: gitlab.TokenTypeProjectDeploy,
 			path:      "example/example",
-			scopes:    []string{gitlab.TokenScopeReadRepository.String()},
+			scopes:    []string{token.TokenScopeReadRepository.String()},
 		},
 		{
 			tokenType: gitlab.TokenTypeGroupDeploy,
 			path:      "test/test1",
-			scopes:    []string{gitlab.TokenScopeReadRepository.String()},
+			scopes:    []string{token.TokenScopeReadRepository.String()},
 		},
 	}
 
@@ -56,7 +58,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 					Data: map[string]any{
 						"path":         tt.path,
 						"name":         tt.name,
-						"access_level": cmp.Or(tt.accessLevel, gitlab.AccessLevelUnknown).String(),
+						"access_level": cmp.Or(tt.accessLevel, access.AccessLevelUnknown).String(),
 						"token_type":   tt.tokenType.String(),
 						"scopes":       tt.scopes,
 						"ttl":          cmp.Or(tt.ttl, "1h"),
@@ -76,7 +78,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 					Data: map[string]any{
 						"path":         tt.path,
 						"name":         tt.name,
-						"access_level": gitlab.AccessLevelNoPermissions.String(),
+						"access_level": access.AccessLevelNoPermissions.String(),
 						"token_type":   tt.tokenType.String(),
 						"ttl":          cmp.Or(tt.ttl, "1h"),
 						"scopes":       []string{},

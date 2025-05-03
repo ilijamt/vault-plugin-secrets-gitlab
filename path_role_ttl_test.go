@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathRolesTTL(t *testing.T) {
@@ -29,8 +30,8 @@ func TestPathRolesTTL(t *testing.T) {
 			"name":       "Example user personal token",
 			"token_type": gitlab.TokenTypePersonal.String(),
 			"scopes": []string{
-				gitlab.TokenScopeApi.String(),
-				gitlab.TokenScopeReadRegistry.String(),
+				token.TokenScopeApi.String(),
+				token.TokenScopeReadRegistry.String(),
 			},
 			"gitlab_revokes_token": false,
 		}
@@ -90,8 +91,8 @@ func TestPathRolesTTL(t *testing.T) {
 			"name":       "Example user personal token",
 			"token_type": gitlab.TokenTypePersonal.String(),
 			"scopes": []string{
-				gitlab.TokenScopeApi.String(),
-				gitlab.TokenScopeReadRegistry.String(),
+				token.TokenScopeApi.String(),
+				token.TokenScopeReadRegistry.String(),
 			},
 			"gitlab_revokes_token": false,
 		}
@@ -152,8 +153,8 @@ func TestPathRolesTTL(t *testing.T) {
 			"name":       "Example user personal token",
 			"token_type": gitlab.TokenTypePersonal.String(),
 			"scopes": []string{
-				gitlab.TokenScopeApi.String(),
-				gitlab.TokenScopeReadRegistry.String(),
+				token.TokenScopeApi.String(),
+				token.TokenScopeReadRegistry.String(),
 			},
 			"gitlab_revokes_token": true,
 		}
