@@ -6,13 +6,15 @@ import (
 	"maps"
 	"strconv"
 	"time"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 type IToken interface {
 	Internal() map[string]any
 	Data() map[string]any
 	Event(map[string]string) map[string]string
-	Type() TokenType
+	Type() token.Type
 	SetConfigName(string)
 	SetRoleName(string)
 	SetGitlabRevokesToken(bool)
@@ -28,7 +30,7 @@ type Token struct {
 	GitlabRevokesToken bool       `json:"gitlab_revokes_token"`
 	CreatedAt          *time.Time `json:"created_at"`
 	ExpiresAt          *time.Time `json:"expires_at"`
-	TokenType          TokenType  `json:"type"`
+	TokenType          token.Type `json:"type"`
 	Token              string     `json:"token"`
 	TokenID            int        `json:"token_id"`
 	ParentID           string     `json:"parent_id"`
@@ -56,7 +58,7 @@ func (t *Token) SetExpiresAt(expiresAt *time.Time) { t.ExpiresAt = expiresAt }
 func (t *Token) SetConfigName(name string)         { t.ConfigName = name }
 func (t *Token) SetRoleName(name string)           { t.RoleName = name }
 func (t *Token) SetGitlabRevokesToken(b bool)      { t.GitlabRevokesToken = b }
-func (t *Token) Type() TokenType                   { return t.TokenType }
+func (t *Token) Type() token.Type                  { return t.TokenType }
 
 func (t *Token) Internal() map[string]any {
 	return map[string]any{

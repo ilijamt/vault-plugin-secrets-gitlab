@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/access"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 type EntryRole struct {
@@ -17,7 +18,7 @@ type EntryRole struct {
 	Name                string             `json:"name" structs:"name" mapstructure:"name"`
 	Scopes              []string           `json:"scopes" structs:"scopes" mapstructure:"scopes"`
 	AccessLevel         access.AccessLevel `json:"access_level" structs:"access_level" mapstructure:"access_level,omitempty"`
-	TokenType           TokenType          `json:"token_type" structs:"token_type" mapstructure:"token_type"`
+	TokenType           token.Type         `json:"token_type" structs:"token_type" mapstructure:"token_type"`
 	GitlabRevokesTokens bool               `json:"gitlab_revokes_token" structs:"gitlab_revokes_token" mapstructure:"gitlab_revokes_token"`
 	ConfigName          string             `json:"config_name" structs:"config_name" mapstructure:"config_name"`
 }

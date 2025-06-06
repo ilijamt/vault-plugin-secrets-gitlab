@@ -27,7 +27,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 	}
 
 	var tests = []struct {
-		tokenType   gitlab.TokenType
+		tokenType   token.Type
 		accessLevel access.AccessLevel
 		scopes      []string
 		ttl         string
@@ -35,12 +35,12 @@ func TestPathRolesDeployTokens(t *testing.T) {
 		name        string
 	}{
 		{
-			tokenType: gitlab.TokenTypeProjectDeploy,
+			tokenType: token.TokenTypeProjectDeploy,
 			path:      "example/example",
 			scopes:    []string{token.ScopeReadRepository.String()},
 		},
 		{
-			tokenType: gitlab.TokenTypeGroupDeploy,
+			tokenType: token.TokenTypeGroupDeploy,
 			path:      "test/test1",
 			scopes:    []string{token.ScopeReadRepository.String()},
 		},

@@ -214,10 +214,10 @@ func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 	require.NotNil(t, client)
 	require.True(t, client.Valid(ctx))
 
-	token, err := client.CurrentTokenInfo(ctx)
+	tkn, err := client.CurrentTokenInfo(ctx)
 	require.NoError(t, err)
-	require.NotNil(t, token)
-	assert.EqualValues(t, gitlab.TokenTypePersonal, token.TokenType)
+	require.NotNil(t, tkn)
+	assert.EqualValues(t, token.TokenTypePersonal, tkn.TokenType)
 }
 
 func TestGitlabClient_Metadata(t *testing.T) {
@@ -262,7 +262,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	)
 	require.NoError(t, err)
 	require.NotNil(t, gatToken)
-	require.EqualValues(t, gitlab.TokenTypeGroup, gatToken.TokenType)
+	require.EqualValues(t, token.TokenTypeGroup, gatToken.TokenType)
 	require.NotEmpty(t, gatToken.Token)
 	require.NoError(t, client.RevokeGroupAccessToken(ctx, gatToken.TokenID, "example"))
 
@@ -276,7 +276,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	)
 	require.NoError(t, err)
 	require.NotNil(t, prjatToken)
-	require.EqualValues(t, gitlab.TokenTypeProject, prjatToken.TokenType)
+	require.EqualValues(t, token.TokenTypeProject, prjatToken.TokenType)
 	require.NotEmpty(t, prjatToken.Token)
 	require.NoError(t, client.RevokeProjectAccessToken(ctx, prjatToken.TokenID, "example/example"))
 
@@ -290,7 +290,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	)
 	require.NoError(t, err)
 	require.NotNil(t, patToken)
-	require.EqualValues(t, gitlab.TokenTypePersonal, patToken.TokenType)
+	require.EqualValues(t, token.TokenTypePersonal, patToken.TokenType)
 	require.NotEmpty(t, patToken.Token)
 	require.NoError(t, client.RevokePersonalAccessToken(ctx, patToken.TokenID))
 }

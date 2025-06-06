@@ -57,7 +57,7 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 				Data: map[string]any{
 					"path":                 usr.Username,
 					"name":                 fmt.Sprintf(`user-service-account-%s`, usr.Username),
-					"token_type":           gitlab.TokenTypeUserServiceAccount.String(),
+					"token_type":           token.TokenTypeUserServiceAccount.String(),
 					"ttl":                  gitlab.DefaultAccessTokenMinTTL,
 					"scopes":               token.ValidUserServiceAccountScopes,
 					"gitlab_revokes_token": false,

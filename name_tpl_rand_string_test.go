@@ -22,7 +22,7 @@ func TestTokenNameGenerator_RandString(t *testing.T) {
 			Name:                "{{ randHexString 8 }}",
 			Scopes:              []string{token.ScopeApi.String()},
 			AccessLevel:         access.AccessLevelNoPermissions,
-			TokenType:           g.TokenTypePersonal,
+			TokenType:           token.TokenTypePersonal,
 			GitlabRevokesTokens: false,
 		},
 	)

@@ -53,8 +53,8 @@ func TestWithAdminUser_PAT_AdminUser_GitlabRevokesToken(t *testing.T) {
 			Path:      fmt.Sprintf("%s/normal-user", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "normal-user",
-				"name":                 gitlab.TokenTypePersonal.String(),
-				"token_type":           gitlab.TokenTypePersonal.String(),
+				"name":                 token2.TokenTypePersonal.String(),
+				"token_type":           token2.TokenTypePersonal.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(true),
 				"scopes": strings.Join(

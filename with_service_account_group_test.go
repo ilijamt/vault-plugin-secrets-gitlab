@@ -62,7 +62,7 @@ func TestWithServiceAccountGroup(t *testing.T) {
 		Data: map[string]any{
 			"path":                 fmt.Sprintf("%s/%s", gid, sa.UserName),
 			"name":                 `vault-generated-{{ .token_type }}-token`,
-			"token_type":           gitlab.TokenTypeGroupServiceAccount.String(),
+			"token_type":           token2.TokenTypeGroupServiceAccount.String(),
 			"ttl":                  gitlab.DefaultAccessTokenMinTTL,
 			"scopes":               token2.ValidGroupServiceAccountScopes,
 			"gitlab_revokes_token": false,

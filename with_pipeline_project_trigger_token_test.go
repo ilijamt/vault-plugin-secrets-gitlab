@@ -12,6 +12,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithPipelineProjectTriggerAccessToken(t *testing.T) {
@@ -49,8 +50,8 @@ func TestWithPipelineProjectTriggerAccessToken(t *testing.T) {
 			Path:      fmt.Sprintf("%s/pptat", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "example/example",
-				"name":                 gitlab.TokenTypePipelineProjectTrigger.String(),
-				"token_type":           gitlab.TokenTypePipelineProjectTrigger.String(),
+				"name":                 token2.TokenTypePipelineProjectTrigger.String(),
+				"token_type":           token2.TokenTypePipelineProjectTrigger.String(),
 				"gitlab_revokes_token": strconv.FormatBool(false),
 			},
 		})

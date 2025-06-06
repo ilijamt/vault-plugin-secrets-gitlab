@@ -54,8 +54,8 @@ func TestWithAdminUser_PAT_AdminUser_VaultRevokesToken(t *testing.T) {
 			Path: fmt.Sprintf("%s/admin-user", gitlab.PathRoleStorage),
 			Data: map[string]any{
 				"path":       "admin-user",
-				"name":       gitlab.TokenTypePersonal.String(),
-				"token_type": gitlab.TokenTypePersonal.String(),
+				"name":       token2.TokenTypePersonal.String(),
+				"token_type": token2.TokenTypePersonal.String(),
 				"scopes": strings.Join(
 					[]string{
 						token2.ScopeReadApi.String(),

@@ -41,3 +41,4 @@ bin/
 /coverage.html
 /coverage.out
 .envrc
+/dist/

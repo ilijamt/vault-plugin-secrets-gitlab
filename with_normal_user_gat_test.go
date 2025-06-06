@@ -54,7 +54,7 @@ func TestWithNormalUser_GAT(t *testing.T) {
 			Data: map[string]any{
 				"path":                 "example",
 				"name":                 `gat-token`,
-				"token_type":           gitlab.TokenTypeGroup.String(),
+				"token_type":           token2.TokenTypeGroup.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(false),
 				"access_level":         access.AccessLevelMaintainerPermissions.String(),

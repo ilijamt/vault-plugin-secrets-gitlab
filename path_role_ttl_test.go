@@ -28,7 +28,7 @@ func TestPathRolesTTL(t *testing.T) {
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
-			"token_type": gitlab.TokenTypePersonal.String(),
+			"token_type": token.TokenTypePersonal.String(),
 			"scopes": []string{
 				token.ScopeApi.String(),
 				token.ScopeReadRegistry.String(),
@@ -89,7 +89,7 @@ func TestPathRolesTTL(t *testing.T) {
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
-			"token_type": gitlab.TokenTypePersonal.String(),
+			"token_type": token.TokenTypePersonal.String(),
 			"scopes": []string{
 				token.ScopeApi.String(),
 				token.ScopeReadRegistry.String(),
@@ -151,7 +151,7 @@ func TestPathRolesTTL(t *testing.T) {
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
-			"token_type": gitlab.TokenTypePersonal.String(),
+			"token_type": token.TokenTypePersonal.String(),
 			"scopes": []string{
 				token.ScopeApi.String(),
 				token.ScopeReadRegistry.String(),

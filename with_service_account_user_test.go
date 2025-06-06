@@ -60,7 +60,7 @@ func TestWithServiceAccountUser(t *testing.T) {
 		Data: map[string]any{
 			"path":                 usr.Username,
 			"name":                 `vault-generated-{{ .token_type }}-token`,
-			"token_type":           gitlab.TokenTypeUserServiceAccount.String(),
+			"token_type":           token2.TokenTypeUserServiceAccount.String(),
 			"ttl":                  gitlab.DefaultAccessTokenMinTTL,
 			"scopes":               token2.ValidUserServiceAccountScopes,
 			"gitlab_revokes_token": false,
