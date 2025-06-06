@@ -7,7 +7,7 @@ require (
 	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/vault/api v1.20.0
-	github.com/hashicorp/vault/sdk v0.17.0
+	github.com/hashicorp/vault/sdk v0.18.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/stretchr/testify v1.10.0
 	gitlab.com/gitlab-org/api/client-go v0.129.0
