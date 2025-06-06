@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/vault/sdk v0.17.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/stretchr/testify v1.10.0
-	gitlab.com/gitlab-org/api/client-go v0.128.0
+	gitlab.com/gitlab-org/api/client-go v0.129.0
 	golang.org/x/time v0.11.0
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/dnaeon/go-vcr.v4 v4.0.2
@@ -104,7 +104,7 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/net v0.38.0 // indirect
-	golang.org/x/oauth2 v0.28.0 // indirect
+	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	google.golang.org/api v0.221.0 // indirect
