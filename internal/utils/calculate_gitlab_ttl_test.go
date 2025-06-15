@@ -1,6 +1,6 @@
 //go:build unit
 
-package gitlab
+package utils_test
 
 import (
 	"testing"
@@ -8,33 +8,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
-
-func TestConvertToInt(t *testing.T) {
-	var tests = []struct {
-		in     any
-		outVal int
-		outErr error
-	}{
-		{int(52), int(52), nil},
-		{int8(13), int(13), nil},
-		{int16(612), int(612), nil},
-		{int32(56236), int(56236), nil},
-		{int64(23462346), int(23462346), nil},
-		{float32(62346.62), int(62346), nil},
-		{float64(263467.26), int(263467), nil},
-		{"1", int(0), ErrInvalidValue},
-	}
-
-	for _, tst := range tests {
-		t.Logf("convertToInt(%T(%v))", tst.in, tst.in)
-		val, err := convertToInt(tst.in)
-		assert.Equal(t, tst.outVal, val)
-		if tst.outErr != nil {
-			assert.ErrorIs(t, err, tst.outErr)
-		}
-	}
-}
 
 func TestCalculateGitlabTTL(t *testing.T) {
 	locMST, err := time.LoadLocation("MST")
@@ -118,8 +94,8 @@ func TestCalculateGitlabTTL(t *testing.T) {
 	}
 
 	for _, tst := range tests {
-		t.Logf("calculateGitlabTTL(%s, %s) = duration %s, expiry %s, error %v", tst.inDuration, tst.inTime.Format(time.RFC3339), tst.outDuration, tst.outExpiry.Format(time.RFC3339), tst.outErr)
-		dur, exp, err := calculateGitlabTTL(tst.inDuration, tst.inTime)
+		t.Logf("CalculateGitlabTTL(%s, %s) = duration %s, expiry %s, error %v", tst.inDuration, tst.inTime.Format(time.RFC3339), tst.outDuration, tst.outExpiry.Format(time.RFC3339), tst.outErr)
+		dur, exp, err := utils.CalculateGitlabTTL(tst.inDuration, tst.inTime)
 		if err != nil {
 			assert.ErrorIs(t, err, tst.outErr)
 		}

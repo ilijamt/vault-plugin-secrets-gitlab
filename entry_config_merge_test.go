@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
@@ -21,7 +22,7 @@ func TestEntryConfigMerge(t *testing.T) {
 		warnings, changes, err := e.Merge(nil)
 		require.Empty(t, warnings)
 		require.Empty(t, changes)
-		require.ErrorIs(t, err, gitlab.ErrNilValue)
+		require.ErrorIs(t, err, errs.ErrNilValue)
 	})
 
 	t.Run("unconvertible data type", func(t *testing.T) {
@@ -96,7 +97,7 @@ func TestEntryConfigMerge(t *testing.T) {
 			expectedConfig: &gitlab.EntryConfig{AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL + time.Hour},
 			raw:            map[string]interface{}{"auto_rotate_before": "1h"},
 			err:            true,
-			errMap:         map[string]int{gitlab.ErrInvalidValue.Error(): 1},
+			errMap:         map[string]int{errs.ErrInvalidValue.Error(): 1},
 		},
 		{
 			name:           "auto rotate before invalid value higher than min",
@@ -104,7 +105,7 @@ func TestEntryConfigMerge(t *testing.T) {
 			expectedConfig: &gitlab.EntryConfig{AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL + time.Hour},
 			raw:            map[string]interface{}{"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMaxTTL + time.Hour).String()},
 			err:            true,
-			errMap:         map[string]int{gitlab.ErrInvalidValue.Error(): 1},
+			errMap:         map[string]int{errs.ErrInvalidValue.Error(): 1},
 		},
 		{
 			name:           "auto rotate with a valid value",

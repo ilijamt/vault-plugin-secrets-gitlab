@@ -9,11 +9,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 )
 
 func TestPathFlags(t *testing.T) {
 	var ctx = t.Context()
-	b, l, events, err := getBackendWithFlagsWithEvents(ctx, gitlab.Flags{AllowRuntimeFlagsChange: true})
+	b, l, events, err := getBackendWithFlagsWithEvents(ctx, flags.Flags{AllowRuntimeFlagsChange: true})
 	require.NoError(t, err)
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{

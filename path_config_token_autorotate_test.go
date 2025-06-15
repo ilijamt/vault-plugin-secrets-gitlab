@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
@@ -50,7 +51,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		})
 		require.Error(t, err)
 		require.Nil(t, resp)
-		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
 	})
 
 	t.Run("auto_rotate_before should be less than the maximal limit", func(t *testing.T) {
@@ -67,7 +68,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
-		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
 		require.Nil(t, resp)
 	})
 
@@ -104,7 +105,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
-		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
 		require.Nil(t, resp)
 	})
 
@@ -140,7 +141,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
-		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
 		require.Nil(t, resp)
 	})
 }

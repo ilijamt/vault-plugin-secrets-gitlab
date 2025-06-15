@@ -7,6 +7,8 @@ import (
 	"text/template"
 	"time"
 	_ "unsafe"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 )
 
 func yesNoBool(in bool) string {
@@ -34,7 +36,7 @@ var tplFuncMap = template.FuncMap{
 
 func TokenName(role *EntryRole) (name string, err error) {
 	if role == nil {
-		return "", fmt.Errorf("role: %w", ErrNilValue)
+		return "", fmt.Errorf("role: %w", errs.ErrNilValue)
 	}
 	var tpl *template.Template
 	tpl, err = template.New("name").Funcs(tplFuncMap).Parse(role.Name)

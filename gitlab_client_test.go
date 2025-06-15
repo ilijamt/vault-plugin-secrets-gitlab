@@ -13,24 +13,25 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 )
 
 func TestGitlabClient(t *testing.T) {
 	t.Run("nil config", func(t *testing.T) {
 		client, err := gitlab.NewGitlabClient(nil, nil, nil)
 		require.Nil(t, client)
-		require.ErrorIs(t, err, gitlab.ErrNilValue)
+		require.ErrorIs(t, err, errs.ErrNilValue)
 	})
 
 	t.Run("no token", func(t *testing.T) {
 		var client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{}, nil, nil)
-		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
 		require.Nil(t, client)
 	})
 
 	t.Run("no base url", func(t *testing.T) {
 		var client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{}, nil, nil)
-		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
 		require.Nil(t, client)
 	})
 
@@ -51,8 +52,8 @@ func TestGitlabClient(t *testing.T) {
 		}, &http.Client{}, nil)
 		require.NoError(t, err)
 		require.NotNil(t, client)
-		require.ErrorIs(t, client.RevokeGroupServiceAccountAccessToken(ctx, ""), gitlab.ErrNilValue)
-		require.ErrorIs(t, client.RevokeUserServiceAccountAccessToken(ctx, ""), gitlab.ErrNilValue)
+		require.ErrorIs(t, client.RevokeGroupServiceAccountAccessToken(ctx, ""), errs.ErrNilValue)
+		require.ErrorIs(t, client.RevokeUserServiceAccountAccessToken(ctx, ""), errs.ErrNilValue)
 	})
 }
 
@@ -138,7 +139,7 @@ func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 	require.EqualValues(t, 3, groupId)
 
 	_, err = client.GetGroupIdByPath(ctx, "nonexistent")
-	require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+	require.ErrorIs(t, err, errs.ErrInvalidValue)
 }
 
 func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
@@ -173,11 +174,11 @@ func TestGitlabClient_GetUserIdByUsernameDoesNotMatch(t *testing.T) {
 	require.True(t, client.Valid(ctx))
 
 	userId, err := client.GetUserIdByUsername(ctx, "ilijamt")
-	require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+	require.ErrorIs(t, err, errs.ErrInvalidValue)
 	require.NotEqualValues(t, 1, userId)
 
 	userId, err = client.GetUserIdByUsername(ctx, "demo")
-	require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+	require.ErrorIs(t, err, errs.ErrInvalidValue)
 	require.NotEqualValues(t, 1, userId)
 }
 

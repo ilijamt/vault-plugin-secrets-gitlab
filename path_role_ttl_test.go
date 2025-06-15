@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
@@ -50,7 +51,7 @@ func TestPathRolesTTL(t *testing.T) {
 				Data: role,
 			})
 			require.Error(t, err)
-			require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+			require.ErrorIs(t, err, errs.ErrInvalidValue)
 			require.NotNil(t, resp)
 			require.True(t, resp.IsError())
 			require.ErrorContains(t, resp.Error(), "ttl = 8761h0m0s [ttl <= max_ttl = 8760h0m0s]")
@@ -140,7 +141,7 @@ func TestPathRolesTTL(t *testing.T) {
 				Data: role,
 			})
 			require.Error(t, err)
-			require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+			require.ErrorIs(t, err, errs.ErrInvalidValue)
 			require.NotNil(t, resp)
 			require.True(t, resp.IsError())
 			require.ErrorContains(t, resp.Error(), "ttl = 59m59s [ttl >= 1h]")
@@ -173,7 +174,7 @@ func TestPathRolesTTL(t *testing.T) {
 				Data: role,
 			})
 			require.Error(t, err)
-			require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+			require.ErrorIs(t, err, errs.ErrInvalidValue)
 			require.NotNil(t, resp)
 			require.True(t, resp.IsError())
 			require.ErrorContains(t, resp.Error(), "ttl = 23h59m59s [24h0m0s <= ttl <= 8760h0m0s]")

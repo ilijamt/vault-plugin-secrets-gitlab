@@ -1,4 +1,4 @@
-package gitlab_test
+package flags_test
 
 import (
 	"flag"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 )
 
 func TestFlags_FlagSet(t *testing.T) {

@@ -15,7 +15,9 @@ import (
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 const (
@@ -56,7 +58,7 @@ var (
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Scopes",
 			},
-			AllowedValues: allowedValues(ValidPersonalTokenScopes...),
+			AllowedValues: utils.ToAny(ValidPersonalTokenScopes...),
 		},
 		"ttl": {
 			Type:        framework.TypeDurationSecond,
@@ -73,13 +75,13 @@ var (
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Access Level",
 			},
-			AllowedValues: allowedValues(ValidAccessLevels...),
+			AllowedValues: utils.ToAny(ValidAccessLevels...),
 		},
 		"token_type": {
 			Type:          framework.TypeString,
 			Description:   "access token type",
 			Required:      true,
-			AllowedValues: allowedValues(validTokenTypes...),
+			AllowedValues: utils.ToAny(validTokenTypes...),
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Token Type",
 			},
@@ -213,7 +215,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	}
 
 	if config == nil {
-		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+		return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 	}
 
 	tokenType, _ = TokenTypeParse(data.Get("token_type").(string))
@@ -238,7 +240,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	// validate token type
 	if !slices.Contains(validTokenTypes, tokenType.String()) {
-		err = multierror.Append(err, fmt.Errorf("token_type='%s', should be one of %v: %w", data.Get("token_type").(string), validTokenTypes, ErrFieldInvalidValue))
+		err = multierror.Append(err, fmt.Errorf("token_type='%s', should be one of %v: %w", data.Get("token_type").(string), validTokenTypes, errs.ErrFieldInvalidValue))
 	}
 
 	// validate access level and which fields to skip for validation
@@ -310,26 +312,26 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		}
 
 		if required && !ok {
-			err = multierror.Append(err, fmt.Errorf("%s: %w", name, ErrFieldRequired))
+			err = multierror.Append(err, fmt.Errorf("%s: %w", name, errs.ErrFieldRequired))
 		} else if !required && val == nil {
 			warnings = append(warnings, fmt.Sprintf("field '%s' is using expected default value of %v", name, val))
 		}
 
 		if required && name == "ttl" {
 			if role.TTL > DefaultAccessTokenMaxPossibleTTL {
-				err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl <= max_ttl = %s]: %w", role.TTL.String(), DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
+				err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl <= max_ttl = %s]: %w", role.TTL.String(), DefaultAccessTokenMaxPossibleTTL, errs.ErrInvalidValue))
 			}
 			if role.GitlabRevokesTokens && role.TTL < 24*time.Hour {
-				err = multierror.Append(err, fmt.Errorf("ttl = %s [%s <= ttl <= %s]: %w", role.TTL, DefaultAccessTokenMinTTL, DefaultAccessTokenMaxPossibleTTL, ErrInvalidValue))
+				err = multierror.Append(err, fmt.Errorf("ttl = %s [%s <= ttl <= %s]: %w", role.TTL, DefaultAccessTokenMinTTL, DefaultAccessTokenMaxPossibleTTL, errs.ErrInvalidValue))
 			}
 			if !role.GitlabRevokesTokens && role.TTL < time.Hour {
-				err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl >= 1h]: %w", role.TTL, ErrInvalidValue))
+				err = multierror.Append(err, fmt.Errorf("ttl = %s [ttl >= 1h]: %w", role.TTL, errs.ErrInvalidValue))
 			}
 		}
 	}
 
 	if !slices.Contains(validAccessLevels, accessLevel.String()) {
-		err = multierror.Append(err, fmt.Errorf("access_level='%s', should be one of %v: %w", data.Get("access_level").(string), validAccessLevels, ErrFieldInvalidValue))
+		err = multierror.Append(err, fmt.Errorf("access_level='%s', should be one of %v: %w", data.Get("access_level").(string), validAccessLevels, errs.ErrFieldInvalidValue))
 	}
 
 	for _, scope := range role.Scopes {
@@ -339,15 +341,15 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	}
 
 	if len(invalidScopes) > 0 {
-		err = multierror.Append(err, fmt.Errorf("scopes='%v', should be one or more of '%v': %w", invalidScopes, validScopes, ErrFieldInvalidValue))
+		err = multierror.Append(err, fmt.Errorf("scopes='%v', should be one or more of '%v': %w", invalidScopes, validScopes, errs.ErrFieldInvalidValue))
 	}
 
 	if noEmptyScopes && len(role.Scopes) == 0 {
-		err = multierror.Append(err, fmt.Errorf("should be one or more of '%v': %w", validScopes, ErrFieldInvalidValue))
+		err = multierror.Append(err, fmt.Errorf("should be one or more of '%v': %w", validScopes, errs.ErrFieldInvalidValue))
 	}
 
 	if tokenType == TokenTypeUserServiceAccount && (config.Type == gitlab.TypeSaaS || config.Type == gitlab.TypeDedicated) {
-		err = multierror.Append(err, fmt.Errorf("cannot create %s with %s: %w", tokenType, config.Type, ErrInvalidValue))
+		err = multierror.Append(err, fmt.Errorf("cannot create %s with %s: %w", tokenType, config.Type, errs.ErrInvalidValue))
 	}
 
 	if err != nil {

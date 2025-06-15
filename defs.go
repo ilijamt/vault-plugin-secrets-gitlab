@@ -2,17 +2,8 @@ package gitlab
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"time"
-)
-
-var (
-	ErrNilValue             = errors.New("nil value")
-	ErrInvalidValue         = errors.New("invalid value")
-	ErrFieldRequired        = errors.New("required field")
-	ErrFieldInvalidValue    = errors.New("invalid value for field")
-	ErrBackendNotConfigured = errors.New("backend not configured")
 )
 
 type contextKey string

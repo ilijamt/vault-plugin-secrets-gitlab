@@ -12,7 +12,9 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 type EntryConfig struct {
@@ -34,7 +36,7 @@ type EntryConfig struct {
 func (e *EntryConfig) Merge(data *framework.FieldData) (warnings []string, changes map[string]string, err error) {
 	var er error
 	if data == nil {
-		return warnings, changes, multierror.Append(fmt.Errorf("data: %w", ErrNilValue))
+		return warnings, changes, multierror.Append(fmt.Errorf("data: %w", errs.ErrNilValue))
 	}
 
 	if err = data.Validate(); err != nil {
@@ -83,11 +85,11 @@ func (e *EntryConfig) Merge(data *framework.FieldData) (warnings []string, chang
 
 func (e *EntryConfig) updateAutoRotateBefore(data *framework.FieldData) (warnings []string, err *multierror.Error) {
 	if val, ok := data.GetOk("auto_rotate_before"); ok {
-		atr, _ := convertToInt(val)
+		atr, _ := utils.ConvertToInt(val)
 		if atr > int(DefaultAutoRotateBeforeMaxTTL.Seconds()) {
-			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be bigger than %s: %w", DefaultAutoRotateBeforeMaxTTL, ErrInvalidValue))
+			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be bigger than %s: %w", DefaultAutoRotateBeforeMaxTTL, errs.ErrInvalidValue))
 		} else if atr <= int(DefaultAutoRotateBeforeMinTTL.Seconds())-1 {
-			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be less than %s: %w", DefaultAutoRotateBeforeMinTTL, ErrInvalidValue))
+			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be less than %s: %w", DefaultAutoRotateBeforeMinTTL, errs.ErrInvalidValue))
 		} else {
 			e.AutoRotateBefore = time.Duration(atr) * time.Second
 		}
@@ -100,7 +102,7 @@ func (e *EntryConfig) updateAutoRotateBefore(data *framework.FieldData) (warning
 
 func (e *EntryConfig) UpdateFromFieldData(data *framework.FieldData) (warnings []string, err error) {
 	if data == nil {
-		return warnings, multierror.Append(fmt.Errorf("data: %w", ErrNilValue))
+		return warnings, multierror.Append(fmt.Errorf("data: %w", errs.ErrNilValue))
 	}
 
 	if err = data.Validate(); err != nil {
@@ -113,7 +115,7 @@ func (e *EntryConfig) UpdateFromFieldData(data *framework.FieldData) (warnings [
 	if token, ok := data.GetOk("token"); ok && len(token.(string)) > 0 {
 		e.Token = token.(string)
 	} else {
-		err = multierror.Append(err, fmt.Errorf("token: %w", ErrFieldRequired))
+		err = multierror.Append(err, fmt.Errorf("token: %w", errs.ErrFieldRequired))
 	}
 
 	if typ, ok := data.GetOk("type"); ok {
@@ -121,13 +123,13 @@ func (e *EntryConfig) UpdateFromFieldData(data *framework.FieldData) (warnings [
 			err = multierror.Append(err, er)
 		}
 	} else {
-		err = multierror.Append(err, fmt.Errorf("gitlab type: %w", ErrFieldRequired))
+		err = multierror.Append(err, fmt.Errorf("gitlab type: %w", errs.ErrFieldRequired))
 	}
 
 	if baseUrl, ok := data.GetOk("base_url"); ok && len(baseUrl.(string)) > 0 {
 		e.BaseURL = baseUrl.(string)
 	} else {
-		err = multierror.Append(err, fmt.Errorf("base_url: %w", ErrFieldRequired))
+		err = multierror.Append(err, fmt.Errorf("base_url: %w", errs.ErrFieldRequired))
 	}
 
 	{
@@ -175,7 +177,7 @@ func (e *EntryConfig) LogicalResponseData(includeToken bool) (data map[string]an
 
 func getConfig(ctx context.Context, s logical.Storage, name string) (cfg *EntryConfig, err error) {
 	if s == nil {
-		return nil, fmt.Errorf("%w: local.Storage", ErrNilValue)
+		return nil, fmt.Errorf("%w: local.Storage", errs.ErrNilValue)
 	}
 	var entry *logical.StorageEntry
 	if entry, err = s.Get(ctx, fmt.Sprintf("%s/%s", PathConfigStorage, name)); err == nil {

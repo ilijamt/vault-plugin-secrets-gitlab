@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
@@ -86,7 +87,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 				require.Error(t, err)
 				require.NotNil(t, resp)
 				var errorMap = countErrByName(err.(*multierror.Error))
-				assert.EqualValues(t, 2, errorMap[gitlab.ErrFieldInvalidValue.Error()])
+				assert.EqualValues(t, 2, errorMap[errs.ErrFieldInvalidValue.Error()])
 			})
 		})
 	}
