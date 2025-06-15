@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 )
 
 const (
@@ -27,14 +29,14 @@ with the "^config/(?P<config_name>\w(([\w-.@]+)?\w)?)$" endpoints.
 `
 )
 
-func Factory(flags Flags) logical.Factory {
+func Factory(flags flags.Flags) logical.Factory {
 	return func(ctx context.Context, config *logical.BackendConfig) (logical.Backend, error) {
 		return factory(ctx, config, flags)
 	}
 }
 
 // Factory returns expected new Backend as logical.Backend
-func factory(ctx context.Context, conf *logical.BackendConfig, flags Flags) (logical.Backend, error) {
+func factory(ctx context.Context, conf *logical.BackendConfig, flags flags.Flags) (logical.Backend, error) {
 	var b = &Backend{
 		roleLocks: locksutil.CreateLocks(),
 		clients:   sync.Map{},
@@ -82,7 +84,7 @@ func factory(ctx context.Context, conf *logical.BackendConfig, flags Flags) (log
 type Backend struct {
 	*framework.Backend
 
-	flags Flags
+	flags flags.Flags
 
 	// The client that we can use to create and revoke the access tokens
 	clients sync.Map

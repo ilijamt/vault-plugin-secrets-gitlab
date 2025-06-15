@@ -14,6 +14,9 @@ import (
 	"github.com/hashicorp/vault/sdk/helper/logging"
 	g "gitlab.com/gitlab-org/api/client-go"
 	"golang.org/x/time/rate"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 var (
@@ -214,7 +217,7 @@ func (gc *gitlabClient) GetGroupIdByPath(ctx context.Context, path string) (grou
 		return 0, fmt.Errorf("%v", err)
 	}
 	if len(groups) == 0 {
-		return 0, fmt.Errorf("path '%s' not found: %w", path, ErrInvalidValue)
+		return 0, fmt.Errorf("path '%s' not found: %w", path, errs.ErrInvalidValue)
 	}
 	groupId = groups[0].ID
 	return groupId, nil
@@ -285,7 +288,7 @@ func (gc *gitlabClient) CreateUserServiceAccountAccessToken(ctx context.Context,
 func (gc *gitlabClient) RevokeUserServiceAccountAccessToken(ctx context.Context, token string) (err error) {
 	defer func() { gc.logger.Debug("Revoke user service account token", "token", token, "error", err) }()
 	if token == "" {
-		err = fmt.Errorf("%w: empty token", ErrNilValue)
+		err = fmt.Errorf("%w: empty token", errs.ErrNilValue)
 		return err
 	}
 
@@ -303,7 +306,7 @@ func (gc *gitlabClient) RevokeUserServiceAccountAccessToken(ctx context.Context,
 func (gc *gitlabClient) RevokeGroupServiceAccountAccessToken(ctx context.Context, token string) (err error) {
 	defer func() { gc.logger.Debug("Revoke group service account token", "token", token, "error", err) }()
 	if token == "" {
-		err = fmt.Errorf("%w: empty token", ErrNilValue)
+		err = fmt.Errorf("%w: empty token", errs.ErrNilValue)
 		return err
 	}
 
@@ -366,7 +369,7 @@ func (gc *gitlabClient) RotateCurrentToken(ctx context.Context) (token *TokenCon
 
 	var pat *g.PersonalAccessToken
 	var durationTTL = currentEntryToken.ExpiresAt.Sub(*currentEntryToken.CreatedAt)
-	_, expiresAt, _ = calculateGitlabTTL(durationTTL, TimeFromContext(ctx))
+	_, expiresAt, _ = utils.CalculateGitlabTTL(durationTTL, TimeFromContext(ctx))
 	pat, _, err = gc.client.PersonalAccessTokens.RotatePersonalAccessToken(
 		currentEntryToken.TokenID,
 		&g.RotatePersonalAccessTokenOptions{ExpiresAt: (*g.ISOTime)(&expiresAt)},
@@ -421,7 +424,7 @@ func (gc *gitlabClient) GetUserIdByUsername(ctx context.Context, username string
 		return 0, fmt.Errorf("%v", err)
 	}
 	if len(u) == 0 {
-		return 0, fmt.Errorf("username '%s' not found: %w", username, ErrInvalidValue)
+		return 0, fmt.Errorf("username '%s' not found: %w", username, errs.ErrInvalidValue)
 	}
 	userId = u[0].ID
 	return userId, nil
@@ -575,11 +578,11 @@ var _ Client = new(gitlabClient)
 
 func newGitlabClient(config *EntryConfig, httpClient *http.Client) (gc *g.Client, err error) {
 	if strings.TrimSpace(config.BaseURL) == "" {
-		err = errors.Join(err, fmt.Errorf("gitlab base url: %w", ErrInvalidValue))
+		err = errors.Join(err, fmt.Errorf("gitlab base url: %w", errs.ErrInvalidValue))
 	}
 
 	if strings.TrimSpace(config.Token) == "" {
-		err = errors.Join(err, fmt.Errorf("gitlab token: %w", ErrInvalidValue))
+		err = errors.Join(err, fmt.Errorf("gitlab token: %w", errs.ErrInvalidValue))
 	}
 
 	if err != nil {
@@ -600,7 +603,7 @@ func newGitlabClient(config *EntryConfig, httpClient *http.Client) (gc *g.Client
 
 func NewGitlabClient(config *EntryConfig, httpClient *http.Client, logger hclog.Logger) (client Client, err error) {
 	if config == nil {
-		return nil, fmt.Errorf("configure the backend first, config: %w", ErrNilValue)
+		return nil, fmt.Errorf("configure the backend first, config: %w", errs.ErrNilValue)
 	}
 
 	if logger == nil {

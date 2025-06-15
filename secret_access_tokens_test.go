@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
@@ -25,7 +26,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		resp, err := b.Secret(gitlab.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{})
 		require.Error(t, err)
 		require.Nil(t, resp)
-		require.ErrorIs(t, err, gitlab.ErrNilValue)
+		require.ErrorIs(t, err, errs.ErrNilValue)
 		events.expectEvents(t, []expectedEvent{})
 	})
 
@@ -51,7 +52,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		resp, err = b.Secret(gitlab.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{Storage: l})
 		require.Error(t, err)
 		require.Nil(t, resp)
-		require.ErrorIs(t, err, gitlab.ErrNilValue)
+		require.ErrorIs(t, err, errs.ErrNilValue)
 
 		events.expectEvents(t, []expectedEvent{
 			{eventType: "gitlab/config-write"},
@@ -88,7 +89,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		})
 		require.Error(t, err)
 		require.Nil(t, resp)
-		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
 
 		events.expectEvents(t, []expectedEvent{
 			{eventType: "gitlab/config-write"},

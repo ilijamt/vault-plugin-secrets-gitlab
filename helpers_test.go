@@ -27,6 +27,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 )
 
 var _ gitlab.Client = new(inMemoryClient)
@@ -93,10 +94,10 @@ func (m *mockEventsSender) expectEvents(t *testing.T, expectedEvents []expectedE
 }
 
 func getBackendWithEvents(ctx context.Context) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
-	return getBackendWithFlagsWithEvents(ctx, gitlab.Flags{})
+	return getBackendWithFlagsWithEvents(ctx, flags.Flags{})
 }
 
-func getBackendWithFlagsWithEvents(ctx context.Context, flags gitlab.Flags) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
+func getBackendWithFlagsWithEvents(ctx context.Context, flags flags.Flags) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
 	events := &mockEventsSender{}
 	config := &logical.BackendConfig{
 		Logger:       logging.NewVaultLoggerWithWriter(io.Discard, log.NoLevel),

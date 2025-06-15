@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	g "gitlab.com/gitlab-org/api/client-go"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
@@ -86,7 +87,7 @@ func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, da
 
 	if config, err := getConfig(ctx, req.Storage, name); err == nil {
 		if config == nil {
-			return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+			return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 		}
 
 		if err = req.Storage.Delete(ctx, fmt.Sprintf("%s/%s", PathConfigStorage, name)); err == nil {
@@ -108,7 +109,7 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 	var config *EntryConfig
 	if config, err = getConfig(ctx, req.Storage, name); err == nil {
 		if config == nil {
-			return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+			return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 		}
 		lrd := config.LogicalResponseData(b.flags.ShowConfigToken)
 		b.Logger().Debug("Reading configuration info", "info", lrd)
@@ -127,7 +128,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 		return nil, err
 	}
 	if config == nil {
-		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+		return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 	}
 
 	warnings, changes, err = config.Merge(data)
@@ -168,7 +169,7 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfi
 
 	et, err = client.CurrentTokenInfo(ctx)
 	if err != nil {
-		return et, fmt.Errorf("token cannot be validated: %s", ErrInvalidValue)
+		return et, fmt.Errorf("token cannot be validated: %s", errs.ErrInvalidValue)
 	}
 
 	config.TokenCreatedAt = *et.CreatedAt

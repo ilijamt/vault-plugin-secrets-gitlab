@@ -11,6 +11,9 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 const (
@@ -69,7 +72,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	var gitlabRevokesTokens = role.GitlabRevokesTokens
 	var vaultRevokesTokens = !role.GitlabRevokesTokens
 
-	_, expiresAt, _ = calculateGitlabTTL(role.TTL, startTime)
+	_, expiresAt, _ = utils.CalculateGitlabTTL(role.TTL, startTime)
 
 	client, err = b.getClient(ctx, req.Storage, role.ConfigName)
 	if err != nil {
@@ -128,7 +131,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	}
 
 	if err != nil || token == nil {
-		return nil, cmp.Or(err, fmt.Errorf("%w: token is nil", ErrNilValue))
+		return nil, cmp.Or(err, fmt.Errorf("%w: token is nil", errs.ErrNilValue))
 	}
 
 	token.SetConfigName(cmp.Or(role.ConfigName, DefaultConfigName))

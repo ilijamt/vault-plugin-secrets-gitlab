@@ -8,6 +8,9 @@ import (
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 const (
@@ -55,12 +58,12 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 	var err error
 
 	if req.Storage == nil {
-		return nil, fmt.Errorf("storage: %w", ErrNilValue)
+		return nil, fmt.Errorf("storage: %w", errs.ErrNilValue)
 	}
 
 	var secret = req.Secret
 	if secret == nil {
-		return nil, fmt.Errorf("secret: %w", ErrNilValue)
+		return nil, fmt.Errorf("secret: %w", errs.ErrNilValue)
 	}
 
 	var configName = DefaultConfigName
@@ -69,7 +72,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 	}
 
 	var tokenId int
-	tokenId, err = convertToInt(req.Secret.InternalData["token_id"])
+	tokenId, err = utils.ConvertToInt(req.Secret.InternalData["token_id"])
 	if err != nil {
 		return nil, fmt.Errorf("token_id: %w", err)
 	}

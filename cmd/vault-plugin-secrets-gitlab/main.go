@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/vault/sdk/plugin"
 
 	gat "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	flags2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 )
 
 var (
@@ -17,7 +18,7 @@ var (
 func main() {
 	apiClientMeta := &api.PluginAPIClientMeta{}
 	flags := apiClientMeta.FlagSet()
-	pf := &gat.Flags{}
+	pf := &flags2.Flags{}
 	pf.FlagSet(flags)
 
 	fatalIfError(flags.Parse(os.Args[1:]))
