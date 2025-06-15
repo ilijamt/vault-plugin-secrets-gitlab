@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
 func TestEntryConfigMerge(t *testing.T) {
@@ -46,10 +47,10 @@ func TestEntryConfigMerge(t *testing.T) {
 	}{
 		{
 			name:           "update type only",
-			originalConfig: &gitlab.EntryConfig{Type: gitlab.TypeSelfManaged},
-			expectedConfig: &gitlab.EntryConfig{Type: gitlab.TypeSaaS},
-			raw:            map[string]interface{}{"type": gitlab.TypeSaaS},
-			changes:        map[string]string{"type": gitlab.TypeSaaS.String()},
+			originalConfig: &gitlab.EntryConfig{Type: gitlab2.TypeSelfManaged},
+			expectedConfig: &gitlab.EntryConfig{Type: gitlab2.TypeSaaS},
+			raw:            map[string]interface{}{"type": gitlab2.TypeSaaS},
+			changes:        map[string]string{"type": gitlab2.TypeSaaS.String()},
 		},
 		{
 			name:           "auto rotate token set to false",
@@ -67,12 +68,12 @@ func TestEntryConfigMerge(t *testing.T) {
 		},
 		{
 			name:           "update type with invalid type",
-			originalConfig: &gitlab.EntryConfig{Type: gitlab.TypeSelfManaged},
-			expectedConfig: &gitlab.EntryConfig{Type: gitlab.TypeSelfManaged},
+			originalConfig: &gitlab.EntryConfig{Type: gitlab2.TypeSelfManaged},
+			expectedConfig: &gitlab.EntryConfig{Type: gitlab2.TypeSelfManaged},
 			raw:            map[string]interface{}{"type": "test"},
 			err:            true,
 			errMap: map[string]int{
-				gitlab.ErrUnknownType.Error(): 1,
+				gitlab2.ErrUnknownType.Error(): 1,
 			},
 		},
 		{

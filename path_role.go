@@ -14,6 +14,8 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
 const (
@@ -161,7 +163,7 @@ func (b *Backend) pathRolesDelete(ctx context.Context, req *logical.Request, dat
 		return nil, fmt.Errorf("error deleting role: %w", err)
 	}
 
-	event(ctx, b.Backend, "role-delete", map[string]string{
+	Event(ctx, b.Backend, "role-delete", map[string]string{
 		"path":      "roles",
 		"role_name": roleName,
 	})
@@ -344,7 +346,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		err = multierror.Append(err, fmt.Errorf("should be one or more of '%v': %w", validScopes, ErrFieldInvalidValue))
 	}
 
-	if tokenType == TokenTypeUserServiceAccount && (config.Type == TypeSaaS || config.Type == TypeDedicated) {
+	if tokenType == TokenTypeUserServiceAccount && (config.Type == gitlab.TypeSaaS || config.Type == gitlab.TypeDedicated) {
 		err = multierror.Append(err, fmt.Errorf("cannot create %s with %s: %w", tokenType, config.Type, ErrInvalidValue))
 	}
 
@@ -365,7 +367,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		return nil, err
 	}
 
-	event(ctx, b.Backend, "role-write", map[string]string{
+	Event(ctx, b.Backend, "role-write", map[string]string{
 		"path":        "roles",
 		"role_name":   roleName,
 		"config_name": role.ConfigName,

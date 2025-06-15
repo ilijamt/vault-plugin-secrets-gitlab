@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
 func TestSecretAccessTokenRevokeToken(t *testing.T) {
@@ -38,7 +39,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 				"base_url":           url,
 				"auto_rotate_token":  true,
 				"auto_rotate_before": "24h",
-				"type":               gitlab.TypeSelfManaged.String(),
+				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
 
@@ -68,7 +69,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 				"base_url":           url,
 				"auto_rotate_token":  true,
 				"auto_rotate_before": "24h",
-				"type":               gitlab.TypeSelfManaged.String(),
+				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
 

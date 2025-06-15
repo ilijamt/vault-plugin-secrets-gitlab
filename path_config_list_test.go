@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
 func TestPathConfigList(t *testing.T) {
@@ -37,7 +38,7 @@ func TestPathConfigList(t *testing.T) {
 			map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
-				"type":     gitlab.TypeSaaS.String(),
+				"type":     gitlab2.TypeSaaS.String(),
 			},
 			gitlab.DefaultConfigName,
 		)
@@ -51,7 +52,7 @@ func TestPathConfigList(t *testing.T) {
 				map[string]any{
 					"token":    getGitlabToken("admin_user_initial_token").Token,
 					"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
-					"type":     gitlab.TypeSelfManaged.String(),
+					"type":     gitlab2.TypeSelfManaged.String(),
 				},
 				"admin",
 			),
@@ -62,7 +63,7 @@ func TestPathConfigList(t *testing.T) {
 				map[string]any{
 					"token":    getGitlabToken("normal_user_initial_token").Token,
 					"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
-					"type":     gitlab.TypeDedicated.String(),
+					"type":     gitlab2.TypeDedicated.String(),
 				},
 				"normal",
 			),
@@ -96,7 +97,7 @@ func TestPathConfigList(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotEmpty(t, resp.Data)
-		require.EqualValues(t, gitlab.TypeSaaS.String(), resp.Data["type"])
+		require.EqualValues(t, gitlab2.TypeSaaS.String(), resp.Data["type"])
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
@@ -105,7 +106,7 @@ func TestPathConfigList(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotEmpty(t, resp.Data)
-		require.EqualValues(t, gitlab.TypeDedicated.String(), resp.Data["type"])
+		require.EqualValues(t, gitlab2.TypeDedicated.String(), resp.Data["type"])
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
@@ -114,6 +115,6 @@ func TestPathConfigList(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotEmpty(t, resp.Data)
-		require.EqualValues(t, gitlab.TypeSelfManaged.String(), resp.Data["type"])
+		require.EqualValues(t, gitlab2.TypeSelfManaged.String(), resp.Data["type"])
 	})
 }
