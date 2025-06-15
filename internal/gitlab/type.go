@@ -18,7 +18,7 @@ const (
 var (
 	ErrUnknownType = errors.New("unknown gitlab type")
 
-	validGitlabTypes = []string{
+	ValidGitlabTypes = []string{
 		TypeSaaS.String(),
 		TypeSelfManaged.String(),
 		TypeDedicated.String(),
@@ -34,7 +34,7 @@ func (i Type) Value() string {
 }
 
 func TypeParse(value string) (Type, error) {
-	if slices.Contains(validGitlabTypes, value) {
+	if slices.Contains(ValidGitlabTypes, value) {
 		return Type(value), nil
 	}
 	return TypeUnknown, fmt.Errorf("failed to parse '%s': %w", value, ErrUnknownType)
