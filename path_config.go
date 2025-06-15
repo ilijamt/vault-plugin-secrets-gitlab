@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	g "gitlab.com/gitlab-org/api/client-go"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
 const (
@@ -40,9 +42,9 @@ var (
 			Type:     framework.TypeString,
 			Required: true,
 			AllowedValues: []any{
-				TypeSelfManaged,
-				TypeSaaS,
-				TypeDedicated,
+				gitlab.TypeSelfManaged,
+				gitlab.TypeSaaS,
+				gitlab.TypeDedicated,
 			},
 			Description: `The type of GitLab instance you are connecting to. This could typically distinguish between 'self-managed' for on-premises GitLab installations or 'saas' or 'dedicated' for the GitLab SaaS offering. This field helps the plugin to adjust any necessary configurations or request patterns specific to the type of GitLab instance.`,
 			DisplayAttrs: &framework.DisplayAttributes{
@@ -88,7 +90,7 @@ func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, da
 		}
 
 		if err = req.Storage.Delete(ctx, fmt.Sprintf("%s/%s", PathConfigStorage, name)); err == nil {
-			event(ctx, b.Backend, "config-delete", map[string]string{
+			Event(ctx, b.Backend, "config-delete", map[string]string{
 				"path": fmt.Sprintf("%s/%s", PathConfigStorage, name),
 			})
 			b.SetClient(nil, name)
@@ -143,7 +145,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 	defer b.lockClientMutex.Unlock()
 	if err = saveConfig(ctx, *config, req.Storage); err == nil {
 		lrd := config.LogicalResponseData(b.flags.ShowConfigToken)
-		event(ctx, b.Backend, "config-patch", changes)
+		Event(ctx, b.Backend, "config-patch", changes)
 		b.SetClient(nil, name)
 		b.Logger().Debug("Patched config", "lrd", lrd, "warnings", warnings)
 		lResp = &logical.Response{Data: lrd, Warnings: warnings}
@@ -202,7 +204,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	var lResp *logical.Response
 
 	if err = saveConfig(ctx, *config, req.Storage); err == nil {
-		event(ctx, b.Backend, "config-write", map[string]string{
+		Event(ctx, b.Backend, "config-write", map[string]string{
 			"path":               fmt.Sprintf("%s/%s", PathConfigStorage, name),
 			"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
 			"auto_rotate_before": config.AutoRotateBefore.String(),

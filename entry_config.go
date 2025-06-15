@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
 type EntryConfig struct {
@@ -22,7 +24,7 @@ type EntryConfig struct {
 	TokenCreatedAt     time.Time     `json:"token_created_at" structs:"token_created_at" mapstructure:"token_created_at"`
 	TokenExpiresAt     time.Time     `json:"token_expires_at" structs:"token_expires_at" mapstructure:"token_expires_at"`
 	Scopes             []string      `json:"scopes" structs:"scopes" mapstructure:"scopes"`
-	Type               Type          `json:"type" structs:"type" mapstructure:"type"`
+	Type               gitlab.Type   `json:"type" structs:"type" mapstructure:"type"`
 	Name               string        `json:"name" structs:"name" mapstructure:"name"`
 	GitlabVersion      string        `json:"gitlab_version" structs:"gitlab_version" mapstructure:"gitlab_version"`
 	GitlabRevision     string        `json:"gitlab_revision" structs:"gitlab_revision" mapstructure:"gitlab_revision"`
@@ -47,8 +49,8 @@ func (e *EntryConfig) Merge(data *framework.FieldData) (warnings []string, chang
 	}
 
 	if typ, ok := data.GetOk("type"); ok {
-		var pType Type
-		if pType, er = TypeParse(typ.(string)); er != nil {
+		var pType gitlab.Type
+		if pType, er = gitlab.TypeParse(typ.(string)); er != nil {
 			err = multierror.Append(err, er)
 		} else {
 			e.Type = pType
@@ -115,7 +117,7 @@ func (e *EntryConfig) UpdateFromFieldData(data *framework.FieldData) (warnings [
 	}
 
 	if typ, ok := data.GetOk("type"); ok {
-		if e.Type, er = TypeParse(typ.(string)); er != nil {
+		if e.Type, er = gitlab.TypeParse(typ.(string)); er != nil {
 			err = multierror.Append(err, er)
 		}
 	} else {

@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-func event(ctx context.Context, b *framework.Backend, eventType string, metadata map[string]string) {
+func Event(ctx context.Context, b *framework.Backend, eventType string, metadata map[string]string) {
 	var err error
 	var ev *logical.EventData
 	if ev, err = logical.NewEvent(); err == nil {

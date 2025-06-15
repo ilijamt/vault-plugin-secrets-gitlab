@@ -12,6 +12,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
 func TestWithGitlabUser_RotateToken(t *testing.T) {
@@ -31,7 +32,7 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 			"base_url":           gitlabComUrl,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
-			"type":               gitlab.TypeSaaS.String(),
+			"type":               gitlab2.TypeSaaS.String(),
 		},
 	})
 

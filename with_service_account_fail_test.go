@@ -11,12 +11,13 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
 func TestWithServiceAccountUserFail(t *testing.T) {
-	for _, typ := range []gitlab.Type{
-		gitlab.TypeSaaS,
-		gitlab.TypeDedicated,
+	for _, typ := range []gitlab2.Type{
+		gitlab2.TypeSaaS,
+		gitlab2.TypeDedicated,
 	} {
 		t.Run(typ.String(), func(t *testing.T) {
 			httpClient, _ := getClient(t, "selfhosted")

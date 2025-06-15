@@ -123,7 +123,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		}
 	}
 
-	event(ctx, b.Backend, "token-revoke", map[string]string{
+	Event(ctx, b.Backend, "token-revoke", map[string]string{
 		"lease_id":             secret.LeaseID,
 		"path":                 req.Secret.InternalData["path"].(string),
 		"name":                 req.Secret.InternalData["name"].(string),
