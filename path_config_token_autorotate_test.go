@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
 func TestPathConfig_AutoRotate(t *testing.T) {
@@ -25,7 +26,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab.TypeSelfManaged.String(),
+				"type":     gitlab2.TypeSelfManaged.String(),
 			},
 		})
 		require.NoError(t, err)
@@ -44,7 +45,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_before": "2h",
-				"type":               gitlab.TypeSelfManaged.String(),
+				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
 		require.Error(t, err)
@@ -63,7 +64,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMaxTTL + time.Hour).String(),
-				"type":               gitlab.TypeSelfManaged.String(),
+				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
 		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
@@ -81,7 +82,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_before": "48h",
-				"type":               gitlab.TypeSelfManaged.String(),
+				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
 		require.NoError(t, err)
@@ -100,7 +101,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMinTTL - time.Hour).String(),
-				"type":               gitlab.TypeSelfManaged.String(),
+				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
 		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
@@ -117,7 +118,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab.TypeSelfManaged.String(),
+				"type":     gitlab2.TypeSelfManaged.String(),
 			},
 		})
 		require.NoError(t, err)
@@ -136,7 +137,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
 				"auto_rotate_before": "10h",
-				"type":               gitlab.TypeSelfManaged.String(),
+				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
 		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
@@ -161,7 +162,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		b, l, err := getBackendWithConfig(ctx, map[string]any{
 			"token":    "glpat-secret-token",
 			"base_url": url,
-			"type":     gitlab.TypeSelfManaged.String(),
+			"type":     gitlab2.TypeSelfManaged.String(),
 		})
 		require.NoError(t, err)
 
@@ -179,7 +180,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "360h",
-			"type":               gitlab.TypeSelfManaged.String(),
+			"type":               gitlab2.TypeSelfManaged.String(),
 		})
 		require.NoError(t, err)
 
@@ -230,7 +231,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
-			"type":               gitlab.TypeSelfManaged.String(),
+			"type":               gitlab2.TypeSelfManaged.String(),
 		})
 		require.NoError(t, err)
 
