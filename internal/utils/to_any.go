@@ -1,6 +1,7 @@
 package utils
 
 func ToAny[T int | string](values ...T) (ret []any) {
+	ret = make([]any, 0, len(values))
 	for _, value := range values {
 		ret = append(ret, value)
 	}
