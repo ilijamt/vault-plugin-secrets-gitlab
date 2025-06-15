@@ -10,6 +10,8 @@ import (
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 )
 
 const pathConfigRotateHelpSynopsis = `Rotate the gitlab token for this configuration.`
@@ -70,7 +72,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 
 	if config == nil {
 		// no configuration yet so we don't need to rotate anything
-		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+		return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 	}
 
 	if client, err = b.getClient(ctx, request.Storage, name); err != nil {

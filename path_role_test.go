@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
@@ -64,7 +65,7 @@ func TestPathRoles(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.Error(t, resp.Error())
-		require.EqualValues(t, gitlab.ErrBackendNotConfigured, resp.Error())
+		require.EqualValues(t, errs.ErrBackendNotConfigured, resp.Error())
 	})
 
 	t.Run("access level", func(t *testing.T) {
@@ -219,8 +220,8 @@ func TestPathRoles(t *testing.T) {
 		require.NotNil(t, resp)
 		require.Error(t, resp.Error())
 		var errorMap = countErrByName(err.(*multierror.Error))
-		assert.EqualValues(t, 4, errorMap[gitlab.ErrFieldRequired.Error()])
-		assert.EqualValues(t, 2, errorMap[gitlab.ErrFieldInvalidValue.Error()])
+		assert.EqualValues(t, 4, errorMap[errs.ErrFieldRequired.Error()])
+		assert.EqualValues(t, 2, errorMap[errs.ErrFieldInvalidValue.Error()])
 	})
 
 	t.Run("invalid name template", func(t *testing.T) {
@@ -287,7 +288,7 @@ func TestPathRoles(t *testing.T) {
 			require.Error(t, err)
 			require.NotNil(t, resp)
 			var errorMap = countErrByName(err.(*multierror.Error))
-			assert.EqualValues(t, 1, errorMap[gitlab.ErrFieldInvalidValue.Error()])
+			assert.EqualValues(t, 1, errorMap[errs.ErrFieldInvalidValue.Error()])
 		})
 	})
 
@@ -331,7 +332,7 @@ func TestPathRoles(t *testing.T) {
 			require.Error(t, err)
 			require.NotNil(t, resp)
 			var errorMap = countErrByName(err.(*multierror.Error))
-			assert.EqualValues(t, 1, errorMap[gitlab.ErrFieldInvalidValue.Error()])
+			assert.EqualValues(t, 1, errorMap[errs.ErrFieldInvalidValue.Error()])
 		})
 	})
 
@@ -375,7 +376,7 @@ func TestPathRoles(t *testing.T) {
 			require.Error(t, err)
 			require.NotNil(t, resp)
 			var errorMap = countErrByName(err.(*multierror.Error))
-			assert.EqualValues(t, 1, errorMap[gitlab.ErrFieldInvalidValue.Error()])
+			assert.EqualValues(t, 1, errorMap[errs.ErrFieldInvalidValue.Error()])
 		})
 	})
 
