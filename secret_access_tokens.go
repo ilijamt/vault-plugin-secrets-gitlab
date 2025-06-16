@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -127,7 +128,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		}
 	}
 
-	Event(ctx, b.Backend, "token-revoke", map[string]string{
+	event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "token-revoke", map[string]string{
 		"lease_id":             secret.LeaseID,
 		"path":                 req.Secret.InternalData["path"].(string),
 		"name":                 req.Secret.InternalData["name"].(string),

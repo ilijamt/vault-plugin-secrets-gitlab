@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
@@ -166,7 +167,7 @@ func (b *Backend) pathRolesDelete(ctx context.Context, req *logical.Request, dat
 		return nil, fmt.Errorf("error deleting role: %w", err)
 	}
 
-	Event(ctx, b.Backend, "role-delete", map[string]string{
+	event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "role-delete", map[string]string{
 		"path":      "roles",
 		"role_name": roleName,
 	})
@@ -370,7 +371,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		return nil, err
 	}
 
-	Event(ctx, b.Backend, "role-write", map[string]string{
+	event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "role-write", map[string]string{
 		"path":        "roles",
 		"role_name":   roleName,
 		"config_name": role.ConfigName,

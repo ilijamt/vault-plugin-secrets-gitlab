@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -155,8 +156,8 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		resp.Secret.TTL = token.TTL()
 	}
 
-	Event(
-		ctx, b.Backend, "token-write",
+	event.Event(
+		ctx, b.Backend, operationPrefixGitlabAccessTokens, "token-write",
 		token.Event(map[string]string{"path": fmt.Sprintf("%s/%s", PathRoleStorage, roleName)}),
 	)
 	return resp, nil

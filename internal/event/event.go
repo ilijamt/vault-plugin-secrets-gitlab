@@ -1,4 +1,4 @@
-package gitlab
+package event
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-func Event(ctx context.Context, b *framework.Backend, eventType string, metadata map[string]string) {
+func Event(ctx context.Context, b *framework.Backend, prefix, eventType string, metadata map[string]string) error {
 	var err error
 	var ev *logical.EventData
 	if ev, err = logical.NewEvent(); err == nil {
@@ -18,6 +18,7 @@ func Event(ctx context.Context, b *framework.Backend, eventType string, metadata
 		metadataBytes, _ = json.Marshal(metadata)
 		ev.Metadata = &structpb.Struct{}
 		_ = ev.Metadata.UnmarshalJSON(metadataBytes)
-		_ = b.SendEvent(ctx, logical.EventType(fmt.Sprintf("%s/%s", operationPrefixGitlabAccessTokens, eventType)), ev)
+		err = b.SendEvent(ctx, logical.EventType(fmt.Sprintf("%s/%s", prefix, eventType)), ev)
 	}
+	return err
 }
