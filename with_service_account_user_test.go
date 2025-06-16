@@ -13,6 +13,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithServiceAccountUser(t *testing.T) {
@@ -60,7 +61,7 @@ func TestWithServiceAccountUser(t *testing.T) {
 		Data: map[string]any{
 			"path":                 usr.Username,
 			"name":                 `vault-generated-{{ .token_type }}-token`,
-			"token_type":           gitlab.TokenTypeUserServiceAccount.String(),
+			"token_type":           token2.TokenTypeUserServiceAccount.String(),
 			"ttl":                  gitlab.DefaultAccessTokenMinTTL,
 			"scopes":               gitlab.ValidUserServiceAccountTokenScopes,
 			"gitlab_revokes_token": false,

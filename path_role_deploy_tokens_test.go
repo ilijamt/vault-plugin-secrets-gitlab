@@ -17,6 +17,7 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathRolesDeployTokens(t *testing.T) {
@@ -27,7 +28,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 	}
 
 	var tests = []struct {
-		tokenType   gitlab.TokenType
+		tokenType   token.TokenType
 		accessLevel gitlab.AccessLevel
 		scopes      []string
 		ttl         string
@@ -35,12 +36,12 @@ func TestPathRolesDeployTokens(t *testing.T) {
 		name        string
 	}{
 		{
-			tokenType: gitlab.TokenTypeProjectDeploy,
+			tokenType: token.TokenTypeProjectDeploy,
 			path:      "example/example",
 			scopes:    []string{gitlab.TokenScopeReadRepository.String()},
 		},
 		{
-			tokenType: gitlab.TokenTypeGroupDeploy,
+			tokenType: token.TokenTypeGroupDeploy,
 			path:      "test/test1",
 			scopes:    []string{gitlab.TokenScopeReadRepository.String()},
 		},

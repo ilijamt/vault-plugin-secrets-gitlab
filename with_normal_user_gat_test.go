@@ -16,6 +16,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithNormalUser_GAT(t *testing.T) {
@@ -53,7 +54,7 @@ func TestWithNormalUser_GAT(t *testing.T) {
 			Data: map[string]any{
 				"path":                 "example",
 				"name":                 `gat-token`,
-				"token_type":           gitlab.TokenTypeGroup.String(),
+				"token_type":           token2.TokenTypeGroup.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(false),
 				"access_level":         gitlab.AccessLevelMaintainerPermissions.String(),

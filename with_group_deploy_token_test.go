@@ -14,6 +14,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithGroupDeployToken(t *testing.T) {
@@ -51,8 +52,8 @@ func TestWithGroupDeployToken(t *testing.T) {
 			Path:      fmt.Sprintf("%s/role", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "example",
-				"name":                 gitlab.TokenTypeGroupDeploy.String(),
-				"token_type":           gitlab.TokenTypeGroupDeploy.String(),
+				"name":                 token2.TokenTypeGroupDeploy.String(),
+				"token_type":           token2.TokenTypeGroupDeploy.String(),
 				"gitlab_revokes_token": strconv.FormatBool(false),
 				"ttl":                  120 * time.Hour,
 				"scopes":               []string{gitlab.TokenScopeReadRepository.String()},

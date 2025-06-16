@@ -14,6 +14,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestGitlabClient(t *testing.T) {
@@ -216,7 +217,7 @@ func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 	token, err := client.CurrentTokenInfo(ctx)
 	require.NoError(t, err)
 	require.NotNil(t, token)
-	assert.EqualValues(t, gitlab.TokenTypePersonal, token.TokenType)
+	assert.EqualValues(t, token2.TokenTypePersonal, token.TokenType)
 }
 
 func TestGitlabClient_Metadata(t *testing.T) {
@@ -261,7 +262,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	)
 	require.NoError(t, err)
 	require.NotNil(t, gatToken)
-	require.EqualValues(t, gitlab.TokenTypeGroup, gatToken.TokenType)
+	require.EqualValues(t, token2.TokenTypeGroup, gatToken.TokenType)
 	require.NotEmpty(t, gatToken.Token)
 	require.NoError(t, client.RevokeGroupAccessToken(ctx, gatToken.TokenID, "example"))
 
@@ -275,7 +276,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	)
 	require.NoError(t, err)
 	require.NotNil(t, prjatToken)
-	require.EqualValues(t, gitlab.TokenTypeProject, prjatToken.TokenType)
+	require.EqualValues(t, token2.TokenTypeProject, prjatToken.TokenType)
 	require.NotEmpty(t, prjatToken.Token)
 	require.NoError(t, client.RevokeProjectAccessToken(ctx, prjatToken.TokenID, "example/example"))
 
@@ -289,7 +290,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	)
 	require.NoError(t, err)
 	require.NotNil(t, patToken)
-	require.EqualValues(t, gitlab.TokenTypePersonal, patToken.TokenType)
+	require.EqualValues(t, token2.TokenTypePersonal, patToken.TokenType)
 	require.NotEmpty(t, patToken.Token)
 	require.NoError(t, client.RevokePersonalAccessToken(ctx, patToken.TokenID))
 }

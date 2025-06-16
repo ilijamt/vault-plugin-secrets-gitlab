@@ -28,6 +28,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
+	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 var _ gitlab.Client = new(inMemoryClient)
@@ -226,7 +227,7 @@ func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path stri
 	}
 	i.internalCounter++
 	var tokenId = i.internalCounter
-	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeProjectDeploy.String(), projectId, tokenId)
+	key := fmt.Sprintf("%s_%v_%v", t.TokenTypeProjectDeploy.String(), projectId, tokenId)
 	var entryToken = &gitlab.TokenProjectDeploy{
 		TokenWithScopes: gitlab.TokenWithScopes{
 			Token: gitlab.Token{
@@ -235,7 +236,7 @@ func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path stri
 				Path:      path,
 				Name:      name,
 				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
-				TokenType: gitlab.TokenTypeProjectDeploy,
+				TokenType: t.TokenTypeProjectDeploy,
 				ExpiresAt: expiresAt,
 				CreatedAt: g.Ptr(time.Now())},
 			Scopes: scopes,
@@ -254,7 +255,7 @@ func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string
 	}
 	i.internalCounter++
 	var tokenId = i.internalCounter
-	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeGroupDeploy.String(), groupId, tokenId)
+	key := fmt.Sprintf("%s_%v_%v", t.TokenTypeGroupDeploy.String(), groupId, tokenId)
 	var entryToken = &gitlab.TokenGroupDeploy{
 		TokenWithScopes: gitlab.TokenWithScopes{
 			Token: gitlab.Token{
@@ -263,7 +264,7 @@ func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string
 				Path:      path,
 				Name:      name,
 				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
-				TokenType: gitlab.TokenTypeGroupDeploy,
+				TokenType: t.TokenTypeGroupDeploy,
 				ExpiresAt: expiresAt,
 				CreatedAt: g.Ptr(time.Now()),
 			},
@@ -281,7 +282,7 @@ func (i *inMemoryClient) RevokeProjectDeployToken(ctx context.Context, projectId
 	if i.revokeProjectDeployTokenError {
 		return errors.New("revoke project deploy token error")
 	}
-	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeProjectDeploy.String(), projectId, deployTokenId)
+	key := fmt.Sprintf("%s_%v_%v", t.TokenTypeProjectDeploy.String(), projectId, deployTokenId)
 	delete(i.accessTokens, key)
 	return nil
 }
@@ -292,7 +293,7 @@ func (i *inMemoryClient) RevokeGroupDeployToken(ctx context.Context, groupId, de
 	if i.revokeGroupDeployTokenError {
 		return errors.New("revoke group deploy token error")
 	}
-	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypeGroupDeploy.String(), groupId, deployTokenId)
+	key := fmt.Sprintf("%s_%v_%v", t.TokenTypeGroupDeploy.String(), groupId, deployTokenId)
 	delete(i.accessTokens, key)
 	return nil
 }
@@ -316,7 +317,7 @@ func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Con
 	}
 	i.internalCounter++
 	var tokenId = i.internalCounter
-	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypePipelineProjectTrigger.String(), projectId, tokenId)
+	key := fmt.Sprintf("%s_%v_%v", t.TokenTypePipelineProjectTrigger.String(), projectId, tokenId)
 	var entryToken = &gitlab.TokenPipelineProjectTrigger{
 		Token: gitlab.Token{
 			TokenID:   tokenId,
@@ -324,7 +325,7 @@ func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Con
 			Path:      strconv.Itoa(projectId),
 			Name:      name,
 			Token:     fmt.Sprintf("glptt-%s", uuid.New().String()),
-			TokenType: gitlab.TokenTypePipelineProjectTrigger,
+			TokenType: t.TokenTypePipelineProjectTrigger,
 			ExpiresAt: expiresAt,
 			CreatedAt: g.Ptr(time.Now()),
 		},
@@ -339,7 +340,7 @@ func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Con
 	if i.revokePipelineProjectTriggerAccessTokenError {
 		return fmt.Errorf("RevokePipelineProjectTriggerAccessToken")
 	}
-	key := fmt.Sprintf("%s_%v_%v", gitlab.TokenTypePipelineProjectTrigger.String(), projectId, tokenId)
+	key := fmt.Sprintf("%s_%v_%v", t.TokenTypePipelineProjectTrigger.String(), projectId, tokenId)
 	delete(i.accessTokens, key)
 	return nil
 }
@@ -373,16 +374,16 @@ func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context
 		return nil, fmt.Errorf("CreateUserServiceAccountAccessToken")
 	}
 	i.muLock.Unlock()
-	var t *gitlab.TokenUserServiceAccount
+	var tok *gitlab.TokenUserServiceAccount
 	var err error
 	var cpat *gitlab.TokenPersonal
 	if cpat, err = i.CreatePersonalAccessToken(ctx, username, userId, name, expiresAt, scopes); err != nil && cpat != nil {
-		t = &gitlab.TokenUserServiceAccount{
+		tok = &gitlab.TokenUserServiceAccount{
 			TokenWithScopes: gitlab.TokenWithScopes{
 				Token: gitlab.Token{
 					CreatedAt: cpat.CreatedAt,
 					ExpiresAt: cpat.ExpiresAt,
-					TokenType: gitlab.TokenTypeUserServiceAccount,
+					TokenType: t.TokenTypeUserServiceAccount,
 					Token:     cpat.Token.Token,
 					TokenID:   cpat.TokenID,
 					ParentID:  cpat.ParentID,
@@ -394,7 +395,7 @@ func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context
 		}
 
 	}
-	return t, err
+	return tok, err
 }
 
 func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(ctx context.Context, token string) error {
@@ -403,7 +404,7 @@ func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(ctx context.Context
 	if i.revokeUserServiceAccountPersonalAccessTokenError {
 		return errors.New("RevokeServiceAccountPersonalAccessToken")
 	}
-	delete(i.accessTokens, fmt.Sprintf("%s_%v", gitlab.TokenTypeUserServiceAccount.String(), token))
+	delete(i.accessTokens, fmt.Sprintf("%s_%v", t.TokenTypeUserServiceAccount.String(), token))
 	return nil
 }
 
@@ -413,7 +414,7 @@ func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(ctx context.Contex
 	if i.revokeGroupServiceAccountPersonalAccessTokenError {
 		return errors.New("RevokeServiceAccountPersonalAccessToken")
 	}
-	delete(i.accessTokens, fmt.Sprintf("%s_%v", gitlab.TokenTypeGroupServiceAccount.String(), token))
+	delete(i.accessTokens, fmt.Sprintf("%s_%v", t.TokenTypeGroupServiceAccount.String(), token))
 	return nil
 }
 
@@ -454,7 +455,7 @@ func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username
 				Path:      username,
 				Name:      name,
 				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
-				TokenType: gitlab.TokenTypePersonal,
+				TokenType: t.TokenTypePersonal,
 				CreatedAt: g.Ptr(time.Now()),
 				ExpiresAt: &expiresAt,
 			},
@@ -462,7 +463,7 @@ func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username
 		},
 		UserID: userId,
 	}
-	i.accessTokens[fmt.Sprintf("%s_%v", gitlab.TokenTypePersonal.String(), tokenId)] = entryToken
+	i.accessTokens[fmt.Sprintf("%s_%v", t.TokenTypePersonal.String(), tokenId)] = entryToken
 	return entryToken, nil
 }
 
@@ -482,7 +483,7 @@ func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId str
 				Path:      groupId,
 				Name:      name,
 				Token:     fmt.Sprintf("glgat-%s", uuid.New().String()),
-				TokenType: gitlab.TokenTypeGroup,
+				TokenType: t.TokenTypeGroup,
 				CreatedAt: g.Ptr(time.Now()),
 				ExpiresAt: &expiresAt,
 			},
@@ -490,7 +491,7 @@ func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId str
 			AccessLevel: accessLevel,
 		},
 	}
-	i.accessTokens[fmt.Sprintf("%s_%v", gitlab.TokenTypeGroup.String(), tokenId)] = entryToken
+	i.accessTokens[fmt.Sprintf("%s_%v", t.TokenTypeGroup.String(), tokenId)] = entryToken
 	return entryToken, nil
 }
 
@@ -506,7 +507,7 @@ func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId
 		TokenWithScopesAndAccessLevel: gitlab.TokenWithScopesAndAccessLevel{
 			Token: gitlab.Token{
 				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
-				TokenType: gitlab.TokenTypeProject,
+				TokenType: t.TokenTypeProject,
 				CreatedAt: g.Ptr(time.Now()),
 				ExpiresAt: &expiresAt,
 				TokenID:   tokenId,
@@ -518,7 +519,7 @@ func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId
 			AccessLevel: accessLevel,
 		},
 	}
-	i.accessTokens[fmt.Sprintf("%s_%v", gitlab.TokenTypeProject.String(), tokenId)] = entryToken
+	i.accessTokens[fmt.Sprintf("%s_%v", t.TokenTypeProject.String(), tokenId)] = entryToken
 	return entryToken, nil
 }
 
@@ -528,7 +529,7 @@ func (i *inMemoryClient) RevokePersonalAccessToken(ctx context.Context, tokenId 
 	if i.personalAccessTokenRevokeError {
 		return fmt.Errorf("RevokePersonalAccessToken")
 	}
-	delete(i.accessTokens, fmt.Sprintf("%s_%v", gitlab.TokenTypePersonal.String(), tokenId))
+	delete(i.accessTokens, fmt.Sprintf("%s_%v", t.TokenTypePersonal.String(), tokenId))
 	return nil
 }
 
@@ -538,7 +539,7 @@ func (i *inMemoryClient) RevokeProjectAccessToken(ctx context.Context, tokenId i
 	if i.projectAccessTokenRevokeError {
 		return fmt.Errorf("RevokeProjectAccessToken")
 	}
-	delete(i.accessTokens, fmt.Sprintf("%s_%v", gitlab.TokenTypeProject.String(), tokenId))
+	delete(i.accessTokens, fmt.Sprintf("%s_%v", t.TokenTypeProject.String(), tokenId))
 	return nil
 }
 
@@ -548,7 +549,7 @@ func (i *inMemoryClient) RevokeGroupAccessToken(ctx context.Context, tokenId int
 	if i.groupAccessTokenRevokeError {
 		return fmt.Errorf("RevokeGroupAccessToken")
 	}
-	delete(i.accessTokens, fmt.Sprintf("%s_%v", gitlab.TokenTypeGroup.String(), tokenId))
+	delete(i.accessTokens, fmt.Sprintf("%s_%v", t.TokenTypeGroup.String(), tokenId))
 	return nil
 }
 

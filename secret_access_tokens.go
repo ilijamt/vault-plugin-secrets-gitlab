@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
@@ -80,9 +81,9 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 	var gitlabRevokesToken = req.Secret.InternalData["gitlab_revokes_token"].(bool)
 	var vaultRevokesToken = !gitlabRevokesToken
 	var parentId = req.Secret.InternalData["parent_id"].(string)
-	var tokenType TokenType
+	var tokenType token.TokenType
 	var tokenTypeValue = req.Secret.InternalData["token_type"].(string)
-	tokenType, _ = TokenTypeParse(tokenTypeValue)
+	tokenType, _ = token.TokenTypeParse(tokenTypeValue)
 
 	if vaultRevokesToken {
 		var client Client
@@ -92,29 +93,29 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		}
 
 		switch tokenType {
-		case TokenTypePersonal:
+		case token.TokenTypePersonal:
 			err = client.RevokePersonalAccessToken(ctx, tokenId)
-		case TokenTypeProject:
+		case token.TokenTypeProject:
 			err = client.RevokeProjectAccessToken(ctx, tokenId, parentId)
-		case TokenTypeGroup:
+		case token.TokenTypeGroup:
 			err = client.RevokeGroupAccessToken(ctx, tokenId, parentId)
-		case TokenTypeUserServiceAccount:
+		case token.TokenTypeUserServiceAccount:
 			var token = req.Secret.InternalData["token"].(string)
 			err = client.RevokeUserServiceAccountAccessToken(ctx, token)
-		case TokenTypeGroupServiceAccount:
+		case token.TokenTypeGroupServiceAccount:
 			var token = req.Secret.InternalData["token"].(string)
 			err = client.RevokeGroupServiceAccountAccessToken(ctx, token)
-		case TokenTypePipelineProjectTrigger:
+		case token.TokenTypePipelineProjectTrigger:
 			var projectId int
 			if projectId, err = strconv.Atoi(parentId); err == nil {
 				err = client.RevokePipelineProjectTriggerAccessToken(ctx, projectId, tokenId)
 			}
-		case TokenTypeGroupDeploy:
+		case token.TokenTypeGroupDeploy:
 			var groupId int
 			if groupId, err = strconv.Atoi(parentId); err == nil {
 				err = client.RevokeGroupDeployToken(ctx, groupId, tokenId)
 			}
-		case TokenTypeProjectDeploy:
+		case token.TokenTypeProjectDeploy:
 			var projectId int
 			if projectId, err = strconv.Atoi(parentId); err == nil {
 				err = client.RevokeProjectDeployToken(ctx, projectId, tokenId)

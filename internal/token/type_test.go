@@ -1,13 +1,13 @@
 //go:build unit
 
-package gitlab_test
+package token_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestTokenType(t *testing.T) {

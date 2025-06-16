@@ -1,4 +1,4 @@
-package gitlab
+package token
 
 import (
 	"errors"
@@ -24,7 +24,7 @@ const (
 var (
 	ErrUnknownTokenType = errors.New("unknown token type")
 
-	validTokenTypes = []string{
+	ValidTokenTypes = []string{
 		TokenTypePersonal.String(),
 		TokenTypeProject.String(),
 		TokenTypeGroup.String(),
@@ -45,7 +45,7 @@ func (i TokenType) Value() string {
 }
 
 func TokenTypeParse(value string) (TokenType, error) {
-	if slices.Contains(validTokenTypes, value) {
+	if slices.Contains(ValidTokenTypes, value) {
 		return TokenType(value), nil
 	}
 	return TokenTypeUnknown, fmt.Errorf("failed to parse '%s': %w", value, ErrUnknownTokenType)
