@@ -257,7 +257,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"example",
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
+		[]string{token2.ScopeReadApi.String()},
 		gitlab.AccessLevelGuestPermissions,
 	)
 	require.NoError(t, err)
@@ -271,7 +271,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"example/example",
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
+		[]string{token2.ScopeReadApi.String()},
 		gitlab.AccessLevelDeveloperPermissions,
 	)
 	require.NoError(t, err)
@@ -286,7 +286,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		1,
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
+		[]string{token2.ScopeReadApi.String()},
 	)
 	require.NoError(t, err)
 	require.NotNil(t, patToken)

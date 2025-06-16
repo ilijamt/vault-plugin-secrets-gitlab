@@ -1,9 +1,10 @@
 package token
 
 import (
-	"errors"
 	"fmt"
 	"slices"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 )
 
 type Type string
@@ -22,8 +23,6 @@ const (
 )
 
 var (
-	ErrUnknownTokenType = errors.New("unknown token type")
-
 	ValidTokenTypes = []string{
 		TypePersonal.String(),
 		TypeProject.String(),
@@ -48,5 +47,5 @@ func TypeParse(value string) (Type, error) {
 	if slices.Contains(ValidTokenTypes, value) {
 		return Type(value), nil
 	}
-	return TypeUnknown, fmt.Errorf("failed to parse '%s': %w", value, ErrUnknownTokenType)
+	return TypeUnknown, fmt.Errorf("failed to parse '%s': %w", value, errs.ErrUnknownTokenType)
 }

@@ -129,7 +129,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 			token, err = client.CreatePipelineProjectTriggerAccessToken(ctx, role.Path, name, projectId, name, &expiresAt)
 		}
 	default:
-		return logical.ErrorResponse("invalid token type"), fmt.Errorf("%s: %w", role.TokenType.String(), token2.ErrUnknownTokenType)
+		return logical.ErrorResponse("invalid token type"), fmt.Errorf("%s: %w", role.TokenType.String(), errs.ErrUnknownTokenType)
 	}
 
 	if err != nil || token == nil {
