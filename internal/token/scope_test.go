@@ -79,7 +79,7 @@ func TestTokenScope(t *testing.T) {
 
 	for _, test := range tests {
 		t.Logf("assert parse(%s) = %s (err: %v)", test.input, test.expected, test.err)
-		val, err := token.ScopeParse(test.input)
+		val, err := token.ParseScope(test.input)
 		assert.EqualValues(t, test.expected, val)
 		assert.EqualValues(t, test.expected.Value(), test.expected.String())
 		if test.err {
