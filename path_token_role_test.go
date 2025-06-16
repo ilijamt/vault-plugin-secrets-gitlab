@@ -37,7 +37,7 @@ func TestPathTokenRoles(t *testing.T) {
 		require.ErrorIs(t, err, gitlab.ErrRoleNotFound)
 	})
 
-	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level gitlab.AccessLevel, gitlabRevokesToken bool) {
+	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level token.AccessLevel, gitlabRevokesToken bool) {
 		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t", tokenType, level, gitlabRevokesToken)
 		ctx := getCtxGitlabClient(t, "unit")
 		client := newInMemoryClient(true)
@@ -152,17 +152,17 @@ func TestPathTokenRoles(t *testing.T) {
 	}
 
 	t.Run("personal access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypePersonal, gitlab.AccessLevelUnknown, false)
-		generalTokenCreation(t, token.TypePersonal, gitlab.AccessLevelUnknown, true)
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, false)
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, true)
 	})
 
 	t.Run("project access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypeProject, gitlab.AccessLevelGuestPermissions, false)
-		generalTokenCreation(t, token.TypeProject, gitlab.AccessLevelGuestPermissions, true)
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false)
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, true)
 	})
 
 	t.Run("group access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypeGroup, gitlab.AccessLevelGuestPermissions, false)
-		generalTokenCreation(t, token.TypeGroup, gitlab.AccessLevelGuestPermissions, true)
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, false)
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, true)
 	})
 }

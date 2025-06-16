@@ -22,7 +22,7 @@ func TestTokenNameGenerator_UnixTimeStamp(t *testing.T) {
 			Path:                "/path",
 			Name:                "{{ .unix_timestamp_utc }}",
 			Scopes:              []string{token.ScopeApi.String()},
-			AccessLevel:         g.AccessLevelNoPermissions,
+			AccessLevel:         token.AccessLevelNoPermissions,
 			TokenType:           token.TypePersonal,
 			GitlabRevokesTokens: false,
 		},
