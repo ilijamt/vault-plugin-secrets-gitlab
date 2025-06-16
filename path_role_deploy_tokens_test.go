@@ -29,7 +29,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 
 	var tests = []struct {
 		tokenType   token.Type
-		accessLevel gitlab.AccessLevel
+		accessLevel token.AccessLevel
 		scopes      []string
 		ttl         string
 		path        string
@@ -59,7 +59,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 					Data: map[string]any{
 						"path":         tt.path,
 						"name":         tt.name,
-						"access_level": cmp.Or(tt.accessLevel, gitlab.AccessLevelUnknown).String(),
+						"access_level": cmp.Or(tt.accessLevel, token.AccessLevelUnknown).String(),
 						"token_type":   tt.tokenType.String(),
 						"scopes":       tt.scopes,
 						"ttl":          cmp.Or(tt.ttl, "1h"),
@@ -79,7 +79,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 					Data: map[string]any{
 						"path":         tt.path,
 						"name":         tt.name,
-						"access_level": gitlab.AccessLevelNoPermissions.String(),
+						"access_level": token.AccessLevelNoPermissions.String(),
 						"token_type":   tt.tokenType.String(),
 						"ttl":          cmp.Or(tt.ttl, "1h"),
 						"scopes":       []string{},

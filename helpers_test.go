@@ -467,7 +467,7 @@ func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel gitlab.AccessLevel) (*gitlab.TokenGroup, error) {
+func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*gitlab.TokenGroup, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.groupAccessTokenCreateError {
@@ -495,7 +495,7 @@ func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId str
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel gitlab.AccessLevel) (*gitlab.TokenProject, error) {
+func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*gitlab.TokenProject, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.projectAccessTokenCreateError {

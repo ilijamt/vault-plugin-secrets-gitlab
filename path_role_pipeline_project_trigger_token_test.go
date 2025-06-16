@@ -37,7 +37,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",
-				"access_level": gitlab.AccessLevelNoPermissions.String(),
+				"access_level": token.AccessLevelNoPermissions.String(),
 				"token_type":   token.TypePipelineProjectTrigger.String(),
 				"scopes":       []string{token.ScopeApi.String()},
 				"ttl":          "1h",
@@ -59,7 +59,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",
-				"access_level": gitlab.AccessLevelUnknown.String(),
+				"access_level": token.AccessLevelUnknown.String(),
 				"token_type":   token.TypePipelineProjectTrigger.String(),
 				"scopes":       []string{},
 				"ttl":          "1h",
@@ -80,7 +80,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",
-				"access_level": gitlab.AccessLevelUnknown.String(),
+				"access_level": token.AccessLevelUnknown.String(),
 				"token_type":   token.TypePipelineProjectTrigger.String(),
 				"scopes":       []string{},
 			},
