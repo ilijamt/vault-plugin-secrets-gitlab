@@ -70,7 +70,7 @@ func TestPathRoles(t *testing.T) {
 	})
 
 	t.Run("access level", func(t *testing.T) {
-		t.Run(token.TokenTypePersonal.String(), func(t *testing.T) {
+		t.Run(token.TypePersonal.String(), func(t *testing.T) {
 			t.Run("no access level defined", func(t *testing.T) {
 				ctx := getCtxGitlabClient(t, "unit")
 				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
@@ -80,8 +80,8 @@ func TestPathRoles(t *testing.T) {
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
-						"name":                 token.TokenTypePersonal.String(),
-						"token_type":           token.TokenTypePersonal.String(),
+						"name":                 token.TypePersonal.String(),
+						"token_type":           token.TypePersonal.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
 						"scopes":               gitlab.ValidPersonalTokenScopes,
 						"gitlab_revokes_token": false,
@@ -101,9 +101,9 @@ func TestPathRoles(t *testing.T) {
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
-						"name":                 token.TokenTypePersonal.String(),
+						"name":                 token.TypePersonal.String(),
 						"access_level":         gitlab.AccessLevelOwnerPermissions.String(),
-						"token_type":           token.TokenTypePersonal.String(),
+						"token_type":           token.TypePersonal.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
 						"scopes":               gitlab.ValidPersonalTokenScopes,
 						"gitlab_revokes_token": false,
@@ -115,7 +115,7 @@ func TestPathRoles(t *testing.T) {
 			})
 		})
 
-		t.Run(token.TokenTypeProject.String(), func(t *testing.T) {
+		t.Run(token.TypeProject.String(), func(t *testing.T) {
 			t.Run("no access level defined", func(t *testing.T) {
 				ctx := getCtxGitlabClient(t, "unit")
 				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
@@ -125,8 +125,8 @@ func TestPathRoles(t *testing.T) {
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
-						"name":                 token.TokenTypeProject.String(),
-						"token_type":           token.TokenTypeProject.String(),
+						"name":                 token.TypeProject.String(),
+						"token_type":           token.TypeProject.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
 						"scopes":               gitlab.ValidProjectTokenScopes,
 						"gitlab_revokes_token": false,
@@ -145,9 +145,9 @@ func TestPathRoles(t *testing.T) {
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
-						"name":                 token.TokenTypeProject.String(),
+						"name":                 token.TypeProject.String(),
 						"access_level":         gitlab.AccessLevelOwnerPermissions.String(),
-						"token_type":           token.TokenTypeProject.String(),
+						"token_type":           token.TypeProject.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
 						"scopes":               gitlab.ValidProjectTokenScopes,
 						"gitlab_revokes_token": false,
@@ -160,7 +160,7 @@ func TestPathRoles(t *testing.T) {
 			})
 		})
 
-		t.Run(token.TokenTypeGroup.String(), func(t *testing.T) {
+		t.Run(token.TypeGroup.String(), func(t *testing.T) {
 			t.Run("no access level defined", func(t *testing.T) {
 				ctx := getCtxGitlabClient(t, "unit")
 				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
@@ -170,8 +170,8 @@ func TestPathRoles(t *testing.T) {
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
-						"name":                 token.TokenTypeGroup.String(),
-						"token_type":           token.TokenTypeGroup.String(),
+						"name":                 token.TypeGroup.String(),
+						"token_type":           token.TypeGroup.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
 						"scopes":               gitlab.ValidGroupTokenScopes,
 						"gitlab_revokes_token": false,
@@ -190,9 +190,9 @@ func TestPathRoles(t *testing.T) {
 					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
-						"name":                 token.TokenTypeGroup.String(),
+						"name":                 token.TypeGroup.String(),
 						"access_level":         gitlab.AccessLevelOwnerPermissions.String(),
-						"token_type":           token.TokenTypeGroup.String(),
+						"token_type":           token.TypeGroup.String(),
 						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
 						"scopes":               gitlab.ValidGroupTokenScopes,
 						"gitlab_revokes_token": false,
@@ -235,7 +235,7 @@ func TestPathRoles(t *testing.T) {
 			Data: map[string]any{
 				"path":                 "user",
 				"name":                 "{{ . } invalid template",
-				"token_type":           token.TokenTypePersonal.String(),
+				"token_type":           token.TypePersonal.String(),
 				"ttl":                  gitlab.DefaultAccessTokenMinTTL,
 				"scopes":               gitlab.ValidPersonalTokenScopes,
 				"gitlab_revokes_token": false,
@@ -260,7 +260,7 @@ func TestPathRoles(t *testing.T) {
 					"name":         "Example user personal token",
 					"access_level": gitlab.AccessLevelOwnerPermissions.String(),
 					"ttl":          "48h",
-					"token_type":   token.TokenTypeProject.String(),
+					"token_type":   token.TypeProject.String(),
 					"scopes":       gitlab.ValidProjectTokenScopes,
 				},
 			})
@@ -280,7 +280,7 @@ func TestPathRoles(t *testing.T) {
 					"path":                 "user",
 					"name":                 "Example project personal token",
 					"access_level":         gitlab.AccessLevelOwnerPermissions.String(),
-					"token_type":           token.TokenTypeProject.String(),
+					"token_type":           token.TypeProject.String(),
 					"ttl":                  "48h",
 					"scopes":               gitlab.ValidPersonalTokenScopes,
 					"gitlab_revokes_token": false,
@@ -305,7 +305,7 @@ func TestPathRoles(t *testing.T) {
 					"path":       "user",
 					"name":       "Example user personal token",
 					"ttl":        "48h",
-					"token_type": token.TokenTypePersonal.String(),
+					"token_type": token.TypePersonal.String(),
 					"scopes":     gitlab.ValidPersonalTokenScopes,
 				},
 			})
@@ -324,7 +324,7 @@ func TestPathRoles(t *testing.T) {
 				Data: map[string]any{
 					"path":       "user",
 					"name":       "Example user personal token",
-					"token_type": token.TokenTypePersonal.String(),
+					"token_type": token.TypePersonal.String(),
 					"scopes": []string{
 						"invalid_scope",
 					},
@@ -350,7 +350,7 @@ func TestPathRoles(t *testing.T) {
 					"name":         "Example user personal token",
 					"ttl":          "48h",
 					"access_level": gitlab.AccessLevelOwnerPermissions.String(),
-					"token_type":   token.TokenTypeGroup.String(),
+					"token_type":   token.TypeGroup.String(),
 					"scopes":       gitlab.ValidProjectTokenScopes,
 				},
 			})
@@ -370,7 +370,7 @@ func TestPathRoles(t *testing.T) {
 					"path":         "user",
 					"name":         "Example user personal token",
 					"access_level": gitlab.AccessLevelOwnerPermissions.String(),
-					"token_type":   token.TokenTypeGroup.String(),
+					"token_type":   token.TypeGroup.String(),
 					"scopes":       gitlab.ValidPersonalTokenScopes,
 				},
 			})
@@ -420,7 +420,7 @@ func TestPathRoles(t *testing.T) {
 		var roleData = map[string]any{
 			"path":                 "user",
 			"name":                 "Example user personal token",
-			"token_type":           token.TokenTypePersonal.String(),
+			"token_type":           token.TypePersonal.String(),
 			"ttl":                  int64((5 * 24 * time.Hour).Seconds()),
 			"gitlab_revokes_token": false,
 			"scopes": []string{

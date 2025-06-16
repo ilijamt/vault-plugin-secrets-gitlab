@@ -11,15 +11,15 @@ import (
 )
 
 type EntryRole struct {
-	RoleName            string          `json:"role_name" structs:"role_name" mapstructure:"role_name"`
-	TTL                 time.Duration   `json:"ttl" structs:"ttl" mapstructure:"ttl"`
-	Path                string          `json:"path" structs:"path" mapstructure:"path"`
-	Name                string          `json:"name" structs:"name" mapstructure:"name"`
-	Scopes              []string        `json:"scopes" structs:"scopes" mapstructure:"scopes"`
-	AccessLevel         AccessLevel     `json:"access_level" structs:"access_level" mapstructure:"access_level,omitempty"`
-	TokenType           token.TokenType `json:"token_type" structs:"token_type" mapstructure:"token_type"`
-	GitlabRevokesTokens bool            `json:"gitlab_revokes_token" structs:"gitlab_revokes_token" mapstructure:"gitlab_revokes_token"`
-	ConfigName          string          `json:"config_name" structs:"config_name" mapstructure:"config_name"`
+	RoleName            string        `json:"role_name" structs:"role_name" mapstructure:"role_name"`
+	TTL                 time.Duration `json:"ttl" structs:"ttl" mapstructure:"ttl"`
+	Path                string        `json:"path" structs:"path" mapstructure:"path"`
+	Name                string        `json:"name" structs:"name" mapstructure:"name"`
+	Scopes              []string      `json:"scopes" structs:"scopes" mapstructure:"scopes"`
+	AccessLevel         AccessLevel   `json:"access_level" structs:"access_level" mapstructure:"access_level,omitempty"`
+	TokenType           token.Type    `json:"token_type" structs:"token_type" mapstructure:"token_type"`
+	GitlabRevokesTokens bool          `json:"gitlab_revokes_token" structs:"gitlab_revokes_token" mapstructure:"gitlab_revokes_token"`
+	ConfigName          string        `json:"config_name" structs:"config_name" mapstructure:"config_name"`
 }
 
 func (e EntryRole) LogicalResponseData() map[string]any {

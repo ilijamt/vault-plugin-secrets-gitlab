@@ -6,47 +6,47 @@ import (
 	"slices"
 )
 
-type TokenType string
+type Type string
 
 const (
-	TokenTypePersonal               = TokenType("personal")
-	TokenTypeProject                = TokenType("project")
-	TokenTypeGroup                  = TokenType("group")
-	TokenTypeUserServiceAccount     = TokenType("user-service-account")
-	TokenTypeGroupServiceAccount    = TokenType("group-service-account")
-	TokenTypePipelineProjectTrigger = TokenType("pipeline-project-trigger")
-	TokenTypeProjectDeploy          = TokenType("project-deploy")
-	TokenTypeGroupDeploy            = TokenType("group-deploy")
+	TypePersonal               = Type("personal")
+	TypeProject                = Type("project")
+	TypeGroup                  = Type("group")
+	TypeUserServiceAccount     = Type("user-service-account")
+	TypeGroupServiceAccount    = Type("group-service-account")
+	TypePipelineProjectTrigger = Type("pipeline-project-trigger")
+	TypeProjectDeploy          = Type("project-deploy")
+	TypeGroupDeploy            = Type("group-deploy")
 
-	TokenTypeUnknown = TokenType("")
+	TypeUnknown = Type("")
 )
 
 var (
 	ErrUnknownTokenType = errors.New("unknown token type")
 
 	ValidTokenTypes = []string{
-		TokenTypePersonal.String(),
-		TokenTypeProject.String(),
-		TokenTypeGroup.String(),
-		TokenTypeUserServiceAccount.String(),
-		TokenTypeGroupServiceAccount.String(),
-		TokenTypePipelineProjectTrigger.String(),
-		TokenTypeProjectDeploy.String(),
-		TokenTypeGroupDeploy.String(),
+		TypePersonal.String(),
+		TypeProject.String(),
+		TypeGroup.String(),
+		TypeUserServiceAccount.String(),
+		TypeGroupServiceAccount.String(),
+		TypePipelineProjectTrigger.String(),
+		TypeProjectDeploy.String(),
+		TypeGroupDeploy.String(),
 	}
 )
 
-func (i TokenType) String() string {
+func (i Type) String() string {
 	return string(i)
 }
 
-func (i TokenType) Value() string {
+func (i Type) Value() string {
 	return i.String()
 }
 
-func TokenTypeParse(value string) (TokenType, error) {
+func TypeParse(value string) (Type, error) {
 	if slices.Contains(ValidTokenTypes, value) {
-		return TokenType(value), nil
+		return Type(value), nil
 	}
-	return TokenTypeUnknown, fmt.Errorf("failed to parse '%s': %w", value, ErrUnknownTokenType)
+	return TypeUnknown, fmt.Errorf("failed to parse '%s': %w", value, ErrUnknownTokenType)
 }
