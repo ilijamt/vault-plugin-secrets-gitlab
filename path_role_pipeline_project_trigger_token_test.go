@@ -17,6 +17,7 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathRolesPipelineProjectTrigger(t *testing.T) {
@@ -37,7 +38,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 				"path":         "user",
 				"name":         "Example user personal token",
 				"access_level": gitlab.AccessLevelNoPermissions.String(),
-				"token_type":   gitlab.TokenTypePipelineProjectTrigger.String(),
+				"token_type":   token.TokenTypePipelineProjectTrigger.String(),
 				"scopes":       []string{gitlab.TokenScopeApi.String()},
 				"ttl":          "1h",
 			},
@@ -59,7 +60,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 				"path":         "user",
 				"name":         "Example user personal token",
 				"access_level": gitlab.AccessLevelUnknown.String(),
-				"token_type":   gitlab.TokenTypePipelineProjectTrigger.String(),
+				"token_type":   token.TokenTypePipelineProjectTrigger.String(),
 				"scopes":       []string{},
 				"ttl":          "1h",
 			},
@@ -80,7 +81,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 				"path":         "user",
 				"name":         "Example user personal token",
 				"access_level": gitlab.AccessLevelUnknown.String(),
-				"token_type":   gitlab.TokenTypePipelineProjectTrigger.String(),
+				"token_type":   token.TokenTypePipelineProjectTrigger.String(),
 				"scopes":       []string{},
 			},
 		})
