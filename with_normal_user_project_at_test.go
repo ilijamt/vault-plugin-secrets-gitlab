@@ -61,7 +61,7 @@ func TestWithNormalUser_ProjectAT(t *testing.T) {
 				"access_level":         gitlab.AccessLevelMaintainerPermissions.String(),
 				"scopes": strings.Join(
 					[]string{
-						gitlab.TokenScopeReadApi.String(),
+						tok.ScopeReadApi.String(),
 					},
 					","),
 			},

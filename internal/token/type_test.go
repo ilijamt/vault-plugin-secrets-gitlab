@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
@@ -66,7 +67,7 @@ func TestTokenType(t *testing.T) {
 		assert.EqualValues(t, test.expected, val)
 		assert.EqualValues(t, test.expected.Value(), test.expected.String())
 		if test.err {
-			assert.ErrorIs(t, err, token.ErrUnknownTokenType)
+			assert.ErrorIs(t, err, errs.ErrUnknownTokenType)
 		} else {
 			assert.NoError(t, err)
 		}
