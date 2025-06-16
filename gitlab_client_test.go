@@ -89,11 +89,11 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 	_, err = client.GetUserIdByUsername(ctx, "username")
 	require.Error(t, err)
 
-	gatToken, err := client.CreateGroupAccessToken(ctx, "groupId", "name", timeExpiresAt, []string{"scope"}, gitlab.AccessLevelUnknown)
+	gatToken, err := client.CreateGroupAccessToken(ctx, "groupId", "name", timeExpiresAt, []string{"scope"}, token2.AccessLevelUnknown)
 	require.Error(t, err)
 	require.Nil(t, gatToken)
 
-	prjAtToken, err := client.CreateProjectAccessToken(ctx, "projectId", "name", timeExpiresAt, []string{"scope"}, gitlab.AccessLevelUnknown)
+	prjAtToken, err := client.CreateProjectAccessToken(ctx, "projectId", "name", timeExpiresAt, []string{"scope"}, token2.AccessLevelUnknown)
 	require.Error(t, err)
 	require.Nil(t, prjAtToken)
 
@@ -258,7 +258,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"name",
 		timeExpiresAt,
 		[]string{token2.ScopeReadApi.String()},
-		gitlab.AccessLevelGuestPermissions,
+		token2.AccessLevelGuestPermissions,
 	)
 	require.NoError(t, err)
 	require.NotNil(t, gatToken)
@@ -272,7 +272,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"name",
 		timeExpiresAt,
 		[]string{token2.ScopeReadApi.String()},
-		gitlab.AccessLevelDeveloperPermissions,
+		token2.AccessLevelDeveloperPermissions,
 	)
 	require.NoError(t, err)
 	require.NotNil(t, prjatToken)

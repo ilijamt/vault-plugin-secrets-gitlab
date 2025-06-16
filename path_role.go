@@ -77,7 +77,7 @@ var (
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Access Level",
 			},
-			AllowedValues: utils.ToAny(ValidAccessLevels...),
+			AllowedValues: utils.ToAny(token.ValidAccessLevels...),
 		},
 		"token_type": {
 			Type:          framework.TypeString,
@@ -206,7 +206,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	var err error
 	var warnings []string
 	var tokenType token.Type
-	var accessLevel AccessLevel
+	var accessLevel token.AccessLevel
 	var configName = cmp.Or(data.Get("config_name").(string), TypeConfigDefault)
 
 	b.lockClientMutex.RLock()
@@ -221,7 +221,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	}
 
 	tokenType, _ = token.ParseType(data.Get("token_type").(string))
-	accessLevel, _ = AccessLevelParse(data.Get("access_level").(string))
+	accessLevel, _ = token.AccessLevelParse(data.Get("access_level").(string))
 
 	var role = EntryRole{
 		RoleName:            roleName,
@@ -253,42 +253,42 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	switch tokenType {
 	case token.TypePersonal:
-		validAccessLevels = ValidPersonalAccessLevels
+		validAccessLevels = token.ValidPersonalAccessLevels
 		validScopes = token.ValidPersonalTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case token.TypeGroup:
-		validAccessLevels = ValidGroupAccessLevels
+		validAccessLevels = token.ValidGroupAccessLevels
 		validScopes = token.ValidGroupTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name"}
 	case token.TypeProject:
-		validAccessLevels = ValidProjectAccessLevels
+		validAccessLevels = token.ValidProjectAccessLevels
 		validScopes = token.ValidProjectTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name"}
 	case token.TypeUserServiceAccount:
-		validAccessLevels = ValidUserServiceAccountAccessLevels
+		validAccessLevels = token.ValidUserServiceAccountAccessLevels
 		validScopes = token.ValidUserServiceAccountTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case token.TypeGroupServiceAccount:
-		validAccessLevels = ValidGroupServiceAccountAccessLevels
+		validAccessLevels = token.ValidGroupServiceAccountAccessLevels
 		validScopes = token.ValidGroupServiceAccountTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
 	case token.TypePipelineProjectTrigger:
-		validAccessLevels = ValidPipelineProjectTriggerAccessLevels
+		validAccessLevels = token.ValidPipelineProjectTriggerAccessLevels
 		validScopes = []string{}
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level", "scopes"}
 	case token.TypeProjectDeploy:
-		validAccessLevels = ValidProjectDeployAccessLevels
+		validAccessLevels = token.ValidProjectDeployAccessLevels
 		validScopes = token.ValidProjectDeployTokenScopes
 		noEmptyScopes = true
 		skipFields = []string{"config_name", "access_level"}
 	case token.TypeGroupDeploy:
-		validAccessLevels = ValidGroupDeployAccessLevels
+		validAccessLevels = token.ValidGroupDeployAccessLevels
 		validScopes = token.ValidGroupDeployTokenScopes
 		noEmptyScopes = true
 		skipFields = []string{"config_name", "access_level"}

@@ -47,7 +47,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 	type roleData struct {
 		roleName, path, tokenName string
 		tokenType                 token.Type
-		accessLevel               gitlab.AccessLevel
+		accessLevel               token.AccessLevel
 		scopes                    []string
 	}
 	var roles = map[string][]roleData{
@@ -72,7 +72,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 				roleName:    "admin-example-example",
 				path:        "example/example",
 				tokenType:   token.TypeProject,
-				accessLevel: gitlab.AccessLevelGuestPermissions,
+				accessLevel: token.AccessLevelGuestPermissions,
 				scopes:      []string{token.ScopeApi.String(), token.ScopeSelfRotate.String()},
 				tokenName:   "admin_user_initial_token",
 			},
@@ -82,7 +82,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 				roleName:    "normal-example",
 				path:        "example",
 				tokenType:   token.TypeGroup,
-				accessLevel: gitlab.AccessLevelGuestPermissions,
+				accessLevel: token.AccessLevelGuestPermissions,
 				scopes:      []string{token.ScopeApi.String(), token.ScopeSelfRotate.String()},
 				tokenName:   "normal_user_initial_token",
 			},

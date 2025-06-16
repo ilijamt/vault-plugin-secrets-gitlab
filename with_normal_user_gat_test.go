@@ -57,7 +57,7 @@ func TestWithNormalUser_GAT(t *testing.T) {
 				"token_type":           token2.TypeGroup.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(false),
-				"access_level":         gitlab.AccessLevelMaintainerPermissions.String(),
+				"access_level":         token2.AccessLevelMaintainerPermissions.String(),
 				"scopes":               strings.Join([]string{token2.ScopeReadApi.String()}, ","),
 			},
 		})

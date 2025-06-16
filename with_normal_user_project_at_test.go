@@ -58,7 +58,7 @@ func TestWithNormalUser_ProjectAT(t *testing.T) {
 				"token_type":           tok.TypeProject.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(false),
-				"access_level":         gitlab.AccessLevelMaintainerPermissions.String(),
+				"access_level":         tok.AccessLevelMaintainerPermissions.String(),
 				"scopes": strings.Join(
 					[]string{
 						tok.ScopeReadApi.String(),
