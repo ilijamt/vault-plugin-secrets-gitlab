@@ -54,8 +54,8 @@ func TestWithNormalUser_ProjectAT(t *testing.T) {
 			Path:      fmt.Sprintf("%s/pat", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "example/example",
-				"name":                 tok.TokenTypeProject.String(),
-				"token_type":           tok.TokenTypeProject.String(),
+				"name":                 tok.TypeProject.String(),
+				"token_type":           tok.TypeProject.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(false),
 				"access_level":         gitlab.AccessLevelMaintainerPermissions.String(),
