@@ -81,9 +81,9 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 	var gitlabRevokesToken = req.Secret.InternalData["gitlab_revokes_token"].(bool)
 	var vaultRevokesToken = !gitlabRevokesToken
 	var parentId = req.Secret.InternalData["parent_id"].(string)
-	var tokenType token.TokenType
+	var tokenType token.Type
 	var tokenTypeValue = req.Secret.InternalData["token_type"].(string)
-	tokenType, _ = token.TokenTypeParse(tokenTypeValue)
+	tokenType, _ = token.TypeParse(tokenTypeValue)
 
 	if vaultRevokesToken {
 		var client Client
@@ -93,29 +93,29 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		}
 
 		switch tokenType {
-		case token.TokenTypePersonal:
+		case token.TypePersonal:
 			err = client.RevokePersonalAccessToken(ctx, tokenId)
-		case token.TokenTypeProject:
+		case token.TypeProject:
 			err = client.RevokeProjectAccessToken(ctx, tokenId, parentId)
-		case token.TokenTypeGroup:
+		case token.TypeGroup:
 			err = client.RevokeGroupAccessToken(ctx, tokenId, parentId)
-		case token.TokenTypeUserServiceAccount:
+		case token.TypeUserServiceAccount:
 			var token = req.Secret.InternalData["token"].(string)
 			err = client.RevokeUserServiceAccountAccessToken(ctx, token)
-		case token.TokenTypeGroupServiceAccount:
+		case token.TypeGroupServiceAccount:
 			var token = req.Secret.InternalData["token"].(string)
 			err = client.RevokeGroupServiceAccountAccessToken(ctx, token)
-		case token.TokenTypePipelineProjectTrigger:
+		case token.TypePipelineProjectTrigger:
 			var projectId int
 			if projectId, err = strconv.Atoi(parentId); err == nil {
 				err = client.RevokePipelineProjectTriggerAccessToken(ctx, projectId, tokenId)
 			}
-		case token.TokenTypeGroupDeploy:
+		case token.TypeGroupDeploy:
 			var groupId int
 			if groupId, err = strconv.Atoi(parentId); err == nil {
 				err = client.RevokeGroupDeployToken(ctx, groupId, tokenId)
 			}
-		case token.TokenTypeProjectDeploy:
+		case token.TypeProjectDeploy:
 			var projectId int
 			if projectId, err = strconv.Atoi(parentId); err == nil {
 				err = client.RevokeProjectDeployToken(ctx, projectId, tokenId)

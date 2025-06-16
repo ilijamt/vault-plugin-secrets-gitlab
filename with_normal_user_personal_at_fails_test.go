@@ -48,8 +48,8 @@ func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 			Path:      fmt.Sprintf("%s/normal-user", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "normal-user",
-				"name":                 token.TokenTypePersonal.String(),
-				"token_type":           token.TokenTypePersonal.String(),
+				"name":                 token.TypePersonal.String(),
+				"token_type":           token.TypePersonal.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(true),
 				"scopes": strings.Join(

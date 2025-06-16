@@ -204,7 +204,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	var config *EntryConfig
 	var err error
 	var warnings []string
-	var tokenType token.TokenType
+	var tokenType token.Type
 	var accessLevel AccessLevel
 	var configName = cmp.Or(data.Get("config_name").(string), TypeConfigDefault)
 
@@ -219,7 +219,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 	}
 
-	tokenType, _ = token.TokenTypeParse(data.Get("token_type").(string))
+	tokenType, _ = token.TypeParse(data.Get("token_type").(string))
 	accessLevel, _ = AccessLevelParse(data.Get("access_level").(string))
 
 	var role = EntryRole{
@@ -251,42 +251,42 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	var skipFields []string
 
 	switch tokenType {
-	case token.TokenTypePersonal:
+	case token.TypePersonal:
 		validAccessLevels = ValidPersonalAccessLevels
 		validScopes = ValidPersonalTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
-	case token.TokenTypeGroup:
+	case token.TypeGroup:
 		validAccessLevels = ValidGroupAccessLevels
 		validScopes = ValidGroupTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name"}
-	case token.TokenTypeProject:
+	case token.TypeProject:
 		validAccessLevels = ValidProjectAccessLevels
 		validScopes = ValidProjectTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name"}
-	case token.TokenTypeUserServiceAccount:
+	case token.TypeUserServiceAccount:
 		validAccessLevels = ValidUserServiceAccountAccessLevels
 		validScopes = ValidUserServiceAccountTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
-	case token.TokenTypeGroupServiceAccount:
+	case token.TypeGroupServiceAccount:
 		validAccessLevels = ValidGroupServiceAccountAccessLevels
 		validScopes = ValidGroupServiceAccountTokenScopes
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level"}
-	case token.TokenTypePipelineProjectTrigger:
+	case token.TypePipelineProjectTrigger:
 		validAccessLevels = ValidPipelineProjectTriggerAccessLevels
 		validScopes = []string{}
 		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level", "scopes"}
-	case token.TokenTypeProjectDeploy:
+	case token.TypeProjectDeploy:
 		validAccessLevels = ValidProjectDeployAccessLevels
 		validScopes = ValidProjectDeployTokenScopes
 		noEmptyScopes = true
 		skipFields = []string{"config_name", "access_level"}
-	case token.TokenTypeGroupDeploy:
+	case token.TypeGroupDeploy:
 		validAccessLevels = ValidGroupDeployAccessLevels
 		validScopes = ValidGroupDeployTokenScopes
 		noEmptyScopes = true
@@ -302,13 +302,13 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		}
 
 		val, ok, _ := data.GetOkErr(name)
-		if (tokenType == token.TokenTypePersonal && name == "access_level") ||
+		if (tokenType == token.TypePersonal && name == "access_level") ||
 			name == "gitlab_revokes_token" {
 			continue
 		}
 
 		var required = field.Required
-		if name == "ttl" && !slices.Contains([]token.TokenType{token.TokenTypePipelineProjectTrigger}, tokenType) {
+		if name == "ttl" && !slices.Contains([]token.Type{token.TypePipelineProjectTrigger}, tokenType) {
 			required = true
 		}
 
@@ -349,7 +349,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		err = multierror.Append(err, fmt.Errorf("should be one or more of '%v': %w", validScopes, errs.ErrFieldInvalidValue))
 	}
 
-	if tokenType == token.TokenTypeUserServiceAccount && (config.Type == gitlab.TypeSaaS || config.Type == gitlab.TypeDedicated) {
+	if tokenType == token.TypeUserServiceAccount && (config.Type == gitlab.TypeSaaS || config.Type == gitlab.TypeDedicated) {
 		err = multierror.Append(err, fmt.Errorf("cannot create %s with %s: %w", tokenType, config.Type, errs.ErrInvalidValue))
 	}
 

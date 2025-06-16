@@ -23,7 +23,7 @@ func TestTokenNameGenerator_UnixTimeStamp(t *testing.T) {
 			Name:                "{{ .unix_timestamp_utc }}",
 			Scopes:              []string{g.TokenScopeApi.String()},
 			AccessLevel:         g.AccessLevelNoPermissions,
-			TokenType:           token.TokenTypePersonal,
+			TokenType:           token.TypePersonal,
 			GitlabRevokesTokens: false,
 		},
 	)

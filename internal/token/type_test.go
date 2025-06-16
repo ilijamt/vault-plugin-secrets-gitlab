@@ -7,54 +7,54 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestTokenType(t *testing.T) {
 	var tests = []struct {
-		expected gitlab.TokenType
+		expected token.Type
 		input    string
 		err      bool
 	}{
 		{
-			expected: gitlab.TokenTypePersonal,
-			input:    gitlab.TokenTypePersonal.String(),
+			expected: token.TypePersonal,
+			input:    token.TypePersonal.String(),
 		},
 		{
-			expected: gitlab.TokenTypeGroup,
-			input:    gitlab.TokenTypeGroup.String(),
+			expected: token.TypeGroup,
+			input:    token.TypeGroup.String(),
 		},
 		{
-			expected: gitlab.TokenTypeProject,
-			input:    gitlab.TokenTypeProject.String(),
+			expected: token.TypeProject,
+			input:    token.TypeProject.String(),
 		},
 		{
-			expected: gitlab.TokenTypeUserServiceAccount,
-			input:    gitlab.TokenTypeUserServiceAccount.String(),
+			expected: token.TypeUserServiceAccount,
+			input:    token.TypeUserServiceAccount.String(),
 		},
 		{
-			expected: gitlab.TokenTypeGroupServiceAccount,
-			input:    gitlab.TokenTypeGroupServiceAccount.String(),
+			expected: token.TypeGroupServiceAccount,
+			input:    token.TypeGroupServiceAccount.String(),
 		},
 		{
-			expected: gitlab.TokenTypePipelineProjectTrigger,
-			input:    gitlab.TokenTypePipelineProjectTrigger.String(),
+			expected: token.TypePipelineProjectTrigger,
+			input:    token.TypePipelineProjectTrigger.String(),
 		},
 		{
-			expected: gitlab.TokenTypeProjectDeploy,
-			input:    gitlab.TokenTypeProjectDeploy.String(),
+			expected: token.TypeProjectDeploy,
+			input:    token.TypeProjectDeploy.String(),
 		},
 		{
-			expected: gitlab.TokenTypeGroupDeploy,
-			input:    gitlab.TokenTypeGroupDeploy.String(),
+			expected: token.TypeGroupDeploy,
+			input:    token.TypeGroupDeploy.String(),
 		},
 		{
-			expected: gitlab.TokenTypeUnknown,
+			expected: token.TypeUnknown,
 			input:    "unknown",
 			err:      true,
 		},
 		{
-			expected: gitlab.TokenTypeUnknown,
+			expected: token.TypeUnknown,
 			input:    "unknown",
 			err:      true,
 		},
@@ -62,11 +62,11 @@ func TestTokenType(t *testing.T) {
 
 	for _, test := range tests {
 		t.Logf("assert parse(%s) = %s (err: %v)", test.input, test.expected, test.err)
-		val, err := gitlab.TokenTypeParse(test.input)
+		val, err := token.TypeParse(test.input)
 		assert.EqualValues(t, test.expected, val)
 		assert.EqualValues(t, test.expected.Value(), test.expected.String())
 		if test.err {
-			assert.ErrorIs(t, err, gitlab.ErrUnknownTokenType)
+			assert.ErrorIs(t, err, token.ErrUnknownTokenType)
 		} else {
 			assert.NoError(t, err)
 		}

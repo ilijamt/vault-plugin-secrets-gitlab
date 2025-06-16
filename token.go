@@ -14,7 +14,7 @@ type IToken interface {
 	Internal() map[string]any
 	Data() map[string]any
 	Event(map[string]string) map[string]string
-	Type() token.TokenType
+	Type() token.Type
 	SetConfigName(string)
 	SetRoleName(string)
 	SetGitlabRevokesToken(bool)
@@ -25,17 +25,17 @@ type IToken interface {
 }
 
 type Token struct {
-	RoleName           string          `json:"role_name"`
-	ConfigName         string          `json:"config_name"`
-	GitlabRevokesToken bool            `json:"gitlab_revokes_token"`
-	CreatedAt          *time.Time      `json:"created_at"`
-	ExpiresAt          *time.Time      `json:"expires_at"`
-	TokenType          token.TokenType `json:"type"`
-	Token              string          `json:"token"`
-	TokenID            int             `json:"token_id"`
-	ParentID           string          `json:"parent_id"`
-	Name               string          `json:"name"`
-	Path               string          `json:"path"`
+	RoleName           string     `json:"role_name"`
+	ConfigName         string     `json:"config_name"`
+	GitlabRevokesToken bool       `json:"gitlab_revokes_token"`
+	CreatedAt          *time.Time `json:"created_at"`
+	ExpiresAt          *time.Time `json:"expires_at"`
+	TokenType          token.Type `json:"type"`
+	Token              string     `json:"token"`
+	TokenID            int        `json:"token_id"`
+	ParentID           string     `json:"parent_id"`
+	Name               string     `json:"name"`
+	Path               string     `json:"path"`
 }
 
 func (t *Token) TTL() time.Duration {
@@ -58,7 +58,7 @@ func (t *Token) SetExpiresAt(expiresAt *time.Time) { t.ExpiresAt = expiresAt }
 func (t *Token) SetConfigName(name string)         { t.ConfigName = name }
 func (t *Token) SetRoleName(name string)           { t.RoleName = name }
 func (t *Token) SetGitlabRevokesToken(b bool)      { t.GitlabRevokesToken = b }
-func (t *Token) Type() token.TokenType             { return t.TokenType }
+func (t *Token) Type() token.Type                  { return t.TokenType }
 
 func (t *Token) Internal() map[string]any {
 	return map[string]any{

@@ -51,8 +51,8 @@ func TestWithPipelineProjectTriggerAccessToken(t *testing.T) {
 			Path:      fmt.Sprintf("%s/pptat", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "example/example",
-				"name":                 token2.TokenTypePipelineProjectTrigger.String(),
-				"token_type":           token2.TokenTypePipelineProjectTrigger.String(),
+				"name":                 token2.TypePipelineProjectTrigger.String(),
+				"token_type":           token2.TypePipelineProjectTrigger.String(),
 				"gitlab_revokes_token": strconv.FormatBool(false),
 			},
 		})

@@ -46,7 +46,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 
 	type roleData struct {
 		roleName, path, tokenName string
-		tokenType                 token.TokenType
+		tokenType                 token.Type
 		accessLevel               gitlab.AccessLevel
 		scopes                    []string
 	}
@@ -55,14 +55,14 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			{
 				roleName:  "root-root",
 				path:      "root",
-				tokenType: token.TokenTypePersonal,
+				tokenType: token.TypePersonal,
 				scopes:    []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
 				tokenName: "admin_user_root",
 			},
 			{
 				roleName:  "root-normal-user",
 				path:      "normal-user",
-				tokenType: token.TokenTypePersonal,
+				tokenType: token.TypePersonal,
 				scopes:    []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
 				tokenName: "admin_user_root",
 			},
@@ -71,7 +71,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			{
 				roleName:    "admin-example-example",
 				path:        "example/example",
-				tokenType:   token.TokenTypeProject,
+				tokenType:   token.TypeProject,
 				accessLevel: gitlab.AccessLevelGuestPermissions,
 				scopes:      []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
 				tokenName:   "admin_user_initial_token",
@@ -81,7 +81,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			{
 				roleName:    "normal-example",
 				path:        "example",
-				tokenType:   token.TokenTypeGroup,
+				tokenType:   token.TypeGroup,
 				accessLevel: gitlab.AccessLevelGuestPermissions,
 				scopes:      []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
 				tokenName:   "normal_user_initial_token",
@@ -98,13 +98,13 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			}
 
 			switch rd.tokenType {
-			case token.TokenTypePersonal:
+			case token.TypePersonal:
 				data["access_level"] = rd.accessLevel.String()
 				data["scopes"] = rd.scopes
-			case token.TokenTypeGroup:
+			case token.TypeGroup:
 				data["access_level"] = rd.accessLevel.String()
 				data["scopes"] = rd.scopes
-			case token.TokenTypeProject:
+			case token.TypeProject:
 				data["access_level"] = rd.accessLevel.String()
 				data["scopes"] = rd.scopes
 			}
