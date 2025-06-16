@@ -43,7 +43,7 @@ func (i Type) Value() string {
 	return i.String()
 }
 
-func TypeParse(value string) (Type, error) {
+func ParseType(value string) (Type, error) {
 	if slices.Contains(ValidTokenTypes, value) {
 		return Type(value), nil
 	}

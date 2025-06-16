@@ -63,7 +63,7 @@ func TestTokenType(t *testing.T) {
 
 	for _, test := range tests {
 		t.Logf("assert parse(%s) = %s (err: %v)", test.input, test.expected, test.err)
-		val, err := token.TypeParse(test.input)
+		val, err := token.ParseType(test.input)
 		assert.EqualValues(t, test.expected, val)
 		assert.EqualValues(t, test.expected.Value(), test.expected.String())
 		if test.err {
