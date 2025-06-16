@@ -16,6 +16,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	tok "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithNormalUser_ProjectAT(t *testing.T) {
@@ -53,8 +54,8 @@ func TestWithNormalUser_ProjectAT(t *testing.T) {
 			Path:      fmt.Sprintf("%s/pat", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "example/example",
-				"name":                 gitlab.TokenTypeProject.String(),
-				"token_type":           gitlab.TokenTypeProject.String(),
+				"name":                 tok.TokenTypeProject.String(),
+				"token_type":           tok.TokenTypeProject.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(false),
 				"access_level":         gitlab.AccessLevelMaintainerPermissions.String(),

@@ -16,6 +16,7 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathRolesTTL(t *testing.T) {
@@ -29,7 +30,7 @@ func TestPathRolesTTL(t *testing.T) {
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
-			"token_type": gitlab.TokenTypePersonal.String(),
+			"token_type": token.TokenTypePersonal.String(),
 			"scopes": []string{
 				gitlab.TokenScopeApi.String(),
 				gitlab.TokenScopeReadRegistry.String(),
@@ -90,7 +91,7 @@ func TestPathRolesTTL(t *testing.T) {
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
-			"token_type": gitlab.TokenTypePersonal.String(),
+			"token_type": token.TokenTypePersonal.String(),
 			"scopes": []string{
 				gitlab.TokenScopeApi.String(),
 				gitlab.TokenScopeReadRegistry.String(),
@@ -152,7 +153,7 @@ func TestPathRolesTTL(t *testing.T) {
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
-			"token_type": gitlab.TokenTypePersonal.String(),
+			"token_type": token.TokenTypePersonal.String(),
 			"scopes": []string{
 				gitlab.TokenScopeApi.String(),
 				gitlab.TokenScopeReadRegistry.String(),

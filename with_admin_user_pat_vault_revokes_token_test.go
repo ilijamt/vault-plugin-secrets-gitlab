@@ -16,6 +16,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithAdminUser_PAT_AdminUser_VaultRevokesToken(t *testing.T) {
@@ -54,8 +55,8 @@ func TestWithAdminUser_PAT_AdminUser_VaultRevokesToken(t *testing.T) {
 			Path: fmt.Sprintf("%s/admin-user", gitlab.PathRoleStorage),
 			Data: map[string]any{
 				"path":       "admin-user",
-				"name":       gitlab.TokenTypePersonal.String(),
-				"token_type": gitlab.TokenTypePersonal.String(),
+				"name":       token2.TokenTypePersonal.String(),
+				"token_type": token2.TokenTypePersonal.String(),
 				"scopes": strings.Join(
 					[]string{
 						gitlab.TokenScopeReadApi.String(),
