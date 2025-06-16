@@ -84,7 +84,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 	var parentId = req.Secret.InternalData["parent_id"].(string)
 	var tokenType token.Type
 	var tokenTypeValue = req.Secret.InternalData["token_type"].(string)
-	tokenType, _ = token.TypeParse(tokenTypeValue)
+	tokenType, _ = token.ParseType(tokenTypeValue)
 
 	if vaultRevokesToken {
 		var client Client

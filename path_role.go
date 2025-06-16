@@ -220,7 +220,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 	}
 
-	tokenType, _ = token.TypeParse(data.Get("token_type").(string))
+	tokenType, _ = token.ParseType(data.Get("token_type").(string))
 	accessLevel, _ = AccessLevelParse(data.Get("access_level").(string))
 
 	var role = EntryRole{
