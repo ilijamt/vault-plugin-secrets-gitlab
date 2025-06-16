@@ -54,7 +54,7 @@ func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 				"gitlab_revokes_token": strconv.FormatBool(true),
 				"scopes": strings.Join(
 					[]string{
-						gitlab.TokenScopeReadApi.String(),
+						token.ScopeReadApi.String(),
 					},
 					","),
 			},

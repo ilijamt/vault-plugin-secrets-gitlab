@@ -17,4 +17,8 @@ var (
 
 	// ErrBackendNotConfigured represents an error when trying to use a backend that hasn't been properly configured
 	ErrBackendNotConfigured = errors.New("backend not configured")
+
+	ErrUnknownTokenType = errors.New("unknown token type")
+
+	ErrUnknownTokenScope = errors.New("unknown token scope")
 )

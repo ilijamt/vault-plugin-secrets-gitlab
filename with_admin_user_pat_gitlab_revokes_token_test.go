@@ -60,7 +60,7 @@ func TestWithAdminUser_PAT_AdminUser_GitlabRevokesToken(t *testing.T) {
 				"gitlab_revokes_token": strconv.FormatBool(true),
 				"scopes": strings.Join(
 					[]string{
-						gitlab.TokenScopeReadApi.String(),
+						token2.ScopeReadApi.String(),
 					},
 					","),
 			},
