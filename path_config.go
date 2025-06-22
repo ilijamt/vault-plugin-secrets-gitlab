@@ -93,7 +93,7 @@ func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, da
 		}
 
 		if err = req.Storage.Delete(ctx, fmt.Sprintf("%s/%s", PathConfigStorage, name)); err == nil {
-			event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "config-delete", map[string]string{
+			_ = event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "config-delete", map[string]string{
 				"path": fmt.Sprintf("%s/%s", PathConfigStorage, name),
 			})
 			b.SetClient(nil, name)
@@ -148,7 +148,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 	defer b.lockClientMutex.Unlock()
 	if err = saveConfig(ctx, *config, req.Storage); err == nil {
 		lrd := config.LogicalResponseData(b.flags.ShowConfigToken)
-		event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "config-patch", changes)
+		_ = event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "config-patch", changes)
 		b.SetClient(nil, name)
 		b.Logger().Debug("Patched config", "lrd", lrd, "warnings", warnings)
 		lResp = &logical.Response{Data: lrd, Warnings: warnings}
@@ -207,7 +207,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	var lResp *logical.Response
 
 	if err = saveConfig(ctx, *config, req.Storage); err == nil {
-		event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "config-write", map[string]string{
+		_ = event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "config-write", map[string]string{
 			"path":               fmt.Sprintf("%s/%s", PathConfigStorage, name),
 			"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
 			"auto_rotate_before": config.AutoRotateBefore.String(),
