@@ -1,28 +1,19 @@
-package gitlab
+package models
 
 import (
 	"crypto/sha1"
 	"fmt"
 	"maps"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
-type IToken interface {
-	Internal() map[string]any
-	Data() map[string]any
-	Event(map[string]string) map[string]string
-	Type() token.Type
-	SetConfigName(string)
-	SetRoleName(string)
-	SetGitlabRevokesToken(bool)
-	SetExpiresAt(*time.Time)
-	GetExpiresAt() time.Time
-	GetCreatedAt() time.Time
-	TTL() time.Duration
-}
+var _ token.Token = (*Token)(nil)
+var _ token.Token = (*TokenWithScopes)(nil)
+var _ token.Token = (*TokenWithScopesAndAccessLevel)(nil)
 
 type Token struct {
 	RoleName           string     `json:"role_name"`
@@ -106,4 +97,60 @@ func (t *Token) Event(m map[string]string) (d map[string]string) {
 	return d
 }
 
-var _ IToken = (*Token)(nil)
+type TokenWithScopes struct {
+	Token `json:",inline"`
+
+	Scopes []string `json:"scopes"`
+}
+
+func (t *TokenWithScopes) Internal() (d map[string]any) {
+	d = map[string]any{"scopes": t.Scopes}
+	maps.Copy(d, t.Token.Internal())
+	return d
+}
+
+func (t *TokenWithScopes) Data() (d map[string]any) {
+	d = map[string]any{"scopes": t.Scopes}
+	maps.Copy(d, t.Token.Data())
+	return d
+}
+
+func (t *TokenWithScopes) Event(m map[string]string) (d map[string]string) {
+	d = map[string]string{"scopes": strings.Join(t.Scopes, ",")}
+	maps.Copy(d, t.Token.Event(m))
+	return d
+}
+
+type TokenWithScopesAndAccessLevel struct {
+	Token `json:",inline"`
+
+	Scopes      []string          `json:"scopes"`
+	AccessLevel token.AccessLevel `json:"access_level"`
+}
+
+func (t *TokenWithScopesAndAccessLevel) Internal() (d map[string]any) {
+	d = map[string]any{
+		"scopes":       t.Scopes,
+		"access_level": t.AccessLevel.String(),
+	}
+	maps.Copy(d, t.Token.Internal())
+	return d
+}
+
+func (t *TokenWithScopesAndAccessLevel) Data() (d map[string]any) {
+	d = map[string]any{
+		"scopes":       t.Scopes,
+		"access_level": t.AccessLevel.String(),
+	}
+	maps.Copy(d, t.Token.Data())
+	return d
+}
+
+func (t *TokenWithScopesAndAccessLevel) Event(m map[string]string) (d map[string]string) {
+	d = map[string]string{
+		"scopes":       strings.Join(t.Scopes, ","),
+		"access_level": t.AccessLevel.String(),
+	}
+	maps.Copy(d, t.Token.Event(m))
+	return d
+}
