@@ -13,6 +13,7 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/models"
 )
 
 const pathConfigRotateHelpSynopsis = `Rotate the gitlab token for this configuration.`
@@ -80,7 +81,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		return nil, err
 	}
 
-	var entryToken *TokenConfig
+	var entryToken *models.TokenConfig
 	entryToken, _, err = client.RotateCurrentToken(ctx)
 	if err != nil {
 		b.Logger().Error("Failed to rotate main token", "err", err)

@@ -1,7 +1,9 @@
-package gitlab
+package models
 
 import (
 	"maps"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 type TokenGroupDeploy struct {
@@ -27,3 +29,5 @@ func (t *TokenGroupDeploy) Event(m map[string]string) (d map[string]string) {
 	maps.Copy(d, t.Token.Event(m))
 	return d
 }
+
+var _ token.Token = (*TokenGroupDeploy)(nil)

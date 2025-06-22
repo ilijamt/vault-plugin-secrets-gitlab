@@ -61,7 +61,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	defer b.Logger().Debug("Created token for role", "role_name", roleName, "token_type", role.TokenType.String())
 
 	var name string
-	var token IToken
+	var token token2.Token
 	var expiresAt time.Time
 	var startTime = TimeFromContext(ctx).UTC()
 
