@@ -156,7 +156,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		resp.Secret.TTL = token.TTL()
 	}
 
-	event.Event(
+	_ = event.Event(
 		ctx, b.Backend, operationPrefixGitlabAccessTokens, "token-write",
 		token.Event(map[string]string{"path": fmt.Sprintf("%s/%s", PathRoleStorage, roleName)}),
 	)

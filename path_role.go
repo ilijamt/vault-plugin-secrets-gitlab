@@ -167,7 +167,7 @@ func (b *Backend) pathRolesDelete(ctx context.Context, req *logical.Request, dat
 		return nil, fmt.Errorf("error deleting role: %w", err)
 	}
 
-	event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "role-delete", map[string]string{
+	_ = event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "role-delete", map[string]string{
 		"path":      "roles",
 		"role_name": roleName,
 	})
@@ -371,7 +371,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		return nil, err
 	}
 
-	event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "role-write", map[string]string{
+	_ = event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "role-write", map[string]string{
 		"path":        "roles",
 		"role_name":   roleName,
 		"config_name": role.ConfigName,

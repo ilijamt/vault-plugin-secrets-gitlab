@@ -128,7 +128,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		}
 	}
 
-	event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "token-revoke", map[string]string{
+	_ = event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "token-revoke", map[string]string{
 		"lease_id":             secret.LeaseID,
 		"path":                 req.Secret.InternalData["path"].(string),
 		"name":                 req.Secret.InternalData["name"].(string),
