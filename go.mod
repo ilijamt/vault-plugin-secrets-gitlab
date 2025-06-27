@@ -13,7 +13,7 @@ require (
 	gitlab.com/gitlab-org/api/client-go v0.130.1
 	golang.org/x/time v0.12.0
 	google.golang.org/protobuf v1.36.6
-	gopkg.in/dnaeon/go-vcr.v4 v4.0.3
+	gopkg.in/dnaeon/go-vcr.v4 v4.0.4
 )
 
 require (
