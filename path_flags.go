@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/mitchellh/mapstructure"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 )
 
 const (
@@ -43,7 +45,7 @@ func (b *Backend) pathFlagsUpdate(ctx context.Context, req *logical.Request, dat
 		eventData["show_config_token"] = strconv.FormatBool(b.flags.ShowConfigToken)
 	}
 
-	event(ctx, b.Backend, "flags-write", eventData)
+	_ = event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "flags-write", eventData)
 
 	var flagData map[string]any
 	err = mapstructure.Decode(b.flags, &flagData)

@@ -13,6 +13,8 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithProjectDeployToken(t *testing.T) {
@@ -31,7 +33,7 @@ func TestWithProjectDeployToken(t *testing.T) {
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
-			"type":               gitlab.TypeSelfManaged.String(),
+			"type":               gitlab2.TypeSelfManaged.String(),
 		},
 	})
 
@@ -50,11 +52,11 @@ func TestWithProjectDeployToken(t *testing.T) {
 			Path:      fmt.Sprintf("%s/role", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "example/example",
-				"name":                 gitlab.TokenTypeProjectDeploy.String(),
-				"token_type":           gitlab.TokenTypeProjectDeploy.String(),
+				"name":                 token2.TypeProjectDeploy.String(),
+				"token_type":           token2.TypeProjectDeploy.String(),
 				"gitlab_revokes_token": strconv.FormatBool(false),
 				"ttl":                  120 * time.Hour,
-				"scopes":               []string{gitlab.TokenScopeReadRepository.String()},
+				"scopes":               []string{token2.ScopeReadRepository.String()},
 			},
 		})
 		require.NoError(t, err)

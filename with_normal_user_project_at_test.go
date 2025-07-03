@@ -15,6 +15,8 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	tok "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithNormalUser_ProjectAT(t *testing.T) {
@@ -33,7 +35,7 @@ func TestWithNormalUser_ProjectAT(t *testing.T) {
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
-			"type":               gitlab.TypeSelfManaged.String(),
+			"type":               gitlab2.TypeSelfManaged.String(),
 		},
 	})
 
@@ -52,14 +54,14 @@ func TestWithNormalUser_ProjectAT(t *testing.T) {
 			Path:      fmt.Sprintf("%s/pat", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "example/example",
-				"name":                 gitlab.TokenTypeProject.String(),
-				"token_type":           gitlab.TokenTypeProject.String(),
+				"name":                 tok.TypeProject.String(),
+				"token_type":           tok.TypeProject.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(false),
-				"access_level":         gitlab.AccessLevelMaintainerPermissions.String(),
+				"access_level":         tok.AccessLevelMaintainerPermissions.String(),
 				"scopes": strings.Join(
 					[]string{
-						gitlab.TokenScopeReadApi.String(),
+						tok.ScopeReadApi.String(),
 					},
 					","),
 			},
