@@ -11,13 +11,15 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 )
 
 func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 	t.Run("nil data", func(t *testing.T) {
 		e := new(gitlab.EntryConfig)
 		_, err := e.UpdateFromFieldData(nil)
-		require.ErrorIs(t, err, gitlab.ErrNilValue)
+		require.ErrorIs(t, err, errs.ErrNilValue)
 	})
 
 	var tests = []struct {
@@ -34,7 +36,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			err:      true,
 			warnings: []string{"auto_rotate_token not specified setting to 24h0m0s"},
 			errMap: map[string]int{
-				gitlab.ErrFieldRequired.Error(): 3,
+				errs.ErrFieldRequired.Error(): 3,
 			},
 		},
 		{
@@ -47,8 +49,8 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			warnings:       []string{"auto_rotate_token not specified setting to 24h0m0s"},
 			err:            true,
 			errMap: map[string]int{
-				gitlab.ErrFieldRequired.Error(): 1,
-				gitlab.ErrUnknownType.Error():   1,
+				errs.ErrFieldRequired.Error():  1,
+				gitlab2.ErrUnknownType.Error(): 1,
 			},
 		},
 		{
@@ -64,7 +66,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			name: "valid config",
 			expectedConfig: &gitlab.EntryConfig{
 				Token:            "token",
-				Type:             gitlab.TypeSelfManaged,
+				Type:             gitlab2.TypeSelfManaged,
 				AutoRotateToken:  false,
 				AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL,
 				BaseURL:          "https://gitlab.com",
@@ -72,7 +74,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			warnings: []string{"auto_rotate_token not specified setting to 24h0m0s"},
 			raw: map[string]interface{}{
 				"token":    "token",
-				"type":     gitlab.TypeSelfManaged.String(),
+				"type":     gitlab2.TypeSelfManaged.String(),
 				"base_url": "https://gitlab.com",
 			},
 		},

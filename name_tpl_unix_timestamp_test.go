@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestTokenNameGenerator_UnixTimeStamp(t *testing.T) {
@@ -20,9 +21,9 @@ func TestTokenNameGenerator_UnixTimeStamp(t *testing.T) {
 			TTL:                 time.Hour,
 			Path:                "/path",
 			Name:                "{{ .unix_timestamp_utc }}",
-			Scopes:              []string{g.TokenScopeApi.String()},
-			AccessLevel:         g.AccessLevelNoPermissions,
-			TokenType:           g.TokenTypePersonal,
+			Scopes:              []string{token.ScopeApi.String()},
+			AccessLevel:         token.AccessLevelNoPermissions,
+			TokenType:           token.TypePersonal,
 			GitlabRevokesTokens: false,
 		},
 	)

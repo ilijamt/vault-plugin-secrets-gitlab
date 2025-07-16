@@ -12,6 +12,8 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithPipelineProjectTriggerAccessToken(t *testing.T) {
@@ -30,7 +32,7 @@ func TestWithPipelineProjectTriggerAccessToken(t *testing.T) {
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
-			"type":               gitlab.TypeSelfManaged.String(),
+			"type":               gitlab2.TypeSelfManaged.String(),
 		},
 	})
 
@@ -49,8 +51,8 @@ func TestWithPipelineProjectTriggerAccessToken(t *testing.T) {
 			Path:      fmt.Sprintf("%s/pptat", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "example/example",
-				"name":                 gitlab.TokenTypePipelineProjectTrigger.String(),
-				"token_type":           gitlab.TokenTypePipelineProjectTrigger.String(),
+				"name":                 token2.TypePipelineProjectTrigger.String(),
+				"token_type":           token2.TypePipelineProjectTrigger.String(),
 				"gitlab_revokes_token": strconv.FormatBool(false),
 			},
 		})
