@@ -11,6 +11,8 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathTokenRolesMultipleConfigs(t *testing.T) {
@@ -35,7 +37,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 				map[string]any{
 					"token":    token,
 					"base_url": gitlabUrl,
-					"type":     gitlab.TypeSelfManaged.String(),
+					"type":     gitlab2.TypeSelfManaged.String(),
 				},
 				name,
 			),
@@ -44,8 +46,8 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 
 	type roleData struct {
 		roleName, path, tokenName string
-		tokenType                 gitlab.TokenType
-		accessLevel               gitlab.AccessLevel
+		tokenType                 token.Type
+		accessLevel               token.AccessLevel
 		scopes                    []string
 	}
 	var roles = map[string][]roleData{
@@ -53,15 +55,15 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			{
 				roleName:  "root-root",
 				path:      "root",
-				tokenType: gitlab.TokenTypePersonal,
-				scopes:    []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				tokenType: token.TypePersonal,
+				scopes:    []string{token.ScopeApi.String(), token.ScopeSelfRotate.String()},
 				tokenName: "admin_user_root",
 			},
 			{
 				roleName:  "root-normal-user",
 				path:      "normal-user",
-				tokenType: gitlab.TokenTypePersonal,
-				scopes:    []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				tokenType: token.TypePersonal,
+				scopes:    []string{token.ScopeApi.String(), token.ScopeSelfRotate.String()},
 				tokenName: "admin_user_root",
 			},
 		},
@@ -69,9 +71,9 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			{
 				roleName:    "admin-example-example",
 				path:        "example/example",
-				tokenType:   gitlab.TokenTypeProject,
-				accessLevel: gitlab.AccessLevelGuestPermissions,
-				scopes:      []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				tokenType:   token.TypeProject,
+				accessLevel: token.AccessLevelGuestPermissions,
+				scopes:      []string{token.ScopeApi.String(), token.ScopeSelfRotate.String()},
 				tokenName:   "admin_user_initial_token",
 			},
 		},
@@ -79,9 +81,9 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			{
 				roleName:    "normal-example",
 				path:        "example",
-				tokenType:   gitlab.TokenTypeGroup,
-				accessLevel: gitlab.AccessLevelGuestPermissions,
-				scopes:      []string{gitlab.TokenScopeApi.String(), gitlab.TokenScopeSelfRotate.String()},
+				tokenType:   token.TypeGroup,
+				accessLevel: token.AccessLevelGuestPermissions,
+				scopes:      []string{token.ScopeApi.String(), token.ScopeSelfRotate.String()},
 				tokenName:   "normal_user_initial_token",
 			},
 		},
@@ -96,13 +98,13 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			}
 
 			switch rd.tokenType {
-			case gitlab.TokenTypePersonal:
+			case token.TypePersonal:
 				data["access_level"] = rd.accessLevel.String()
 				data["scopes"] = rd.scopes
-			case gitlab.TokenTypeGroup:
+			case token.TypeGroup:
 				data["access_level"] = rd.accessLevel.String()
 				data["scopes"] = rd.scopes
-			case gitlab.TokenTypeProject:
+			case token.TypeProject:
 				data["access_level"] = rd.accessLevel.String()
 				data["scopes"] = rd.scopes
 			}

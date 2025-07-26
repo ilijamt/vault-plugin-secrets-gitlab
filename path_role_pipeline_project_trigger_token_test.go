@@ -15,13 +15,16 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 	var defaultConfig = map[string]any{
 		"token":    getGitlabToken("admin_user_root").Token,
 		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
-		"type":     gitlab.TypeSelfManaged.String(),
+		"type":     gitlab2.TypeSelfManaged.String(),
 	}
 
 	t.Run("should fail if have defined scopes or access level", func(t *testing.T) {
@@ -34,16 +37,16 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",
-				"access_level": gitlab.AccessLevelNoPermissions.String(),
-				"token_type":   gitlab.TokenTypePipelineProjectTrigger.String(),
-				"scopes":       []string{gitlab.TokenScopeApi.String()},
+				"access_level": token.AccessLevelNoPermissions.String(),
+				"token_type":   token.TypePipelineProjectTrigger.String(),
+				"scopes":       []string{token.ScopeApi.String()},
 				"ttl":          "1h",
 			},
 		})
 		require.Error(t, err)
 		require.NotNil(t, resp)
 		var errorMap = countErrByName(err.(*multierror.Error))
-		assert.EqualValues(t, 2, errorMap[gitlab.ErrFieldInvalidValue.Error()])
+		assert.EqualValues(t, 2, errorMap[errs.ErrFieldInvalidValue.Error()])
 	})
 
 	t.Run("ttl is set", func(t *testing.T) {
@@ -56,8 +59,8 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",
-				"access_level": gitlab.AccessLevelUnknown.String(),
-				"token_type":   gitlab.TokenTypePipelineProjectTrigger.String(),
+				"access_level": token.AccessLevelUnknown.String(),
+				"token_type":   token.TypePipelineProjectTrigger.String(),
 				"scopes":       []string{},
 				"ttl":          "1h",
 			},
@@ -77,8 +80,8 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",
-				"access_level": gitlab.AccessLevelUnknown.String(),
-				"token_type":   gitlab.TokenTypePipelineProjectTrigger.String(),
+				"access_level": token.AccessLevelUnknown.String(),
+				"token_type":   token.TypePipelineProjectTrigger.String(),
 				"scopes":       []string{},
 			},
 		})

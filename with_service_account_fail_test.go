@@ -11,12 +11,14 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestWithServiceAccountUserFail(t *testing.T) {
-	for _, typ := range []gitlab.Type{
-		gitlab.TypeSaaS,
-		gitlab.TypeDedicated,
+	for _, typ := range []gitlab2.Type{
+		gitlab2.TypeSaaS,
+		gitlab2.TypeDedicated,
 	} {
 		t.Run(typ.String(), func(t *testing.T) {
 			httpClient, _ := getClient(t, "selfhosted")
@@ -56,9 +58,9 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 				Data: map[string]any{
 					"path":                 usr.Username,
 					"name":                 fmt.Sprintf(`user-service-account-%s`, usr.Username),
-					"token_type":           gitlab.TokenTypeUserServiceAccount.String(),
+					"token_type":           token.TypeUserServiceAccount.String(),
 					"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-					"scopes":               gitlab.ValidUserServiceAccountTokenScopes,
+					"scopes":               token.ValidUserServiceAccountTokenScopes,
 					"gitlab_revokes_token": false,
 				},
 			})
