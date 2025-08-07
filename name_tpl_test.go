@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestTokenNameGenerator(t *testing.T) {
@@ -27,9 +28,9 @@ func TestTokenNameGenerator(t *testing.T) {
 				TTL:                 time.Hour,
 				Path:                "/path",
 				Name:                "{{ .role_name",
-				Scopes:              []string{g.TokenScopeApi.String()},
-				AccessLevel:         g.AccessLevelNoPermissions,
-				TokenType:           g.TokenTypePersonal,
+				Scopes:              []string{token.ScopeApi.String()},
+				AccessLevel:         token.AccessLevelNoPermissions,
+				TokenType:           token.TypePersonal,
 				GitlabRevokesTokens: true,
 			},
 			"",
@@ -43,9 +44,9 @@ func TestTokenNameGenerator(t *testing.T) {
 				TTL:                 time.Hour,
 				Path:                "/path",
 				Name:                "{{ .role_name }}-{{ .token_type }}-access-token-{{ yesNoBool .gitlab_revokes_token }}",
-				Scopes:              []string{g.TokenScopeApi.String()},
-				AccessLevel:         g.AccessLevelNoPermissions,
-				TokenType:           g.TokenTypePersonal,
+				Scopes:              []string{token.ScopeApi.String()},
+				AccessLevel:         token.AccessLevelNoPermissions,
+				TokenType:           token.TypePersonal,
 				GitlabRevokesTokens: true,
 			},
 			"test-personal-access-token-yes",
@@ -59,9 +60,9 @@ func TestTokenNameGenerator(t *testing.T) {
 				TTL:                 time.Hour,
 				Path:                "/path",
 				Name:                "{{ .role_name }}-{{ .token_type }}-{{ stringsJoin .scopes \"-\" }}-{{ yesNoBool .gitlab_revokes_token }}",
-				Scopes:              []string{g.TokenScopeApi.String(), g.TokenScopeSudo.String()},
-				AccessLevel:         g.AccessLevelNoPermissions,
-				TokenType:           g.TokenTypePersonal,
+				Scopes:              []string{token.ScopeApi.String(), token.ScopeSudo.String()},
+				AccessLevel:         token.AccessLevelNoPermissions,
+				TokenType:           token.TypePersonal,
 				GitlabRevokesTokens: false,
 			},
 			"test-personal-api-sudo-no",
@@ -75,9 +76,9 @@ func TestTokenNameGenerator(t *testing.T) {
 				TTL:                 time.Hour,
 				Path:                "/path",
 				Name:                "{{ .role_name }}-{{ .token_type }}-{{ timeNowFormat \"2006-01\" }}",
-				Scopes:              []string{g.TokenScopeApi.String(), g.TokenScopeSudo.String()},
-				AccessLevel:         g.AccessLevelNoPermissions,
-				TokenType:           g.TokenTypePersonal,
+				Scopes:              []string{token.ScopeApi.String(), token.ScopeSudo.String()},
+				AccessLevel:         token.AccessLevelNoPermissions,
+				TokenType:           token.TypePersonal,
 				GitlabRevokesTokens: false,
 			},
 			fmt.Sprintf("test-personal-%d-%02d", time.Now().UTC().Year(), time.Now().UTC().Month()),
