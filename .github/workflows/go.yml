@@ -22,7 +22,7 @@ jobs:
       - name: Build
         run: go build ./cmd/vault-plugin-secrets-gitlab
       - name: Test
-        run: go test -cover -coverprofile=coverage.out -tags unit,selfhosted,saas,local
+        run: go test -cover -coverprofile=coverage.out -tags unit,selfhosted,saas,local ./...
         env:
           GITLAB_SERVICE_ACCOUNT_URL: ${{ vars.GITLAB_SERVICE_ACCOUNT_URL }}
       - name: Upload coverage reports to Codecov
