@@ -34,12 +34,26 @@ var tplFuncMap = template.FuncMap{
 	"timeNowFormat": timeNowFormat,
 }
 
+// TokenNameData defines an interface for objects that contain a token name and
+// methods for obtaining data relevant to token-based operations.
+//
+// This interface provides a contract for structures that need to offer
+// token name data and conversion capabilities. It is used to ensure consistent
+// handling of token names and associated logic.
 type TokenNameData interface {
+	// GetName returns the token's name as a string
 	GetName() string
+	// LogicalResponseData returns a map containing relevant data that can be used in template operations or logical evaluations
 	LogicalResponseData() map[string]any
+	// IsNil returns a boolean indicating whether the instance is considered nil or invalid
 	IsNil() bool
 }
 
+// ValidateTokenNameName validates the template syntax of a token name.
+//
+// This function checks if the provided TokenNameData instance is non-nil and executes
+// basic validation of the token name's syntax by parsing it as a template. This helps
+// ensure the token name format adheres to expected patterns and contains no syntax errors.
 func ValidateTokenNameName(role TokenNameData) (err error) {
 	if role == nil || role.IsNil() {
 		return fmt.Errorf("role: %w", errs.ErrNilValue)
@@ -48,6 +62,12 @@ func ValidateTokenNameName(role TokenNameData) (err error) {
 	return err
 }
 
+// TokenName generates a token name by executing the template defined in TokenNameData.
+//
+// This function retrieves the template string from the TokenNameData, parses it, and
+// then executes it while substituting placeholders with the logical response data
+// provided by the token role. An additional "unix_timestamp_utc" field is added to the
+// data map, representing the current UTC Unix timestamp.
 func TokenName(role TokenNameData) (name string, err error) {
 	if role == nil || role.IsNil() {
 		return "", fmt.Errorf("role: %w", errs.ErrNilValue)

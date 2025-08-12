@@ -4,6 +4,12 @@ import (
 	"time"
 )
 
+// CalculateGitlabTTL calculates the Time-To-Live (TTL) and expiration time for
+// a GitLab-related operation based on a specified duration and start time.
+//
+// The function ensures that the calculated expiration does not exceed one year
+// from the start time. It computes the expiration to be at the midnight
+// following the calculated expiration date.
 func CalculateGitlabTTL(duration time.Duration, start time.Time) (ttl time.Duration, exp time.Time, err error) {
 	start = start.UTC()
 	const D = 24 * time.Hour
