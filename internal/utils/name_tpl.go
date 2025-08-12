@@ -1,4 +1,4 @@
-package gitlab
+package utils
 
 import (
 	"crypto/rand"
@@ -34,12 +34,26 @@ var tplFuncMap = template.FuncMap{
 	"timeNowFormat": timeNowFormat,
 }
 
-func TokenName(role *EntryRole) (name string, err error) {
-	if role == nil {
+type TokenNameData interface {
+	GetName() string
+	LogicalResponseData() map[string]any
+	IsNil() bool
+}
+
+func ValidateTokenNameName(role TokenNameData) (err error) {
+	if role == nil || role.IsNil() {
+		return fmt.Errorf("role: %w", errs.ErrNilValue)
+	}
+	_, err = template.New("name").Funcs(tplFuncMap).Parse(role.GetName())
+	return err
+}
+
+func TokenName(role TokenNameData) (name string, err error) {
+	if role == nil || role.IsNil() {
 		return "", fmt.Errorf("role: %w", errs.ErrNilValue)
 	}
 	var tpl *template.Template
-	tpl, err = template.New("name").Funcs(tplFuncMap).Parse(role.Name)
+	tpl, err = template.New("name").Funcs(tplFuncMap).Parse(role.GetName())
 	if err != nil {
 		return "", err
 	}

@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"slices"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -236,7 +235,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	}
 
 	// validate name of the entry role
-	if _, e := template.New("name").Funcs(tplFuncMap).Parse(role.Name); e != nil {
+	if e := utils.ValidateTokenNameName(role); e != nil {
 		err = multierror.Append(err, fmt.Errorf("invalid template %s for name: %w", role.Name, e))
 	}
 

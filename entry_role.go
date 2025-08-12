@@ -22,6 +22,14 @@ type EntryRole struct {
 	ConfigName          string            `json:"config_name" structs:"config_name" mapstructure:"config_name"`
 }
 
+func (e EntryRole) IsNil() bool {
+	return false
+}
+
+func (e EntryRole) GetName() string {
+	return e.Name
+}
+
 func (e EntryRole) LogicalResponseData() map[string]any {
 	return map[string]any{
 		"role_name":            e.RoleName,
