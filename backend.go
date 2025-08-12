@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 const (
@@ -182,7 +183,7 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage, name string)
 	}
 
 	var httpClient *http.Client
-	httpClient, _ = HttpClientFromContext(ctx)
+	httpClient, _ = utils.HttpClientFromContext(ctx)
 	if client, _ = ClientFromContext(ctx); client == nil {
 		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
 			b.SetClient(client, name)

@@ -63,7 +63,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	var name string
 	var token token2.Token
 	var expiresAt time.Time
-	var startTime = TimeFromContext(ctx).UTC()
+	var startTime = utils.TimeFromContext(ctx).UTC()
 
 	name, err = utils.TokenName(role)
 	if err != nil {

@@ -16,6 +16,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/models"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 const (
@@ -160,7 +161,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfig) (et *models.TokenConfig, err error) {
 	var httpClient *http.Client
 	var client Client
-	httpClient, _ = HttpClientFromContext(ctx)
+	httpClient, _ = utils.HttpClientFromContext(ctx)
 	if client, _ = ClientFromContext(ctx); client == nil {
 		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
 			b.SetClient(client, config.Name)

@@ -371,7 +371,7 @@ func (gc *gitlabClient) RotateCurrentToken(ctx context.Context) (token *models.T
 
 	var pat *g.PersonalAccessToken
 	var durationTTL = currentEntryToken.ExpiresAt.Sub(*currentEntryToken.CreatedAt)
-	_, expiresAt, _ = utils.CalculateGitlabTTL(durationTTL, TimeFromContext(ctx))
+	_, expiresAt, _ = utils.CalculateGitlabTTL(durationTTL, utils.TimeFromContext(ctx))
 	pat, _, err = gc.client.PersonalAccessTokens.RotatePersonalAccessToken(
 		currentEntryToken.TokenID,
 		&g.RotatePersonalAccessTokenOptions{ExpiresAt: (*g.ISOTime)(&expiresAt)},

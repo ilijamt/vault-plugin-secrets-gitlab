@@ -13,6 +13,7 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestWithServiceAccountUserFail(t *testing.T) {
@@ -22,7 +23,7 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 	} {
 		t.Run(typ.String(), func(t *testing.T) {
 			httpClient, _ := getClient(t, "selfhosted")
-			ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+			ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 			b, l, events, err := getBackendWithEvents(ctx)
 			require.NoError(t, err)

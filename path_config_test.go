@@ -15,6 +15,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestPathConfig(t *testing.T) {
@@ -50,7 +51,7 @@ func TestPathConfig(t *testing.T) {
 
 	t.Run("write, read, delete and read config", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, l, events, err := getBackendWithEvents(ctx)
 		require.NoError(t, err)
@@ -106,7 +107,7 @@ func TestPathConfig(t *testing.T) {
 
 	t.Run("write, read, delete and read config with show config token", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, l, events, err := getBackendWithFlagsWithEvents(ctx, flags.Flags{ShowConfigToken: true})
 		require.NoError(t, err)
@@ -161,7 +162,7 @@ func TestPathConfig(t *testing.T) {
 	})
 	t.Run("invalid token", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, l, events, err := getBackendWithEvents(ctx)
 		require.NoError(t, err)
@@ -203,7 +204,7 @@ func TestPathConfig(t *testing.T) {
 
 	t.Run("patch a config with no storage", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, _, err := getBackend(ctx)
 		require.NoError(t, err)
@@ -224,7 +225,7 @@ func TestPathConfig(t *testing.T) {
 
 	t.Run("patch a config no backend", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
@@ -246,7 +247,7 @@ func TestPathConfig(t *testing.T) {
 
 	t.Run("patch a config", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 		var path = fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName)
 
 		b, l, events, err := getBackendWithEvents(ctx)

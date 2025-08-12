@@ -30,6 +30,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/models"
 	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 var _ gitlab.Client = new(inMemoryClient)
@@ -579,12 +580,12 @@ func sanitizePath(path string) string {
 
 func getCtxGitlabClient(t *testing.T, target string) context.Context {
 	httpClient, _ := getClient(t, target)
-	return gitlab.HttpClientNewContext(t.Context(), httpClient)
+	return utils.HttpClientNewContext(t.Context(), httpClient)
 }
 
 func getCtxGitlabClientWithUrl(t *testing.T, target string) (context.Context, string) {
 	httpClient, url := getClient(t, target)
-	return gitlab.HttpClientNewContext(t.Context(), httpClient), url
+	return utils.HttpClientNewContext(t.Context(), httpClient), url
 }
 
 func parseTimeFromFile(name string) (t time.Time, err error) {
@@ -619,7 +620,7 @@ func ctxTestTime(ctx context.Context, testName string, tokenName string) (_ cont
 	} else {
 		t = token.CreatedAtTime()
 	}
-	return gitlab.WithStaticTime(ctx, t), t
+	return utils.WithStaticTime(ctx, t), t
 }
 
 func filterSlice[T any, Slice ~[]T](collection Slice, predicate func(item T, index int) bool) Slice {
