@@ -11,6 +11,12 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	g "gitlab.com/gitlab-org/api/client-go"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/models"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 const (
@@ -40,9 +46,9 @@ var (
 			Type:     framework.TypeString,
 			Required: true,
 			AllowedValues: []any{
-				TypeSelfManaged,
-				TypeSaaS,
-				TypeDedicated,
+				gitlab.TypeSelfManaged,
+				gitlab.TypeSaaS,
+				gitlab.TypeDedicated,
 			},
 			Description: `The type of GitLab instance you are connecting to. This could typically distinguish between 'self-managed' for on-premises GitLab installations or 'saas' or 'dedicated' for the GitLab SaaS offering. This field helps the plugin to adjust any necessary configurations or request patterns specific to the type of GitLab instance.`,
 			DisplayAttrs: &framework.DisplayAttributes{
@@ -84,11 +90,11 @@ func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, da
 
 	if config, err := getConfig(ctx, req.Storage, name); err == nil {
 		if config == nil {
-			return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+			return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 		}
 
 		if err = req.Storage.Delete(ctx, fmt.Sprintf("%s/%s", PathConfigStorage, name)); err == nil {
-			event(ctx, b.Backend, "config-delete", map[string]string{
+			_ = event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "config-delete", map[string]string{
 				"path": fmt.Sprintf("%s/%s", PathConfigStorage, name),
 			})
 			b.SetClient(nil, name)
@@ -106,7 +112,7 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 	var config *EntryConfig
 	if config, err = getConfig(ctx, req.Storage, name); err == nil {
 		if config == nil {
-			return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+			return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 		}
 		lrd := config.LogicalResponseData(b.flags.ShowConfigToken)
 		b.Logger().Debug("Reading configuration info", "info", lrd)
@@ -125,7 +131,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 		return nil, err
 	}
 	if config == nil {
-		return logical.ErrorResponse(ErrBackendNotConfigured.Error()), nil
+		return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 	}
 
 	warnings, changes, err = config.Merge(data)
@@ -143,7 +149,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 	defer b.lockClientMutex.Unlock()
 	if err = saveConfig(ctx, *config, req.Storage); err == nil {
 		lrd := config.LogicalResponseData(b.flags.ShowConfigToken)
-		event(ctx, b.Backend, "config-patch", changes)
+		_ = event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "config-patch", changes)
 		b.SetClient(nil, name)
 		b.Logger().Debug("Patched config", "lrd", lrd, "warnings", warnings)
 		lResp = &logical.Response{Data: lrd, Warnings: warnings}
@@ -152,11 +158,11 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 	return lResp, err
 }
 
-func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfig) (et *TokenConfig, err error) {
+func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfig) (et *models.TokenConfig, err error) {
 	var httpClient *http.Client
 	var client Client
-	httpClient, _ = HttpClientFromContext(ctx)
-	if client, _ = ClientFromContext(ctx); client == nil {
+	httpClient, _ = utils.HttpClientFromContext(ctx)
+	if client, _ = gitlab.ClientFromContext(ctx); client == nil {
 		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
 			b.SetClient(client, config.Name)
 		} else {
@@ -166,7 +172,7 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfi
 
 	et, err = client.CurrentTokenInfo(ctx)
 	if err != nil {
-		return et, fmt.Errorf("token cannot be validated: %s", ErrInvalidValue)
+		return et, fmt.Errorf("token cannot be validated: %s", errs.ErrInvalidValue)
 	}
 
 	config.TokenCreatedAt = *et.CreatedAt
@@ -202,7 +208,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	var lResp *logical.Response
 
 	if err = saveConfig(ctx, *config, req.Storage); err == nil {
-		event(ctx, b.Backend, "config-write", map[string]string{
+		_ = event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "config-write", map[string]string{
 			"path":               fmt.Sprintf("%s/%s", PathConfigStorage, name),
 			"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
 			"auto_rotate_before": config.AutoRotateBefore.String(),

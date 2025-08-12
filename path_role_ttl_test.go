@@ -14,23 +14,26 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathRolesTTL(t *testing.T) {
 	var defaultConfig = map[string]any{
 		"token":    getGitlabToken("admin_user_root").Token,
 		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
-		"type":     gitlab.TypeSelfManaged.String(),
+		"type":     gitlab2.TypeSelfManaged.String(),
 	}
 
 	t.Run("general ttl limits", func(t *testing.T) {
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
-			"token_type": gitlab.TokenTypePersonal.String(),
+			"token_type": token.TypePersonal.String(),
 			"scopes": []string{
-				gitlab.TokenScopeApi.String(),
-				gitlab.TokenScopeReadRegistry.String(),
+				token.ScopeApi.String(),
+				token.ScopeReadRegistry.String(),
 			},
 			"gitlab_revokes_token": false,
 		}
@@ -49,7 +52,7 @@ func TestPathRolesTTL(t *testing.T) {
 				Data: role,
 			})
 			require.Error(t, err)
-			require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+			require.ErrorIs(t, err, errs.ErrInvalidValue)
 			require.NotNil(t, resp)
 			require.True(t, resp.IsError())
 			require.ErrorContains(t, resp.Error(), "ttl = 8761h0m0s [ttl <= max_ttl = 8760h0m0s]")
@@ -88,10 +91,10 @@ func TestPathRolesTTL(t *testing.T) {
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
-			"token_type": gitlab.TokenTypePersonal.String(),
+			"token_type": token.TypePersonal.String(),
 			"scopes": []string{
-				gitlab.TokenScopeApi.String(),
-				gitlab.TokenScopeReadRegistry.String(),
+				token.ScopeApi.String(),
+				token.ScopeReadRegistry.String(),
 			},
 			"gitlab_revokes_token": false,
 		}
@@ -139,7 +142,7 @@ func TestPathRolesTTL(t *testing.T) {
 				Data: role,
 			})
 			require.Error(t, err)
-			require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+			require.ErrorIs(t, err, errs.ErrInvalidValue)
 			require.NotNil(t, resp)
 			require.True(t, resp.IsError())
 			require.ErrorContains(t, resp.Error(), "ttl = 59m59s [ttl >= 1h]")
@@ -150,10 +153,10 @@ func TestPathRolesTTL(t *testing.T) {
 		var generalRole = map[string]any{
 			"path":       "user",
 			"name":       "Example user personal token",
-			"token_type": gitlab.TokenTypePersonal.String(),
+			"token_type": token.TypePersonal.String(),
 			"scopes": []string{
-				gitlab.TokenScopeApi.String(),
-				gitlab.TokenScopeReadRegistry.String(),
+				token.ScopeApi.String(),
+				token.ScopeReadRegistry.String(),
 			},
 			"gitlab_revokes_token": true,
 		}
@@ -172,7 +175,7 @@ func TestPathRolesTTL(t *testing.T) {
 				Data: role,
 			})
 			require.Error(t, err)
-			require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+			require.ErrorIs(t, err, errs.ErrInvalidValue)
 			require.NotNil(t, resp)
 			require.True(t, resp.IsError())
 			require.ErrorContains(t, resp.Error(), "ttl = 23h59m59s [24h0m0s <= ttl <= 8760h0m0s]")

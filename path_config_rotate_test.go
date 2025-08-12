@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 )
 
 func TestPathConfigRotate(t *testing.T) {
@@ -24,6 +25,6 @@ func TestPathConfigRotate(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.Error(t, resp.Error())
-		require.EqualValues(t, resp.Error(), gitlab.ErrBackendNotConfigured)
+		require.EqualValues(t, resp.Error(), errs.ErrBackendNotConfigured)
 	})
 }

@@ -13,11 +13,14 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 	httpClient, url := getClient(t, "local")
-	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 	var tokenName = "normal_user_initial_token"
 
 	b, l, events, err := getBackendWithEvents(ctx)
@@ -31,7 +34,7 @@ func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
-			"type":               gitlab.TypeSelfManaged.String(),
+			"type":               gitlab2.TypeSelfManaged.String(),
 		},
 	})
 
@@ -46,13 +49,13 @@ func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 			Path:      fmt.Sprintf("%s/normal-user", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "normal-user",
-				"name":                 gitlab.TokenTypePersonal.String(),
-				"token_type":           gitlab.TokenTypePersonal.String(),
+				"name":                 token.TypePersonal.String(),
+				"token_type":           token.TypePersonal.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(true),
 				"scopes": strings.Join(
 					[]string{
-						gitlab.TokenScopeReadApi.String(),
+						token.ScopeReadApi.String(),
 					},
 					","),
 			},

@@ -13,13 +13,15 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathTokenRoles(t *testing.T) {
 	var defaultConfig = map[string]any{
 		"token":    getGitlabToken("admin_user_root").Token,
 		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
-		"type":     gitlab.TypeSelfManaged.String(),
+		"type":     gitlab2.TypeSelfManaged.String(),
 	}
 
 	t.Run("role not found", func(t *testing.T) {
@@ -35,11 +37,11 @@ func TestPathTokenRoles(t *testing.T) {
 		require.ErrorIs(t, err, gitlab.ErrRoleNotFound)
 	})
 
-	var generalTokenCreation = func(t *testing.T, tokenType gitlab.TokenType, level gitlab.AccessLevel, gitlabRevokesToken bool) {
+	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level token.AccessLevel, gitlabRevokesToken bool) {
 		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t", tokenType, level, gitlabRevokesToken)
 		ctx := getCtxGitlabClient(t, "unit")
 		client := newInMemoryClient(true)
-		ctx = gitlab.ClientNewContext(ctx, client)
+		ctx = gitlab2.ClientNewContext(ctx, client)
 		var b, l, events, err = getBackendWithEvents(ctx)
 		require.NoError(t, err)
 		require.NoError(t, writeBackendConfig(ctx, b, l, defaultConfig))
@@ -56,11 +58,11 @@ func TestPathTokenRoles(t *testing.T) {
 
 		var path string
 		switch tokenType {
-		case gitlab.TokenTypeProject:
+		case token.TypeProject:
 			path = "example/example"
-		case gitlab.TokenTypePersonal:
+		case token.TypePersonal:
 			path = "admin-user"
-		case gitlab.TokenTypeGroup:
+		case token.TypeGroup:
 			path = "example"
 		}
 
@@ -123,11 +125,11 @@ func TestPathTokenRoles(t *testing.T) {
 		if !gitlabRevokesToken {
 			// calling revoke again would return a token not found in internal error
 			switch tokenType {
-			case gitlab.TokenTypeProject:
+			case token.TypeProject:
 				client.projectAccessTokenRevokeError = true
-			case gitlab.TokenTypePersonal:
+			case token.TypePersonal:
 				client.personalAccessTokenRevokeError = true
-			case gitlab.TokenTypeGroup:
+			case token.TypeGroup:
 				client.groupAccessTokenRevokeError = true
 			}
 			resp, err = b.HandleRequest(ctx, &logical.Request{
@@ -150,17 +152,17 @@ func TestPathTokenRoles(t *testing.T) {
 	}
 
 	t.Run("personal access token", func(t *testing.T) {
-		generalTokenCreation(t, gitlab.TokenTypePersonal, gitlab.AccessLevelUnknown, false)
-		generalTokenCreation(t, gitlab.TokenTypePersonal, gitlab.AccessLevelUnknown, true)
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, false)
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, true)
 	})
 
 	t.Run("project access token", func(t *testing.T) {
-		generalTokenCreation(t, gitlab.TokenTypeProject, gitlab.AccessLevelGuestPermissions, false)
-		generalTokenCreation(t, gitlab.TokenTypeProject, gitlab.AccessLevelGuestPermissions, true)
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false)
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, true)
 	})
 
 	t.Run("group access token", func(t *testing.T) {
-		generalTokenCreation(t, gitlab.TokenTypeGroup, gitlab.AccessLevelGuestPermissions, false)
-		generalTokenCreation(t, gitlab.TokenTypeGroup, gitlab.AccessLevelGuestPermissions, true)
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, false)
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, true)
 	})
 }

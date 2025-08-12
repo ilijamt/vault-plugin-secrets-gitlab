@@ -13,11 +13,14 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestWithServiceAccountGroup(t *testing.T) {
 	httpClient, _ := getClient(t, "selfhosted")
-	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 	var tokenName = ""
 
 	b, l, events, err := getBackendWithEvents(ctx)
@@ -31,7 +34,7 @@ func TestWithServiceAccountGroup(t *testing.T) {
 			"base_url":           gitlabServiceAccountUrl,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
-			"type":               gitlab.TypeSelfManaged.String(),
+			"type":               gitlab2.TypeSelfManaged.String(),
 		},
 	})
 
@@ -61,9 +64,9 @@ func TestWithServiceAccountGroup(t *testing.T) {
 		Data: map[string]any{
 			"path":                 fmt.Sprintf("%s/%s", gid, sa.UserName),
 			"name":                 `vault-generated-{{ .token_type }}-token`,
-			"token_type":           gitlab.TokenTypeGroupServiceAccount.String(),
+			"token_type":           token2.TypeGroupServiceAccount.String(),
 			"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-			"scopes":               gitlab.ValidGroupServiceAccountTokenScopes,
+			"scopes":               token2.ValidGroupServiceAccountTokenScopes,
 			"gitlab_revokes_token": false,
 		},
 	})

@@ -10,11 +10,14 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestSecretAccessTokenRevokeToken(t *testing.T) {
 	httpClient, url := getClient(t, "unit")
-	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)
 	require.NoError(t, err)
@@ -24,7 +27,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		resp, err := b.Secret(gitlab.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{})
 		require.Error(t, err)
 		require.Nil(t, resp)
-		require.ErrorIs(t, err, gitlab.ErrNilValue)
+		require.ErrorIs(t, err, errs.ErrNilValue)
 		events.expectEvents(t, []expectedEvent{})
 	})
 
@@ -38,7 +41,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 				"base_url":           url,
 				"auto_rotate_token":  true,
 				"auto_rotate_before": "24h",
-				"type":               gitlab.TypeSelfManaged.String(),
+				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
 
@@ -50,7 +53,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		resp, err = b.Secret(gitlab.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{Storage: l})
 		require.Error(t, err)
 		require.Nil(t, resp)
-		require.ErrorIs(t, err, gitlab.ErrNilValue)
+		require.ErrorIs(t, err, errs.ErrNilValue)
 
 		events.expectEvents(t, []expectedEvent{
 			{eventType: "gitlab/config-write"},
@@ -68,7 +71,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 				"base_url":           url,
 				"auto_rotate_token":  true,
 				"auto_rotate_before": "24h",
-				"type":               gitlab.TypeSelfManaged.String(),
+				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
 
@@ -87,7 +90,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		})
 		require.Error(t, err)
 		require.Nil(t, resp)
-		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
 
 		events.expectEvents(t, []expectedEvent{
 			{eventType: "gitlab/config-write"},

@@ -12,11 +12,14 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestWithServiceAccountUser(t *testing.T) {
 	httpClient, _ := getClient(t, "selfhosted")
-	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 	var tokenName = ""
 
 	b, l, events, err := getBackendWithEvents(ctx)
@@ -30,7 +33,7 @@ func TestWithServiceAccountUser(t *testing.T) {
 			"base_url":           gitlabServiceAccountUrl,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
-			"type":               gitlab.TypeSelfManaged.String(),
+			"type":               gitlab2.TypeSelfManaged.String(),
 		},
 	})
 
@@ -59,9 +62,9 @@ func TestWithServiceAccountUser(t *testing.T) {
 		Data: map[string]any{
 			"path":                 usr.Username,
 			"name":                 `vault-generated-{{ .token_type }}-token`,
-			"token_type":           gitlab.TokenTypeUserServiceAccount.String(),
+			"token_type":           token2.TypeUserServiceAccount.String(),
 			"ttl":                  gitlab.DefaultAccessTokenMinTTL,
-			"scopes":               gitlab.ValidUserServiceAccountTokenScopes,
+			"scopes":               token2.ValidUserServiceAccountTokenScopes,
 			"gitlab_revokes_token": false,
 		},
 	})

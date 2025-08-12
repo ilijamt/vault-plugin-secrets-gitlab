@@ -12,6 +12,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestPathConfig(t *testing.T) {
@@ -26,7 +30,7 @@ func TestPathConfig(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.Error(t, resp.Error())
-		require.EqualValues(t, resp.Error(), gitlab.ErrBackendNotConfigured)
+		require.EqualValues(t, resp.Error(), errs.ErrBackendNotConfigured)
 	})
 
 	t.Run("deleting uninitialized config should fail with backend not configured", func(t *testing.T) {
@@ -42,12 +46,12 @@ func TestPathConfig(t *testing.T) {
 		require.NotNil(t, resp)
 		require.Error(t, resp.Error())
 		require.True(t, resp.IsError())
-		require.EqualValues(t, resp.Error(), gitlab.ErrBackendNotConfigured)
+		require.EqualValues(t, resp.Error(), errs.ErrBackendNotConfigured)
 	})
 
 	t.Run("write, read, delete and read config", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, l, events, err := getBackendWithEvents(ctx)
 		require.NoError(t, err)
@@ -58,7 +62,7 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab.TypeSelfManaged.String(),
+				"type":     gitlab2.TypeSelfManaged.String(),
 			},
 		})
 
@@ -103,9 +107,9 @@ func TestPathConfig(t *testing.T) {
 
 	t.Run("write, read, delete and read config with show config token", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
-		b, l, events, err := getBackendWithFlagsWithEvents(ctx, gitlab.Flags{ShowConfigToken: true})
+		b, l, events, err := getBackendWithFlagsWithEvents(ctx, flags.Flags{ShowConfigToken: true})
 		require.NoError(t, err)
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -114,7 +118,7 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab.TypeSelfManaged.String(),
+				"type":     gitlab2.TypeSelfManaged.String(),
 			},
 		})
 
@@ -158,7 +162,7 @@ func TestPathConfig(t *testing.T) {
 	})
 	t.Run("invalid token", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, l, events, err := getBackendWithEvents(ctx)
 		require.NoError(t, err)
@@ -169,7 +173,7 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    "invalid-token",
 				"base_url": url,
-				"type":     gitlab.TypeSelfManaged.String(),
+				"type":     gitlab2.TypeSelfManaged.String(),
 			},
 		})
 
@@ -194,13 +198,13 @@ func TestPathConfig(t *testing.T) {
 		require.Nil(t, resp)
 
 		var errorMap = countErrByName(err.(*multierror.Error))
-		assert.EqualValues(t, 3, errorMap[gitlab.ErrFieldRequired.Error()])
+		assert.EqualValues(t, 3, errorMap[errs.ErrFieldRequired.Error()])
 		require.Len(t, errorMap, 1)
 	})
 
 	t.Run("patch a config with no storage", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, _, err := getBackend(ctx)
 		require.NoError(t, err)
@@ -211,17 +215,17 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab.TypeSelfManaged.String(),
+				"type":     gitlab2.TypeSelfManaged.String(),
 			},
 		})
 
-		require.ErrorIs(t, err, gitlab.ErrNilValue)
+		require.ErrorIs(t, err, errs.ErrNilValue)
 		require.Nil(t, resp)
 	})
 
 	t.Run("patch a config no backend", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
@@ -232,18 +236,18 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab.TypeSelfManaged.String(),
+				"type":     gitlab2.TypeSelfManaged.String(),
 			},
 		})
 
 		require.NoError(t, err)
 		require.NotNil(t, resp)
-		require.EqualValues(t, resp.Error(), gitlab.ErrBackendNotConfigured)
+		require.EqualValues(t, resp.Error(), errs.ErrBackendNotConfigured)
 	})
 
 	t.Run("patch a config", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
-		ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 		var path = fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName)
 
 		b, l, events, err := getBackendWithEvents(ctx)
@@ -255,7 +259,7 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab.TypeSelfManaged.String(),
+				"type":     gitlab2.TypeSelfManaged.String(),
 			},
 		})
 
@@ -273,14 +277,14 @@ func TestPathConfig(t *testing.T) {
 		require.NoError(t, resp.Error())
 		tokenOriginalSha1Hash := resp.Data["token_sha1_hash"].(string)
 		require.NotEmpty(t, tokenOriginalSha1Hash)
-		require.Equal(t, gitlab.TypeSelfManaged.String(), resp.Data["type"])
+		require.Equal(t, gitlab2.TypeSelfManaged.String(), resp.Data["type"])
 		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx))
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.PatchOperation,
 			Path:      path, Storage: l,
 			Data: map[string]interface{}{
-				"type":  gitlab.TypeSaaS.String(),
+				"type":  gitlab2.TypeSaaS.String(),
 				"token": getGitlabToken("admin_user_initial_token").Token,
 			},
 		})
@@ -291,7 +295,7 @@ func TestPathConfig(t *testing.T) {
 		require.NotEmpty(t, tokenNewSha1Hash)
 		require.NotEqual(t, tokenOriginalSha1Hash, tokenNewSha1Hash)
 
-		require.Equal(t, gitlab.TypeSaaS.String(), resp.Data["type"])
+		require.Equal(t, gitlab2.TypeSaaS.String(), resp.Data["type"])
 		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx))
 
 		events.expectEvents(t, []expectedEvent{

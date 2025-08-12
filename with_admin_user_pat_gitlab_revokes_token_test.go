@@ -15,11 +15,14 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestWithAdminUser_PAT_AdminUser_GitlabRevokesToken(t *testing.T) {
 	httpClient, url := getClient(t, "local")
-	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)
 	require.NoError(t, err)
@@ -33,7 +36,7 @@ func TestWithAdminUser_PAT_AdminUser_GitlabRevokesToken(t *testing.T) {
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
-			"type":               gitlab.TypeSelfManaged.String(),
+			"type":               gitlab2.TypeSelfManaged.String(),
 		},
 	})
 
@@ -52,13 +55,13 @@ func TestWithAdminUser_PAT_AdminUser_GitlabRevokesToken(t *testing.T) {
 			Path:      fmt.Sprintf("%s/normal-user", gitlab.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "normal-user",
-				"name":                 gitlab.TokenTypePersonal.String(),
-				"token_type":           gitlab.TokenTypePersonal.String(),
+				"name":                 token2.TypePersonal.String(),
+				"token_type":           token2.TypePersonal.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(true),
 				"scopes": strings.Join(
 					[]string{
-						gitlab.TokenScopeReadApi.String(),
+						token2.ScopeReadApi.String(),
 					},
 					","),
 			},

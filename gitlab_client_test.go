@@ -13,24 +13,26 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestGitlabClient(t *testing.T) {
 	t.Run("nil config", func(t *testing.T) {
 		client, err := gitlab.NewGitlabClient(nil, nil, nil)
 		require.Nil(t, client)
-		require.ErrorIs(t, err, gitlab.ErrNilValue)
+		require.ErrorIs(t, err, errs.ErrNilValue)
 	})
 
 	t.Run("no token", func(t *testing.T) {
 		var client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{}, nil, nil)
-		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
 		require.Nil(t, client)
 	})
 
 	t.Run("no base url", func(t *testing.T) {
 		var client, err = gitlab.NewGitlabClient(&gitlab.EntryConfig{}, nil, nil)
-		require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
 		require.Nil(t, client)
 	})
 
@@ -51,8 +53,8 @@ func TestGitlabClient(t *testing.T) {
 		}, &http.Client{}, nil)
 		require.NoError(t, err)
 		require.NotNil(t, client)
-		require.ErrorIs(t, client.RevokeGroupServiceAccountAccessToken(ctx, ""), gitlab.ErrNilValue)
-		require.ErrorIs(t, client.RevokeUserServiceAccountAccessToken(ctx, ""), gitlab.ErrNilValue)
+		require.ErrorIs(t, client.RevokeGroupServiceAccountAccessToken(ctx, ""), errs.ErrNilValue)
+		require.ErrorIs(t, client.RevokeUserServiceAccountAccessToken(ctx, ""), errs.ErrNilValue)
 	})
 }
 
@@ -87,11 +89,11 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 	_, err = client.GetUserIdByUsername(ctx, "username")
 	require.Error(t, err)
 
-	gatToken, err := client.CreateGroupAccessToken(ctx, "groupId", "name", timeExpiresAt, []string{"scope"}, gitlab.AccessLevelUnknown)
+	gatToken, err := client.CreateGroupAccessToken(ctx, "groupId", "name", timeExpiresAt, []string{"scope"}, token2.AccessLevelUnknown)
 	require.Error(t, err)
 	require.Nil(t, gatToken)
 
-	prjAtToken, err := client.CreateProjectAccessToken(ctx, "projectId", "name", timeExpiresAt, []string{"scope"}, gitlab.AccessLevelUnknown)
+	prjAtToken, err := client.CreateProjectAccessToken(ctx, "projectId", "name", timeExpiresAt, []string{"scope"}, token2.AccessLevelUnknown)
 	require.Error(t, err)
 	require.Nil(t, prjAtToken)
 
@@ -138,7 +140,7 @@ func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 	require.EqualValues(t, 3, groupId)
 
 	_, err = client.GetGroupIdByPath(ctx, "nonexistent")
-	require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+	require.ErrorIs(t, err, errs.ErrInvalidValue)
 }
 
 func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
@@ -173,11 +175,11 @@ func TestGitlabClient_GetUserIdByUsernameDoesNotMatch(t *testing.T) {
 	require.True(t, client.Valid(ctx))
 
 	userId, err := client.GetUserIdByUsername(ctx, "ilijamt")
-	require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+	require.ErrorIs(t, err, errs.ErrInvalidValue)
 	require.NotEqualValues(t, 1, userId)
 
 	userId, err = client.GetUserIdByUsername(ctx, "demo")
-	require.ErrorIs(t, err, gitlab.ErrInvalidValue)
+	require.ErrorIs(t, err, errs.ErrInvalidValue)
 	require.NotEqualValues(t, 1, userId)
 }
 
@@ -215,7 +217,7 @@ func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 	token, err := client.CurrentTokenInfo(ctx)
 	require.NoError(t, err)
 	require.NotNil(t, token)
-	assert.EqualValues(t, gitlab.TokenTypePersonal, token.TokenType)
+	assert.EqualValues(t, token2.TypePersonal, token.TokenType)
 }
 
 func TestGitlabClient_Metadata(t *testing.T) {
@@ -255,12 +257,12 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"example",
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
-		gitlab.AccessLevelGuestPermissions,
+		[]string{token2.ScopeReadApi.String()},
+		token2.AccessLevelGuestPermissions,
 	)
 	require.NoError(t, err)
 	require.NotNil(t, gatToken)
-	require.EqualValues(t, gitlab.TokenTypeGroup, gatToken.TokenType)
+	require.EqualValues(t, token2.TypeGroup, gatToken.TokenType)
 	require.NotEmpty(t, gatToken.Token)
 	require.NoError(t, client.RevokeGroupAccessToken(ctx, gatToken.TokenID, "example"))
 
@@ -269,12 +271,12 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"example/example",
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
-		gitlab.AccessLevelDeveloperPermissions,
+		[]string{token2.ScopeReadApi.String()},
+		token2.AccessLevelDeveloperPermissions,
 	)
 	require.NoError(t, err)
 	require.NotNil(t, prjatToken)
-	require.EqualValues(t, gitlab.TokenTypeProject, prjatToken.TokenType)
+	require.EqualValues(t, token2.TypeProject, prjatToken.TokenType)
 	require.NotEmpty(t, prjatToken.Token)
 	require.NoError(t, client.RevokeProjectAccessToken(ctx, prjatToken.TokenID, "example/example"))
 
@@ -284,11 +286,11 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		1,
 		"name",
 		timeExpiresAt,
-		[]string{gitlab.TokenScopeReadApi.String()},
+		[]string{token2.ScopeReadApi.String()},
 	)
 	require.NoError(t, err)
 	require.NotNil(t, patToken)
-	require.EqualValues(t, gitlab.TokenTypePersonal, patToken.TokenType)
+	require.EqualValues(t, token2.TypePersonal, patToken.TokenType)
 	require.NotEmpty(t, patToken.Token)
 	require.NoError(t, client.RevokePersonalAccessToken(ctx, patToken.TokenID))
 }

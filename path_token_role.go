@@ -11,6 +11,11 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 const (
@@ -56,11 +61,11 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	defer b.Logger().Debug("Created token for role", "role_name", roleName, "token_type", role.TokenType.String())
 
 	var name string
-	var token IToken
+	var token token2.Token
 	var expiresAt time.Time
-	var startTime = TimeFromContext(ctx).UTC()
+	var startTime = utils.TimeFromContext(ctx).UTC()
 
-	name, err = TokenName(role)
+	name, err = utils.TokenName(role)
 	if err != nil {
 		return nil, fmt.Errorf("error generating token name: %w", err)
 	}
@@ -69,7 +74,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	var gitlabRevokesTokens = role.GitlabRevokesTokens
 	var vaultRevokesTokens = !role.GitlabRevokesTokens
 
-	_, expiresAt, _ = calculateGitlabTTL(role.TTL, startTime)
+	_, expiresAt, _ = utils.CalculateGitlabTTL(role.TTL, startTime)
 
 	client, err = b.getClient(ctx, req.Storage, role.ConfigName)
 	if err != nil {
@@ -77,26 +82,26 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	}
 
 	switch role.TokenType {
-	case TokenTypeGroup:
+	case token2.TypeGroup:
 		b.Logger().Debug("Creating group access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
 		token, err = client.CreateGroupAccessToken(ctx, role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
-	case TokenTypeProject:
+	case token2.TypeProject:
 		b.Logger().Debug("Creating project access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
 		token, err = client.CreateProjectAccessToken(ctx, role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
-	case TokenTypePersonal:
+	case token2.TypePersonal:
 		var userId int
 		userId, err = client.GetUserIdByUsername(ctx, role.Path)
 		if err == nil {
 			b.Logger().Debug("Creating personal access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreatePersonalAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
 		}
-	case TokenTypeUserServiceAccount:
+	case token2.TypeUserServiceAccount:
 		var userId int
 		if userId, err = client.GetUserIdByUsername(ctx, role.Path); err == nil {
 			b.Logger().Debug("Creating user service account access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreateUserServiceAccountAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
 		}
-	case TokenTypeGroupServiceAccount:
+	case token2.TypeGroupServiceAccount:
 		var serviceAccount, groupId string
 		{
 			parts := strings.Split(role.Path, "/")
@@ -108,27 +113,27 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 			b.Logger().Debug("Creating group service account access token for role", "path", role.Path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreateGroupServiceAccountAccessToken(ctx, role.Path, groupId, userId, name, expiresAt, role.Scopes)
 		}
-	case TokenTypeProjectDeploy:
+	case token2.TypeProjectDeploy:
 		var projectId int
 		if projectId, err = client.GetProjectIdByPath(ctx, role.Path); err == nil {
 			token, err = client.CreateProjectDeployToken(ctx, role.Path, projectId, name, &expiresAt, role.Scopes)
 		}
-	case TokenTypeGroupDeploy:
+	case token2.TypeGroupDeploy:
 		var groupId int
 		if groupId, err = client.GetGroupIdByPath(ctx, role.Path); err == nil {
 			token, err = client.CreateGroupDeployToken(ctx, role.Path, groupId, name, &expiresAt, role.Scopes)
 		}
-	case TokenTypePipelineProjectTrigger:
+	case token2.TypePipelineProjectTrigger:
 		var projectId int
 		if projectId, err = client.GetProjectIdByPath(ctx, role.Path); err == nil {
 			token, err = client.CreatePipelineProjectTriggerAccessToken(ctx, role.Path, name, projectId, name, &expiresAt)
 		}
 	default:
-		return logical.ErrorResponse("invalid token type"), fmt.Errorf("%s: %w", role.TokenType.String(), ErrUnknownTokenType)
+		return logical.ErrorResponse("invalid token type"), fmt.Errorf("%s: %w", role.TokenType.String(), errs.ErrUnknownTokenType)
 	}
 
 	if err != nil || token == nil {
-		return nil, cmp.Or(err, fmt.Errorf("%w: token is nil", ErrNilValue))
+		return nil, cmp.Or(err, fmt.Errorf("%w: token is nil", errs.ErrNilValue))
 	}
 
 	token.SetConfigName(cmp.Or(role.ConfigName, DefaultConfigName))
@@ -151,8 +156,8 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		resp.Secret.TTL = token.TTL()
 	}
 
-	event(
-		ctx, b.Backend, "token-write",
+	_ = event.Event(
+		ctx, b.Backend, operationPrefixGitlabAccessTokens, "token-write",
 		token.Event(map[string]string{"path": fmt.Sprintf("%s/%s", PathRoleStorage, roleName)}),
 	)
 	return resp, nil

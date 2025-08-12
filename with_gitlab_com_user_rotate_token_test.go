@@ -12,11 +12,13 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestWithGitlabUser_RotateToken(t *testing.T) {
 	httpClient, _ := getClient(t, "saas")
-	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 	var tokenName = ""
 
 	b, l, events, err := getBackendWithEvents(ctx)
@@ -31,7 +33,7 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 			"base_url":           gitlabComUrl,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
-			"type":               gitlab.TypeSaaS.String(),
+			"type":               gitlab2.TypeSaaS.String(),
 		},
 	})
 

@@ -15,32 +15,35 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestPathRolesDeployTokens(t *testing.T) {
 	var defaultConfig = map[string]any{
 		"token":    getGitlabToken("admin_user_root").Token,
 		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
-		"type":     gitlab.TypeSelfManaged.String(),
+		"type":     gitlab2.TypeSelfManaged.String(),
 	}
 
 	var tests = []struct {
-		tokenType   gitlab.TokenType
-		accessLevel gitlab.AccessLevel
+		tokenType   token.Type
+		accessLevel token.AccessLevel
 		scopes      []string
 		ttl         string
 		path        string
 		name        string
 	}{
 		{
-			tokenType: gitlab.TokenTypeProjectDeploy,
+			tokenType: token.TypeProjectDeploy,
 			path:      "example/example",
-			scopes:    []string{gitlab.TokenScopeReadRepository.String()},
+			scopes:    []string{token.ScopeReadRepository.String()},
 		},
 		{
-			tokenType: gitlab.TokenTypeGroupDeploy,
+			tokenType: token.TypeGroupDeploy,
 			path:      "test/test1",
-			scopes:    []string{gitlab.TokenScopeReadRepository.String()},
+			scopes:    []string{token.ScopeReadRepository.String()},
 		},
 	}
 
@@ -56,7 +59,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 					Data: map[string]any{
 						"path":         tt.path,
 						"name":         tt.name,
-						"access_level": cmp.Or(tt.accessLevel, gitlab.AccessLevelUnknown).String(),
+						"access_level": cmp.Or(tt.accessLevel, token.AccessLevelUnknown).String(),
 						"token_type":   tt.tokenType.String(),
 						"scopes":       tt.scopes,
 						"ttl":          cmp.Or(tt.ttl, "1h"),
@@ -76,7 +79,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 					Data: map[string]any{
 						"path":         tt.path,
 						"name":         tt.name,
-						"access_level": gitlab.AccessLevelNoPermissions.String(),
+						"access_level": token.AccessLevelNoPermissions.String(),
 						"token_type":   tt.tokenType.String(),
 						"ttl":          cmp.Or(tt.ttl, "1h"),
 						"scopes":       []string{},
@@ -85,7 +88,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 				require.Error(t, err)
 				require.NotNil(t, resp)
 				var errorMap = countErrByName(err.(*multierror.Error))
-				assert.EqualValues(t, 2, errorMap[gitlab.ErrFieldInvalidValue.Error()])
+				assert.EqualValues(t, 2, errorMap[errs.ErrFieldInvalidValue.Error()])
 			})
 		})
 	}

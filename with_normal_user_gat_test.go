@@ -15,11 +15,14 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestWithNormalUser_GAT(t *testing.T) {
 	httpClient, url := getClient(t, "local")
-	ctx := gitlab.HttpClientNewContext(t.Context(), httpClient)
+	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 	var tokenName = "normal_user_initial_token"
 
 	b, l, events, err := getBackendWithEvents(ctx)
@@ -33,7 +36,7 @@ func TestWithNormalUser_GAT(t *testing.T) {
 			"base_url":           url,
 			"auto_rotate_token":  true,
 			"auto_rotate_before": "24h",
-			"type":               gitlab.TypeSelfManaged.String(),
+			"type":               gitlab2.TypeSelfManaged.String(),
 		},
 	})
 
@@ -52,11 +55,11 @@ func TestWithNormalUser_GAT(t *testing.T) {
 			Data: map[string]any{
 				"path":                 "example",
 				"name":                 `gat-token`,
-				"token_type":           gitlab.TokenTypeGroup.String(),
+				"token_type":           token2.TypeGroup.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(false),
-				"access_level":         gitlab.AccessLevelMaintainerPermissions.String(),
-				"scopes":               strings.Join([]string{gitlab.TokenScopeReadApi.String()}, ","),
+				"access_level":         token2.AccessLevelMaintainerPermissions.String(),
+				"scopes":               strings.Join([]string{token2.ScopeReadApi.String()}, ","),
 			},
 		})
 		require.NoError(t, err)
