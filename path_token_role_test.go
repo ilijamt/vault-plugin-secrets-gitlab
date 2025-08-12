@@ -41,7 +41,7 @@ func TestPathTokenRoles(t *testing.T) {
 		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t", tokenType, level, gitlabRevokesToken)
 		ctx := getCtxGitlabClient(t, "unit")
 		client := newInMemoryClient(true)
-		ctx = gitlab.ClientNewContext(ctx, client)
+		ctx = gitlab2.ClientNewContext(ctx, client)
 		var b, l, events, err = getBackendWithEvents(ctx)
 		require.NoError(t, err)
 		require.NoError(t, writeBackendConfig(ctx, b, l, defaultConfig))

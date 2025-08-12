@@ -162,7 +162,7 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, config *EntryConfi
 	var httpClient *http.Client
 	var client Client
 	httpClient, _ = utils.HttpClientFromContext(ctx)
-	if client, _ = ClientFromContext(ctx); client == nil {
+	if client, _ = gitlab.ClientFromContext(ctx); client == nil {
 		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
 			b.SetClient(client, config.Name)
 		} else {
