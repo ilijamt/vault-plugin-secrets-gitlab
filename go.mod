@@ -12,7 +12,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	gitlab.com/gitlab-org/api/client-go v0.139.0
 	golang.org/x/time v0.12.0
-	google.golang.org/protobuf v1.36.7
+	google.golang.org/protobuf v1.36.8
 	gopkg.in/dnaeon/go-vcr.v4 v4.0.3
 )
 
