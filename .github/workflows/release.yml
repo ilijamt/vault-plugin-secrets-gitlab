@@ -26,7 +26,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-      - uses: anchore/sbom-action/download-syft@v0.20.4
+      - uses: anchore/sbom-action/download-syft@v0.20.6
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6.3.0
         with:
