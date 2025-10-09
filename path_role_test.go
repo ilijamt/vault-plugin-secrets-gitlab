@@ -325,9 +325,9 @@ func TestPathRoles(t *testing.T) {
 					"path":       "user",
 					"name":       "Example user personal token",
 					"token_type": token.TypePersonal.String(),
-					"scopes": []string{
+					"scopes": strings.Join([]string{
 						"invalid_scope",
-					},
+					}, ", "),
 				},
 			})
 			require.Error(t, err)
@@ -423,10 +423,10 @@ func TestPathRoles(t *testing.T) {
 			"token_type":           token.TypePersonal.String(),
 			"ttl":                  int64((5 * 24 * time.Hour).Seconds()),
 			"gitlab_revokes_token": false,
-			"scopes": []string{
+			"scopes": strings.Join([]string{
 				token.ScopeApi.String(),
 				token.ScopeReadRegistry.String(),
-			},
+			}, ", "),
 		}
 
 		// create a role
