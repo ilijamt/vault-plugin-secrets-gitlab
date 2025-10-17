@@ -3,6 +3,7 @@ package gitlab
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/vault/sdk/logical"
@@ -35,7 +36,7 @@ func (e EntryRole) LogicalResponseData() map[string]any {
 		"role_name":            e.RoleName,
 		"path":                 e.Path,
 		"name":                 e.Name,
-		"scopes":               e.Scopes,
+		"scopes":               strings.Join(e.Scopes, ", "),
 		"access_level":         e.AccessLevel.String(),
 		"ttl":                  int64(e.TTL / time.Second),
 		"token_type":           e.TokenType.String(),
@@ -54,5 +55,4 @@ func getRole(ctx context.Context, name string, s logical.Storage) (role *EntryRo
 		_ = entry.DecodeJSON(role)
 	}
 	return role, err
-
 }
