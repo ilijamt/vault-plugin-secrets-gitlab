@@ -27,11 +27,29 @@ func timeNowFormat(layout string) string {
 	return time.Now().UTC().Format(layout)
 }
 
+func stringsJoin(elems []string, sep string) string {
+	for i := range elems {
+		elems[i] = strings.TrimSpace(elems[i])
+	}
+	return strings.Join(elems, sep)
+}
+
+func stringsSplit(s, sep string) (out []string) {
+	out = strings.Split(s, sep)
+	for i := range out {
+		out[i] = strings.TrimSpace(out[i])
+	}
+	return out
+}
+
 var tplFuncMap = template.FuncMap{
-	"randHexString": randHexString,
-	"stringsJoin":   strings.Join,
-	"yesNoBool":     yesNoBool,
-	"timeNowFormat": timeNowFormat,
+	"randHexString":  randHexString,
+	"stringsJoin":    stringsJoin,
+	"yesNoBool":      yesNoBool,
+	"timeNowFormat":  timeNowFormat,
+	"trimSpace":      strings.TrimSpace,
+	"stringsSplit":   stringsSplit,
+	"stringsReplace": strings.Replace,
 }
 
 // TokenNameData defines an interface for objects that contain a token name and

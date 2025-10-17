@@ -80,6 +80,44 @@ func TestTokenNameGenerator(t *testing.T) {
 			false,
 		},
 
+		{
+			&tokenName{
+				name: "{{ trimSpace .role_name }}",
+				data: map[string]any{
+					"role_name": " tests space trim ",
+				},
+			},
+			"tests space trim",
+			false,
+		},
+
+		// with stringsSplit
+		{
+			&tokenName{
+				name: "{{ .role_name }}-{{ .token_type }}-{{ stringsJoin (stringsSplit .scopes \",\") \"-\" }}-{{ yesNoBool .gitlab_revokes_token }}",
+				data: map[string]any{
+					"role_name":            "test",
+					"token_type":           "personal",
+					"scopes":               "api, sudo",
+					"gitlab_revokes_token": false,
+				},
+			},
+			"test-personal-api-sudo-no",
+			false,
+		},
+
+		// stringsReplace
+		{
+			&tokenName{
+				name: "{{ stringsReplace .role_name \" \" \"-\" -1 }}",
+				data: map[string]any{
+					"role_name": "test space replace",
+				},
+			},
+			"test-space-replace",
+			false,
+		},
+
 		// with timeNowFormat
 		{
 			&tokenName{

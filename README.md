@@ -176,7 +176,7 @@ The following data points can be used within your token name template. These are
 * path
 * ttl
 * access_level
-* scopes
+* scopes (csv string ex: api, sudo, read_api)
 * token_type
 * role_name
 * config_name
@@ -191,6 +191,9 @@ You can also use the following functions within your template:
 * `stringsJoin(elems []string, sep string) string` - joins a list of `elems` strings with a `sep`
 * `yesNoBool(in bool) string` - just return `yes` if `in` is true otherwise it returns `no`
 * `timeNowFormat(layout string) string` - layout is a go time format string layout
+* `stringsSplit(elems string, sep string) string` - splits a string `elems` with a `sep`
+* `trimSpace(s string) string` - trims the space from a string
+* `stringsReplace(s, old, new string, n int) string` - runs replace on the string
 
 #### ttl
 
