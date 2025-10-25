@@ -7,13 +7,24 @@ import (
 )
 
 func CountErrByName(err *multierror.Error) map[string]int {
-	var data = make(map[string]int)
+	data := make(map[string]int)
+
+	if err == nil || err.Errors == nil {
+		return data
+	}
 
 	for _, e := range err.Errors {
-		name := errors.Unwrap(e).Error()
-		if _, ok := data[name]; !ok {
-			data[name] = 0
+		if e == nil {
+			continue
 		}
+
+		var name string
+		if unwrapped := errors.Unwrap(e); unwrapped != nil {
+			name = unwrapped.Error()
+		} else {
+			name = e.Error()
+		}
+
 		data[name]++
 	}
 
