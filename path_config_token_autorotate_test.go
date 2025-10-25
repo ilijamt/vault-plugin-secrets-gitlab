@@ -14,6 +14,7 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 )
 
 func TestPathConfig_AutoRotate(t *testing.T) {
@@ -64,7 +65,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Data: map[string]any{
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
-				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMaxTTL + time.Hour).String(),
+				"auto_rotate_before": (config.DefaultAutoRotateBeforeMaxTTL + time.Hour).String(),
 				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})
@@ -101,7 +102,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 			Data: map[string]any{
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
-				"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMinTTL - time.Hour).String(),
+				"auto_rotate_before": (config.DefaultAutoRotateBeforeMinTTL - time.Hour).String(),
 				"type":               gitlab2.TypeSelfManaged.String(),
 			},
 		})

@@ -19,6 +19,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestPathRolesList(t *testing.T) {
@@ -221,7 +222,7 @@ func TestPathRoles(t *testing.T) {
 		require.Error(t, err)
 		require.NotNil(t, resp)
 		require.Error(t, resp.Error())
-		var errorMap = countErrByName(err.(*multierror.Error))
+		var errorMap = utils.CountErrByName(err.(*multierror.Error))
 		assert.EqualValues(t, 4, errorMap[errs.ErrFieldRequired.Error()])
 		assert.EqualValues(t, 2, errorMap[errs.ErrFieldInvalidValue.Error()])
 	})
@@ -289,7 +290,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.Error(t, err)
 			require.NotNil(t, resp)
-			var errorMap = countErrByName(err.(*multierror.Error))
+			var errorMap = utils.CountErrByName(err.(*multierror.Error))
 			assert.EqualValues(t, 1, errorMap[errs.ErrFieldInvalidValue.Error()])
 		})
 	})
@@ -333,7 +334,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.Error(t, err)
 			require.NotNil(t, resp)
-			var errorMap = countErrByName(err.(*multierror.Error))
+			var errorMap = utils.CountErrByName(err.(*multierror.Error))
 			assert.EqualValues(t, 1, errorMap[errs.ErrFieldInvalidValue.Error()])
 		})
 	})
@@ -377,7 +378,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.Error(t, err)
 			require.NotNil(t, resp)
-			var errorMap = countErrByName(err.(*multierror.Error))
+			var errorMap = utils.CountErrByName(err.(*multierror.Error))
 			assert.EqualValues(t, 1, errorMap[errs.ErrFieldInvalidValue.Error()])
 		})
 	})

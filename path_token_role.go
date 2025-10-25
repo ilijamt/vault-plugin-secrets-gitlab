@@ -14,6 +14,7 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
+	role2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
 	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -42,7 +43,7 @@ var (
 func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var resp *logical.Response
 	var err error
-	var role *EntryRole
+	var role *role2.Role
 	var roleName = data.Get("role_name").(string)
 
 	lock := locksutil.LockForKey(b.roleLocks, roleName)

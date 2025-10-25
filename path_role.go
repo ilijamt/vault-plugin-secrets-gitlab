@@ -17,6 +17,8 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	config2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	role2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -201,7 +203,7 @@ func (b *Backend) pathRolesRead(ctx context.Context, req *logical.Request, data 
 
 func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var roleName = data.Get("role_name").(string)
-	var config *EntryConfig
+	var config *config2.EntryConfig
 	var err error
 	var warnings []string
 	var tokenType token.Type
@@ -222,7 +224,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	tokenType, _ = token.ParseType(data.Get("token_type").(string))
 	accessLevel, _ = token.AccessLevelParse(data.Get("access_level").(string))
 
-	var role = EntryRole{
+	var role = role2.Role{
 		RoleName:            roleName,
 		TTL:                 time.Duration(data.Get("ttl").(int)) * time.Second,
 		Path:                data.Get("path").(string),

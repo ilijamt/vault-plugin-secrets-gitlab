@@ -1,4 +1,4 @@
-package models
+package token
 
 import "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 

@@ -197,7 +197,7 @@ func TestPathConfig(t *testing.T) {
 		require.Error(t, err)
 		require.Nil(t, resp)
 
-		var errorMap = countErrByName(err.(*multierror.Error))
+		var errorMap = utils.CountErrByName(err.(*multierror.Error))
 		assert.EqualValues(t, 3, errorMap[errs.ErrFieldRequired.Error()])
 		require.Len(t, errorMap, 1)
 	})

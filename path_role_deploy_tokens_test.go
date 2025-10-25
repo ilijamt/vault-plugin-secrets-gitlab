@@ -18,6 +18,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestPathRolesDeployTokens(t *testing.T) {
@@ -87,7 +88,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 				})
 				require.Error(t, err)
 				require.NotNil(t, resp)
-				var errorMap = countErrByName(err.(*multierror.Error))
+				var errorMap = utils.CountErrByName(err.(*multierror.Error))
 				assert.EqualValues(t, 2, errorMap[errs.ErrFieldInvalidValue.Error()])
 			})
 		})
