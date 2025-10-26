@@ -12,8 +12,11 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
+
+var _ model.Named = (*EntryConfig)(nil)
 
 type EntryConfig struct {
 	TokenId            int           `json:"token_id" yaml:"token_id" mapstructure:"token_id"`
@@ -30,6 +33,8 @@ type EntryConfig struct {
 	GitlabRevision     string        `json:"gitlab_revision" structs:"gitlab_revision" mapstructure:"gitlab_revision"`
 	GitlabIsEnterprise bool          `json:"gitlab_is_enterprise" structs:"gitlab_is_enterprise" mapstructure:"gitlab_is_enterprise"`
 }
+
+func (e *EntryConfig) GetName() string { return e.Name }
 
 func (e *EntryConfig) Merge(data *framework.FieldData) (warnings []string, changes map[string]string, err error) {
 	var er error

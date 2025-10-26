@@ -8,7 +8,9 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
-var _ model.Model = (*Role)(nil)
+var _ model.Named = (*Role)(nil)
+var _ model.IsNil = (*Role)(nil)
+var _ model.LogicalResponseData = (*Role)(nil)
 
 type Role struct {
 	RoleName            string            `json:"role_name" structs:"role_name" mapstructure:"role_name"`
@@ -22,9 +24,7 @@ type Role struct {
 	ConfigName          string            `json:"config_name" structs:"config_name" mapstructure:"config_name"`
 }
 
-func (e Role) IsNil() bool {
-	return false
-}
+func (e Role) IsNil() bool { return false }
 
 func (e Role) GetName() string {
 	return e.Name

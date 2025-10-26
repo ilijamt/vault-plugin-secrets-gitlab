@@ -100,7 +100,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	}
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()
-	err = saveConfig(ctx, *config, request.Storage)
+	err = saveConfig(ctx, config, request.Storage)
 	if err != nil {
 		b.Logger().Error("failed to store configuration for revocation", "err", err)
 		return nil, err
