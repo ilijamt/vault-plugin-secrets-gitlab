@@ -1,15 +1,15 @@
-package models_test
+package token_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/models"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 )
 
 func TestTokenProjectDeploy(t *testing.T) {
-	data := models.TokenProjectDeploy{Username: "username"}
+	data := token.TokenProjectDeploy{Username: "username"}
 	assert.Contains(t, data.Data(), "username")
 	assert.Contains(t, data.Event(nil), "username")
 	assert.Contains(t, data.Internal(), "username")

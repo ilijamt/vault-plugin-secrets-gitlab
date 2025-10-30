@@ -1,6 +1,4 @@
-//go:build unit
-
-package gitlab_test
+package config_test
 
 import (
 	"testing"
@@ -13,11 +11,13 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 	t.Run("nil data", func(t *testing.T) {
-		e := new(gitlab.EntryConfig)
+		e := new(config.EntryConfig)
 		_, err := e.UpdateFromFieldData(nil)
 		require.ErrorIs(t, err, errs.ErrNilValue)
 	})
@@ -25,7 +25,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 	var tests = []struct {
 		name           string
 		raw            map[string]interface{}
-		expectedConfig *gitlab.EntryConfig
+		expectedConfig *config.EntryConfig
 		warnings       []string
 		err            bool
 		errMap         map[string]int
@@ -45,7 +45,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 				"base_url": "https://gitlab.com",
 				"type":     "type",
 			},
-			expectedConfig: &gitlab.EntryConfig{AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL, BaseURL: "https://gitlab.com"},
+			expectedConfig: &config.EntryConfig{AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL, BaseURL: "https://gitlab.com"},
 			warnings:       []string{"auto_rotate_token not specified setting to 24h0m0s"},
 			err:            true,
 			errMap: map[string]int{
@@ -55,7 +55,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 		},
 		{
 			name:           "unconvertible data type",
-			expectedConfig: &gitlab.EntryConfig{},
+			expectedConfig: &config.EntryConfig{},
 			raw: map[string]interface{}{
 				"token": struct{}{},
 			},
@@ -64,11 +64,11 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 		},
 		{
 			name: "valid config",
-			expectedConfig: &gitlab.EntryConfig{
+			expectedConfig: &config.EntryConfig{
 				Token:            "token",
 				Type:             gitlab2.TypeSelfManaged,
 				AutoRotateToken:  false,
-				AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL,
+				AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL,
 				BaseURL:          "https://gitlab.com",
 			},
 			warnings: []string{"auto_rotate_token not specified setting to 24h0m0s"},
@@ -82,18 +82,18 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			e := new(gitlab.EntryConfig)
+			e := new(config.EntryConfig)
 			assert.Empty(t, e)
 			warnings, err := e.UpdateFromFieldData(&framework.FieldData{Raw: test.raw, Schema: gitlab.FieldSchemaConfig})
 			assert.Equal(t, test.warnings, warnings)
 			if test.expectedConfig == nil {
-				test.expectedConfig = &gitlab.EntryConfig{AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL}
+				test.expectedConfig = &config.EntryConfig{AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL}
 			}
 			assert.EqualValues(t, test.expectedConfig, e)
 			if test.err {
 				assert.Error(t, err)
 				if len(test.errMap) > 0 {
-					assert.Equal(t, countErrByName(err.(*multierror.Error)), test.errMap)
+					assert.Equal(t, utils.CountErrByName(err.(*multierror.Error)), test.errMap)
 				}
 			} else {
 				assert.NoError(t, err)

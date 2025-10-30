@@ -15,6 +15,7 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	config2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
@@ -107,7 +108,7 @@ func (b *Backend) periodicFunc(ctx context.Context, req *logical.Request) (err e
 	b.Logger().Debug("Periodic action executing")
 
 	if b.WriteSafeReplicationState() {
-		var config *EntryConfig
+		var config *config2.EntryConfig
 
 		b.lockClientMutex.Lock()
 		unlockLockClientMutex := sync.OnceFunc(func() { b.lockClientMutex.Unlock() })
@@ -176,7 +177,7 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage, name string)
 
 	b.lockClientMutex.RLock()
 	defer b.lockClientMutex.RUnlock()
-	var config *EntryConfig
+	var config *config2.EntryConfig
 	config, err = getConfig(ctx, s, name)
 	if err != nil {
 		b.Logger().Error("Failed to retrieve configuration", "error", err.Error())

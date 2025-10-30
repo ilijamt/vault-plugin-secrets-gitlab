@@ -1,6 +1,4 @@
-//go:build unit
-
-package gitlab_test
+package config_test
 
 import (
 	"testing"
@@ -14,11 +12,13 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
 func TestEntryConfigMerge(t *testing.T) {
 	t.Run("nil data", func(t *testing.T) {
-		e := new(gitlab.EntryConfig)
+		e := new(config.EntryConfig)
 		warnings, changes, err := e.Merge(nil)
 		require.Empty(t, warnings)
 		require.Empty(t, changes)
@@ -26,7 +26,7 @@ func TestEntryConfigMerge(t *testing.T) {
 	})
 
 	t.Run("unconvertible data type", func(t *testing.T) {
-		e := new(gitlab.EntryConfig)
+		e := new(config.EntryConfig)
 		warnings, changes, err := e.Merge(&framework.FieldData{
 			Raw:    map[string]interface{}{"token": struct{}{}},
 			Schema: gitlab.FieldSchemaConfig,
@@ -38,8 +38,8 @@ func TestEntryConfigMerge(t *testing.T) {
 
 	var tests = []struct {
 		name           string
-		originalConfig *gitlab.EntryConfig
-		expectedConfig *gitlab.EntryConfig
+		originalConfig *config.EntryConfig
+		expectedConfig *config.EntryConfig
 		raw            map[string]interface{}
 		warnings       []string
 		changes        map[string]string
@@ -48,29 +48,29 @@ func TestEntryConfigMerge(t *testing.T) {
 	}{
 		{
 			name:           "update type only",
-			originalConfig: &gitlab.EntryConfig{Type: gitlab2.TypeSelfManaged},
-			expectedConfig: &gitlab.EntryConfig{Type: gitlab2.TypeSaaS},
+			originalConfig: &config.EntryConfig{Type: gitlab2.TypeSelfManaged},
+			expectedConfig: &config.EntryConfig{Type: gitlab2.TypeSaaS},
 			raw:            map[string]interface{}{"type": gitlab2.TypeSaaS},
 			changes:        map[string]string{"type": gitlab2.TypeSaaS.String()},
 		},
 		{
 			name:           "auto rotate token set to false",
-			originalConfig: &gitlab.EntryConfig{},
-			expectedConfig: &gitlab.EntryConfig{},
+			originalConfig: &config.EntryConfig{},
+			expectedConfig: &config.EntryConfig{},
 			raw:            map[string]interface{}{"auto_rotate_token": false},
 			changes:        map[string]string{"auto_rotate_token": "false"},
 		},
 		{
 			name:           "auto rotate token set to true",
-			originalConfig: &gitlab.EntryConfig{AutoRotateToken: false},
-			expectedConfig: &gitlab.EntryConfig{AutoRotateToken: true},
+			originalConfig: &config.EntryConfig{AutoRotateToken: false},
+			expectedConfig: &config.EntryConfig{AutoRotateToken: true},
 			raw:            map[string]interface{}{"auto_rotate_token": true},
 			changes:        map[string]string{"auto_rotate_token": "true"},
 		},
 		{
 			name:           "update type with invalid type",
-			originalConfig: &gitlab.EntryConfig{Type: gitlab2.TypeSelfManaged},
-			expectedConfig: &gitlab.EntryConfig{Type: gitlab2.TypeSelfManaged},
+			originalConfig: &config.EntryConfig{Type: gitlab2.TypeSelfManaged},
+			expectedConfig: &config.EntryConfig{Type: gitlab2.TypeSelfManaged},
 			raw:            map[string]interface{}{"type": "test"},
 			err:            true,
 			errMap: map[string]int{
@@ -79,54 +79,54 @@ func TestEntryConfigMerge(t *testing.T) {
 		},
 		{
 			name:           "set base url to a non empty value",
-			originalConfig: &gitlab.EntryConfig{},
-			expectedConfig: &gitlab.EntryConfig{BaseURL: "https://gitlab.com/"},
+			originalConfig: &config.EntryConfig{},
+			expectedConfig: &config.EntryConfig{BaseURL: "https://gitlab.com/"},
 			raw:            map[string]interface{}{"base_url": "https://gitlab.com/"},
 			changes:        map[string]string{"base_url": "https://gitlab.com/"},
 		},
 		{
 			name:           "set base url to an empty value should fail",
-			originalConfig: &gitlab.EntryConfig{BaseURL: "https://gitlab.com/"},
-			expectedConfig: &gitlab.EntryConfig{BaseURL: "https://gitlab.com/"},
+			originalConfig: &config.EntryConfig{BaseURL: "https://gitlab.com/"},
+			expectedConfig: &config.EntryConfig{BaseURL: "https://gitlab.com/"},
 			raw:            map[string]interface{}{"base_url": ""},
 		},
 
 		{
 			name:           "auto rotate before invalid value lower than min",
-			originalConfig: &gitlab.EntryConfig{AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL + time.Hour},
-			expectedConfig: &gitlab.EntryConfig{AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL + time.Hour},
+			originalConfig: &config.EntryConfig{AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL + time.Hour},
+			expectedConfig: &config.EntryConfig{AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL + time.Hour},
 			raw:            map[string]interface{}{"auto_rotate_before": "1h"},
 			err:            true,
 			errMap:         map[string]int{errs.ErrInvalidValue.Error(): 1},
 		},
 		{
 			name:           "auto rotate before invalid value higher than min",
-			originalConfig: &gitlab.EntryConfig{AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL + time.Hour},
-			expectedConfig: &gitlab.EntryConfig{AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL + time.Hour},
-			raw:            map[string]interface{}{"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMaxTTL + time.Hour).String()},
+			originalConfig: &config.EntryConfig{AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL + time.Hour},
+			expectedConfig: &config.EntryConfig{AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL + time.Hour},
+			raw:            map[string]interface{}{"auto_rotate_before": (config.DefaultAutoRotateBeforeMaxTTL + time.Hour).String()},
 			err:            true,
 			errMap:         map[string]int{errs.ErrInvalidValue.Error(): 1},
 		},
 		{
 			name:           "auto rotate with a valid value",
-			originalConfig: &gitlab.EntryConfig{AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL + time.Hour},
-			expectedConfig: &gitlab.EntryConfig{AutoRotateBefore: gitlab.DefaultAutoRotateBeforeMinTTL + time.Hour*2},
-			raw:            map[string]interface{}{"auto_rotate_before": (gitlab.DefaultAutoRotateBeforeMinTTL + time.Hour*2).String()},
+			originalConfig: &config.EntryConfig{AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL + time.Hour},
+			expectedConfig: &config.EntryConfig{AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL + time.Hour*2},
+			raw:            map[string]interface{}{"auto_rotate_before": (config.DefaultAutoRotateBeforeMinTTL + time.Hour*2).String()},
 			err:            false,
 			changes:        map[string]string{"auto_rotate_before": "26h0m0s"},
 		},
 		{
 			name:           "token a valid value",
-			originalConfig: &gitlab.EntryConfig{Token: "token1"},
-			expectedConfig: &gitlab.EntryConfig{Token: "token"},
+			originalConfig: &config.EntryConfig{Token: "token1"},
+			expectedConfig: &config.EntryConfig{Token: "token"},
 			raw:            map[string]interface{}{"token": "token"},
 			err:            false,
 			changes:        map[string]string{"token": "*****"},
 		},
 		{
 			name:           "token an empty value",
-			originalConfig: &gitlab.EntryConfig{Token: "token"},
-			expectedConfig: &gitlab.EntryConfig{Token: "token"},
+			originalConfig: &config.EntryConfig{Token: "token"},
+			expectedConfig: &config.EntryConfig{Token: "token"},
 			raw:            map[string]interface{}{"token": ""},
 			err:            false,
 		},
@@ -147,7 +147,7 @@ func TestEntryConfigMerge(t *testing.T) {
 			if test.err {
 				assert.Error(t, err)
 				if len(test.errMap) > 0 {
-					assert.EqualValues(t, countErrByName(err.(*multierror.Error)), test.errMap)
+					assert.EqualValues(t, utils.CountErrByName(err.(*multierror.Error)), test.errMap)
 				}
 			} else {
 				assert.NoError(t, err)

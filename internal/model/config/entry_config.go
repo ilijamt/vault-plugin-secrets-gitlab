@@ -1,7 +1,6 @@
-package gitlab
+package config
 
 import (
-	"context"
 	"crypto/sha1"
 	"fmt"
 	"strconv"
@@ -10,12 +9,14 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/framework"
-	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
+
+var _ model.Named = (*EntryConfig)(nil)
 
 type EntryConfig struct {
 	TokenId            int           `json:"token_id" yaml:"token_id" mapstructure:"token_id"`
@@ -32,6 +33,8 @@ type EntryConfig struct {
 	GitlabRevision     string        `json:"gitlab_revision" structs:"gitlab_revision" mapstructure:"gitlab_revision"`
 	GitlabIsEnterprise bool          `json:"gitlab_is_enterprise" structs:"gitlab_is_enterprise" mapstructure:"gitlab_is_enterprise"`
 }
+
+func (e *EntryConfig) GetName() string { return e.Name }
 
 func (e *EntryConfig) Merge(data *framework.FieldData) (warnings []string, changes map[string]string, err error) {
 	var er error
@@ -173,27 +176,4 @@ func (e *EntryConfig) LogicalResponseData(includeToken bool) (data map[string]an
 	}
 
 	return data
-}
-
-func getConfig(ctx context.Context, s logical.Storage, name string) (cfg *EntryConfig, err error) {
-	if s == nil {
-		return nil, fmt.Errorf("%w: local.Storage", errs.ErrNilValue)
-	}
-	var entry *logical.StorageEntry
-	if entry, err = s.Get(ctx, fmt.Sprintf("%s/%s", PathConfigStorage, name)); err == nil {
-		if entry == nil {
-			return nil, nil
-		}
-		cfg = new(EntryConfig)
-		_ = entry.DecodeJSON(cfg)
-	}
-	return cfg, err
-}
-
-func saveConfig(ctx context.Context, config EntryConfig, s logical.Storage) (err error) {
-	var storageEntry *logical.StorageEntry
-	if storageEntry, err = logical.StorageEntryJSON(fmt.Sprintf("%s/%s", PathConfigStorage, config.Name), config); err == nil {
-		err = s.Put(ctx, storageEntry)
-	}
-	return err
 }

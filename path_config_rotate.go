@@ -13,7 +13,8 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/models"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 )
 
 const pathConfigRotateHelpSynopsis = `Rotate the gitlab token for this configuration.`
@@ -44,7 +45,7 @@ func pathConfigTokenRotate(b *Backend) *framework.Path {
 	}
 }
 
-func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *EntryConfig) error {
+func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *config.EntryConfig) error {
 	var err error
 	b.Logger().Debug("Running check and rotate config token")
 	if time.Until(config.TokenExpiresAt) <= config.AutoRotateBefore {
@@ -61,7 +62,7 @@ func (b *Backend) checkAndRotateConfigToken(ctx context.Context, request *logica
 func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
 	var name = data.Get("config_name").(string)
 	b.Logger().Debug("Running pathConfigTokenRotate")
-	var config *EntryConfig
+	var config *config.EntryConfig
 	var client Client
 
 	b.lockClientMutex.RLock()
@@ -81,7 +82,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		return nil, err
 	}
 
-	var entryToken *models.TokenConfig
+	var entryToken *token.TokenConfig
 	entryToken, _, err = client.RotateCurrentToken(ctx)
 	if err != nil {
 		b.Logger().Error("Failed to rotate main token", "err", err)
@@ -99,7 +100,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	}
 	b.lockClientMutex.Lock()
 	defer b.lockClientMutex.Unlock()
-	err = saveConfig(ctx, *config, request.Storage)
+	err = saveConfig(ctx, config, request.Storage)
 	if err != nil {
 		b.Logger().Error("failed to store configuration for revocation", "err", err)
 		return nil, err
