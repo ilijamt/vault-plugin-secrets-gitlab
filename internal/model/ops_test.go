@@ -52,10 +52,12 @@ func TestModel(t *testing.T) {
 		var entries []string
 		entries, err = model.List(t.Context(), storage, "path/")
 		require.Len(t, entries, 1)
+		require.NoError(t, err)
 
 		require.NoError(t, model.Delete(t.Context(), storage, path))
 
 		entries, err = model.List(t.Context(), storage, "path/")
 		require.Len(t, entries, 0)
+		require.NoError(t, err)
 	})
 }
