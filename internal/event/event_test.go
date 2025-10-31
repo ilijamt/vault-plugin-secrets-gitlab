@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 )
 
@@ -33,6 +34,18 @@ func (m *mockEventsSender) SendEvent(ctx context.Context, eventType logical.Even
 }
 
 func TestEvent(t *testing.T) {
+	t.Run("nil backend", func(t *testing.T) {
+		require.ErrorIs(t,
+			event.Event(
+				t.Context(),
+				nil,
+				"test", "test",
+				map[string]string{"test": "test"},
+			),
+			errs.ErrNilValue,
+		)
+	})
+
 	t.Run("no sender specified", func(t *testing.T) {
 		b := &framework.Backend{}
 		require.NoError(t, b.Setup(t.Context(), &logical.BackendConfig{}))
