@@ -6,7 +6,6 @@ import (
 
 // Flags represent a set of configurable options affecting runtime behavior and configuration visibility.
 type Flags struct {
-
 	// ShowConfigToken determines if the configuration token value should be displayed when accessing the configuration endpoint.
 	ShowConfigToken bool `json:"show_config_token" mapstructure:"show_config_token"`
 
