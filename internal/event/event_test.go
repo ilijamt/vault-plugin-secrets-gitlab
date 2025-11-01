@@ -39,7 +39,7 @@ func TestEvent(t *testing.T) {
 			event.Event(
 				t.Context(),
 				nil,
-				"test", "test",
+				"test",
 				map[string]string{"test": "test"},
 			),
 			errs.ErrNilValue,
@@ -53,7 +53,7 @@ func TestEvent(t *testing.T) {
 			event.Event(
 				t.Context(),
 				&framework.Backend{},
-				"test", "test",
+				"test",
 				map[string]string{"test": "test"},
 			),
 			framework.ErrNoEvents,
@@ -67,7 +67,7 @@ func TestEvent(t *testing.T) {
 		require.NoError(t,
 			event.Event(
 				t.Context(), b,
-				"test", "test",
+				"test",
 				map[string]string{"test": "test"},
 			),
 		)

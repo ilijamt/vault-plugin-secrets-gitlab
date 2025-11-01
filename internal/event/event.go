@@ -12,7 +12,9 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 )
 
-func Event(ctx context.Context, b *framework.Backend, prefix, eventType string, metadata map[string]string) error {
+const Prefix = "gitlab"
+
+func Event(ctx context.Context, b *framework.Backend, eventType string, metadata map[string]string) error {
 	var err error
 	var ev *logical.EventData
 	if b == nil {
@@ -23,7 +25,7 @@ func Event(ctx context.Context, b *framework.Backend, prefix, eventType string, 
 		metadataBytes, _ = json.Marshal(metadata)
 		ev.Metadata = &structpb.Struct{}
 		_ = ev.Metadata.UnmarshalJSON(metadataBytes)
-		err = b.SendEvent(ctx, logical.EventType(fmt.Sprintf("%s/%s", prefix, eventType)), ev)
+		err = b.SendEvent(ctx, logical.EventType(fmt.Sprintf("%s/%s", Prefix, eventType)), ev)
 	}
 	return err
 }

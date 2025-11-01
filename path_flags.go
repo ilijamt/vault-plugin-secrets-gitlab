@@ -45,7 +45,7 @@ func (b *Backend) pathFlagsUpdate(ctx context.Context, req *logical.Request, dat
 		eventData["show_config_token"] = strconv.FormatBool(b.flags.ShowConfigToken)
 	}
 
-	_ = event.Event(ctx, b.Backend, operationPrefixGitlabAccessTokens, "flags-write", eventData)
+	_ = event.Event(ctx, b.Backend, "flags-write", eventData)
 
 	var flagData map[string]any
 	err = mapstructure.Decode(b.flags, &flagData)
