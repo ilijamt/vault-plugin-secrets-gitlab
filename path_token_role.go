@@ -37,6 +37,11 @@ var (
 			Description: "Role name",
 			Required:    true,
 		},
+		"path": {
+			Type:        framework.TypeString,
+			Description: "Overwrites the role path",
+			Required:    false,
+		},
 	}
 )
 
@@ -56,6 +61,10 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	}
 	if role == nil {
 		return nil, fmt.Errorf("%s: %w", roleName, ErrRoleNotFound)
+	}
+
+	if role.Path == "*" {
+		role.Path = data.Get("path").(string)
 	}
 
 	b.Logger().Debug("Creating token for role", "role_name", roleName, "token_type", role.TokenType.String())
@@ -168,7 +177,7 @@ func pathTokenRoles(b *Backend) *framework.Path {
 	return &framework.Path{
 		HelpSynopsis:    strings.TrimSpace(pathTokenRolesHelpSyn),
 		HelpDescription: strings.TrimSpace(pathTokenRolesHelpDesc),
-		Pattern:         fmt.Sprintf("%s/%s", PathTokenRoleStorage, framework.GenericNameRegex("role_name")),
+		Pattern:         fmt.Sprintf("%s/%s%s", PathTokenRoleStorage, framework.GenericNameRegex("role_name"), framework.OptionalParamRegex("path")),
 		Fields:          FieldSchemaTokenRole,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,

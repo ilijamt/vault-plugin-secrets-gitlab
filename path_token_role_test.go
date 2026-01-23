@@ -14,6 +14,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	modelToken "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
@@ -37,8 +38,8 @@ func TestPathTokenRoles(t *testing.T) {
 		require.ErrorIs(t, err, gitlab.ErrRoleNotFound)
 	})
 
-	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level token.AccessLevel, gitlabRevokesToken bool) {
-		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t", tokenType, level, gitlabRevokesToken)
+	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level token.AccessLevel, gitlabRevokesToken bool, path string, pathOverride string) {
+		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t, path: %s, path override: %s", tokenType, level, gitlabRevokesToken, path, pathOverride)
 		ctx := getCtxGitlabClient(t, "unit")
 		client := newInMemoryClient(true)
 		ctx = gitlab2.ClientNewContext(ctx, client)
@@ -54,16 +55,6 @@ func TestPathTokenRoles(t *testing.T) {
 		var ttl = "1h"
 		if gitlabRevokesToken {
 			ttl = "48h"
-		}
-
-		var path string
-		switch tokenType {
-		case token.TypeProject:
-			path = "example/example"
-		case token.TypePersonal:
-			path = "admin-user"
-		case token.TypeGroup:
-			path = "example"
 		}
 
 		// create a role
@@ -84,10 +75,18 @@ func TestPathTokenRoles(t *testing.T) {
 		require.NoError(t, resp.Error())
 
 		// read an access token
-		resp, err = b.HandleRequest(ctx, &logical.Request{
+		reqPath := fmt.Sprintf("%s/test", gitlab.PathTokenRoleStorage)
+		if pathOverride != "" {
+			reqPath += fmt.Sprintf("/%s", pathOverride)
+		}
+
+		req := &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathTokenRoleStorage), Storage: l,
-		})
+			Path:      reqPath,
+			Storage:   l,
+		}
+
+		resp, err = b.HandleRequest(ctx, req)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Secret)
@@ -98,6 +97,24 @@ func TestPathTokenRoles(t *testing.T) {
 		var secret = resp.Secret
 
 		require.Contains(t, client.accessTokens, fmt.Sprintf("%s_%v", tokenType.String(), tokenId))
+
+		// Check path correctness
+		expectedPath := path
+		if path == "*" && pathOverride != "" {
+			expectedPath = pathOverride
+		}
+
+		var createdToken = client.accessTokens[fmt.Sprintf("%s_%v", tokenType.String(), tokenId)]
+		var actualPath string
+		switch v := createdToken.(type) {
+		case *modelToken.TokenProject:
+			actualPath = v.Path
+		case *modelToken.TokenPersonal:
+			actualPath = v.Path
+		case *modelToken.TokenGroup:
+			actualPath = v.Path
+		}
+		require.Equal(t, expectedPath, actualPath, "Token path mismatch")
 
 		// revoke the access token
 		resp, err = b.HandleRequest(ctx, &logical.Request{
@@ -152,17 +169,18 @@ func TestPathTokenRoles(t *testing.T) {
 	}
 
 	t.Run("personal access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, false)
-		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, true)
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, false, "admin-user", "")
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, true, "admin-user", "")
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false, "*", "some-user")
 	})
 
 	t.Run("project access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false)
-		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, true)
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false, "example/example", "")
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, true, "example/example", "")
 	})
 
 	t.Run("group access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, false)
-		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, true)
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, false, "example", "")
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, true, "example", "")
 	})
 }
