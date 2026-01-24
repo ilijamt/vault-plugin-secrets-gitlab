@@ -87,7 +87,7 @@ func TestWithProjectDeployToken(t *testing.T) {
 	{
 		tt, _, err := c.DeployTokens.ListProjectDeployTokens("example/example", &g.ListProjectDeployTokensOptions{})
 		require.NoError(t, err)
-		out := filterSlice(tt, func(item *g.DeployToken, index int) bool { return !item.Expired && !item.Revoked })
+		out := filterSlice(tt, func(item *g.DeployToken, index int64) bool { return !item.Expired && !item.Revoked })
 		require.Len(t, out, 1)
 	}
 
@@ -105,7 +105,7 @@ func TestWithProjectDeployToken(t *testing.T) {
 	{
 		tt, _, err := c.DeployTokens.ListProjectDeployTokens("example/example", &g.ListProjectDeployTokensOptions{})
 		require.NoError(t, err)
-		out := filterSlice(tt, func(item *g.DeployToken, index int) bool { return !item.Expired && !item.Revoked })
+		out := filterSlice(tt, func(item *g.DeployToken, index int64) bool { return !item.Expired && !item.Revoked })
 		require.Len(t, out, 0)
 	}
 

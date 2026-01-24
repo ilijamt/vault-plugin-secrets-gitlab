@@ -201,7 +201,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 
 		err = b.PeriodicFunc(ctx, &logical.Request{Storage: l})
 		require.NoError(t, err)
-		assert.Greater(t, client.calledRotateMainToken, 0)
+		assert.Greater(t, client.calledRotateMainToken, int64(0))
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,

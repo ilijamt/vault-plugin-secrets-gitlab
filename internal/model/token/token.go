@@ -23,7 +23,7 @@ type Token struct {
 	ExpiresAt          *time.Time `json:"expires_at"`
 	TokenType          token.Type `json:"type"`
 	Token              string     `json:"token"`
-	TokenID            int        `json:"token_id"`
+	TokenID            int64      `json:"token_id"`
 	ParentID           string     `json:"parent_id"`
 	Name               string     `json:"name"`
 	Path               string     `json:"path"`
@@ -87,7 +87,7 @@ func (t *Token) Event(m map[string]string) (d map[string]string) {
 	d = map[string]string{
 		"config_name": t.ConfigName,
 		"role_name":   t.RoleName,
-		"token_id":    strconv.Itoa(t.TokenID),
+		"token_id":    strconv.FormatInt(t.TokenID, 10),
 		"parent_id":   t.ParentID,
 		"token_type":  t.Type().String(),
 		"ttl":         t.TTL().String(),

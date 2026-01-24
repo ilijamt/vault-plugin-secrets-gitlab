@@ -90,14 +90,14 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		b.Logger().Debug("Creating project access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
 		token, err = client.CreateProjectAccessToken(ctx, role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
 	case token2.TypePersonal:
-		var userId int
+		var userId int64
 		userId, err = client.GetUserIdByUsername(ctx, role.Path)
 		if err == nil {
 			b.Logger().Debug("Creating personal access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreatePersonalAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
 		}
 	case token2.TypeUserServiceAccount:
-		var userId int
+		var userId int64
 		if userId, err = client.GetUserIdByUsername(ctx, role.Path); err == nil {
 			b.Logger().Debug("Creating user service account access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreateUserServiceAccountAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
@@ -109,23 +109,23 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 			groupId, serviceAccount = parts[0], parts[1]
 		}
 
-		var userId int
+		var userId int64
 		if userId, err = client.GetUserIdByUsername(ctx, serviceAccount); err == nil {
 			b.Logger().Debug("Creating group service account access token for role", "path", role.Path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreateGroupServiceAccountAccessToken(ctx, role.Path, groupId, userId, name, expiresAt, role.Scopes)
 		}
 	case token2.TypeProjectDeploy:
-		var projectId int
+		var projectId int64
 		if projectId, err = client.GetProjectIdByPath(ctx, role.Path); err == nil {
 			token, err = client.CreateProjectDeployToken(ctx, role.Path, projectId, name, &expiresAt, role.Scopes)
 		}
 	case token2.TypeGroupDeploy:
-		var groupId int
+		var groupId int64
 		if groupId, err = client.GetGroupIdByPath(ctx, role.Path); err == nil {
 			token, err = client.CreateGroupDeployToken(ctx, role.Path, groupId, name, &expiresAt, role.Scopes)
 		}
 	case token2.TypePipelineProjectTrigger:
-		var projectId int
+		var projectId int64
 		if projectId, err = client.GetProjectIdByPath(ctx, role.Path); err == nil {
 			token, err = client.CreatePipelineProjectTriggerAccessToken(ctx, role.Path, name, projectId, name, &expiresAt)
 		}
