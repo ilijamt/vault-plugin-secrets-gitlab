@@ -506,7 +506,7 @@ func (gc *gitlabClient) RevokePersonalAccessToken(ctx context.Context, tokenId i
 		gc.logger.Debug("Revoke personal access token", "tokenId", tokenId, "error", err)
 	}()
 	var resp *g.Response
-	resp, err = gc.client.PersonalAccessTokens.RevokePersonalAccessToken(tokenId, g.WithContext(ctx))
+	resp, err = gc.client.PersonalAccessTokens.RevokePersonalAccessTokenByID(tokenId, g.WithContext(ctx))
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("personal: %w", ErrAccessTokenNotFound)
 	}
