@@ -73,8 +73,8 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		configName = val.(string)
 	}
 
-	var tokenId int
-	tokenId, err = utils.ConvertToInt(req.Secret.InternalData["token_id"])
+	var tokenId int64
+	tokenId, err = utils.ConvertToInt64(req.Secret.InternalData["token_id"])
 	if err != nil {
 		return nil, fmt.Errorf("token_id: %w", err)
 	}
@@ -107,18 +107,18 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 			var token = req.Secret.InternalData["token"].(string)
 			err = client.RevokeGroupServiceAccountAccessToken(ctx, token)
 		case token.TypePipelineProjectTrigger:
-			var projectId int
-			if projectId, err = strconv.Atoi(parentId); err == nil {
+			var projectId int64
+			if projectId, err = strconv.ParseInt(parentId, 10, 64); err == nil {
 				err = client.RevokePipelineProjectTriggerAccessToken(ctx, projectId, tokenId)
 			}
 		case token.TypeGroupDeploy:
-			var groupId int
-			if groupId, err = strconv.Atoi(parentId); err == nil {
+			var groupId int64
+			if groupId, err = strconv.ParseInt(parentId, 10, 64); err == nil {
 				err = client.RevokeGroupDeployToken(ctx, groupId, tokenId)
 			}
 		case token.TypeProjectDeploy:
-			var projectId int
-			if projectId, err = strconv.Atoi(parentId); err == nil {
+			var projectId int64
+			if projectId, err = strconv.ParseInt(parentId, 10, 64); err == nil {
 				err = client.RevokeProjectDeployToken(ctx, projectId, tokenId)
 			}
 		}
@@ -132,7 +132,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 		"lease_id":             secret.LeaseID,
 		"path":                 req.Secret.InternalData["path"].(string),
 		"name":                 req.Secret.InternalData["name"].(string),
-		"token_id":             strconv.Itoa(tokenId),
+		"token_id":             strconv.FormatInt(tokenId, 10),
 		"token_type":           tokenTypeValue,
 		"config_name":          configName,
 		"gitlab_revokes_token": strconv.FormatBool(gitlabRevokesToken),

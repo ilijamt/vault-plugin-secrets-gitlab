@@ -214,7 +214,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 			"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
 			"auto_rotate_before": config.AutoRotateBefore.String(),
 			"base_url":           config.BaseURL,
-			"token_id":           strconv.Itoa(config.TokenId),
+			"token_id":           strconv.FormatInt(config.TokenId, 10),
 			"created_at":         config.TokenCreatedAt.Format(time.RFC3339),
 			"expires_at":         config.TokenExpiresAt.Format(time.RFC3339),
 			"scopes":             strings.Join(config.Scopes, ", "),

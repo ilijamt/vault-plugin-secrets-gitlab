@@ -36,3 +36,29 @@ func TestConvertToInt(t *testing.T) {
 		}
 	}
 }
+
+func TestConvertToInt64(t *testing.T) {
+	var tests = []struct {
+		in     any
+		outVal int64
+		outErr error
+	}{
+		{int(52), int64(52), nil},
+		{int8(13), int64(13), nil},
+		{int16(612), int64(612), nil},
+		{int32(56236), int64(56236), nil},
+		{int64(23462346), int64(23462346), nil},
+		{float32(62346.62), int64(62346), nil},
+		{float64(263467.26), int64(263467), nil},
+		{"1", int64(0), errs.ErrInvalidValue},
+	}
+
+	for _, tst := range tests {
+		t.Logf("ConvertToInt64(%T(%v))", tst.in, tst.in)
+		val, err := utils.ConvertToInt64(tst.in)
+		assert.Equal(t, tst.outVal, val)
+		if tst.outErr != nil {
+			assert.ErrorIs(t, err, tst.outErr)
+		}
+	}
+}

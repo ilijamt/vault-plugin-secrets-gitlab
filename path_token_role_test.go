@@ -93,7 +93,7 @@ func TestPathTokenRoles(t *testing.T) {
 		require.NotNil(t, resp.Secret)
 		require.NoError(t, resp.Error())
 
-		var tokenId = resp.Secret.InternalData["token_id"].(int)
+		var tokenId = resp.Secret.InternalData["token_id"].(int64)
 		var leaseId = resp.Secret.LeaseID
 		var secret = resp.Secret
 

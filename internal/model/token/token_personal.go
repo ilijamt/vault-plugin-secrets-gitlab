@@ -10,7 +10,7 @@ import (
 type TokenPersonal struct {
 	TokenWithScopes `json:",inline"`
 
-	UserID int `json:"user_id"`
+	UserID int64 `json:"user_id"`
 }
 
 func (t *TokenPersonal) Internal() (d map[string]any) {
@@ -26,7 +26,7 @@ func (t *TokenPersonal) Data() (d map[string]any) {
 }
 
 func (t *TokenPersonal) Event(m map[string]string) (d map[string]string) {
-	d = map[string]string{"user_id": strconv.Itoa(t.UserID)}
+	d = map[string]string{"user_id": strconv.FormatInt(t.UserID, 10)}
 	maps.Copy(d, t.Token.Event(m))
 	return d
 }

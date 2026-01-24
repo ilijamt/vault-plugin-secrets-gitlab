@@ -19,7 +19,7 @@ import (
 var _ model.Named = (*EntryConfig)(nil)
 
 type EntryConfig struct {
-	TokenId            int           `json:"token_id" yaml:"token_id" mapstructure:"token_id"`
+	TokenId            int64         `json:"token_id" yaml:"token_id" mapstructure:"token_id"`
 	BaseURL            string        `json:"base_url" structs:"base_url" mapstructure:"base_url"`
 	Token              string        `json:"token" structs:"token" mapstructure:"token"`
 	AutoRotateToken    bool          `json:"auto_rotate_token" structs:"auto_rotate_token" mapstructure:"auto_rotate_token"`

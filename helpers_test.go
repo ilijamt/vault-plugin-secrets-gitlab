@@ -162,7 +162,7 @@ func newInMemoryClient(valid bool) *inMemoryClient {
 }
 
 type inMemoryClient struct {
-	internalCounter int
+	internalCounter int64
 	users           []string
 	groups          []string
 	muLock          sync.Mutex
@@ -187,26 +187,26 @@ type inMemoryClient struct {
 	createGroupDeployTokenError                       bool
 	getProjectIdByPathError                           bool
 
-	calledMainToken       int
-	calledRotateMainToken int
-	calledValid           int
+	calledMainToken       int64
+	calledRotateMainToken int64
+	calledValid           int64
 
 	mainTokenInfo   token.TokenConfig
 	rotateMainToken token.TokenConfig
 
 	accessTokens map[string]t.Token
 
-	valueGetProjectIdByPath int
+	valueGetProjectIdByPath int64
 }
 
-func (i *inMemoryClient) GetProjectIdByPath(ctx context.Context, path string) (int, error) {
+func (i *inMemoryClient) GetProjectIdByPath(ctx context.Context, path string) (int64, error) {
 	if i.getProjectIdByPathError {
 		return -1, fmt.Errorf("unable to get project id by path")
 	}
 	return i.valueGetProjectIdByPath, nil
 }
 
-func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path string, projectId int, name string, expiresAt *time.Time, scopes []string) (et *token.TokenProjectDeploy, err error) {
+func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path string, projectId int64, name string, expiresAt *time.Time, scopes []string) (et *token.TokenProjectDeploy, err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.createProjectDeployTokenError {
@@ -219,7 +219,7 @@ func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path stri
 		TokenWithScopes: token.TokenWithScopes{
 			Token: token.Token{
 				TokenID:   tokenId,
-				ParentID:  strconv.Itoa(projectId),
+				ParentID:  strconv.FormatInt(projectId, 10),
 				Path:      path,
 				Name:      name,
 				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
@@ -234,7 +234,7 @@ func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path stri
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string, groupId int, name string, expiresAt *time.Time, scopes []string) (et *token.TokenGroupDeploy, err error) {
+func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string, groupId int64, name string, expiresAt *time.Time, scopes []string) (et *token.TokenGroupDeploy, err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.createGroupDeployTokenError {
@@ -247,7 +247,7 @@ func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string
 		TokenWithScopes: token.TokenWithScopes{
 			Token: token.Token{
 				TokenID:   tokenId,
-				ParentID:  strconv.Itoa(groupId),
+				ParentID:  strconv.FormatInt(groupId, 10),
 				Path:      path,
 				Name:      name,
 				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
@@ -263,7 +263,7 @@ func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) RevokeProjectDeployToken(ctx context.Context, projectId, deployTokenId int) (err error) {
+func (i *inMemoryClient) RevokeProjectDeployToken(ctx context.Context, projectId, deployTokenId int64) (err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.revokeProjectDeployTokenError {
@@ -274,7 +274,7 @@ func (i *inMemoryClient) RevokeProjectDeployToken(ctx context.Context, projectId
 	return nil
 }
 
-func (i *inMemoryClient) RevokeGroupDeployToken(ctx context.Context, groupId, deployTokenId int) (err error) {
+func (i *inMemoryClient) RevokeGroupDeployToken(ctx context.Context, groupId, deployTokenId int64) (err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.revokeGroupDeployTokenError {
@@ -296,7 +296,7 @@ func (i *inMemoryClient) Metadata(ctx context.Context) (*g.Metadata, error) {
 	}, nil
 }
 
-func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, path, name string, projectId int, description string, expiresAt *time.Time) (et *token.TokenPipelineProjectTrigger, err error) {
+func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, path, name string, projectId int64, description string, expiresAt *time.Time) (et *token.TokenPipelineProjectTrigger, err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.createPipelineProjectTriggerAccessTokenError {
@@ -308,8 +308,8 @@ func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Con
 	var entryToken = &token.TokenPipelineProjectTrigger{
 		Token: token.Token{
 			TokenID:   tokenId,
-			ParentID:  strconv.Itoa(projectId),
-			Path:      strconv.Itoa(projectId),
+			ParentID:  strconv.FormatInt(projectId, 10),
+			Path:      strconv.FormatInt(projectId, 10),
 			Name:      name,
 			Token:     fmt.Sprintf("glptt-%s", uuid.New().String()),
 			TokenType: t.TypePipelineProjectTrigger,
@@ -321,7 +321,7 @@ func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Con
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int, tokenId int) error {
+func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int64, tokenId int64) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.revokePipelineProjectTriggerAccessTokenError {
@@ -332,20 +332,20 @@ func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Con
 	return nil
 }
 
-func (i *inMemoryClient) GetGroupIdByPath(ctx context.Context, path string) (int, error) {
+func (i *inMemoryClient) GetGroupIdByPath(ctx context.Context, path string) (int64, error) {
 	idx := slices.Index(i.groups, path)
 	if idx == -1 {
 		i.users = append(i.groups, path)
 		idx = slices.Index(i.groups, path)
 	}
-	return idx, nil
+	return int64(idx), nil
 }
 
 func (i *inMemoryClient) GitlabClient(ctx context.Context) *g.Client {
 	return nil
 }
 
-func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Context, path string, groupId string, userId int, name string, expiresAt time.Time, scopes []string) (*token.TokenGroupServiceAccount, error) {
+func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Context, path string, groupId string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenGroupServiceAccount, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.createGroupServiceAccountAccessTokenError {
@@ -354,7 +354,7 @@ func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Contex
 	return nil, nil
 }
 
-func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*token.TokenUserServiceAccount, error) {
+func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenUserServiceAccount, error) {
 	i.muLock.Lock()
 	if i.createUserServiceAccountAccessTokenError {
 		i.muLock.Unlock()
@@ -426,7 +426,7 @@ func (i *inMemoryClient) Valid(ctx context.Context) bool {
 	return i.valid
 }
 
-func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username string, userId int, name string, expiresAt time.Time, scopes []string) (*token.TokenPersonal, error) {
+func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenPersonal, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.personalAccessTokenCreateError {
@@ -510,7 +510,7 @@ func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) RevokePersonalAccessToken(ctx context.Context, tokenId int) error {
+func (i *inMemoryClient) RevokePersonalAccessToken(ctx context.Context, tokenId int64) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.personalAccessTokenRevokeError {
@@ -520,7 +520,7 @@ func (i *inMemoryClient) RevokePersonalAccessToken(ctx context.Context, tokenId 
 	return nil
 }
 
-func (i *inMemoryClient) RevokeProjectAccessToken(ctx context.Context, tokenId int, projectId string) error {
+func (i *inMemoryClient) RevokeProjectAccessToken(ctx context.Context, tokenId int64, projectId string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.projectAccessTokenRevokeError {
@@ -530,7 +530,7 @@ func (i *inMemoryClient) RevokeProjectAccessToken(ctx context.Context, tokenId i
 	return nil
 }
 
-func (i *inMemoryClient) RevokeGroupAccessToken(ctx context.Context, tokenId int, groupId string) error {
+func (i *inMemoryClient) RevokeGroupAccessToken(ctx context.Context, tokenId int64, groupId string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if i.groupAccessTokenRevokeError {
@@ -540,13 +540,13 @@ func (i *inMemoryClient) RevokeGroupAccessToken(ctx context.Context, tokenId int
 	return nil
 }
 
-func (i *inMemoryClient) GetUserIdByUsername(ctx context.Context, username string) (int, error) {
+func (i *inMemoryClient) GetUserIdByUsername(ctx context.Context, username string) (int64, error) {
 	idx := slices.Index(i.users, username)
 	if idx == -1 {
 		i.users = append(i.users, username)
 		idx = slices.Index(i.users, username)
 	}
-	return idx, nil
+	return int64(idx), nil
 }
 
 func sanitizePath(path string) string {
@@ -608,11 +608,11 @@ func ctxTestTime(ctx context.Context, testName string, tokenName string) (_ cont
 	return utils.WithStaticTime(ctx, t), t
 }
 
-func filterSlice[T any, Slice ~[]T](collection Slice, predicate func(item T, index int) bool) Slice {
+func filterSlice[T any, Slice ~[]T](collection Slice, predicate func(item T, index int64) bool) Slice {
 	result := make(Slice, 0, len(collection))
 
 	for i := range collection {
-		if predicate(collection[i], i) {
+		if predicate(collection[i], int64(i)) {
 			result = append(result, collection[i])
 		}
 	}

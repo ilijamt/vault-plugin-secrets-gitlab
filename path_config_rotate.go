@@ -113,7 +113,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 		"expires_at":  entryToken.ExpiresAt.Format(time.RFC3339),
 		"created_at":  entryToken.CreatedAt.Format(time.RFC3339),
 		"scopes":      strings.Join(entryToken.Scopes, ", "),
-		"token_id":    strconv.Itoa(entryToken.TokenID),
+		"token_id":    strconv.FormatInt(entryToken.TokenID, 10),
 		"name":        entryToken.Name,
 		"config_name": entryToken.ConfigName,
 	})
