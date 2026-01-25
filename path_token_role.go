@@ -63,7 +63,8 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		return nil, fmt.Errorf("%s: %w", roleName, ErrRoleNotFound)
 	}
 
-	if role.Path == "*" {
+	if b.flags.AllowPathOverride && role.DynamicPath {
+		// check if the regex matches for this?
 		role.Path = data.Get("path").(string)
 	}
 
