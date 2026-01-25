@@ -24,6 +24,12 @@ var FieldSchemaFlags = map[string]*framework.FieldSchema{
 		Default:      false,
 		DisplayAttrs: &framework.DisplayAttributes{Name: "Show Config Token"},
 	},
+	"allow_path_override_personal_token": {
+		Type:         framework.TypeBool,
+		Description:  "Allow path override for personal token.",
+		Default:      false,
+		DisplayAttrs: &framework.DisplayAttributes{Name: "Allow Path Override for Personal Token"},
+	},
 }
 
 func (b *Backend) pathFlagsRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
@@ -43,6 +49,11 @@ func (b *Backend) pathFlagsUpdate(ctx context.Context, req *logical.Request, dat
 	if showConfigToken, ok := data.GetOk("show_config_token"); ok {
 		b.flags.ShowConfigToken = showConfigToken.(bool)
 		eventData["show_config_token"] = strconv.FormatBool(b.flags.ShowConfigToken)
+	}
+
+	if allowPathOverridePersonalToken, ok := data.GetOk("allow_path_override_personal_token"); ok {
+		b.flags.AllowPathOverridePersonalToken = allowPathOverridePersonalToken.(bool)
+		eventData["allow_path_override_personal_token"] = strconv.FormatBool(b.flags.AllowPathOverridePersonalToken)
 	}
 
 	_ = event.Event(ctx, b.Backend, "flags-write", eventData)

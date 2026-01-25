@@ -31,7 +31,8 @@ func TestPathFlags(t *testing.T) {
 		Operation: logical.UpdateOperation,
 		Path:      gitlab.PathConfigFlags, Storage: l,
 		Data: map[string]interface{}{
-			"show_config_token": "true",
+			"show_config_token":                  "true",
+			"allow_path_override_personal_token": "true",
 		},
 	})
 
@@ -39,6 +40,7 @@ func TestPathFlags(t *testing.T) {
 	require.NotNil(t, resp)
 	require.NoError(t, resp.Error())
 	require.True(t, resp.Data["show_config_token"].(bool))
+	require.True(t, resp.Data["allow_path_override_personal_token"].(bool))
 
 	events.expectEvents(t, []expectedEvent{
 		{eventType: "gitlab/flags-write"},
