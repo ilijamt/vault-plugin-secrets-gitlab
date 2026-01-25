@@ -20,6 +20,6 @@ type Flags struct {
 func (f *Flags) FlagSet(fs *flag.FlagSet) *flag.FlagSet {
 	fs.BoolVar(&f.ShowConfigToken, "show-config-token", false, "Display the token value when reading it's config the configuration endpoint.")
 	fs.BoolVar(&f.AllowRuntimeFlagsChange, "allow-runtime-flags-change", false, "Allows you to change the flags dynamically at runtime.")
-	fs.BoolVar(&f.AllowPathOverride, "allow-path-override-personal-token", false, "Allows you to override the path for a specific role.")
+	fs.BoolVar(&f.AllowPathOverride, "allow-path-override", false, "Allows you to override the path for a specific role.")
 	return fs
 }
