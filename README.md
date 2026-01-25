@@ -90,10 +90,11 @@ you may or may not be able to access certain paths.
 There are some flags we can specify to enable/disable some functionality in the vault plugin.
 
 
-|            Flag            | Default value | Description                                                                            |
-|:--------------------------:|:-------------:|:---------------------------------------------------------------------------------------|
-|     show-config-token      |     false     | Display the token value when reading a config on it's endpoint like `/config/default`. |
-| allow-runtime-flags-change |     false     | Allows you to change the flags at runtime                                              |
+|                Flag                | Default value | Description                                                                            |
+|:----------------------------------:|:-------------:|:---------------------------------------------------------------------------------------|
+|         show-config-token          |     false     | Display the token value when reading a config on it's endpoint like `/config/default`. |
+|     allow-runtime-flags-change     |     false     | Allows you to change the flags at runtime                                              |
+| allow-path-override-personal-token |     false     | Allows you to override the personal token path when using personal token type          |
 
 ## Security Model
 

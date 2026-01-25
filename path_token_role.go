@@ -39,7 +39,7 @@ var (
 		},
 		"path": {
 			Type:        framework.TypeString,
-			Description: "Overwrites the role path",
+			Description: "Overwrites the role path, only available if the plugin has the flag allow-path-override-personal-token set to true",
 			Required:    false,
 		},
 	}
