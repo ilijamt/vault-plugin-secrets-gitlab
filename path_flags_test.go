@@ -14,7 +14,7 @@ import (
 
 func TestPathFlags(t *testing.T) {
 	var ctx = t.Context()
-	b, l, events, err := getBackendWithFlagsWithEvents(ctx, flags.Flags{AllowRuntimeFlagsChange: true})
+	b, l, events, err := getBackendWithFlagsWithEvents(ctx, flags.Flags{AllowRuntimeFlagsChange: true, AllowPathOverride: true})
 	require.NoError(t, err)
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -25,15 +25,17 @@ func TestPathFlags(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.NoError(t, resp.Error())
+	require.True(t, resp.Data["allow_runtime_flags_change"].(bool))
+	require.True(t, resp.Data["allow_path_override"].(bool))
 	require.False(t, resp.Data["show_config_token"].(bool))
-	require.False(t, resp.Data["allow_path_override"].(bool))
 
 	resp, err = b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
 		Path:      gitlab.PathConfigFlags, Storage: l,
 		Data: map[string]interface{}{
-			"show_config_token":   "true",
-			"allow_path_override": "true",
+			"show_config_token":          "true",
+			"allow_path_override":        "false",
+			"allow_runtime_flags_change": "false",
 		},
 	})
 
@@ -41,6 +43,7 @@ func TestPathFlags(t *testing.T) {
 	require.NotNil(t, resp)
 	require.NoError(t, resp.Error())
 	require.True(t, resp.Data["show_config_token"].(bool))
+	require.True(t, resp.Data["allow_runtime_flags_change"].(bool))
 	require.True(t, resp.Data["allow_path_override"].(bool))
 
 	events.expectEvents(t, []expectedEvent{

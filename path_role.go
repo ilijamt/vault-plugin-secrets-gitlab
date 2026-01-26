@@ -5,7 +5,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -40,7 +42,7 @@ var (
 		},
 		"path": {
 			Type:        framework.TypeString,
-			Description: "Project/Group path to create an access token for. If the token type is set to personal then write the username here.",
+			Description: "Project/Group path to create an access token for. If the token type is set to personal then write the username here. If dynamic_path is true and allow-path-override flag is set then this is regex",
 			Required:    true,
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "path",
@@ -105,6 +107,15 @@ var (
 			Description: "The config we use when interacting with the role, this can be specified if you want to use a specific config for the role, otherwise it uses the default one.",
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Configuration.",
+			},
+		},
+		"dynamic_path": {
+			Type:        framework.TypeBool,
+			Default:     false,
+			Required:    false,
+			Description: "Should path be changeable dynamically for this role?",
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Dynamic Path.",
 			},
 		},
 	}
@@ -230,15 +241,29 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		Path:                data.Get("path").(string),
 		Name:                data.Get("name").(string),
 		Scopes:              data.Get("scopes").([]string),
+		DynamicPath:         data.Get("dynamic_path").(bool),
 		AccessLevel:         accessLevel,
 		TokenType:           tokenType,
 		GitlabRevokesTokens: data.Get("gitlab_revokes_token").(bool),
 		ConfigName:          configName,
 	}
 
-	// validate name of the entry role
+	// validate the name of the entry role
 	if e := utils.ValidateTokenNameName(role); e != nil {
 		err = multierror.Append(err, fmt.Errorf("invalid template %s for name: %w", role.Name, e))
+	}
+
+	if role.DynamicPath && b.flags.AllowPathOverride {
+		// if we have a dynamic path, and we can override the path, validate the regexp that it compiles
+		// this is required as during token creation we will validate the path using this regexp
+		if _, err = regexp.Compile(role.Path); err != nil {
+			err = multierror.Append(err, fmt.Errorf("invalid regexp %s for path: %w", role.Path, errs.ErrInvalidValue))
+		}
+	} else {
+		// validate the path that it confirms to the correct format for the given
+		if !token.IsValidPath(role.Path, role.TokenType) {
+			err = multierror.Append(err, fmt.Errorf("invalid path %s for token type %s: %w", role.Path, role.TokenType, errs.ErrInvalidValue))
+		}
 	}
 
 	// validate token type
@@ -294,6 +319,9 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		noEmptyScopes = true
 		skipFields = []string{"config_name", "access_level"}
 	}
+
+	// always skip these fields
+	skipFields = append(skipFields, "dynamic_path")
 
 	var invalidScopes []string
 
@@ -373,9 +401,11 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	}
 
 	_ = event.Event(ctx, b.Backend, "role-write", map[string]string{
-		"path":        "roles",
-		"role_name":   roleName,
-		"config_name": role.ConfigName,
+		"path":         "roles",
+		"role_name":    roleName,
+		"config_name":  role.ConfigName,
+		"role_path":    role.Path,
+		"dynamic_path": strconv.FormatBool(role.DynamicPath),
 	})
 
 	b.Logger().Debug("Role written", "role", roleName)
