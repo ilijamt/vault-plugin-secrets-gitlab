@@ -21,6 +21,7 @@ type Role struct {
 	AccessLevel         token.AccessLevel `json:"access_level" structs:"access_level" mapstructure:"access_level,omitempty"`
 	TokenType           token.Type        `json:"token_type" structs:"token_type" mapstructure:"token_type"`
 	GitlabRevokesTokens bool              `json:"gitlab_revokes_token" structs:"gitlab_revokes_token" mapstructure:"gitlab_revokes_token"`
+	DynamicPath         bool              `json:"dynamic_path" structs:"dynamic_path" mapstructure:"dynamic_path"`
 	ConfigName          string            `json:"config_name" structs:"config_name" mapstructure:"config_name"`
 }
 
@@ -39,6 +40,7 @@ func (e Role) LogicalResponseData() map[string]any {
 		"access_level":         e.AccessLevel.String(),
 		"ttl":                  int64(e.TTL / time.Second),
 		"token_type":           e.TokenType.String(),
+		"dynamic_path":         e.DynamicPath,
 		"gitlab_revokes_token": e.GitlabRevokesTokens,
 		"config_name":          e.ConfigName,
 	}

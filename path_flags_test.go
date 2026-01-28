@@ -25,13 +25,15 @@ func TestPathFlags(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.NoError(t, resp.Error())
+	require.True(t, resp.Data["allow_runtime_flags_change"].(bool))
 	require.False(t, resp.Data["show_config_token"].(bool))
 
 	resp, err = b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
 		Path:      gitlab.PathConfigFlags, Storage: l,
 		Data: map[string]interface{}{
-			"show_config_token": "true",
+			"show_config_token":          "true",
+			"allow_runtime_flags_change": "false",
 		},
 	})
 
@@ -39,6 +41,7 @@ func TestPathFlags(t *testing.T) {
 	require.NotNil(t, resp)
 	require.NoError(t, resp.Error())
 	require.True(t, resp.Data["show_config_token"].(bool))
+	require.True(t, resp.Data["allow_runtime_flags_change"].(bool))
 
 	events.expectEvents(t, []expectedEvent{
 		{eventType: "gitlab/flags-write"},

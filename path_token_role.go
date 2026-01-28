@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	role2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
-	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
@@ -36,6 +37,11 @@ var (
 			Type:        framework.TypeString,
 			Description: "Role name",
 			Required:    true,
+		},
+		"path": {
+			Type:        framework.TypeString,
+			Description: "Overwrites the role path, only available if the role has dynamic-path set to true",
+			Required:    false,
 		},
 	}
 )
@@ -58,11 +64,27 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		return nil, fmt.Errorf("%s: %w", roleName, ErrRoleNotFound)
 	}
 
+	// The regexp is always valid, as it is checked during role creation.
+	// We only need to validate that the path is correct and matches the regexp.
+	// If DynamicPath is false, the path is already validated during role creation,
+	// so no additional path validation is required here.
+	if role.DynamicPath {
+		rx, _ := regexp.Compile(role.Path)
+		rolePath := data.Get("path").(string)
+		if !t.IsValidPath(rolePath, role.TokenType) {
+			return logical.ErrorResponse("invalid path"), fmt.Errorf("path '%s' is not valid for token type %s: %w", rolePath, role.TokenType, errs.ErrInvalidValue)
+		}
+		if !rx.MatchString(rolePath) {
+			return logical.ErrorResponse("path doesn't match regex"), fmt.Errorf("regexp (%s) with path '%s': %w", role.Path, rolePath, errs.ErrInvalidValue)
+		}
+		role.Path = rolePath
+	}
+
 	b.Logger().Debug("Creating token for role", "role_name", roleName, "token_type", role.TokenType.String())
 	defer b.Logger().Debug("Created token for role", "role_name", roleName, "token_type", role.TokenType.String())
 
 	var name string
-	var token token2.Token
+	var token t.Token
 	var expiresAt time.Time
 	var startTime = utils.TimeFromContext(ctx).UTC()
 
@@ -83,26 +105,26 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	}
 
 	switch role.TokenType {
-	case token2.TypeGroup:
+	case t.TypeGroup:
 		b.Logger().Debug("Creating group access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
 		token, err = client.CreateGroupAccessToken(ctx, role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
-	case token2.TypeProject:
+	case t.TypeProject:
 		b.Logger().Debug("Creating project access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
 		token, err = client.CreateProjectAccessToken(ctx, role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
-	case token2.TypePersonal:
+	case t.TypePersonal:
 		var userId int64
 		userId, err = client.GetUserIdByUsername(ctx, role.Path)
 		if err == nil {
 			b.Logger().Debug("Creating personal access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreatePersonalAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
 		}
-	case token2.TypeUserServiceAccount:
+	case t.TypeUserServiceAccount:
 		var userId int64
 		if userId, err = client.GetUserIdByUsername(ctx, role.Path); err == nil {
 			b.Logger().Debug("Creating user service account access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreateUserServiceAccountAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
 		}
-	case token2.TypeGroupServiceAccount:
+	case t.TypeGroupServiceAccount:
 		var serviceAccount, groupId string
 		{
 			parts := strings.Split(role.Path, "/")
@@ -114,17 +136,17 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 			b.Logger().Debug("Creating group service account access token for role", "path", role.Path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreateGroupServiceAccountAccessToken(ctx, role.Path, groupId, userId, name, expiresAt, role.Scopes)
 		}
-	case token2.TypeProjectDeploy:
+	case t.TypeProjectDeploy:
 		var projectId int64
 		if projectId, err = client.GetProjectIdByPath(ctx, role.Path); err == nil {
 			token, err = client.CreateProjectDeployToken(ctx, role.Path, projectId, name, &expiresAt, role.Scopes)
 		}
-	case token2.TypeGroupDeploy:
+	case t.TypeGroupDeploy:
 		var groupId int64
 		if groupId, err = client.GetGroupIdByPath(ctx, role.Path); err == nil {
 			token, err = client.CreateGroupDeployToken(ctx, role.Path, groupId, name, &expiresAt, role.Scopes)
 		}
-	case token2.TypePipelineProjectTrigger:
+	case t.TypePipelineProjectTrigger:
 		var projectId int64
 		if projectId, err = client.GetProjectIdByPath(ctx, role.Path); err == nil {
 			token, err = client.CreatePipelineProjectTriggerAccessToken(ctx, role.Path, name, projectId, name, &expiresAt)
@@ -142,7 +164,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	token.SetGitlabRevokesToken(role.GitlabRevokesTokens)
 
 	if vaultRevokesTokens {
-		// since vault is controlling the expiry we need to override here
+		// since vault is controlling the expiry, we need to override here
 		// and make the expiry time accurate
 		expiresAt = startTime.Add(role.TTL)
 		token.SetExpiresAt(&expiresAt)
@@ -168,7 +190,7 @@ func pathTokenRoles(b *Backend) *framework.Path {
 	return &framework.Path{
 		HelpSynopsis:    strings.TrimSpace(pathTokenRolesHelpSyn),
 		HelpDescription: strings.TrimSpace(pathTokenRolesHelpDesc),
-		Pattern:         fmt.Sprintf("%s/%s", PathTokenRoleStorage, framework.GenericNameRegex("role_name")),
+		Pattern:         fmt.Sprintf("%s/%s%s", PathTokenRoleStorage, framework.GenericNameRegex("role_name"), framework.OptionalParamRegex("path")),
 		Fields:          FieldSchemaTokenRole,
 		DisplayAttrs: &framework.DisplayAttributes{
 			OperationPrefix: operationPrefixGitlabAccessTokens,

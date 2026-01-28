@@ -90,10 +90,10 @@ you may or may not be able to access certain paths.
 There are some flags we can specify to enable/disable some functionality in the vault plugin.
 
 
-|            Flag            | Default value | Description                                                                            |
-|:--------------------------:|:-------------:|:---------------------------------------------------------------------------------------|
-|     show-config-token      |     false     | Display the token value when reading a config on it's endpoint like `/config/default`. |
-| allow-runtime-flags-change |     false     | Allows you to change the flags at runtime                                              |
+|               Flag                | Default value | Changable during runtime if `allow-runtime-flags-change` is set to `true` | Description                                                                            |
+|:---------------------------------:|:-------------:|:-------------------------------------------------------------------------:|----------------------------------------------------------------------------------------|
+|         show-config-token         |     false     |                                   true                                    | Display the token value when reading a config on it's endpoint like `/config/default`. |
+|    allow-runtime-flags-change     |     false     |                                   false                                   | Allows you to change the flags at runtime                                              |
 
 ## Security Model
 
@@ -113,16 +113,17 @@ The current authentication model requires providing Vault with a Gitlab Token.
 
 ### Role
 
-|       Property       | Required | Default value | Sensitive | Description                                                                                                          |
-|:--------------------:|:--------:|:-------------:|:---------:|:---------------------------------------------------------------------------------------------------------------------|
-|         path         |   yes    |      n/a      |    no     | Project/Group path to create an access token for. If the token type is set to personal then write the username here. |
-|         name         |   yes    |      n/a      |    no     | The name of the access token                                                                                         |
-|         ttl          |   yes    |      n/a      |    no     | The TTL of the token                                                                                                 |
-|     access_level     |  no/yes  |      n/a      |    no     | Access level of access token (only required for Group and Project access tokens)                                     |
-|        scopes        |    no    |      []       |    no     | List of scopes                                                                                                       |
-|      token_type      |   yes    |      n/a      |    no     | Access token type                                                                                                    |
-| gitlab_revokes_token |    no    |      no       |    no     | Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires                      |
-|     config_name      |    no    |    default    |    no     | The configuration to use for the role                                                                                |
+|       Property       | Required | Default value | Sensitive | Description                                                                                                                                                                                                         |
+|:--------------------:|:--------:|:-------------:|:---------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|         path         |   yes    |      n/a      |    no     | Project/Group path to create an access token for. If the token type is set to personal then write the username here. If `dynamic_path` is set to true this needs to be a regex.                                     |
+|         name         |   yes    |      n/a      |    no     | The name of the access token                                                                                                                                                                                        |
+|         ttl          |   yes    |      n/a      |    no     | The TTL of the token                                                                                                                                                                                                |
+|     access_level     |  no/yes  |      n/a      |    no     | Access level of access token (only required for Group and Project access tokens)                                                                                                                                    |
+|        scopes        |    no    |      []       |    no     | List of scopes                                                                                                                                                                                                      |
+|      token_type      |   yes    |      n/a      |    no     | Access token type                                                                                                                                                                                                   |
+| gitlab_revokes_token |    no    |      no       |    no     | Gitlab revokes the token when it's time. Vault will not revoke the token when the lease expires                                                                                                                     |
+|     config_name      |    no    |    default    |    no     | The configuration to use for the role                                                                                                                                                                               |
+|     dynamic_path     |    no    |     false     |    no     | If set to true, you will be able to use the regex pattern to match the path from the role path                                                                                                                      |
 
 #### path
 
@@ -173,7 +174,7 @@ Here are some examples of effective token name templates:
 
 The following data points can be used within your token name template. These are derived from the role for which the token is being generated:
 
-* path
+* path (using this with `dynamic_path` can lead to unexpected results)
 * ttl
 * access_level
 * scopes (csv string ex: api, sudo, read_api)
@@ -330,6 +331,7 @@ $ vault write gitlab/roles/project name='{{ .role_name }}-{{ .token_type }}-{{ r
 $ vault write gitlab/roles/group name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=group/subgroup scopes="read_api" access_level=developer token_type=group ttl=48h
 $ vault write gitlab/roles/sa name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=user-service-account ttl=24h
 $ vault write gitlab/roles/ga name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=345/service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=group-service-account ttl=24h
+$ vault write gitlab/roles/personal-dynamic-path name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path='ilija-.*' dynamic_path=true scopes="read_api" token_type=personal ttl=48h
 ```
 
 #### User service accounts

@@ -13,7 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
@@ -21,7 +22,7 @@ func TestPathTokenRoles(t *testing.T) {
 	var defaultConfig = map[string]any{
 		"token":    getGitlabToken("admin_user_root").Token,
 		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
-		"type":     gitlab2.TypeSelfManaged.String(),
+		"type":     g.TypeSelfManaged.String(),
 	}
 
 	t.Run("role not found", func(t *testing.T) {
@@ -37,11 +38,11 @@ func TestPathTokenRoles(t *testing.T) {
 		require.ErrorIs(t, err, gitlab.ErrRoleNotFound)
 	})
 
-	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level token.AccessLevel, gitlabRevokesToken bool) {
-		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t", tokenType, level, gitlabRevokesToken)
+	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level token.AccessLevel, gitlabRevokesToken bool, path string, dynamicPath bool, pathExtra string) {
+		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t, path: %s", tokenType, level, gitlabRevokesToken, path)
 		ctx := getCtxGitlabClient(t, "unit")
 		client := newInMemoryClient(true)
-		ctx = gitlab2.ClientNewContext(ctx, client)
+		ctx = g.ClientNewContext(ctx, client)
 		var b, l, events, err = getBackendWithEvents(ctx)
 		require.NoError(t, err)
 		require.NoError(t, writeBackendConfig(ctx, b, l, defaultConfig))
@@ -56,20 +57,12 @@ func TestPathTokenRoles(t *testing.T) {
 			ttl = "48h"
 		}
 
-		var path string
-		switch tokenType {
-		case token.TypeProject:
-			path = "example/example"
-		case token.TypePersonal:
-			path = "admin-user"
-		case token.TypeGroup:
-			path = "example"
-		}
+		roleName := "test"
 
 		// create a role
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathRoleStorage, roleName), Storage: l,
 			Data: map[string]any{
 				"path":                 path,
 				"name":                 tokenType.String(),
@@ -77,6 +70,7 @@ func TestPathTokenRoles(t *testing.T) {
 				"access_level":         level,
 				"ttl":                  ttl,
 				"gitlab_revokes_token": strconv.FormatBool(gitlabRevokesToken),
+				"dynamic_path":         dynamicPath,
 			},
 		})
 		require.NoError(t, err)
@@ -84,10 +78,17 @@ func TestPathTokenRoles(t *testing.T) {
 		require.NoError(t, resp.Error())
 
 		// read an access token
-		resp, err = b.HandleRequest(ctx, &logical.Request{
+		reqPath := fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, roleName)
+		if dynamicPath && pathExtra != "" {
+			reqPath = fmt.Sprintf("%s/%s", reqPath, pathExtra)
+		}
+		req := &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathTokenRoleStorage), Storage: l,
-		})
+			Path:      reqPath,
+			Storage:   l,
+		}
+
+		resp, err = b.HandleRequest(ctx, req)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Secret)
@@ -152,17 +153,100 @@ func TestPathTokenRoles(t *testing.T) {
 	}
 
 	t.Run("personal access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, false)
-		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, true)
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, false, "admin-user", false, "")
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, true, "admin-user", false, "")
+	})
+
+	t.Run("personal access token - dynamic path", func(t *testing.T) {
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, false, "admin-user", true, "admin-user")
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, true, "admin-user", true, "admin-user")
 	})
 
 	t.Run("project access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false)
-		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, true)
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false, "example/example", false, "")
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, true, "example/example", false, "")
+	})
+
+	t.Run("project access token - dynamic path", func(t *testing.T) {
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false, "example/.*", true, "example/test")
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, true, "example/exple", true, "example/exple")
 	})
 
 	t.Run("group access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, false)
-		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, true)
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, false, "example", false, "")
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, true, "example", false, "")
+	})
+
+	t.Run("group access token - dynamic path", func(t *testing.T) {
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, false, "ex.*mple", true, "extammmple")
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, true, "example", true, "example")
+	})
+
+	t.Run("edge cases with dynamic path", func(t *testing.T) {
+		ctx := getCtxGitlabClient(t, "unit")
+		client := newInMemoryClient(true)
+		ctx = g.ClientNewContext(ctx, client)
+		var b, l, _, err = getBackendWithEvents(ctx)
+		require.NoError(t, err)
+		require.NoError(t, writeBackendConfig(ctx, b, l, defaultConfig))
+		require.NoError(t, err)
+
+		path := "v-.*-end$"
+		roleName := "test"
+		resp, err := b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.CreateOperation,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathRoleStorage, roleName), Storage: l,
+			Data: map[string]any{
+				"path":                 path,
+				"name":                 token.TypePersonal.String(),
+				"token_type":           token.TypePersonal.String(),
+				"access_level":         token.AccessLevelUnknown,
+				"ttl":                  "1h",
+				"gitlab_revokes_token": false,
+				"dynamic_path":         true,
+			},
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NoError(t, resp.Error())
+
+		// valid path
+		reqPath := fmt.Sprintf("%s/%s/v-test-end", gitlab.PathTokenRoleStorage, roleName)
+		req := &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      reqPath,
+			Storage:   l,
+		}
+		resp, err = b.HandleRequest(ctx, req)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.Secret)
+		require.NoError(t, resp.Error())
+
+		// path doesn't match regex
+		reqPath = fmt.Sprintf("%s/%s/a-test-end", gitlab.PathTokenRoleStorage, roleName)
+		req = &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      reqPath,
+			Storage:   l,
+		}
+		resp, err = b.HandleRequest(ctx, req)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
+		require.NotNil(t, resp)
+		require.Nil(t, resp.Secret)
+		require.ErrorContains(t, resp.Error(), "path doesn't match regex")
+
+		// invalid path
+		reqPath = fmt.Sprintf("%s/%s/test/end", gitlab.PathTokenRoleStorage, roleName)
+		req = &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      reqPath,
+			Storage:   l,
+		}
+		resp, err = b.HandleRequest(ctx, req)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
+		require.NotNil(t, resp)
+		require.Nil(t, resp.Secret)
+		require.ErrorContains(t, resp.Error(), "invalid path")
 	})
 }
