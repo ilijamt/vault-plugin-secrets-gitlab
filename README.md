@@ -331,6 +331,7 @@ $ vault write gitlab/roles/project name='{{ .role_name }}-{{ .token_type }}-{{ r
 $ vault write gitlab/roles/group name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=group/subgroup scopes="read_api" access_level=developer token_type=group ttl=48h
 $ vault write gitlab/roles/sa name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=user-service-account ttl=24h
 $ vault write gitlab/roles/ga name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=345/service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=group-service-account ttl=24h
+$ vault write gitlab/roles/personal-dynamic-path name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path='ilija-.*' dynamic_path=true scopes="read_api" token_type=personal ttl=48h
 ```
 
 #### User service accounts
