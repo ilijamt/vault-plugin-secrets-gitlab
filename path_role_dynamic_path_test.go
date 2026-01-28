@@ -26,7 +26,7 @@ func TestPathRolesWithDynamicPath(t *testing.T) {
 	}
 
 	ctx := getCtxGitlabClient(t, "unit")
-	var bFlags = flags.Flags{AllowPathOverride: true}
+	var bFlags = flags.Flags{}
 	b, l, _, _ := getBackendWithFlagsWithEvents(ctx, bFlags)
 	require.NoError(t, writeBackendConfigWithName(ctx, b, l, defaultConfig, gitlab.DefaultConfigName))
 

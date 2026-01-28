@@ -253,7 +253,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		err = multierror.Append(err, fmt.Errorf("invalid template %s for name: %w", role.Name, e))
 	}
 
-	if role.DynamicPath && b.flags.AllowPathOverride {
+	if role.DynamicPath {
 		// if we have a dynamic path, and we can override the path, validate the regexp that it compiles
 		// this is required as during token creation we will validate the path using this regexp
 		if _, err = regexp.Compile(role.Path); err != nil {
