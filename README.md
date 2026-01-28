@@ -174,7 +174,7 @@ Here are some examples of effective token name templates:
 
 The following data points can be used within your token name template. These are derived from the role for which the token is being generated:
 
-* path
+* path (using this with `dynamic_path` can lead to unexpected results)
 * ttl
 * access_level
 * scopes (csv string ex: api, sudo, read_api)
