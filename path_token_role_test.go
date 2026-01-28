@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
@@ -179,5 +180,73 @@ func TestPathTokenRoles(t *testing.T) {
 	t.Run("group access token - dynamic path", func(t *testing.T) {
 		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, false, "ex.*mple", true, "extammmple")
 		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, true, "example", true, "example")
+	})
+
+	t.Run("edge cases with dynamic path", func(t *testing.T) {
+		ctx := getCtxGitlabClient(t, "unit")
+		client := newInMemoryClient(true)
+		ctx = g.ClientNewContext(ctx, client)
+		var b, l, _, err = getBackendWithEvents(ctx)
+		require.NoError(t, err)
+		require.NoError(t, writeBackendConfig(ctx, b, l, defaultConfig))
+		require.NoError(t, err)
+
+		path := "v-.*-end$"
+		roleName := "test"
+		resp, err := b.HandleRequest(ctx, &logical.Request{
+			Operation: logical.CreateOperation,
+			Path:      fmt.Sprintf("%s/%s", gitlab.PathRoleStorage, roleName), Storage: l,
+			Data: map[string]any{
+				"path":                 path,
+				"name":                 token.TypePersonal.String(),
+				"token_type":           token.TypePersonal.String(),
+				"access_level":         token.AccessLevelUnknown,
+				"ttl":                  "1h",
+				"gitlab_revokes_token": false,
+				"dynamic_path":         true,
+			},
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NoError(t, resp.Error())
+
+		// valid path
+		reqPath := fmt.Sprintf("%s/%s/v-test-end", gitlab.PathTokenRoleStorage, roleName)
+		req := &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      reqPath,
+			Storage:   l,
+		}
+		resp, err = b.HandleRequest(ctx, req)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.Secret)
+		require.NoError(t, resp.Error())
+
+		// path doesn't match regex
+		reqPath = fmt.Sprintf("%s/%s/a-test-end", gitlab.PathTokenRoleStorage, roleName)
+		req = &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      reqPath,
+			Storage:   l,
+		}
+		resp, err = b.HandleRequest(ctx, req)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
+		require.NotNil(t, resp)
+		require.Nil(t, resp.Secret)
+		require.ErrorContains(t, resp.Error(), "path doesn't match regex")
+
+		// invalid path
+		reqPath = fmt.Sprintf("%s/%s/test/end", gitlab.PathTokenRoleStorage, roleName)
+		req = &logical.Request{
+			Operation: logical.ReadOperation,
+			Path:      reqPath,
+			Storage:   l,
+		}
+		resp, err = b.HandleRequest(ctx, req)
+		require.ErrorIs(t, err, errs.ErrInvalidValue)
+		require.NotNil(t, resp)
+		require.Nil(t, resp.Secret)
+		require.ErrorContains(t, resp.Error(), "invalid path")
 	})
 }
