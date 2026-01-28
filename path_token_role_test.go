@@ -37,7 +37,7 @@ func TestPathTokenRoles(t *testing.T) {
 		require.ErrorIs(t, err, gitlab.ErrRoleNotFound)
 	})
 
-	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level token.AccessLevel, gitlabRevokesToken bool, path string, dynamicPath bool) {
+	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level token.AccessLevel, gitlabRevokesToken bool, path string, dynamicPath bool, pathExtra string) {
 		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t, path: %s", tokenType, level, gitlabRevokesToken, path)
 		ctx := getCtxGitlabClient(t, "unit")
 		client := newInMemoryClient(true)
@@ -78,6 +78,9 @@ func TestPathTokenRoles(t *testing.T) {
 
 		// read an access token
 		reqPath := fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, roleName)
+		if dynamicPath && pathExtra != "" {
+			reqPath = fmt.Sprintf("%s/%s", reqPath, pathExtra)
+		}
 		req := &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      reqPath,
@@ -149,18 +152,32 @@ func TestPathTokenRoles(t *testing.T) {
 	}
 
 	t.Run("personal access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, false, "admin-user", false)
-		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, true, "admin-user", false)
-		// generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false, "*", "some-user")
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, false, "admin-user", false, "")
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, true, "admin-user", false, "")
+	})
+
+	t.Run("personal access token - dynamic path", func(t *testing.T) {
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, false, "admin-user", true, "admin-user")
+		generalTokenCreation(t, token.TypePersonal, token.AccessLevelUnknown, true, "admin-user", true, "admin-user")
 	})
 
 	t.Run("project access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false, "example/example", false)
-		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, true, "example/example", false)
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false, "example/example", false, "")
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, true, "example/example", false, "")
+	})
+
+	t.Run("project access token - dynamic path", func(t *testing.T) {
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, false, "example/.*", true, "example/test")
+		generalTokenCreation(t, token.TypeProject, token.AccessLevelGuestPermissions, true, "example/exple", true, "example/exple")
 	})
 
 	t.Run("group access token", func(t *testing.T) {
-		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, false, "example", false)
-		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, true, "example", false)
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, false, "example", false, "")
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, true, "example", false, "")
+	})
+
+	t.Run("group access token - dynamic path", func(t *testing.T) {
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, false, "ex.*mple", true, "extammmple")
+		generalTokenCreation(t, token.TypeGroup, token.AccessLevelGuestPermissions, true, "example", true, "example")
 	})
 }

@@ -15,6 +15,11 @@ func TestIsValidPath(t *testing.T) {
 		tokenType token.Type
 		valid     bool
 	}{
+		// Test cases
+		{"personal access token - dynamic path", "admin-user", token.TypePersonal, true},
+		{"project access token - dynamic path", "example/example", token.TypeProject, true},
+		{"group access token - dynamic path", "example", token.TypeGroup, true},
+
 		// TypePersonal and TypeUserServiceAccount: single segment
 		{"single valid - letters", "userone", token.TypePersonal, true},
 		{"single valid - underscore", "user_one", token.TypeUserServiceAccount, true},

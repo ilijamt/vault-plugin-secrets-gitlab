@@ -72,10 +72,10 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		rx, _ := regexp.Compile(role.Path)
 		rolePath := data.Get("path").(string)
 		if !t.IsValidPath(rolePath, role.TokenType) {
-			return logical.ErrorResponse("invalid path"), fmt.Errorf("path %s is not valid for %s: %w", role.Path, role.TokenType, errs.ErrInvalidValue)
+			return logical.ErrorResponse("invalid path"), fmt.Errorf("path '%s' is not valid for token type %s: %w", rolePath, role.TokenType, errs.ErrInvalidValue)
 		}
 		if !rx.MatchString(rolePath) {
-			return logical.ErrorResponse("path doesn't match regex"), fmt.Errorf("regexp (%s) with path %s: %w", role.Path, rolePath, errs.ErrInvalidValue)
+			return logical.ErrorResponse("path doesn't match regex"), fmt.Errorf("regexp (%s) with path '%s': %w", role.Path, rolePath, errs.ErrInvalidValue)
 		}
 		role.Path = rolePath
 	}
