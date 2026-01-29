@@ -13,7 +13,7 @@ require (
 	gitlab.com/gitlab-org/api/client-go v1.24.0
 	golang.org/x/time v0.14.0
 	google.golang.org/protobuf v1.36.11
-	gopkg.in/dnaeon/go-vcr.v4 v4.0.3
+	gopkg.in/dnaeon/go-vcr.v4 v4.0.6
 )
 
 require (
@@ -105,6 +105,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
+	go.yaml.in/yaml/v4 v4.0.0-rc.3 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.34.0 // indirect
