@@ -7,13 +7,7 @@ interactions:
         proto_major: 1
         proto_minor: 1
         content_length: 0
-        transfer_encoding: []
-        trailer: {}
         host: localhost:8080
-        remote_addr: ""
-        request_uri: ""
-        body: ""
-        form: {}
         headers:
             Accept:
                 - application/json
@@ -27,11 +21,8 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        transfer_encoding: []
-        trailer: {}
         content_length: 217
-        uncompressed: false
-        body: '{"id":5,"name":"Initial token","revoked":false,"created_at":"2025-04-04T18:35:29.419Z","description":null,"scopes":["api"],"user_id":3,"last_used_at":"2025-04-04T19:59:23.191Z","active":true,"expires_at":"2026-04-03"}'
+        body: '{"id":2,"name":"Initial token","revoked":false,"created_at":"2026-01-29T23:26:21.947Z","description":null,"scopes":["api"],"user_id":3,"last_used_at":"2026-01-29T23:29:46.033Z","active":true,"expires_at":"2027-01-28"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -42,9 +33,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 04 Apr 2025 19:59:27 GMT
+                - Thu, 29 Jan 2026 23:29:48 GMT
             Etag:
-                - W/"951c6fc1d28e2667ebedc4d17834688a"
+                - W/"68b2928c444dbd4994bc48c9024749a1"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -58,27 +49,21 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JR1662Y3VAGN32ZEK366GP19","version":"1"}'
+                - '{"correlation_id":"01KG61EWCBBE1124KVGY40JJ56","version":"1"}'
             X-Request-Id:
-                - 01JR1662Y3VAGN32ZEK366GP19
+                - 01KG61EWCBBE1124KVGY40JJ56
             X-Runtime:
-                - "0.011978"
+                - "0.014156"
         status: 200 OK
         code: 200
-        duration: 14.1735ms
+        duration: 17.440917ms
     - id: 1
       request:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
         content_length: 0
-        transfer_encoding: []
-        trailer: {}
         host: localhost:8080
-        remote_addr: ""
-        request_uri: ""
-        body: ""
-        form: {}
         headers:
             Accept:
                 - application/json
@@ -92,11 +77,8 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        transfer_encoding: []
-        trailer: {}
         content_length: 236
-        uncompressed: false
-        body: '{"version":"17.10.3","revision":"22d4014a923","kas":{"enabled":true,"externalUrl":"ws://dce56ec495e2/-/kubernetes-agent/","externalK8sProxyUrl":"http://dce56ec495e2/-/kubernetes-agent/k8s-proxy/","version":"17.10.3"},"enterprise":false}'
+        body: '{"version":"17.10.3","revision":"22d4014a923","kas":{"enabled":true,"externalUrl":"ws://a6a845573faf/-/kubernetes-agent/","externalK8sProxyUrl":"http://a6a845573faf/-/kubernetes-agent/k8s-proxy/","version":"17.10.3"},"enterprise":false}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -107,9 +89,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 04 Apr 2025 19:59:27 GMT
+                - Thu, 29 Jan 2026 23:29:48 GMT
             Etag:
-                - W/"c7db13e569c99229215906145ea2e48a"
+                - W/"cab7d44eecbcdef85dc9101b4a29d29c"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -123,27 +105,24 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JR1662Z1A19P3CQP8TH95EBN","version":"1"}'
+                - '{"correlation_id":"01KG61EWDGK8VDDX904ZNBK0W9","version":"1"}'
             X-Request-Id:
-                - 01JR1662Z1A19P3CQP8TH95EBN
+                - 01KG61EWDGK8VDDX904ZNBK0W9
             X-Runtime:
-                - "0.016456"
+                - "0.019797"
         status: 200 OK
         code: 200
-        duration: 18.98175ms
+        duration: 22.85325ms
     - id: 2
       request:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
         content_length: 0
-        transfer_encoding: []
-        trailer: {}
         host: localhost:8080
-        remote_addr: ""
-        request_uri: ""
-        body: ""
-        form: {}
+        form:
+            username:
+                - normal-user
         headers:
             Accept:
                 - application/json
@@ -159,10 +138,9 @@ interactions:
         proto_minor: 1
         transfer_encoding:
             - chunked
-        trailer: {}
         content_length: -1
         uncompressed: true
-        body: '[{"id":2,"username":"normal-user","name":"Normal User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/30ee3a8ed91c220db688a3bde115c203763b4281374c40835f69168786a590af?s=80\u0026d=identicon","web_url":"http://dce56ec495e2/normal-user","created_at":"2025-04-04T18:35:28.877Z","bio":"","location":"","public_email":null,"skype":"","linkedin":"","twitter":"","discord":"","website_url":"","organization":"","job_title":"","pronouns":null,"bot":false,"work_information":null,"followers":0,"following":0,"is_followed":false,"local_time":null,"last_sign_in_at":null,"confirmed_at":"2025-04-04T18:35:28.818Z","last_activity_on":"2025-04-04","email":"normal@local","theme_id":3,"color_scheme_id":1,"projects_limit":0,"current_sign_in_at":null,"identities":[],"can_create_group":false,"can_create_project":false,"two_factor_enabled":false,"external":false,"private_profile":false,"commit_email":"normal@local","is_admin":false,"note":"","namespace_id":2,"created_by":{"id":1,"username":"root","name":"Administrator","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/c0d13fdce10dba44c97ccfef9ce4578626652a9a45c4fbb8be86db84161ac4af?s=80\u0026d=identicon","web_url":"http://dce56ec495e2/root"},"email_reset_offered_at":null}]'
+        body: '[{"id":2,"username":"normal-user","name":"Normal User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/30ee3a8ed91c220db688a3bde115c203763b4281374c40835f69168786a590af?s=80\u0026d=identicon","web_url":"http://a6a845573faf/normal-user","created_at":"2026-01-29T23:26:21.531Z","bio":"","location":"","public_email":null,"skype":"","linkedin":"","twitter":"","discord":"","website_url":"","organization":"","job_title":"","pronouns":null,"bot":false,"work_information":null,"followers":0,"following":0,"is_followed":false,"local_time":null,"last_sign_in_at":null,"confirmed_at":"2026-01-29T23:26:21.448Z","last_activity_on":"2026-01-29","email":"normal@local","theme_id":3,"color_scheme_id":1,"projects_limit":0,"current_sign_in_at":null,"identities":[],"can_create_group":false,"can_create_project":false,"two_factor_enabled":false,"external":false,"private_profile":false,"commit_email":"normal@local","is_admin":false,"note":"","namespace_id":4,"created_by":{"id":1,"username":"root","name":"Administrator","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/b6d22ef3ab90a0970145c8998a98e747885f17ccd308f44b0bbf6a6130ff1669?s=80\u0026d=identicon","web_url":"http://a6a845573faf/root"},"email_reset_offered_at":null}]'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -171,11 +149,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 04 Apr 2025 19:59:27 GMT
+                - Thu, 29 Jan 2026 23:29:49 GMT
             Etag:
-                - W/"3a1bd84e80118d66b0f8808156ca9f21"
+                - W/"fed466a63666fc101d7a33532e1e072a"
             Link:
-                - <http://dce56ec495e2/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://dce56ec495e2/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
+                - <http://a6a845573faf/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://a6a845573faf/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -190,7 +168,7 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JR16630BWH3P77H1V72TJ3XQ","version":"1"}'
+                - '{"correlation_id":"01KG61EWEZZJ31M720JG4YKW38","version":"1"}'
             X-Next-Page:
                 - ""
             X-Page:
@@ -200,29 +178,24 @@ interactions:
             X-Prev-Page:
                 - ""
             X-Request-Id:
-                - 01JR16630BWH3P77H1V72TJ3XQ
+                - 01KG61EWEZZJ31M720JG4YKW38
             X-Runtime:
-                - "0.037402"
+                - "0.033378"
             X-Total:
                 - "1"
             X-Total-Pages:
                 - "1"
         status: 200 OK
         code: 200
-        duration: 39.8955ms
+        duration: 36.141916ms
     - id: 3
       request:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
         content_length: 67
-        transfer_encoding: []
-        trailer: {}
         host: localhost:8080
-        remote_addr: ""
-        request_uri: ""
-        body: '{"name":"personal","expires_at":"2025-04-10","scopes":["read_api"]}'
-        form: {}
+        body: '{"name":"personal","expires_at":"2026-02-04","scopes":["read_api"]}'
         headers:
             Accept:
                 - application/json
@@ -238,11 +211,8 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        transfer_encoding: []
-        trailer: {}
         content_length: 233
-        uncompressed: false
-        body: '{"id":38,"name":"personal","revoked":false,"created_at":"2025-04-04T19:59:27.860Z","description":null,"scopes":["read_api"],"user_id":2,"last_used_at":null,"active":true,"expires_at":"2025-04-10","token":"glpat-Yb2zkuGwwn6_4aAgVCGH"}'
+        body: '{"id":42,"name":"personal","revoked":false,"created_at":"2026-01-29T23:29:49.285Z","description":null,"scopes":["read_api"],"user_id":2,"last_used_at":null,"active":true,"expires_at":"2026-02-04","token":"glpat-uzqfvf_9psV_9huGJHAe"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -253,9 +223,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 04 Apr 2025 19:59:27 GMT
+                - Thu, 29 Jan 2026 23:29:49 GMT
             Etag:
-                - W/"b393512c8b012907474a41ee88558908"
+                - W/"a9627434513ae4523e53ba574db9b116"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -269,27 +239,21 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JR16632XAC1CCR14DRV5P7W8","version":"1"}'
+                - '{"correlation_id":"01KG61EWHC5HB6KT3EZDZG8G1Z","version":"1"}'
             X-Request-Id:
-                - 01JR16632XAC1CCR14DRV5P7W8
+                - 01KG61EWHC5HB6KT3EZDZG8G1Z
             X-Runtime:
-                - "0.031843"
+                - "0.212227"
         status: 201 Created
         code: 201
-        duration: 34.554ms
+        duration: 223.635167ms
     - id: 4
       request:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
         content_length: 0
-        transfer_encoding: []
-        trailer: {}
         host: localhost:8080
-        remote_addr: ""
-        request_uri: ""
-        body: ""
-        form: {}
         headers:
             Accept:
                 - application/json
@@ -303,11 +267,8 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        transfer_encoding: []
-        trailer: {}
         content_length: 218
-        uncompressed: false
-        body: '{"id":38,"name":"personal","revoked":false,"created_at":"2025-04-04T19:59:27.860Z","description":null,"scopes":["read_api"],"user_id":2,"last_used_at":"2025-04-04T19:59:27.918Z","active":true,"expires_at":"2025-04-10"}'
+        body: '{"id":42,"name":"personal","revoked":false,"created_at":"2026-01-29T23:29:49.285Z","description":null,"scopes":["read_api"],"user_id":2,"last_used_at":"2026-01-29T23:29:49.561Z","active":true,"expires_at":"2026-02-04"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -318,9 +279,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 04 Apr 2025 19:59:27 GMT
+                - Thu, 29 Jan 2026 23:29:49 GMT
             Etag:
-                - W/"d207d43407d7eb48d6301da1081fb7d1"
+                - W/"f2f4a814838303f0db2640fb1d87f348"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -334,27 +295,21 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JR166355M59H2P6RPQ1GBE0W","version":"1"}'
+                - '{"correlation_id":"01KG61EWZAS97TQ4T8P7TYXSCY","version":"1"}'
             X-Request-Id:
-                - 01JR166355M59H2P6RPQ1GBE0W
+                - 01KG61EWZAS97TQ4T8P7TYXSCY
             X-Runtime:
-                - "0.021922"
+                - "0.022222"
         status: 200 OK
         code: 200
-        duration: 25.06225ms
+        duration: 27.021959ms
     - id: 5
       request:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
         content_length: 0
-        transfer_encoding: []
-        trailer: {}
         host: localhost:8080
-        remote_addr: ""
-        request_uri: ""
-        body: ""
-        form: {}
         headers:
             Accept:
                 - application/json
@@ -368,11 +323,8 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        transfer_encoding: []
-        trailer: {}
         content_length: 218
-        uncompressed: false
-        body: '{"id":38,"name":"personal","revoked":false,"created_at":"2025-04-04T19:59:27.860Z","description":null,"scopes":["read_api"],"user_id":2,"last_used_at":"2025-04-04T19:59:27.918Z","active":true,"expires_at":"2025-04-10"}'
+        body: '{"id":42,"name":"personal","revoked":false,"created_at":"2026-01-29T23:29:49.285Z","description":null,"scopes":["read_api"],"user_id":2,"last_used_at":"2026-01-29T23:29:49.561Z","active":true,"expires_at":"2026-02-04"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -383,9 +335,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 04 Apr 2025 19:59:27 GMT
+                - Thu, 29 Jan 2026 23:29:49 GMT
             Etag:
-                - W/"d207d43407d7eb48d6301da1081fb7d1"
+                - W/"f2f4a814838303f0db2640fb1d87f348"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -399,11 +351,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01JR16636SD851Q1MBW70DM9GZ","version":"1"}'
+                - '{"correlation_id":"01KG61EX12YW5QXZVS7ZC1Z4FB","version":"1"}'
             X-Request-Id:
-                - 01JR16636SD851Q1MBW70DM9GZ
+                - 01KG61EX12YW5QXZVS7ZC1Z4FB
             X-Runtime:
-                - "0.011406"
+                - "0.019386"
         status: 200 OK
         code: 200
-        duration: 14.01825ms
+        duration: 23.508042ms
