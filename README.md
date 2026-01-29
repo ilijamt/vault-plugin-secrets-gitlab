@@ -74,7 +74,7 @@ you may or may not be able to access certain paths.
         Lists existing configs
 
     ^flags$
-        Flags for the plugins.
+        Flags for the plugin.
 
     ^roles/(?P<role_name>\w(([\w-.]+)?\w)?)$
         Create a role with parameters that are used to generate a various access tokens.
@@ -82,7 +82,7 @@ you may or may not be able to access certain paths.
     ^roles?/?$
         Lists existing roles
 
-    ^token/(?P<role_name>\w(([\w-.]+)?\w)?)$
+    ^token/(?P<role_name>\w(([\w-.]+)?\w)?)(/(?P<path>.+))?$
         Generate an access token based on the specified role
 ```
 ## Flags
@@ -425,3 +425,32 @@ $ vault secrets list -detailed -format=json | jq '."gitlab/"'
 ## Info
 
 Running the logging with `debug` level will show sensitive information in the logs.
+
+## Local development
+
+Start vault with, this should create a dev server on port 8200
+
+```shell
+make vault-dev
+```
+
+And then enable the plugin by running:
+
+```shell
+make vault-plugin-enable
+```
+
+To configure the plugin run:
+
+```shell
+vault write gitlab/config/default base_url=http://localhost:8080/ token=glpat-wU8yWBGat-nypZcyf1LL auto_rotate_token=false auto_rotate_before=48h type=self-managed
+vault write gitlab/roles/pdp name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path='.*' dynamic_path=true scopes="read_api" token_type=personal ttl=48h
+```
+
+Then you can request the token for the role you created:
+
+```shell
+vault read gitlab/token/pdp/root
+vault read gitlab/token/pdp/admin-user
+vault read gitlab/token/pdp/normal-user
+```
