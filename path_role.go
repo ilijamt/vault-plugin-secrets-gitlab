@@ -42,7 +42,7 @@ var (
 		},
 		"path": {
 			Type:        framework.TypeString,
-			Description: "Project/Group path to create an access token for. If the token type is set to personal then write the username here. If dynamic_path is true and allow-path-override flag is set then this is regex",
+			Description: "Project/Group path to create an access token for. If the token type is set to personal then write the username here. If dynamic_path is true set then this is regex.",
 			Required:    true,
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "path",
