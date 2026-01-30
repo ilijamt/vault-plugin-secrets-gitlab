@@ -50,7 +50,7 @@ coverage: check-go clean-coverage
 	$(GO) tool cover -html=$(COVER_PROFILE) -o $(COVER_HTML)
 
 clean-coverage:
-	rm -f $(BUILD_DIR)/$(COVER_PROFILE) $(BUILD_DIR)/$(COVER_HTML)
+	rm -f $(COVER_PROFILE) $(COVER_HTML)
 
 build: check-go
 	mkdir -p $(BUILD_DIR)
