@@ -78,6 +78,44 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 				"base_url": "https://gitlab.com",
 			},
 		},
+		{
+			name: "auto_rotate_before specified (valid) should not warn and should set duration",
+			expectedConfig: &config.EntryConfig{
+				Token:            "token",
+				Type:             gitlab2.TypeSelfManaged,
+				AutoRotateToken:  false,
+				AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL,
+				BaseURL:          "https://gitlab.com",
+			},
+			warnings: nil,
+			raw: map[string]interface{}{
+				"token":              "token",
+				"type":               gitlab2.TypeSelfManaged.String(),
+				"base_url":           "https://gitlab.com",
+				"auto_rotate_before": int(config.DefaultAutoRotateBeforeMinTTL.Seconds()),
+			},
+		},
+		{
+			name: "auto_rotate_before specified (too small) should error",
+			expectedConfig: &config.EntryConfig{
+				Token:            "token",
+				Type:             gitlab2.TypeSelfManaged,
+				AutoRotateToken:  false,
+				AutoRotateBefore: 0,
+				BaseURL:          "https://gitlab.com",
+			},
+			warnings: nil,
+			raw: map[string]interface{}{
+				"token":              "token",
+				"type":               gitlab2.TypeSelfManaged.String(),
+				"base_url":           "https://gitlab.com",
+				"auto_rotate_before": int(config.DefaultAutoRotateBeforeMinTTL.Seconds()) - 1,
+			},
+			err: true,
+			errMap: map[string]int{
+				errs.ErrInvalidValue.Error(): 1,
+			},
+		},
 	}
 
 	for _, test := range tests {
