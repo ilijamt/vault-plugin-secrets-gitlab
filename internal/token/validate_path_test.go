@@ -62,6 +62,9 @@ func TestIsValidPath(t *testing.T) {
 
 		// Empty segment from double slash
 		{"double slash", "foo//bar", token.TypeProject, false},
+
+		// unknown type
+		{"unknown type", "foo/bar", token.TypeUnknown, false},
 	}
 
 	for _, tt := range tests {

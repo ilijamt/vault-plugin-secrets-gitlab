@@ -75,5 +75,5 @@ func IsValidPath(path string, tokenType Type) (valid bool) {
 		return len(segments) >= 1
 	}
 
-	return true
+	return false
 }
