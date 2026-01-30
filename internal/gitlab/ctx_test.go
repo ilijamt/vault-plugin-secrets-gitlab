@@ -9,7 +9,8 @@ import (
 )
 
 func TestEmptyGitlabClientFromContext(t *testing.T) {
-	c, ok := gitlab.ClientFromContext(t.Context())
+	ctx := gitlab.ClientNewContext(t.Context(), nil)
+	c, ok := gitlab.ClientFromContext(ctx)
 	require.False(t, ok)
 	require.Nil(t, c)
 }
