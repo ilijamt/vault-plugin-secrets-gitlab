@@ -184,20 +184,13 @@ func (gc *gitlabClient) GetGroupIdByPath(ctx context.Context, path string) (grou
 		gc.logger.Debug("Get group id by path", "path", path, "groupId", groupId, "error", err)
 	}()
 
-	l := &g.ListGroupsOptions{
-		Search: g.Ptr(path),
-	}
-
-	groups, _, err := gc.client.Groups.ListGroups(l, g.WithContext(ctx))
+	group, _, err := gc.client.Groups.GetGroup(path, nil, g.WithContext(ctx))
 	if err != nil {
-		return 0, fmt.Errorf("%v", err)
-	}
-	if len(groups) == 0 {
 		return 0, fmt.Errorf("path '%s' not found: %w", path, errs.ErrInvalidValue)
 	}
-	groupId = groups[0].ID
-	return groupId, nil
 
+	groupId = group.ID
+	return groupId, nil
 }
 
 func (gc *gitlabClient) GitlabClient(ctx context.Context) *g.Client {
