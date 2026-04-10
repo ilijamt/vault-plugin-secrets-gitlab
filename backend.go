@@ -16,7 +16,7 @@ import (
 
 // Backend is the public type alias for the concrete backend implementation.
 // Tests and consumers use *Backend which is equivalent to *backend.BackendImpl.
-type Backend = backend.BackendImpl
+type Backend = backend.Impl
 
 const (
 	backendHelp = `

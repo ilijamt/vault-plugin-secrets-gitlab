@@ -8,14 +8,15 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/mocks"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 )
 
-func newTestBackend(t *testing.T, f flags.Flags, opts ...backend.InitOption) *backend.BackendImpl {
+func newTestBackend(t *testing.T, f flags.Flags, opts ...backend.InitOption) *backend.Impl {
 	t.Helper()
 	b := backend.New(f)
 	ctx := t.Context()

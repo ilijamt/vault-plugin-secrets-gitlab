@@ -21,10 +21,10 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
-var _ Backend = (*BackendImpl)(nil)
+var _ Backend = (*Impl)(nil)
 
-// BackendImpl is the concrete implementation of the Backend interface.
-type BackendImpl struct {
+// Impl is the concrete implementation of the Backend interface.
+type Impl struct {
 	*framework.Backend
 
 	flags          flags.Flags
@@ -45,8 +45,8 @@ type BackendImpl struct {
 }
 
 // New creates a new BackendImpl with the given flags. Call Init to complete setup.
-func New(f flags.Flags) *BackendImpl {
-	return &BackendImpl{
+func New(f flags.Flags) *Impl {
+	return &Impl{
 		roleLocks: locksutil.CreateLocks(),
 		clients:   sync.Map{},
 		flags:     f,
@@ -55,7 +55,7 @@ func New(f flags.Flags) *BackendImpl {
 
 // Init wires up the framework.Backend with paths from the registered providers,
 // secrets, special paths, and periodic/invalidate dispatchers.
-func (b *BackendImpl) Init(ctx context.Context, conf *logical.BackendConfig, opts ...InitOption) error {
+func (b *Impl) Init(ctx context.Context, conf *logical.BackendConfig, opts ...InitOption) error {
 	cfg := &initConfig{}
 	for _, opt := range opts {
 		opt(cfg)
@@ -87,7 +87,7 @@ func (b *BackendImpl) Init(ctx context.Context, conf *logical.BackendConfig, opt
 
 // periodicFunc dispatches to all registered PeriodicHandlers.
 // Only called when WriteSafeReplicationState() is true.
-func (b *BackendImpl) periodicFunc(ctx context.Context, req *logical.Request) error {
+func (b *Impl) periodicFunc(ctx context.Context, req *logical.Request) error {
 	b.Logger().Debug("Periodic action executing")
 	if !b.WriteSafeReplicationState() {
 		return nil
@@ -103,7 +103,7 @@ func (b *BackendImpl) periodicFunc(ctx context.Context, req *logical.Request) er
 }
 
 // invalidate dispatches to all registered InvalidateHandlers.
-func (b *BackendImpl) invalidate(ctx context.Context, key string) {
+func (b *Impl) invalidate(ctx context.Context, key string) {
 	b.Logger().Debug("Backend invalidate", "key", key)
 	for _, p := range b.pathProviders {
 		if ih, ok := p.(InvalidateHandler); ok {
@@ -113,14 +113,14 @@ func (b *BackendImpl) invalidate(ctx context.Context, key string) {
 	}
 }
 
-func (b *BackendImpl) GetClient(name string) g.Client {
+func (b *Impl) GetClient(name string) g.Client {
 	if client, ok := b.clients.Load(configName(name)); ok {
 		return client.(g.Client)
 	}
 	return nil
 }
 
-func (b *BackendImpl) SetClient(client g.Client, name string) {
+func (b *Impl) SetClient(client g.Client, name string) {
 	name = configName(name)
 	if client == nil {
 		b.Logger().Debug("Setting a nil client", "name", name)
@@ -130,13 +130,13 @@ func (b *BackendImpl) SetClient(client g.Client, name string) {
 	b.clients.Store(name, client)
 }
 
-func (b *BackendImpl) DeleteClient(name string) {
+func (b *Impl) DeleteClient(name string) {
 	name = configName(name)
 	b.Logger().Debug("Removing client", "name", name)
 	b.clients.Delete(name)
 }
 
-func (b *BackendImpl) GetClientByName(ctx context.Context, s logical.Storage, name string) (client g.Client, err error) {
+func (b *Impl) GetClientByName(ctx context.Context, s logical.Storage, name string) (client g.Client, err error) {
 	if c, ok := b.clients.Load(configName(name)); ok {
 		client = c.(g.Client)
 	}
@@ -164,42 +164,42 @@ func (b *BackendImpl) GetClientByName(ctx context.Context, s logical.Storage, na
 	return client, err
 }
 
-func (b *BackendImpl) SendEvent(ctx context.Context, eventType event.EventType, metadata map[string]string) error {
+func (b *Impl) SendEvent(ctx context.Context, eventType event.EventType, metadata map[string]string) error {
 	return event.Event(ctx, b.Backend, eventType, metadata)
 }
 
-func (b *BackendImpl) Flags() flags.Flags {
+func (b *Impl) Flags() flags.Flags {
 	b.lockFlagsMutex.RLock()
 	defer b.lockFlagsMutex.RUnlock()
 	return b.flags
 }
 
-func (b *BackendImpl) UpdateFlags(fn func(*flags.Flags)) {
+func (b *Impl) UpdateFlags(fn func(*flags.Flags)) {
 	b.lockFlagsMutex.Lock()
 	defer b.lockFlagsMutex.Unlock()
 	fn(&b.flags)
 }
 
-func (b *BackendImpl) ClientLock() { b.lockClientMutex.Lock() }
+func (b *Impl) ClientLock() { b.lockClientMutex.Lock() }
 
-func (b *BackendImpl) ClientUnlock() { b.lockClientMutex.Unlock() }
+func (b *Impl) ClientUnlock() { b.lockClientMutex.Unlock() }
 
-func (b *BackendImpl) ClientRLock() { b.lockClientMutex.RLock() }
+func (b *Impl) ClientRLock() { b.lockClientMutex.RLock() }
 
-func (b *BackendImpl) ClientRUnlock() { b.lockClientMutex.RUnlock() }
+func (b *Impl) ClientRUnlock() { b.lockClientMutex.RUnlock() }
 
-func (b *BackendImpl) RoleLockForKey(key string) *locksutil.LockEntry {
+func (b *Impl) RoleLockForKey(key string) *locksutil.LockEntry {
 	return locksutil.LockForKey(b.roleLocks, key)
 }
 
-func (b *BackendImpl) GetConfig(ctx context.Context, s logical.Storage, name string) (*modelConfig.EntryConfig, error) {
+func (b *Impl) GetConfig(ctx context.Context, s logical.Storage, name string) (*modelConfig.EntryConfig, error) {
 	return model.Get[modelConfig.EntryConfig](ctx, s, fmt.Sprintf("%s/%s", PathConfigStorage, name))
 }
 
-func (b *BackendImpl) SaveConfig(ctx context.Context, config *modelConfig.EntryConfig, s logical.Storage) error {
+func (b *Impl) SaveConfig(ctx context.Context, config *modelConfig.EntryConfig, s logical.Storage) error {
 	return model.Save(ctx, s, PathConfigStorage, config)
 }
 
-func (b *BackendImpl) GetRole(ctx context.Context, name string, s logical.Storage) (*role.Role, error) {
+func (b *Impl) GetRole(ctx context.Context, name string, s logical.Storage) (*role.Role, error) {
 	return model.Get[role.Role](ctx, s, fmt.Sprintf("%s/%s", PathRoleStorage, name))
 }
