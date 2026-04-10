@@ -20,6 +20,11 @@ const (
 	SecretAccessTokenType = "access_tokens"
 )
 
+type secretBackend interface {
+	backend.ClientProvider
+	backend.EventSender
+}
+
 var (
 	// FieldSchemaAccessTokens defines the field schema for access token secrets.
 	FieldSchemaAccessTokens = map[string]*framework.FieldSchema{
@@ -52,7 +57,7 @@ var (
 
 // NewSecret creates a framework.Secret for access tokens with the revoke handler
 // wired through the provided backend.Backend interface.
-func NewSecret(b backend.Backend, defaultConfigName string) *framework.Secret {
+func NewSecret(b secretBackend, defaultConfigName string) *framework.Secret {
 	return &framework.Secret{
 		Type:   SecretAccessTokenType,
 		Fields: FieldSchemaAccessTokens,
@@ -60,7 +65,7 @@ func NewSecret(b backend.Backend, defaultConfigName string) *framework.Secret {
 	}
 }
 
-func revokeAccessToken(b backend.Backend, defaultConfigName string) framework.OperationFunc {
+func revokeAccessToken(b secretBackend, defaultConfigName string) framework.OperationFunc {
 	return func(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
 		var err error
 
@@ -133,7 +138,7 @@ func revokeAccessToken(b backend.Backend, defaultConfigName string) framework.Op
 			}
 		}
 
-		_ = b.SendEvent(ctx, "token-revoke", map[string]string{
+		_ = b.SendEvent(ctx, eventRevoke, map[string]string{
 			"lease_id":             secret.LeaseID,
 			"path":                 req.Secret.InternalData["path"].(string),
 			"name":                 req.Secret.InternalData["name"].(string),

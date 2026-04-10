@@ -1,0 +1,205 @@
+package backend
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"strings"
+	"sync"
+
+	"github.com/hashicorp/vault/sdk/framework"
+	"github.com/hashicorp/vault/sdk/helper/locksutil"
+	"github.com/hashicorp/vault/sdk/logical"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
+	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model"
+	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
+)
+
+var _ Backend = (*BackendImpl)(nil)
+
+// BackendImpl is the concrete implementation of the Backend interface.
+type BackendImpl struct {
+	*framework.Backend
+
+	flags          flags.Flags
+	lockFlagsMutex sync.RWMutex
+
+	// The client that we can use to create and revoke the access tokens
+	clients sync.Map
+
+	// Mutex to protect access to gitlab clients and client configs, a change to the gitlab client config
+	// would invalidate the gitlab client, so it will need to be reinitialized
+	lockClientMutex sync.RWMutex
+
+	// roleLocks to protect access for roles, during modifications, deletion
+	roleLocks []*locksutil.LockEntry
+
+	// pathProviders holds the registered path providers with their optional hooks
+	pathProviders []PathProvider
+}
+
+// New creates a new BackendImpl with the given flags. Call Init to complete setup.
+func New(f flags.Flags) *BackendImpl {
+	return &BackendImpl{
+		roleLocks: locksutil.CreateLocks(),
+		clients:   sync.Map{},
+		flags:     f,
+	}
+}
+
+// Init wires up the framework.Backend with paths from the registered providers,
+// secrets, special paths, and periodic/invalidate dispatchers.
+func (b *BackendImpl) Init(ctx context.Context, conf *logical.BackendConfig, opts ...InitOption) error {
+	cfg := &initConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	b.pathProviders = cfg.providers
+
+	var allPaths []*framework.Path
+	for _, p := range cfg.providers {
+		allPaths = append(allPaths, p.Paths()...)
+	}
+
+	b.Backend = &framework.Backend{
+		BackendType:    logical.TypeLogical,
+		Help:           strings.TrimSpace(cfg.help),
+		RunningVersion: cfg.version,
+		Invalidate:     b.invalidate,
+		PathsSpecial: &logical.Paths{
+			LocalStorage:    append([]string{framework.WALPrefix}, cfg.localStorage...),
+			SealWrapStorage: cfg.sealWrapStorage,
+		},
+		Secrets:      cfg.secrets,
+		Paths:        framework.PathAppend(allPaths),
+		PeriodicFunc: b.periodicFunc,
+	}
+
+	return b.Setup(ctx, conf)
+}
+
+// periodicFunc dispatches to all registered PeriodicHandlers.
+// Only called when WriteSafeReplicationState() is true.
+func (b *BackendImpl) periodicFunc(ctx context.Context, req *logical.Request) error {
+	b.Logger().Debug("Periodic action executing")
+	if !b.WriteSafeReplicationState() {
+		return nil
+	}
+	var errs error
+	for _, p := range b.pathProviders {
+		if ph, ok := p.(PeriodicHandler); ok {
+			b.Logger().Debug("Periodic handler dispatching", "provider", p.Name())
+			errs = errors.Join(errs, ph.PeriodicFunc(ctx, req))
+		}
+	}
+	return errs
+}
+
+// invalidate dispatches to all registered InvalidateHandlers.
+func (b *BackendImpl) invalidate(ctx context.Context, key string) {
+	b.Logger().Debug("Backend invalidate", "key", key)
+	for _, p := range b.pathProviders {
+		if ih, ok := p.(InvalidateHandler); ok {
+			b.Logger().Debug("Invalidate handler dispatching", "provider", p.Name(), "key", key)
+			ih.Invalidate(ctx, key)
+		}
+	}
+}
+
+func (b *BackendImpl) GetClient(name string) g.Client {
+	if client, ok := b.clients.Load(configName(name)); ok {
+		return client.(g.Client)
+	}
+	return nil
+}
+
+func (b *BackendImpl) SetClient(client g.Client, name string) {
+	name = configName(name)
+	if client == nil {
+		b.Logger().Debug("Setting a nil client", "name", name)
+		return
+	}
+	b.Logger().Debug("Setting a new client", "name", name)
+	b.clients.Store(name, client)
+}
+
+func (b *BackendImpl) DeleteClient(name string) {
+	name = configName(name)
+	b.Logger().Debug("Removing client", "name", name)
+	b.clients.Delete(name)
+}
+
+func (b *BackendImpl) GetClientByName(ctx context.Context, s logical.Storage, name string) (client g.Client, err error) {
+	if c, ok := b.clients.Load(configName(name)); ok {
+		client = c.(g.Client)
+	}
+	if client != nil && client.Valid(ctx) {
+		b.Logger().Debug("Returning existing gitlab client")
+		return client, nil
+	}
+
+	b.ClientRLock()
+	defer b.ClientRUnlock()
+	var config *modelConfig.EntryConfig
+	config, err = b.GetConfig(ctx, s, name)
+	if err != nil {
+		b.Logger().Error("Failed to retrieve configuration", "error", err.Error())
+		return nil, err
+	}
+
+	var httpClient *http.Client
+	httpClient, _ = utils.HttpClientFromContext(ctx)
+	if client, _ = g.ClientFromContext(ctx); client == nil {
+		if client, err = g.NewGitlabClient(config, httpClient, b.Logger()); err == nil {
+			b.SetClient(client, name)
+		}
+	}
+	return client, err
+}
+
+func (b *BackendImpl) SendEvent(ctx context.Context, eventType event.EventType, metadata map[string]string) error {
+	return event.Event(ctx, b.Backend, eventType, metadata)
+}
+
+func (b *BackendImpl) Flags() flags.Flags {
+	b.lockFlagsMutex.RLock()
+	defer b.lockFlagsMutex.RUnlock()
+	return b.flags
+}
+
+func (b *BackendImpl) UpdateFlags(fn func(*flags.Flags)) {
+	b.lockFlagsMutex.Lock()
+	defer b.lockFlagsMutex.Unlock()
+	fn(&b.flags)
+}
+
+func (b *BackendImpl) ClientLock() { b.lockClientMutex.Lock() }
+
+func (b *BackendImpl) ClientUnlock() { b.lockClientMutex.Unlock() }
+
+func (b *BackendImpl) ClientRLock() { b.lockClientMutex.RLock() }
+
+func (b *BackendImpl) ClientRUnlock() { b.lockClientMutex.RUnlock() }
+
+func (b *BackendImpl) RoleLockForKey(key string) *locksutil.LockEntry {
+	return locksutil.LockForKey(b.roleLocks, key)
+}
+
+func (b *BackendImpl) GetConfig(ctx context.Context, s logical.Storage, name string) (*modelConfig.EntryConfig, error) {
+	return model.Get[modelConfig.EntryConfig](ctx, s, fmt.Sprintf("%s/%s", PathConfigStorage, name))
+}
+
+func (b *BackendImpl) SaveConfig(ctx context.Context, config *modelConfig.EntryConfig, s logical.Storage) error {
+	return model.Save(ctx, s, PathConfigStorage, config)
+}
+
+func (b *BackendImpl) GetRole(ctx context.Context, name string, s logical.Storage) (*role.Role, error) {
+	return model.Get[role.Role](ctx, s, fmt.Sprintf("%s/%s", PathRoleStorage, name))
+}

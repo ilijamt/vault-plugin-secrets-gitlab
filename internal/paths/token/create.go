@@ -1,10 +1,9 @@
-package gitlab
+package token
 
 import (
 	"cmp"
 	"context"
 	"fmt"
-	"net/http"
 	"regexp"
 	"strings"
 	"time"
@@ -12,51 +11,25 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	modelRole "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/secret"
 	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
-const (
-	pathTokenRolesHelpSyn  = `Generate an access token based on the specified role`
-	pathTokenRolesHelpDesc = `
-This path allows you to generate an access token based on a predefined role. The role must be created beforehand in 
-the ^roles/(?P<role_name>\w(([\w-.@]+)?\w)?)$ path, where its parameters, such as token permissions, scopes, and 
-expiration, are defined. When you request an access token through this path, Vault will use the predefined 
-role's parameters to create a new access token.`
-
-	PathTokenRoleStorage = "token"
-)
-
-var (
-	FieldSchemaTokenRole = map[string]*framework.FieldSchema{
-		"role_name": {
-			Type:        framework.TypeString,
-			Description: "Role name",
-			Required:    true,
-		},
-		"path": {
-			Type:        framework.TypeString,
-			Description: "Overwrites the role path, only available if the role has dynamic-path set to true",
-			Required:    false,
-		},
-	}
-)
-
-func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (p *Provider) pathTokenRoleCreate(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var resp *logical.Response
 	var err error
 	var role *modelRole.Role
 	var roleName = data.Get("role_name").(string)
 
-	lock := b.RoleLockForKey(roleName)
+	lock := p.b.RoleLockForKey(roleName)
 	lock.RLock()
 	defer lock.RUnlock()
 
-	role, err = b.GetRole(ctx, roleName, req.Storage)
+	role, err = p.b.GetRole(ctx, roleName, req.Storage)
 	if err != nil {
 		return nil, fmt.Errorf("error getting role: %w", err)
 	}
@@ -80,8 +53,8 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		role.Path = rolePath
 	}
 
-	b.Logger().Debug("Creating token for role", "role_name", roleName, "token_type", role.TokenType.String())
-	defer b.Logger().Debug("Created token for role", "role_name", roleName, "token_type", role.TokenType.String())
+	p.b.Logger().Debug("Creating token for role", "role_name", roleName, "token_type", role.TokenType.String())
+	defer p.b.Logger().Debug("Created token for role", "role_name", roleName, "token_type", role.TokenType.String())
 
 	var name string
 	var token t.Token
@@ -99,29 +72,29 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 
 	_, expiresAt, _ = utils.CalculateGitlabTTL(role.TTL, startTime)
 
-	client, err = b.GetClientByName(ctx, req.Storage, role.ConfigName)
+	client, err = p.b.GetClientByName(ctx, req.Storage, role.ConfigName)
 	if err != nil {
 		return nil, err
 	}
 
 	switch role.TokenType {
 	case t.TypeGroup:
-		b.Logger().Debug("Creating group access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
+		p.b.Logger().Debug("Creating group access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
 		token, err = client.CreateGroupAccessToken(ctx, role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
 	case t.TypeProject:
-		b.Logger().Debug("Creating project access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
+		p.b.Logger().Debug("Creating project access token for role", "path", role.Path, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes, "accessLevel", role.AccessLevel)
 		token, err = client.CreateProjectAccessToken(ctx, role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
 	case t.TypePersonal:
 		var userId int64
 		userId, err = client.GetUserIdByUsername(ctx, role.Path)
 		if err == nil {
-			b.Logger().Debug("Creating personal access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
+			p.b.Logger().Debug("Creating personal access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreatePersonalAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
 		}
 	case t.TypeUserServiceAccount:
 		var userId int64
 		if userId, err = client.GetUserIdByUsername(ctx, role.Path); err == nil {
-			b.Logger().Debug("Creating user service account access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
+			p.b.Logger().Debug("Creating user service account access token for role", "path", role.Path, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreateUserServiceAccountAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
 		}
 	case t.TypeGroupServiceAccount:
@@ -133,7 +106,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 
 		var userId int64
 		if userId, err = client.GetUserIdByUsername(ctx, serviceAccount); err == nil {
-			b.Logger().Debug("Creating group service account access token for role", "path", role.Path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
+			p.b.Logger().Debug("Creating group service account access token for role", "path", role.Path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreateGroupServiceAccountAccessToken(ctx, role.Path, groupId, userId, name, expiresAt, role.Scopes)
 		}
 	case t.TypeProjectDeploy:
@@ -159,7 +132,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		return nil, cmp.Or(err, fmt.Errorf("%w: token is nil", errs.ErrNilValue))
 	}
 
-	token.SetConfigName(cmp.Or(role.ConfigName, DefaultConfigName))
+	token.SetConfigName(cmp.Or(role.ConfigName, backend.DefaultConfigName))
 	token.SetRoleName(role.RoleName)
 	token.SetGitlabRevokesToken(role.GitlabRevokesTokens)
 
@@ -170,7 +143,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		token.SetExpiresAt(&expiresAt)
 	}
 
-	resp = b.SecretForType(secret.SecretAccessTokenType).Response(token.Data(), token.Internal())
+	resp = p.secret.Response(token.Data(), token.Internal())
 
 	resp.Secret.MaxTTL = role.TTL
 	resp.Secret.TTL = role.TTL
@@ -179,52 +152,9 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		resp.Secret.TTL = token.TTL()
 	}
 
-	_ = b.SendEvent(
-		ctx, "token-write",
-		token.Event(map[string]string{"path": fmt.Sprintf("%s/%s", PathRoleStorage, roleName)}),
+	_ = p.b.SendEvent(
+		ctx, eventWrite,
+		token.Event(map[string]string{"path": fmt.Sprintf("%s/%s", backend.PathRoleStorage, roleName)}),
 	)
 	return resp, nil
-}
-
-func pathTokenRoles(b *Backend) *framework.Path {
-	return &framework.Path{
-		HelpSynopsis:    strings.TrimSpace(pathTokenRolesHelpSyn),
-		HelpDescription: strings.TrimSpace(pathTokenRolesHelpDesc),
-		Pattern:         fmt.Sprintf("%s/%s%s", PathTokenRoleStorage, framework.GenericNameRegex("role_name"), framework.OptionalParamRegex("path")),
-		Fields:          FieldSchemaTokenRole,
-		DisplayAttrs: &framework.DisplayAttributes{
-			OperationPrefix: operationPrefixGitlabAccessTokens,
-			OperationSuffix: "generate",
-		},
-		Operations: map[logical.Operation]framework.OperationHandler{
-			logical.ReadOperation: &framework.PathOperation{
-				Callback: b.pathTokenRoleCreate,
-				Summary:  "Create an access token based on a predefined role",
-				DisplayAttrs: &framework.DisplayAttributes{
-					OperationVerb:   "generate",
-					OperationSuffix: "credentials",
-				},
-				Responses: map[int][]framework.Response{
-					http.StatusOK: {{
-						Description: http.StatusText(http.StatusOK),
-						Fields:      secret.FieldSchemaAccessTokens,
-					}},
-				},
-			},
-			logical.UpdateOperation: &framework.PathOperation{
-				Callback: b.pathTokenRoleCreate,
-				Summary:  "Create an access token based on a predefined role",
-				DisplayAttrs: &framework.DisplayAttributes{
-					OperationSuffix: "credentials-with-parameters",
-					OperationVerb:   "generate-with-parameters",
-				},
-				Responses: map[int][]framework.Response{
-					http.StatusOK: {{
-						Description: http.StatusText(http.StatusOK),
-						Fields:      secret.FieldSchemaAccessTokens,
-					}},
-				},
-			},
-		},
-	}
 }

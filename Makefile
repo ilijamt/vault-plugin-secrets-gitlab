@@ -25,7 +25,7 @@ VAULT_ADDR ?= http://127.0.0.1:8200
 PLUGIN_NAME ?= gitlab
 PLUGIN_TYPE ?= secret
 
-.PHONY: test coverage clean clean-coverage build vault-plugin-enable vault-dev check-go check-vault
+.PHONY: test coverage clean clean-coverage build vault-plugin-enable vault-dev check-go check-vault generate-mocks
 
 check-go:
 	@command -v "$(GO)" >/dev/null 2>&1 || { \
@@ -46,7 +46,8 @@ test: coverage
 
 coverage: check-go clean-coverage
 	mkdir -p $(BUILD_DIR)
-	$(GO) test ./... -cover -coverpkg=github.com/ilijamt/vault-plugin-secrets-gitlab/... -coverprofile=$(COVER_PROFILE) -race -tags $(TAGS) -count 1 $(TEST_ARGS)
+	$(eval COVERPKGS := $(shell $(GO) list ./... | grep -v /internal/mocks | tr '\n' ','))
+	$(GO) test ./... -cover -coverpkg=$(COVERPKGS) -coverprofile=$(COVER_PROFILE) -race -tags $(TAGS) -count 1 $(TEST_ARGS)
 	$(GO) tool cover -html=$(COVER_PROFILE) -o $(COVER_HTML)
 
 clean-coverage:
@@ -65,3 +66,6 @@ vault-dev: check-vault clean build
 	mkdir -p $(VAULT_PLUGIN_DIR)
 	cp -f $(BUILD_DIR)/$(PLUGIN_BIN) $(VAULT_PLUGIN_DIR)/$(PLUGIN_BIN)
 	$(VAULT) server -dev -dev-root-token-id=$(VAULT_ROOT_TOKEN) -dev-plugin-dir=$(shell pwd)/$(VAULT_PLUGIN_DIR)
+
+generate-mocks:
+	mockery

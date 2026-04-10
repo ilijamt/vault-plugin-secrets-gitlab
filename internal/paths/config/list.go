@@ -1,4 +1,4 @@
-package gitlab
+package config
 
 import (
 	"context"
@@ -8,6 +8,9 @@ import (
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths"
 )
 
 const (
@@ -18,18 +21,18 @@ These configurations typically include credentials, base URLs, and other setting
 across different GitLab environments.`
 )
 
-func pathListConfig(b *Backend) *framework.Path {
+func (p *Provider) pathListConfig() *framework.Path {
 	return &framework.Path{
 		HelpSynopsis:    strings.TrimSpace(pathListConfigHelpSyn),
 		HelpDescription: strings.TrimSpace(pathListConfigHelpDesc),
-		Pattern:         fmt.Sprintf("%s?/?$", PathConfigStorage),
+		Pattern:         fmt.Sprintf("%s?/?$", backend.PathConfigStorage),
 		DisplayAttrs: &framework.DisplayAttributes{
-			OperationPrefix: operationPrefixGitlabAccessTokens,
+			OperationPrefix: paths.OperationPrefixGitlabAccessTokens,
 			OperationSuffix: "config",
 		},
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.ListOperation: &framework.PathOperation{
-				Callback: b.pathConfigList,
+				Callback: p.pathConfigList,
 				DisplayAttrs: &framework.DisplayAttributes{
 					OperationVerb: "list",
 				},
@@ -37,7 +40,15 @@ func pathListConfig(b *Backend) *framework.Path {
 					http.StatusOK: {{
 						Description: http.StatusText(http.StatusOK),
 						Fields: map[string]*framework.FieldSchema{
-							"config_name": FieldSchemaRoles["config_name"],
+							"config_name": {
+								Type:        framework.TypeString,
+								Default:     backend.DefaultConfigName,
+								Required:    false,
+								Description: "The config we use when interacting with the role, this can be specified if you want to use a specific config for the role, otherwise it uses the default one.",
+								DisplayAttrs: &framework.DisplayAttributes{
+									Name: "Configuration.",
+								},
+							},
 						},
 					}},
 				},
@@ -46,13 +57,13 @@ func pathListConfig(b *Backend) *framework.Path {
 	}
 }
 
-func (b *Backend) pathConfigList(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
+func (p *Provider) pathConfigList(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
 	var configs []string
-	configs, err = req.Storage.List(ctx, fmt.Sprintf("%s/", PathConfigStorage))
+	configs, err = req.Storage.List(ctx, fmt.Sprintf("%s/", backend.PathConfigStorage))
 	lResp = logical.ErrorResponse("Error listing configs")
 	if err == nil {
 		lResp = logical.ListResponse(configs)
 	}
-	b.Logger().Debug("Available", "configs", configs)
+	p.b.Logger().Debug("Available", "configs", configs)
 	return lResp, err
 }
