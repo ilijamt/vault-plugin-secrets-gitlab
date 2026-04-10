@@ -11,7 +11,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
-	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -38,7 +38,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 				map[string]any{
 					"token":    token,
 					"base_url": gitlabUrl,
-					"type":     gitlab2.TypeSelfManaged.String(),
+					"type":     gitlabTypes.TypeSelfManaged.String(),
 				},
 				name,
 			),

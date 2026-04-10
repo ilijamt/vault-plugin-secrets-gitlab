@@ -17,7 +17,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -42,7 +42,7 @@ func TestPathRoles(t *testing.T) {
 	var defaultConfig = map[string]any{
 		"token":    getGitlabToken("admin_user_root").Token,
 		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
-		"type":     gitlab2.TypeSelfManaged.String(),
+		"type":     gitlabTypes.TypeSelfManaged.String(),
 	}
 
 	t.Run("delete non existing role", func(t *testing.T) {
@@ -405,7 +405,7 @@ func TestPathRoles(t *testing.T) {
 		var defaultConfig = map[string]any{
 			"token":    getGitlabToken("admin_user_root").Token,
 			"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
-			"type":     gitlab2.TypeSelfManaged.String(),
+			"type":     gitlabTypes.TypeSelfManaged.String(),
 		}
 
 		// create a configuration with max ttl set to 10 days

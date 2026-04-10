@@ -61,7 +61,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		return nil, fmt.Errorf("error getting role: %w", err)
 	}
 	if role == nil {
-		return nil, fmt.Errorf("%s: %w", roleName, ErrRoleNotFound)
+		return nil, fmt.Errorf("role %s: %w", roleName, errs.ErrNotFound)
 	}
 
 	// The regexp is always valid, as it is checked during role creation.

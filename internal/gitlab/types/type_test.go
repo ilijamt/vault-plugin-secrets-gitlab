@@ -1,48 +1,48 @@
 //go:build unit
 
-package gitlab_test
+package types_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 )
 
 func TestType(t *testing.T) {
 	var tests = []struct {
-		expected gitlab.Type
+		expected types.Type
 		input    string
 		err      bool
 	}{
 		{
-			expected: gitlab.TypeSaaS,
-			input:    gitlab.TypeSaaS.String(),
+			expected: types.TypeSaaS,
+			input:    types.TypeSaaS.String(),
 			err:      false,
 		},
 		{
-			expected: gitlab.TypeSelfManaged,
-			input:    gitlab.TypeSelfManaged.String(),
+			expected: types.TypeSelfManaged,
+			input:    types.TypeSelfManaged.String(),
 			err:      false,
 		},
 		{
-			expected: gitlab.TypeDedicated,
-			input:    gitlab.TypeDedicated.String(),
+			expected: types.TypeDedicated,
+			input:    types.TypeDedicated.String(),
 			err:      false,
 		},
 		{
-			expected: gitlab.TypeUnknown,
-			input:    gitlab.TypeUnknown.String(),
+			expected: types.TypeUnknown,
+			input:    types.TypeUnknown.String(),
 			err:      true,
 		},
 	}
 
 	for _, test := range tests {
 		t.Logf("assert parse(%s) = %s (err: %v)", test.input, test.expected, test.err)
-		val, err := gitlab.TypeParse(test.input)
+		val, err := types.TypeParse(test.input)
 		if test.err {
-			assert.ErrorIs(t, err, gitlab.ErrUnknownType)
+			assert.ErrorIs(t, err, types.ErrUnknownType)
 		} else {
 			assert.NoError(t, err)
 			assert.EqualValues(t, test.expected, val)

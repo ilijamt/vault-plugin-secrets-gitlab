@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	config2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	role2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
@@ -377,7 +377,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		err = multierror.Append(err, fmt.Errorf("should be one or more of '%v': %w", validScopes, errs.ErrFieldInvalidValue))
 	}
 
-	if tokenType == token.TypeUserServiceAccount && (config.Type == gitlab.TypeSaaS || config.Type == gitlab.TypeDedicated) {
+	if tokenType == token.TypeUserServiceAccount && (config.Type == gitlabTypes.TypeSaaS || config.Type == gitlabTypes.TypeDedicated) {
 		err = multierror.Append(err, fmt.Errorf("cannot create %s with %s: %w", tokenType, config.Type, errs.ErrInvalidValue))
 	}
 

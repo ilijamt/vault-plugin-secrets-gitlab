@@ -11,7 +11,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -48,10 +48,10 @@ func TestEntryConfigMerge(t *testing.T) {
 	}{
 		{
 			name:           "update type only",
-			originalConfig: &config.EntryConfig{Type: gitlab2.TypeSelfManaged},
-			expectedConfig: &config.EntryConfig{Type: gitlab2.TypeSaaS},
-			raw:            map[string]interface{}{"type": gitlab2.TypeSaaS},
-			changes:        map[string]string{"type": gitlab2.TypeSaaS.String()},
+			originalConfig: &config.EntryConfig{Type: gitlabTypes.TypeSelfManaged},
+			expectedConfig: &config.EntryConfig{Type: gitlabTypes.TypeSaaS},
+			raw:            map[string]interface{}{"type": gitlabTypes.TypeSaaS},
+			changes:        map[string]string{"type": gitlabTypes.TypeSaaS.String()},
 		},
 		{
 			name:           "auto rotate token set to false",
@@ -69,12 +69,12 @@ func TestEntryConfigMerge(t *testing.T) {
 		},
 		{
 			name:           "update type with invalid type",
-			originalConfig: &config.EntryConfig{Type: gitlab2.TypeSelfManaged},
-			expectedConfig: &config.EntryConfig{Type: gitlab2.TypeSelfManaged},
+			originalConfig: &config.EntryConfig{Type: gitlabTypes.TypeSelfManaged},
+			expectedConfig: &config.EntryConfig{Type: gitlabTypes.TypeSelfManaged},
 			raw:            map[string]interface{}{"type": "test"},
 			err:            true,
 			errMap: map[string]int{
-				gitlab2.ErrUnknownType.Error(): 1,
+				gitlabTypes.ErrUnknownType.Error(): 1,
 			},
 		},
 		{

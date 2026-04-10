@@ -192,7 +192,7 @@ func (b *Backend) GetClientByName(ctx context.Context, s logical.Storage, name s
 	var httpClient *http.Client
 	httpClient, _ = utils.HttpClientFromContext(ctx)
 	if client, _ = g.ClientFromContext(ctx); client == nil {
-		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
+		if client, err = g.NewGitlabClient(config, httpClient, b.Logger()); err == nil {
 			b.SetClient(client, name)
 		}
 	}

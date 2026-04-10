@@ -32,4 +32,7 @@ var (
 
 	// ErrAccessTokenNotFound indicates that the requested access token was not found.
 	ErrAccessTokenNotFound = errors.New("access token not found")
+
+	// ErrNotFound indicates that a requested resource was not found
+	ErrNotFound = errors.New("not found")
 )

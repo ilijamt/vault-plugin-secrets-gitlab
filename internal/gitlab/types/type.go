@@ -1,4 +1,4 @@
-package gitlab
+package types
 
 import (
 	"fmt"

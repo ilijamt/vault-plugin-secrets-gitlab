@@ -14,6 +14,7 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	config2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
@@ -46,9 +47,9 @@ var (
 			Type:     framework.TypeString,
 			Required: true,
 			AllowedValues: []any{
-				gitlab.TypeSelfManaged,
-				gitlab.TypeSaaS,
-				gitlab.TypeDedicated,
+				gitlabTypes.TypeSelfManaged,
+				gitlabTypes.TypeSaaS,
+				gitlabTypes.TypeDedicated,
 			},
 			Description: `The type of GitLab instance you are connecting to. This could typically distinguish between 'self-managed' for on-premises GitLab installations or 'saas' or 'dedicated' for the GitLab SaaS offering. This field helps the plugin to adjust any necessary configurations or request patterns specific to the type of GitLab instance.`,
 			DisplayAttrs: &framework.DisplayAttributes{
@@ -163,7 +164,7 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, config *config2.En
 	var client gitlab.Client
 	httpClient, _ = utils.HttpClientFromContext(ctx)
 	if client, _ = gitlab.ClientFromContext(ctx); client == nil {
-		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {
+		if client, err = gitlab.NewGitlabClient(config, httpClient, b.Logger()); err == nil {
 			b.SetClient(client, config.Name)
 		} else {
 			return nil, err

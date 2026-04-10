@@ -10,7 +10,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -49,8 +49,8 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			warnings:       []string{"auto_rotate_token not specified setting to 24h0m0s"},
 			err:            true,
 			errMap: map[string]int{
-				errs.ErrFieldRequired.Error():  1,
-				gitlab2.ErrUnknownType.Error(): 1,
+				errs.ErrFieldRequired.Error():      1,
+				gitlabTypes.ErrUnknownType.Error(): 1,
 			},
 		},
 		{
@@ -66,7 +66,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			name: "valid config",
 			expectedConfig: &config.EntryConfig{
 				Token:            "token",
-				Type:             gitlab2.TypeSelfManaged,
+				Type:             gitlabTypes.TypeSelfManaged,
 				AutoRotateToken:  false,
 				AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL,
 				BaseURL:          "https://gitlab.com",
@@ -74,7 +74,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			warnings: []string{"auto_rotate_token not specified setting to 24h0m0s"},
 			raw: map[string]interface{}{
 				"token":    "token",
-				"type":     gitlab2.TypeSelfManaged.String(),
+				"type":     gitlabTypes.TypeSelfManaged.String(),
 				"base_url": "https://gitlab.com",
 			},
 		},
@@ -82,7 +82,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			name: "auto_rotate_before specified (valid) should not warn and should set duration",
 			expectedConfig: &config.EntryConfig{
 				Token:            "token",
-				Type:             gitlab2.TypeSelfManaged,
+				Type:             gitlabTypes.TypeSelfManaged,
 				AutoRotateToken:  false,
 				AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL,
 				BaseURL:          "https://gitlab.com",
@@ -90,7 +90,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			warnings: nil,
 			raw: map[string]interface{}{
 				"token":              "token",
-				"type":               gitlab2.TypeSelfManaged.String(),
+				"type":               gitlabTypes.TypeSelfManaged.String(),
 				"base_url":           "https://gitlab.com",
 				"auto_rotate_before": int(config.DefaultAutoRotateBeforeMinTTL.Seconds()),
 			},
@@ -99,7 +99,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			name: "auto_rotate_before specified (too small) should error",
 			expectedConfig: &config.EntryConfig{
 				Token:            "token",
-				Type:             gitlab2.TypeSelfManaged,
+				Type:             gitlabTypes.TypeSelfManaged,
 				AutoRotateToken:  false,
 				AutoRotateBefore: 0,
 				BaseURL:          "https://gitlab.com",
@@ -107,7 +107,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			warnings: nil,
 			raw: map[string]interface{}{
 				"token":              "token",
-				"type":               gitlab2.TypeSelfManaged.String(),
+				"type":               gitlabTypes.TypeSelfManaged.String(),
 				"base_url":           "https://gitlab.com",
 				"auto_rotate_before": int(config.DefaultAutoRotateBeforeMinTTL.Seconds()) - 1,
 			},

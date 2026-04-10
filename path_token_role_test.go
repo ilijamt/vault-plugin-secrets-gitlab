@@ -15,6 +15,7 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
@@ -22,7 +23,7 @@ func TestPathTokenRoles(t *testing.T) {
 	var defaultConfig = map[string]any{
 		"token":    getGitlabToken("admin_user_root").Token,
 		"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
-		"type":     g.TypeSelfManaged.String(),
+		"type":     gitlabTypes.TypeSelfManaged.String(),
 	}
 
 	t.Run("role not found", func(t *testing.T) {
@@ -35,7 +36,7 @@ func TestPathTokenRoles(t *testing.T) {
 		})
 		require.Error(t, err)
 		require.Nil(t, resp)
-		require.ErrorIs(t, err, gitlab.ErrRoleNotFound)
+		require.ErrorIs(t, err, errs.ErrNotFound)
 	})
 
 	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level token.AccessLevel, gitlabRevokesToken bool, path string, dynamicPath bool, pathExtra string) {

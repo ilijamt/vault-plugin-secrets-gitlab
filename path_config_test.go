@@ -14,7 +14,7 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
-	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
@@ -62,7 +62,7 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab2.TypeSelfManaged.String(),
+				"type":     gitlabTypes.TypeSelfManaged.String(),
 			},
 		})
 
@@ -118,7 +118,7 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab2.TypeSelfManaged.String(),
+				"type":     gitlabTypes.TypeSelfManaged.String(),
 			},
 		})
 
@@ -173,7 +173,7 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    "invalid-token",
 				"base_url": url,
-				"type":     gitlab2.TypeSelfManaged.String(),
+				"type":     gitlabTypes.TypeSelfManaged.String(),
 			},
 		})
 
@@ -215,7 +215,7 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab2.TypeSelfManaged.String(),
+				"type":     gitlabTypes.TypeSelfManaged.String(),
 			},
 		})
 
@@ -236,7 +236,7 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab2.TypeSelfManaged.String(),
+				"type":     gitlabTypes.TypeSelfManaged.String(),
 			},
 		})
 
@@ -259,7 +259,7 @@ func TestPathConfig(t *testing.T) {
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
-				"type":     gitlab2.TypeSelfManaged.String(),
+				"type":     gitlabTypes.TypeSelfManaged.String(),
 			},
 		})
 
@@ -277,14 +277,14 @@ func TestPathConfig(t *testing.T) {
 		require.NoError(t, resp.Error())
 		tokenOriginalSha1Hash := resp.Data["token_sha1_hash"].(string)
 		require.NotEmpty(t, tokenOriginalSha1Hash)
-		require.Equal(t, gitlab2.TypeSelfManaged.String(), resp.Data["type"])
+		require.Equal(t, gitlabTypes.TypeSelfManaged.String(), resp.Data["type"])
 		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx))
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.PatchOperation,
 			Path:      path, Storage: l,
 			Data: map[string]interface{}{
-				"type":  gitlab2.TypeSaaS.String(),
+				"type":  gitlabTypes.TypeSaaS.String(),
 				"token": getGitlabToken("admin_user_initial_token").Token,
 			},
 		})
@@ -295,7 +295,7 @@ func TestPathConfig(t *testing.T) {
 		require.NotEmpty(t, tokenNewSha1Hash)
 		require.NotEqual(t, tokenOriginalSha1Hash, tokenNewSha1Hash)
 
-		require.Equal(t, gitlab2.TypeSaaS.String(), resp.Data["type"])
+		require.Equal(t, gitlabTypes.TypeSaaS.String(), resp.Data["type"])
 		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx))
 
 		events.expectEvents(t, []expectedEvent{
