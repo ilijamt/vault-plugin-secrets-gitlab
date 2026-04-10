@@ -17,7 +17,9 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
-	config2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model"
+	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/secret"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -113,7 +115,7 @@ func (b *Backend) periodicFunc(ctx context.Context, req *logical.Request) (err e
 	b.Logger().Debug("Periodic action executing")
 
 	if b.WriteSafeReplicationState() {
-		var config *config2.EntryConfig
+		var config *modelConfig.EntryConfig
 
 		b.ClientLock()
 		unlockLockClientMutex := sync.OnceFunc(func() { b.ClientUnlock() })
@@ -125,7 +127,7 @@ func (b *Backend) periodicFunc(ctx context.Context, req *logical.Request) (err e
 		configs, err = req.Storage.List(ctx, fmt.Sprintf("%s/", PathConfigStorage))
 
 		for _, name := range configs {
-			if config, err = getConfig(ctx, req.Storage, name); err == nil {
+			if config, err = b.GetConfig(ctx, req.Storage, name); err == nil {
 				b.Logger().Debug("Trying to rotate the config", "name", name)
 				unlockLockClientMutex()
 				if config != nil {
@@ -182,8 +184,8 @@ func (b *Backend) GetClientByName(ctx context.Context, s logical.Storage, name s
 
 	b.ClientRLock()
 	defer b.ClientRUnlock()
-	var config *config2.EntryConfig
-	config, err = getConfig(ctx, s, name)
+	var config *modelConfig.EntryConfig
+	config, err = b.GetConfig(ctx, s, name)
 	if err != nil {
 		b.Logger().Error("Failed to retrieve configuration", "error", err.Error())
 		return nil, err
@@ -229,4 +231,16 @@ func (b *Backend) RoleLockForKey(key string) *locksutil.LockEntry {
 
 func (b *Backend) SecretForType(secretType string) *framework.Secret {
 	return b.Secret(secretType)
+}
+
+func (b *Backend) GetConfig(ctx context.Context, s logical.Storage, name string) (*modelConfig.EntryConfig, error) {
+	return model.Get[modelConfig.EntryConfig](ctx, s, fmt.Sprintf("%s/%s", PathConfigStorage, name))
+}
+
+func (b *Backend) SaveConfig(ctx context.Context, config *modelConfig.EntryConfig, s logical.Storage) error {
+	return model.Save(ctx, s, PathConfigStorage, config)
+}
+
+func (b *Backend) GetRole(ctx context.Context, name string, s logical.Storage) (*role.Role, error) {
+	return model.Get[role.Role](ctx, s, fmt.Sprintf("%s/%s", PathRoleStorage, name))
 }

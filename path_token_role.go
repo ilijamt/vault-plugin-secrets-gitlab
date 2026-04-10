@@ -14,7 +14,7 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
-	role2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
+	modelRole "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/secret"
 	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
@@ -49,14 +49,14 @@ var (
 func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var resp *logical.Response
 	var err error
-	var role *role2.Role
+	var role *modelRole.Role
 	var roleName = data.Get("role_name").(string)
 
 	lock := b.RoleLockForKey(roleName)
 	lock.RLock()
 	defer lock.RUnlock()
 
-	role, err = getRole(ctx, roleName, req.Storage)
+	role, err = b.GetRole(ctx, roleName, req.Storage)
 	if err != nil {
 		return nil, fmt.Errorf("error getting role: %w", err)
 	}

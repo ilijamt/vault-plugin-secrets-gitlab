@@ -66,7 +66,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	var client gitlab.Client
 
 	b.ClientRLock()
-	if config, err = getConfig(ctx, request.Storage, name); err != nil {
+	if config, err = b.GetConfig(ctx, request.Storage, name); err != nil {
 		b.ClientRUnlock()
 		b.Logger().Error("Failed to fetch configuration", "error", err.Error())
 		return nil, err
@@ -100,7 +100,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	}
 	b.ClientLock()
 	defer b.ClientUnlock()
-	err = saveConfig(ctx, config, request.Storage)
+	err = b.SaveConfig(ctx, config, request.Storage)
 	if err != nil {
 		b.Logger().Error("failed to store configuration for revocation", "err", err)
 		return nil, err

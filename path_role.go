@@ -17,8 +17,8 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
-	config2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
-	role2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
+	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	modelRole "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -167,7 +167,7 @@ func (b *Backend) pathRolesDelete(ctx context.Context, req *logical.Request, dat
 	lock.RLock()
 	defer lock.RUnlock()
 
-	_, err = getRole(ctx, roleName, req.Storage)
+	_, err = b.GetRole(ctx, roleName, req.Storage)
 	if err != nil {
 		return nil, fmt.Errorf("error getting role: %w", err)
 	}
@@ -194,7 +194,7 @@ func (b *Backend) pathRolesRead(ctx context.Context, req *logical.Request, data 
 	lock.RLock()
 	defer lock.RUnlock()
 
-	role, err := getRole(ctx, roleName, req.Storage)
+	role, err := b.GetRole(ctx, roleName, req.Storage)
 	if err != nil {
 		return logical.ErrorResponse("error reading role"), err
 	}
@@ -212,7 +212,7 @@ func (b *Backend) pathRolesRead(ctx context.Context, req *logical.Request, data 
 
 func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var roleName = data.Get("role_name").(string)
-	var config *config2.EntryConfig
+	var config *modelConfig.EntryConfig
 	var err error
 	var warnings []string
 	var tokenType token.Type
@@ -221,7 +221,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 	b.ClientRLock()
 	defer b.ClientRUnlock()
-	config, err = getConfig(ctx, req.Storage, configName)
+	config, err = b.GetConfig(ctx, req.Storage, configName)
 	if err != nil {
 		return logical.ErrorResponse(fmt.Sprintf("missing %s configuration for gitlab", configName)), err
 	}
@@ -233,7 +233,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	tokenType, _ = token.ParseType(data.Get("token_type").(string))
 	accessLevel, _ = token.AccessLevelParse(data.Get("access_level").(string))
 
-	var role = role2.Role{
+	var role = modelRole.Role{
 		RoleName:            roleName,
 		TTL:                 time.Duration(data.Get("ttl").(int)) * time.Second,
 		Path:                data.Get("path").(string),
@@ -416,7 +416,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 
 func (b *Backend) pathRoleExistenceCheck(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
 	name := data.Get("role_name").(string)
-	role, err := getRole(ctx, name, req.Storage)
+	role, err := b.GetRole(ctx, name, req.Storage)
 	if err != nil {
 		if strings.Contains(err.Error(), logical.ErrReadOnly.Error()) {
 			return false, nil

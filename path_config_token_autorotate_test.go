@@ -13,7 +13,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	gitlab3 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 )
@@ -161,7 +161,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 	t.Run("no error when auto rotate is disabled and config is set", func(t *testing.T) {
 		var client = newInMemoryClient(true)
 		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
-		ctx = gitlab3.ClientNewContext(ctx, client)
+		ctx = glab.ClientNewContext(ctx, client)
 		b, l, err := getBackendWithConfig(ctx, map[string]any{
 			"token":    "glpat-secret-token",
 			"base_url": url,
@@ -177,7 +177,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 	t.Run("call auto rotate the main token and rotate the token", func(t *testing.T) {
 		var client = newInMemoryClient(true)
 		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
-		ctx = gitlab3.ClientNewContext(ctx, newInMemoryClient(true))
+		ctx = glab.ClientNewContext(ctx, newInMemoryClient(true))
 		b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
 			"token":              "token",
 			"base_url":           url,
@@ -228,7 +228,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 	t.Run("call auto rotate the main token but the token is still valid", func(t *testing.T) {
 		var client = newInMemoryClient(true)
 		ctx, url := getCtxGitlabClientWithUrl(t, "unit")
-		ctx = gitlab3.ClientNewContext(ctx, newInMemoryClient(true))
+		ctx = glab.ClientNewContext(ctx, newInMemoryClient(true))
 		b, l, err := getBackendWithConfig(ctx, map[string]any{
 			"token":              "token",
 			"base_url":           url,

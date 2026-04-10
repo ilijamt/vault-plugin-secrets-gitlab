@@ -10,6 +10,8 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
 )
 
 // ClientProvider abstracts obtaining a gitlab client by config name.
@@ -49,4 +51,13 @@ type Backend interface {
 
 	// SecretForType returns the framework.Secret for the given secret type.
 	SecretForType(secretType string) *framework.Secret
+
+	// GetConfig retrieves a config entry from storage by name.
+	GetConfig(ctx context.Context, s logical.Storage, name string) (*config.EntryConfig, error)
+
+	// SaveConfig persists a config entry to storage.
+	SaveConfig(ctx context.Context, cfg *config.EntryConfig, s logical.Storage) error
+
+	// GetRole retrieves a role entry from storage by name.
+	GetRole(ctx context.Context, name string, s logical.Storage) (*role.Role, error)
 }

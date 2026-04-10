@@ -15,7 +15,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
-	config2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -89,7 +89,7 @@ func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, da
 	var err error
 	var name = data.Get("config_name").(string)
 
-	if config, err := getConfig(ctx, req.Storage, name); err == nil {
+	if config, err := b.GetConfig(ctx, req.Storage, name); err == nil {
 		if config == nil {
 			return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 		}
@@ -110,8 +110,8 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 	defer b.ClientRUnlock()
 
 	var name = data.Get("config_name").(string)
-	var config *config2.EntryConfig
-	if config, err = getConfig(ctx, req.Storage, name); err == nil {
+	var config *modelConfig.EntryConfig
+	if config, err = b.GetConfig(ctx, req.Storage, name); err == nil {
 		if config == nil {
 			return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 		}
@@ -126,8 +126,8 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 	var name = data.Get("config_name").(string)
 	var warnings []string
 	var changes map[string]string
-	var config *config2.EntryConfig
-	config, err = getConfig(ctx, req.Storage, name)
+	var config *modelConfig.EntryConfig
+	config, err = b.GetConfig(ctx, req.Storage, name)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 
 	b.ClientLock()
 	defer b.ClientUnlock()
-	if err = saveConfig(ctx, config, req.Storage); err == nil {
+	if err = b.SaveConfig(ctx, config, req.Storage); err == nil {
 		lrd := config.LogicalResponseData(b.Flags().ShowConfigToken)
 		_ = b.SendEvent(ctx, "config-patch", changes)
 		b.SetClient(nil, name)
@@ -159,7 +159,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 	return lResp, err
 }
 
-func (b *Backend) updateConfigClientInfo(ctx context.Context, config *config2.EntryConfig) (et *token.TokenConfig, err error) {
+func (b *Backend) updateConfigClientInfo(ctx context.Context, config *modelConfig.EntryConfig) (et *token.TokenConfig, err error) {
 	var httpClient *http.Client
 	var client gitlab.Client
 	httpClient, _ = utils.HttpClientFromContext(ctx)
@@ -193,7 +193,7 @@ func (b *Backend) updateConfigClientInfo(ctx context.Context, config *config2.En
 
 func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var name = data.Get("config_name").(string)
-	var config = new(config2.EntryConfig)
+	var config = new(modelConfig.EntryConfig)
 	var warnings, err = config.UpdateFromFieldData(data)
 	if err != nil {
 		return nil, err
@@ -208,7 +208,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	defer b.ClientUnlock()
 	var lResp *logical.Response
 
-	if err = saveConfig(ctx, config, req.Storage); err == nil {
+	if err = b.SaveConfig(ctx, config, req.Storage); err == nil {
 		_ = b.SendEvent(ctx, "config-write", map[string]string{
 			"path":               fmt.Sprintf("%s/%s", PathConfigStorage, name),
 			"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
