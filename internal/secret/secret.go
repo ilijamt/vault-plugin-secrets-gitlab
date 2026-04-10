@@ -51,16 +51,16 @@ var (
 )
 
 // NewSecret creates a framework.Secret for access tokens with the revoke handler
-// wired through the provided backend.ClientProvider and backend.EventSender interfaces.
-func NewSecret(cp backend.ClientProvider, es backend.EventSender, defaultConfigName string) *framework.Secret {
+// wired through the provided backend.Backend interface.
+func NewSecret(b backend.Backend, defaultConfigName string) *framework.Secret {
 	return &framework.Secret{
 		Type:   SecretAccessTokenType,
 		Fields: FieldSchemaAccessTokens,
-		Revoke: revokeAccessToken(cp, es, defaultConfigName),
+		Revoke: revokeAccessToken(b, defaultConfigName),
 	}
 }
 
-func revokeAccessToken(cp backend.ClientProvider, es backend.EventSender, defaultConfigName string) framework.OperationFunc {
+func revokeAccessToken(b backend.Backend, defaultConfigName string) framework.OperationFunc {
 	return func(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
 		var err error
 
@@ -93,7 +93,7 @@ func revokeAccessToken(cp backend.ClientProvider, es backend.EventSender, defaul
 
 		if vaultRevokesToken {
 			var client g.Client
-			client, err = cp.GetClientByName(ctx, req.Storage, configName)
+			client, err = b.GetClientByName(ctx, req.Storage, configName)
 			if err != nil {
 				return nil, fmt.Errorf("revoke token cannot get client got %s config: %w", configName, err)
 			}
@@ -133,7 +133,7 @@ func revokeAccessToken(cp backend.ClientProvider, es backend.EventSender, defaul
 			}
 		}
 
-		_ = es.SendTokenEvent(ctx, "token-revoke", map[string]string{
+		_ = b.SendEvent(ctx, "token-revoke", map[string]string{
 			"lease_id":             secret.LeaseID,
 			"path":                 req.Secret.InternalData["path"].(string),
 			"name":                 req.Secret.InternalData["name"].(string),

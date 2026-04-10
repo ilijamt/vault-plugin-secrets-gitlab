@@ -10,11 +10,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/vault/sdk/framework"
-	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	role2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/secret"
@@ -54,7 +52,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 	var role *role2.Role
 	var roleName = data.Get("role_name").(string)
 
-	lock := locksutil.LockForKey(b.roleLocks, roleName)
+	lock := b.RoleLockForKey(roleName)
 	lock.RLock()
 	defer lock.RUnlock()
 
@@ -101,7 +99,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 
 	_, expiresAt, _ = utils.CalculateGitlabTTL(role.TTL, startTime)
 
-	client, err = b.getClient(ctx, req.Storage, role.ConfigName)
+	client, err = b.GetClientByName(ctx, req.Storage, role.ConfigName)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +170,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		token.SetExpiresAt(&expiresAt)
 	}
 
-	resp = b.Secret(secret.SecretAccessTokenType).Response(token.Data(), token.Internal())
+	resp = b.SecretForType(secret.SecretAccessTokenType).Response(token.Data(), token.Internal())
 
 	resp.Secret.MaxTTL = role.TTL
 	resp.Secret.TTL = role.TTL
@@ -181,8 +179,8 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		resp.Secret.TTL = token.TTL()
 	}
 
-	_ = event.Event(
-		ctx, b.Backend, "token-write",
+	_ = b.SendEvent(
+		ctx, "token-write",
 		token.Event(map[string]string{"path": fmt.Sprintf("%s/%s", PathRoleStorage, roleName)}),
 	)
 	return resp, nil

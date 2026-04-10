@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
@@ -66,20 +65,20 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	var config *config.EntryConfig
 	var client gitlab.Client
 
-	b.lockClientMutex.RLock()
+	b.ClientRLock()
 	if config, err = getConfig(ctx, request.Storage, name); err != nil {
-		b.lockClientMutex.RUnlock()
+		b.ClientRUnlock()
 		b.Logger().Error("Failed to fetch configuration", "error", err.Error())
 		return nil, err
 	}
-	b.lockClientMutex.RUnlock()
+	b.ClientRUnlock()
 
 	if config == nil {
 		// no configuration yet so we don't need to rotate anything
 		return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 	}
 
-	if client, err = b.getClient(ctx, request.Storage, name); err != nil {
+	if client, err = b.GetClientByName(ctx, request.Storage, name); err != nil {
 		return nil, err
 	}
 
@@ -99,17 +98,17 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	if entryToken.ExpiresAt != nil {
 		config.TokenExpiresAt = *entryToken.ExpiresAt
 	}
-	b.lockClientMutex.Lock()
-	defer b.lockClientMutex.Unlock()
+	b.ClientLock()
+	defer b.ClientUnlock()
 	err = saveConfig(ctx, config, request.Storage)
 	if err != nil {
 		b.Logger().Error("failed to store configuration for revocation", "err", err)
 		return nil, err
 	}
 
-	lResp = &logical.Response{Data: config.LogicalResponseData(b.flags.ShowConfigToken)}
+	lResp = &logical.Response{Data: config.LogicalResponseData(b.Flags().ShowConfigToken)}
 	lResp.Data["token"] = config.Token
-	_ = event.Event(ctx, b.Backend, "config-token-rotate", map[string]string{
+	_ = b.SendEvent(ctx, "config-token-rotate", map[string]string{
 		"path":        fmt.Sprintf("%s/%s", PathConfigStorage, name),
 		"expires_at":  entryToken.ExpiresAt.Format(time.RFC3339),
 		"created_at":  entryToken.CreatedAt.Format(time.RFC3339),

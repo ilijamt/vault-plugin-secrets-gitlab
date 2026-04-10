@@ -13,7 +13,6 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	config2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
@@ -84,8 +83,8 @@ var (
 )
 
 func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	b.lockClientMutex.Lock()
-	defer b.lockClientMutex.Unlock()
+	b.ClientLock()
+	defer b.ClientUnlock()
 	var err error
 	var name = data.Get("config_name").(string)
 
@@ -95,7 +94,7 @@ func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, da
 		}
 
 		if err = req.Storage.Delete(ctx, fmt.Sprintf("%s/%s", PathConfigStorage, name)); err == nil {
-			_ = event.Event(ctx, b.Backend, "config-delete", map[string]string{
+			_ = b.SendEvent(ctx, "config-delete", map[string]string{
 				"path": fmt.Sprintf("%s/%s", PathConfigStorage, name),
 			})
 			b.SetClient(nil, name)
@@ -106,8 +105,8 @@ func (b *Backend) pathConfigDelete(ctx context.Context, req *logical.Request, da
 }
 
 func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
-	b.lockClientMutex.RLock()
-	defer b.lockClientMutex.RUnlock()
+	b.ClientRLock()
+	defer b.ClientRUnlock()
 
 	var name = data.Get("config_name").(string)
 	var config *config2.EntryConfig
@@ -115,7 +114,7 @@ func (b *Backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 		if config == nil {
 			return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 		}
-		lrd := config.LogicalResponseData(b.flags.ShowConfigToken)
+		lrd := config.LogicalResponseData(b.Flags().ShowConfigToken)
 		b.Logger().Debug("Reading configuration info", "info", lrd)
 		lResp = &logical.Response{Data: lrd}
 	}
@@ -146,11 +145,11 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 		}
 	}
 
-	b.lockClientMutex.Lock()
-	defer b.lockClientMutex.Unlock()
+	b.ClientLock()
+	defer b.ClientUnlock()
 	if err = saveConfig(ctx, config, req.Storage); err == nil {
-		lrd := config.LogicalResponseData(b.flags.ShowConfigToken)
-		_ = event.Event(ctx, b.Backend, "config-patch", changes)
+		lrd := config.LogicalResponseData(b.Flags().ShowConfigToken)
+		_ = b.SendEvent(ctx, "config-patch", changes)
 		b.SetClient(nil, name)
 		b.Logger().Debug("Patched config", "lrd", lrd, "warnings", warnings)
 		lResp = &logical.Response{Data: lrd, Warnings: warnings}
@@ -204,12 +203,12 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		return nil, err
 	}
 
-	b.lockClientMutex.Lock()
-	defer b.lockClientMutex.Unlock()
+	b.ClientLock()
+	defer b.ClientUnlock()
 	var lResp *logical.Response
 
 	if err = saveConfig(ctx, config, req.Storage); err == nil {
-		_ = event.Event(ctx, b.Backend, "config-write", map[string]string{
+		_ = b.SendEvent(ctx, "config-write", map[string]string{
 			"path":               fmt.Sprintf("%s/%s", PathConfigStorage, name),
 			"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),
 			"auto_rotate_before": config.AutoRotateBefore.String(),
@@ -223,7 +222,7 @@ func (b *Backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		})
 
 		b.SetClient(nil, name)
-		lrd := config.LogicalResponseData(b.flags.ShowConfigToken)
+		lrd := config.LogicalResponseData(b.Flags().ShowConfigToken)
 		b.Logger().Debug("Wrote new config", "lrd", lrd, "warnings", warnings)
 		lResp = &logical.Response{Data: lrd, Warnings: warnings}
 	}

@@ -13,11 +13,9 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vault/sdk/framework"
-	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	config2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	role2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
@@ -165,7 +163,7 @@ func (b *Backend) pathRolesDelete(ctx context.Context, req *logical.Request, dat
 	var resp *logical.Response
 	var err error
 	var roleName = data.Get("role_name").(string)
-	lock := locksutil.LockForKey(b.roleLocks, roleName)
+	lock := b.RoleLockForKey(roleName)
 	lock.RLock()
 	defer lock.RUnlock()
 
@@ -179,7 +177,7 @@ func (b *Backend) pathRolesDelete(ctx context.Context, req *logical.Request, dat
 		return nil, fmt.Errorf("error deleting role: %w", err)
 	}
 
-	_ = event.Event(ctx, b.Backend, "role-delete", map[string]string{
+	_ = b.SendEvent(ctx, "role-delete", map[string]string{
 		"path":      "roles",
 		"role_name": roleName,
 	})
@@ -192,7 +190,7 @@ func (b *Backend) pathRolesDelete(ctx context.Context, req *logical.Request, dat
 func (b *Backend) pathRolesRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var roleName = data.Get("role_name").(string)
 
-	lock := locksutil.LockForKey(b.roleLocks, roleName)
+	lock := b.RoleLockForKey(roleName)
 	lock.RLock()
 	defer lock.RUnlock()
 
@@ -221,8 +219,8 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 	var accessLevel token.AccessLevel
 	var configName = cmp.Or(data.Get("config_name").(string), TypeConfigDefault)
 
-	b.lockClientMutex.RLock()
-	defer b.lockClientMutex.RUnlock()
+	b.ClientRLock()
+	defer b.ClientRUnlock()
 	config, err = getConfig(ctx, req.Storage, configName)
 	if err != nil {
 		return logical.ErrorResponse(fmt.Sprintf("missing %s configuration for gitlab", configName)), err
@@ -387,7 +385,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		return logical.ErrorResponse(err.Error()), err
 	}
 
-	lock := locksutil.LockForKey(b.roleLocks, roleName)
+	lock := b.RoleLockForKey(roleName)
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -400,7 +398,7 @@ func (b *Backend) pathRolesWrite(ctx context.Context, req *logical.Request, data
 		return nil, err
 	}
 
-	_ = event.Event(ctx, b.Backend, "role-write", map[string]string{
+	_ = b.SendEvent(ctx, "role-write", map[string]string{
 		"path":         "roles",
 		"role_name":    roleName,
 		"config_name":  role.ConfigName,

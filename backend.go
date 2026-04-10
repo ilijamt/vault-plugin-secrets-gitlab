@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
@@ -20,6 +21,8 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/secret"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
+
+var _ backend.Backend = (*Backend)(nil)
 
 const (
 	// operationPrefixGitlabAccessTokens is used as expected prefix for OpenAPI operation id's.
@@ -64,7 +67,7 @@ func factory(ctx context.Context, conf *logical.BackendConfig, flags flags.Flags
 		},
 
 		Secrets: []*framework.Secret{
-			secret.NewSecret(b, b, DefaultConfigName),
+			secret.NewSecret(b, DefaultConfigName),
 		},
 
 		Paths: framework.PathAppend(
@@ -112,8 +115,8 @@ func (b *Backend) periodicFunc(ctx context.Context, req *logical.Request) (err e
 	if b.WriteSafeReplicationState() {
 		var config *config2.EntryConfig
 
-		b.lockClientMutex.Lock()
-		unlockLockClientMutex := sync.OnceFunc(func() { b.lockClientMutex.Unlock() })
+		b.ClientLock()
+		unlockLockClientMutex := sync.OnceFunc(func() { b.ClientUnlock() })
 		defer unlockLockClientMutex()
 
 		// @TODO: Check and fix this is not correct, the locking mechanism doesn't make sense
@@ -145,8 +148,8 @@ func (b *Backend) Invalidate(ctx context.Context, key string) {
 		parts := strings.SplitN(key, "/", 2)
 		var name = parts[1]
 		b.Logger().Warn(fmt.Sprintf("Gitlab config for %s changed, reinitializing the gitlab client", name))
-		b.lockClientMutex.Lock()
-		defer b.lockClientMutex.Unlock()
+		b.ClientLock()
+		defer b.ClientUnlock()
 		b.clients.Delete(name)
 	}
 }
@@ -168,7 +171,7 @@ func (b *Backend) SetClient(client g.Client, name string) {
 	b.clients.Store(name, client)
 }
 
-func (b *Backend) getClient(ctx context.Context, s logical.Storage, name string) (client g.Client, err error) {
+func (b *Backend) GetClientByName(ctx context.Context, s logical.Storage, name string) (client g.Client, err error) {
 	if c, ok := b.clients.Load(cmp.Or(name, DefaultConfigName)); ok {
 		client = c.(g.Client)
 	}
@@ -177,8 +180,8 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage, name string)
 		return client, nil
 	}
 
-	b.lockClientMutex.RLock()
-	defer b.lockClientMutex.RUnlock()
+	b.ClientRLock()
+	defer b.ClientRUnlock()
 	var config *config2.EntryConfig
 	config, err = getConfig(ctx, s, name)
 	if err != nil {
@@ -196,12 +199,34 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage, name string)
 	return client, err
 }
 
-// GetClientByName implements secret.ClientProvider.
-func (b *Backend) GetClientByName(ctx context.Context, s logical.Storage, name string) (g.Client, error) {
-	return b.getClient(ctx, s, name)
+func (b *Backend) SendEvent(ctx context.Context, eventType string, metadata map[string]string) error {
+	return event.Event(ctx, b.Backend, eventType, metadata)
 }
 
-// SendTokenEvent implements secret.EventSender.
-func (b *Backend) SendTokenEvent(ctx context.Context, eventType string, metadata map[string]string) error {
-	return event.Event(ctx, b.Backend, eventType, metadata)
+func (b *Backend) Flags() flags.Flags {
+	b.lockFlagsMutex.RLock()
+	defer b.lockFlagsMutex.RUnlock()
+	return b.flags
+}
+
+func (b *Backend) UpdateFlags(fn func(*flags.Flags)) {
+	b.lockFlagsMutex.Lock()
+	defer b.lockFlagsMutex.Unlock()
+	fn(&b.flags)
+}
+
+func (b *Backend) ClientLock() { b.lockClientMutex.Lock() }
+
+func (b *Backend) ClientUnlock() { b.lockClientMutex.Unlock() }
+
+func (b *Backend) ClientRLock() { b.lockClientMutex.RLock() }
+
+func (b *Backend) ClientRUnlock() { b.lockClientMutex.RUnlock() }
+
+func (b *Backend) RoleLockForKey(key string) *locksutil.LockEntry {
+	return locksutil.LockForKey(b.roleLocks, key)
+}
+
+func (b *Backend) SecretForType(secretType string) *framework.Secret {
+	return b.Secret(secretType)
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/mitchellh/mapstructure"
 
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 )
 
 const (
@@ -27,28 +27,25 @@ var FieldSchemaFlags = map[string]*framework.FieldSchema{
 }
 
 func (b *Backend) pathFlagsRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
-	b.lockFlagsMutex.RLock()
-	defer b.lockFlagsMutex.RUnlock()
 	var flagData map[string]any
-	err = mapstructure.Decode(b.flags, &flagData)
+	err = mapstructure.Decode(b.Flags(), &flagData)
 	return &logical.Response{Data: flagData}, err
 }
 
 func (b *Backend) pathFlagsUpdate(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
-	b.lockFlagsMutex.Lock()
-	defer b.lockFlagsMutex.Unlock()
-
 	var eventData = make(map[string]string)
 
-	if showConfigToken, ok := data.GetOk("show_config_token"); ok {
-		b.flags.ShowConfigToken = showConfigToken.(bool)
-		eventData["show_config_token"] = strconv.FormatBool(b.flags.ShowConfigToken)
-	}
+	b.UpdateFlags(func(f *flags.Flags) {
+		if showConfigToken, ok := data.GetOk("show_config_token"); ok {
+			f.ShowConfigToken = showConfigToken.(bool)
+			eventData["show_config_token"] = strconv.FormatBool(f.ShowConfigToken)
+		}
+	})
 
-	_ = event.Event(ctx, b.Backend, "flags-write", eventData)
+	_ = b.SendEvent(ctx, "flags-write", eventData)
 
 	var flagData map[string]any
-	err = mapstructure.Decode(b.flags, &flagData)
+	err = mapstructure.Decode(b.Flags(), &flagData)
 	return &logical.Response{Data: flagData}, err
 }
 
@@ -70,7 +67,7 @@ func pathFlags(b *Backend) *framework.Path {
 		},
 	}
 
-	if b.flags.AllowRuntimeFlagsChange {
+	if b.Flags().AllowRuntimeFlagsChange {
 		operations[logical.UpdateOperation] = &framework.PathOperation{
 			Callback: b.pathFlagsUpdate,
 			DisplayAttrs: &framework.DisplayAttributes{
