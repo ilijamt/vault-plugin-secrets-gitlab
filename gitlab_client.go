@@ -24,8 +24,7 @@ import (
 )
 
 var (
-	ErrAccessTokenNotFound = errors.New("access token not found")
-	ErrRoleNotFound        = errors.New("role not found")
+	ErrRoleNotFound = errors.New("role not found")
 )
 
 type gitlabClient struct {
@@ -509,7 +508,7 @@ func (gc *gitlabClient) RevokePersonalAccessToken(ctx context.Context, tokenId i
 	var resp *g.Response
 	resp, err = gc.client.PersonalAccessTokens.RevokePersonalAccessTokenByID(tokenId, g.WithContext(ctx))
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("personal: %w", ErrAccessTokenNotFound)
+		return fmt.Errorf("personal: %w", errs.ErrAccessTokenNotFound)
 	}
 	if err != nil {
 		return err
@@ -524,7 +523,7 @@ func (gc *gitlabClient) RevokeProjectAccessToken(ctx context.Context, tokenId in
 	var resp *g.Response
 	resp, err = gc.client.ProjectAccessTokens.RevokeProjectAccessToken(projectId, tokenId, g.WithContext(ctx))
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("project: %w", ErrAccessTokenNotFound)
+		return fmt.Errorf("project: %w", errs.ErrAccessTokenNotFound)
 	}
 	if err != nil {
 		return err
@@ -539,7 +538,7 @@ func (gc *gitlabClient) RevokeGroupAccessToken(ctx context.Context, tokenId int6
 	var resp *g.Response
 	resp, err = gc.client.GroupAccessTokens.RevokeGroupAccessToken(groupId, tokenId, g.WithContext(ctx))
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("group: %w", ErrAccessTokenNotFound)
+		return fmt.Errorf("group: %w", errs.ErrAccessTokenNotFound)
 	}
 	if err != nil {
 		return err

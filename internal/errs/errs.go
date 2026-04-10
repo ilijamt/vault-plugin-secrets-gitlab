@@ -29,4 +29,7 @@ var (
 
 	// ErrUnknownAccessLevel indicates an error caused by encountering an undefined or unrecognized access level.
 	ErrUnknownAccessLevel = errors.New("unknown access level")
+
+	// ErrAccessTokenNotFound indicates that the requested access token was not found.
+	ErrAccessTokenNotFound = errors.New("access token not found")
 )

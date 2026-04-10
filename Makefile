@@ -46,7 +46,7 @@ test: coverage
 
 coverage: check-go clean-coverage
 	mkdir -p $(BUILD_DIR)
-	$(GO) test ./... -cover -coverprofile=$(COVER_PROFILE) -race -tags $(TAGS) -count 1 $(TEST_ARGS)
+	$(GO) test ./... -cover -coverpkg=github.com/ilijamt/vault-plugin-secrets-gitlab/... -coverprofile=$(COVER_PROFILE) -race -tags $(TAGS) -count 1 $(TEST_ARGS)
 	$(GO) tool cover -html=$(COVER_PROFILE) -o $(COVER_HTML)
 
 clean-coverage:

@@ -12,6 +12,7 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/secret"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
@@ -24,7 +25,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 
 	t.Run("nil storage", func(t *testing.T) {
 		events.resetEvents(t)
-		resp, err := b.Secret(gitlab.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{})
+		resp, err := b.Secret(secret.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{})
 		require.Error(t, err)
 		require.Nil(t, resp)
 		require.ErrorIs(t, err, errs.ErrNilValue)
@@ -50,7 +51,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		require.NoError(t, resp.Error())
 		require.NotEmpty(t, events)
 
-		resp, err = b.Secret(gitlab.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{Storage: l})
+		resp, err = b.Secret(secret.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{Storage: l})
 		require.Error(t, err)
 		require.Nil(t, resp)
 		require.ErrorIs(t, err, errs.ErrNilValue)
@@ -80,7 +81,7 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		require.NoError(t, resp.Error())
 		require.NotEmpty(t, events)
 
-		resp, err = b.Secret(gitlab.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{
+		resp, err = b.Secret(secret.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{
 			Storage: l,
 			Secret: &logical.Secret{
 				InternalData: map[string]interface{}{

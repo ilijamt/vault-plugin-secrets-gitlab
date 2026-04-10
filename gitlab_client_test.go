@@ -118,9 +118,9 @@ func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
 
 	require.True(t, client.Valid(ctx))
 
-	require.ErrorIs(t, client.RevokePersonalAccessToken(ctx, 999), gitlab.ErrAccessTokenNotFound)
-	require.ErrorIs(t, client.RevokeGroupAccessToken(ctx, 999, "group"), gitlab.ErrAccessTokenNotFound)
-	require.ErrorIs(t, client.RevokeProjectAccessToken(ctx, 999, "project"), gitlab.ErrAccessTokenNotFound)
+	require.ErrorIs(t, client.RevokePersonalAccessToken(ctx, 999), errs.ErrAccessTokenNotFound)
+	require.ErrorIs(t, client.RevokeGroupAccessToken(ctx, 999, "group"), errs.ErrAccessTokenNotFound)
+	require.ErrorIs(t, client.RevokeProjectAccessToken(ctx, 999, "project"), errs.ErrAccessTokenNotFound)
 }
 
 func TestGitlabClient_GetGroupIdByPath(t *testing.T) {

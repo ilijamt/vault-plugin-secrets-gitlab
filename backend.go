@@ -13,9 +13,11 @@ import (
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	config2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/secret"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
@@ -62,7 +64,7 @@ func factory(ctx context.Context, conf *logical.BackendConfig, flags flags.Flags
 		},
 
 		Secrets: []*framework.Secret{
-			secretAccessTokens(b),
+			secret.NewSecret(b, b, DefaultConfigName),
 		},
 
 		Paths: framework.PathAppend(
@@ -192,4 +194,14 @@ func (b *Backend) getClient(ctx context.Context, s logical.Storage, name string)
 		}
 	}
 	return client, err
+}
+
+// GetClientByName implements secret.ClientProvider.
+func (b *Backend) GetClientByName(ctx context.Context, s logical.Storage, name string) (g.Client, error) {
+	return b.getClient(ctx, s, name)
+}
+
+// SendTokenEvent implements secret.EventSender.
+func (b *Backend) SendTokenEvent(ctx context.Context, eventType string, metadata map[string]string) error {
+	return event.Event(ctx, b.Backend, eventType, metadata)
 }

@@ -17,6 +17,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	role2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/secret"
 	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -171,7 +172,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		token.SetExpiresAt(&expiresAt)
 	}
 
-	resp = b.Secret(SecretAccessTokenType).Response(token.Data(), token.Internal())
+	resp = b.Secret(secret.SecretAccessTokenType).Response(token.Data(), token.Internal())
 
 	resp.Secret.MaxTTL = role.TTL
 	resp.Secret.TTL = role.TTL
@@ -208,7 +209,7 @@ func pathTokenRoles(b *Backend) *framework.Path {
 				Responses: map[int][]framework.Response{
 					http.StatusOK: {{
 						Description: http.StatusText(http.StatusOK),
-						Fields:      fieldSchemaAccessTokens,
+						Fields:      secret.FieldSchemaAccessTokens,
 					}},
 				},
 			},
@@ -222,7 +223,7 @@ func pathTokenRoles(b *Backend) *framework.Path {
 				Responses: map[int][]framework.Response{
 					http.StatusOK: {{
 						Description: http.StatusText(http.StatusOK),
-						Fields:      fieldSchemaAccessTokens,
+						Fields:      secret.FieldSchemaAccessTokens,
 					}},
 				},
 			},
