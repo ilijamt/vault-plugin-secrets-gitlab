@@ -15,6 +15,7 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	role2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
 	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
@@ -93,7 +94,7 @@ func (b *Backend) pathTokenRoleCreate(ctx context.Context, req *logical.Request,
 		return nil, fmt.Errorf("error generating token name: %w", err)
 	}
 
-	var client Client
+	var client gitlab.Client
 	var gitlabRevokesTokens = role.GitlabRevokesTokens
 	var vaultRevokesTokens = !role.GitlabRevokesTokens
 

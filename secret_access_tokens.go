@@ -11,6 +11,7 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
+	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -87,7 +88,7 @@ func (b *Backend) secretAccessTokenRevoke(ctx context.Context, req *logical.Requ
 	tokenType, _ = token.ParseType(tokenTypeValue)
 
 	if vaultRevokesToken {
-		var client Client
+		var client g.Client
 		client, err = b.getClient(ctx, req.Storage, configName)
 		if err != nil {
 			return nil, fmt.Errorf("revoke token cannot get client got %s config: %w", configName, err)

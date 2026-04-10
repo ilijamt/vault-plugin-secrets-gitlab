@@ -13,6 +13,7 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 )
@@ -63,7 +64,7 @@ func (b *Backend) pathConfigTokenRotate(ctx context.Context, request *logical.Re
 	var name = data.Get("config_name").(string)
 	b.Logger().Debug("Running pathConfigTokenRotate")
 	var config *config.EntryConfig
-	var client Client
+	var client gitlab.Client
 
 	b.lockClientMutex.RLock()
 	if config, err = getConfig(ctx, request.Storage, name); err != nil {

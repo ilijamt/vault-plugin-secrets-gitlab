@@ -161,7 +161,7 @@ func (b *Backend) pathConfigPatch(ctx context.Context, req *logical.Request, dat
 
 func (b *Backend) updateConfigClientInfo(ctx context.Context, config *config2.EntryConfig) (et *token.TokenConfig, err error) {
 	var httpClient *http.Client
-	var client Client
+	var client gitlab.Client
 	httpClient, _ = utils.HttpClientFromContext(ctx)
 	if client, _ = gitlab.ClientFromContext(ctx); client == nil {
 		if client, err = NewGitlabClient(config, httpClient, b.Logger()); err == nil {

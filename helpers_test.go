@@ -25,6 +25,8 @@ import (
 	"github.com/stretchr/testify/require"
 	g "gitlab.com/gitlab-org/api/client-go"
 
+	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
@@ -32,7 +34,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
-var _ gitlab.Client = new(inMemoryClient)
+var _ glab.Client = new(inMemoryClient)
 
 var (
 	gitlabComPersonalAccessToken = cmp.Or(os.Getenv("GITLAB_COM_TOKEN"), "glpat-invalid-value")

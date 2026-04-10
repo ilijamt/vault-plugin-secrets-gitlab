@@ -14,6 +14,7 @@ import (
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
@@ -64,7 +65,7 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 	ctx, timeExpiresAt := ctxTestTime(t.Context(), t.Name(), tokenName)
 	var err error
 	httpClient, url := getClient(t, "unit")
-	var client gitlab.Client
+	var client glab.Client
 	client, err = gitlab.NewGitlabClient(&config.EntryConfig{
 		Token:   tokenName,
 		BaseURL: url,
@@ -107,7 +108,7 @@ func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
 	var ctx = t.Context()
 	var err error
 	httpClient, url := getClient(t, "unit")
-	var client gitlab.Client
+	var client glab.Client
 	client, err = gitlab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
@@ -127,7 +128,7 @@ func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 	var err error
 	var tokenName = "admin_user_root"
 	httpClient, url := getClient(t, "unit")
-	var client gitlab.Client
+	var client glab.Client
 	client, err = gitlab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken(tokenName).Token,
 		BaseURL: url,
@@ -148,7 +149,7 @@ func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
 	var ctx = t.Context()
 	var err error
 	httpClient, url := getClient(t, "unit")
-	var client gitlab.Client
+	var client glab.Client
 	client, err = gitlab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
@@ -166,7 +167,7 @@ func TestGitlabClient_GetUserIdByUsernameDoesNotMatch(t *testing.T) {
 	var err error
 	var ctx = t.Context()
 	httpClient, url := getClient(t, "unit")
-	var client gitlab.Client
+	var client glab.Client
 	client, err = gitlab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
@@ -188,7 +189,7 @@ func TestGitlabClient_Revoke_NonExistingTokens(t *testing.T) {
 	var ctx = t.Context()
 	var err error
 	httpClient, url := getClient(t, "unit")
-	var client gitlab.Client
+	var client glab.Client
 	client, err = gitlab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
@@ -206,7 +207,7 @@ func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 	var err error
 	var ctx = t.Context()
 	httpClient, url := getClient(t, "unit")
-	var client gitlab.Client
+	var client glab.Client
 	client, err = gitlab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
@@ -225,7 +226,7 @@ func TestGitlabClient_Metadata(t *testing.T) {
 	var err error
 	var ctx = t.Context()
 	httpClient, url := getClient(t, "unit")
-	var client gitlab.Client
+	var client glab.Client
 	client, err = gitlab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
 		BaseURL: url,
@@ -244,7 +245,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	var tokenName = "admin_user_root"
 	ctx, timeExpiresAt := ctxTestTime(t.Context(), t.Name(), tokenName)
 	httpClient, url := getClient(t, "unit")
-	var client gitlab.Client
+	var client glab.Client
 	client, err = gitlab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken(tokenName).Token,
 		BaseURL: url,
@@ -300,7 +301,7 @@ func TestGitlabClient_RotateCurrentToken(t *testing.T) {
 	var err error
 	var ctx = t.Context()
 	httpClient, url := getClient(t, "unit")
-	var client gitlab.Client
+	var client glab.Client
 	var tokenName = "admin_user_auto_rotate_token_1"
 	client, err = gitlab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken(tokenName).Token,

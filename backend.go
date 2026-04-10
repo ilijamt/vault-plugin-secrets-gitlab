@@ -149,14 +149,14 @@ func (b *Backend) Invalidate(ctx context.Context, key string) {
 	}
 }
 
-func (b *Backend) GetClient(name string) Client {
+func (b *Backend) GetClient(name string) g.Client {
 	if client, ok := b.clients.Load(cmp.Or(name, DefaultConfigName)); ok {
-		return client.(Client)
+		return client.(g.Client)
 	}
 	return nil
 }
 
-func (b *Backend) SetClient(client Client, name string) {
+func (b *Backend) SetClient(client g.Client, name string) {
 	name = cmp.Or(name, DefaultConfigName)
 	if client == nil {
 		b.Logger().Debug("Setting a nil client")
@@ -166,9 +166,9 @@ func (b *Backend) SetClient(client Client, name string) {
 	b.clients.Store(name, client)
 }
 
-func (b *Backend) getClient(ctx context.Context, s logical.Storage, name string) (client Client, err error) {
+func (b *Backend) getClient(ctx context.Context, s logical.Storage, name string) (client g.Client, err error) {
 	if c, ok := b.clients.Load(cmp.Or(name, DefaultConfigName)); ok {
-		client = c.(Client)
+		client = c.(g.Client)
 	}
 	if client != nil && client.Valid(ctx) {
 		b.Logger().Debug("Returning existing gitlab client")

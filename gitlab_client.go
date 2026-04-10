@@ -16,6 +16,7 @@ import (
 	"golang.org/x/time/rate"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	config2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	modelToken "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
@@ -550,7 +551,7 @@ func (gc *gitlabClient) Valid(ctx context.Context) bool {
 	return gc.client != nil && gc.config != nil
 }
 
-var _ Client = new(gitlabClient)
+var _ gitlab.Client = new(gitlabClient)
 
 func newGitlabClient(config *config2.EntryConfig, httpClient *http.Client) (gc *g.Client, err error) {
 	if strings.TrimSpace(config.BaseURL) == "" {
@@ -577,7 +578,7 @@ func newGitlabClient(config *config2.EntryConfig, httpClient *http.Client) (gc *
 	return g.NewClient(config.Token, opts...)
 }
 
-func NewGitlabClient(config *config2.EntryConfig, httpClient *http.Client, logger hclog.Logger) (client Client, err error) {
+func NewGitlabClient(config *config2.EntryConfig, httpClient *http.Client, logger hclog.Logger) (client gitlab.Client, err error) {
 	if config == nil {
 		return nil, fmt.Errorf("configure the backend first, config: %w", errs.ErrNilValue)
 	}
