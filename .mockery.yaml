@@ -8,6 +8,8 @@ packages:
       pkgname: mocks
       filename: mock_backend.go
     interfaces:
+      EventSender: {}
+      FlagsProvider: {}
       InvalidateHandler: {}
       PathProvider: {}
       PeriodicHandler: {}
