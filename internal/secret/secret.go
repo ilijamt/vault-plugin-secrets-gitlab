@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
@@ -18,16 +19,6 @@ import (
 const (
 	SecretAccessTokenType = "access_tokens"
 )
-
-// ClientProvider abstracts the ability to obtain a gitlab client by config name.
-type ClientProvider interface {
-	GetClientByName(ctx context.Context, s logical.Storage, name string) (g.Client, error)
-}
-
-// EventSender abstracts sending audit/events from the backend.
-type EventSender interface {
-	SendTokenEvent(ctx context.Context, eventType string, metadata map[string]string) error
-}
 
 var (
 	// FieldSchemaAccessTokens defines the field schema for access token secrets.
@@ -60,8 +51,8 @@ var (
 )
 
 // NewSecret creates a framework.Secret for access tokens with the revoke handler
-// wired through the provided ClientProvider and EventSender interfaces.
-func NewSecret(cp ClientProvider, es EventSender, defaultConfigName string) *framework.Secret {
+// wired through the provided backend.ClientProvider and backend.EventSender interfaces.
+func NewSecret(cp backend.ClientProvider, es backend.EventSender, defaultConfigName string) *framework.Secret {
 	return &framework.Secret{
 		Type:   SecretAccessTokenType,
 		Fields: FieldSchemaAccessTokens,
@@ -69,7 +60,7 @@ func NewSecret(cp ClientProvider, es EventSender, defaultConfigName string) *fra
 	}
 }
 
-func revokeAccessToken(cp ClientProvider, es EventSender, defaultConfigName string) framework.OperationFunc {
+func revokeAccessToken(cp backend.ClientProvider, es backend.EventSender, defaultConfigName string) framework.OperationFunc {
 	return func(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
 		var err error
 
