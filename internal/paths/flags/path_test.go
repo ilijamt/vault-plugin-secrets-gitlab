@@ -12,15 +12,14 @@ import (
 )
 
 func TestPathFlags_Name(t *testing.T) {
-	mb := newMockFlagsBackend(t)
+	mb := &mockFlagsBackend{}
 	p := pathflags.New(mb)
 	require.NotEmpty(t, p.Name())
 }
 
 func TestPathFlags_UpdateOperationAvailability(t *testing.T) {
 	t.Run("runtime flags change disabled", func(t *testing.T) {
-		mb := newMockFlagsBackend(t)
-		mb.MockFlagsProvider.EXPECT().Flags().Return(flags.Flags{AllowRuntimeFlagsChange: false})
+		mb := &mockFlagsBackend{flags: flags.Flags{AllowRuntimeFlagsChange: false}}
 
 		p := pathflags.New(mb)
 		paths := p.Paths()
@@ -31,8 +30,7 @@ func TestPathFlags_UpdateOperationAvailability(t *testing.T) {
 	})
 
 	t.Run("runtime flags change enabled", func(t *testing.T) {
-		mb := newMockFlagsBackend(t)
-		mb.MockFlagsProvider.EXPECT().Flags().Return(flags.Flags{AllowRuntimeFlagsChange: true})
+		mb := &mockFlagsBackend{flags: flags.Flags{AllowRuntimeFlagsChange: true}}
 
 		p := pathflags.New(mb)
 		paths := p.Paths()

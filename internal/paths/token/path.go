@@ -44,7 +44,7 @@ type tokenBackend interface {
 	backend.Logging
 	backend.RoleLocker
 	backend.RoleStore
-	backend.ClientProvider
+	backend.ClientReader
 	backend.EventSender
 }
 

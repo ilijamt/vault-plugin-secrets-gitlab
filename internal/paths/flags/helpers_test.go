@@ -2,34 +2,33 @@ package flags_test
 
 import (
 	"context"
-	"testing"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/mocks"
 )
 
+// mockFlagsBackend is a hand-written mock satisfying the flagsBackend interface.
 type mockFlagsBackend struct {
-	*mocks.MockFlagsProvider
-	*mocks.MockEventSender
+	flags      flags.Flags
+	updateFlags func(fn func(*flags.Flags))
+	sendEvent  func(ctx context.Context, eventType event.EventType, metadata map[string]string) error
 }
 
 func (m *mockFlagsBackend) Flags() flags.Flags {
-	return m.MockFlagsProvider.Flags()
+	return m.flags
 }
 
 func (m *mockFlagsBackend) UpdateFlags(fn func(*flags.Flags)) {
-	m.MockFlagsProvider.UpdateFlags(fn)
+	if m.updateFlags != nil {
+		m.updateFlags(fn)
+		return
+	}
+	fn(&m.flags)
 }
 
 func (m *mockFlagsBackend) SendEvent(ctx context.Context, eventType event.EventType, metadata map[string]string) error {
-	return m.MockEventSender.SendEvent(ctx, eventType, metadata)
-}
-
-func newMockFlagsBackend(t *testing.T) *mockFlagsBackend {
-	t.Helper()
-	return &mockFlagsBackend{
-		MockFlagsProvider: mocks.NewMockFlagsProvider(t),
-		MockEventSender:   mocks.NewMockEventSender(t),
+	if m.sendEvent != nil {
+		return m.sendEvent(ctx, eventType, metadata)
 	}
+	return nil
 }

@@ -13,8 +13,7 @@ import (
 )
 
 func TestPathFlagsRead(t *testing.T) {
-	mb := newMockFlagsBackend(t)
-	mb.MockFlagsProvider.EXPECT().Flags().Return(flags.Flags{})
+	mb := &mockFlagsBackend{}
 
 	p := pathflags.New(mb)
 	paths := p.Paths()
@@ -31,11 +30,12 @@ func TestPathFlagsRead(t *testing.T) {
 }
 
 func TestPathFlagsRead_WithCustomFlags(t *testing.T) {
-	mb := newMockFlagsBackend(t)
-	mb.MockFlagsProvider.EXPECT().Flags().Return(flags.Flags{
-		ShowConfigToken:         true,
-		AllowRuntimeFlagsChange: true,
-	})
+	mb := &mockFlagsBackend{
+		flags: flags.Flags{
+			ShowConfigToken:         true,
+			AllowRuntimeFlagsChange: true,
+		},
+	}
 
 	p := pathflags.New(mb)
 	paths := p.Paths()

@@ -21,7 +21,7 @@ const (
 )
 
 type secretBackend interface {
-	backend.ClientProvider
+	backend.ClientReader
 	backend.EventSender
 }
 
@@ -56,7 +56,7 @@ var (
 )
 
 // NewSecret creates a framework.Secret for access tokens with the revoke handler
-// wired through the provided backend.Backend interface.
+// wired through the provided secretBackend interface.
 func NewSecret(b secretBackend, defaultConfigName string) *framework.Secret {
 	return &framework.Secret{
 		Type:   SecretAccessTokenType,

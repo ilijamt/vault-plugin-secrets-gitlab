@@ -1,21 +1,21 @@
 package secret_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 
 	"github.com/hashicorp/vault/sdk/logical"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/mocks"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/secret"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestRevokeAccessToken_NilStorage(t *testing.T) {
-	mb := newMockSecretBackend(t)
+	mb := &mockSecretBackend{}
 	s := secret.NewSecret(mb, "default")
 
 	resp, err := s.HandleRevoke(t.Context(), &logical.Request{})
@@ -25,7 +25,7 @@ func TestRevokeAccessToken_NilStorage(t *testing.T) {
 }
 
 func TestRevokeAccessToken_NilSecret(t *testing.T) {
-	mb := newMockSecretBackend(t)
+	mb := &mockSecretBackend{}
 	s := secret.NewSecret(mb, "default")
 
 	resp, err := s.HandleRevoke(t.Context(), &logical.Request{
@@ -37,7 +37,7 @@ func TestRevokeAccessToken_NilSecret(t *testing.T) {
 }
 
 func TestRevokeAccessToken_InvalidTokenId(t *testing.T) {
-	mb := newMockSecretBackend(t)
+	mb := &mockSecretBackend{}
 	s := secret.NewSecret(mb, "default")
 
 	resp, err := s.HandleRevoke(t.Context(), &logical.Request{
@@ -54,8 +54,12 @@ func TestRevokeAccessToken_InvalidTokenId(t *testing.T) {
 }
 
 func TestRevokeAccessToken_ClientError(t *testing.T) {
-	mb := newMockSecretBackend(t)
-	mb.MockClientProvider.EXPECT().GetClientByName(mock.Anything, mock.Anything, "default").Return(nil, errors.New("client error")).Once()
+	mb := &mockSecretBackend{
+		getClientByName: func(_ context.Context, _ logical.Storage, name string) (gitlab.Client, error) {
+			require.Equal(t, "default", name)
+			return nil, errors.New("client error")
+		},
+	}
 
 	s := secret.NewSecret(mb, "default")
 
@@ -78,10 +82,18 @@ func TestRevokeAccessToken_ClientError(t *testing.T) {
 }
 
 func TestRevokeAccessToken_RevokeError(t *testing.T) {
-	mb := newMockSecretBackend(t)
-	client := mocks.NewMockClient(t)
-	client.EXPECT().RevokePersonalAccessToken(mock.Anything, int64(42)).Return(errors.New("revoke failed")).Once()
-	mb.MockClientProvider.EXPECT().GetClientByName(mock.Anything, mock.Anything, "default").Return(client, nil).Once()
+	client := &stubClient{
+		revokePersonalAccessToken: func(_ context.Context, tokenId int64) error {
+			require.Equal(t, int64(42), tokenId)
+			return errors.New("revoke failed")
+		},
+	}
+	mb := &mockSecretBackend{
+		getClientByName: func(_ context.Context, _ logical.Storage, name string) (gitlab.Client, error) {
+			require.Equal(t, "default", name)
+			return client, nil
+		},
+	}
 
 	s := secret.NewSecret(mb, "default")
 

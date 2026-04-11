@@ -1,21 +1,27 @@
 package secret_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/hashicorp/vault/sdk/logical"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/mocks"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/secret"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
 func TestRevokeAccessToken_GitlabRevokesToken(t *testing.T) {
-	mb := newMockSecretBackend(t)
-	mb.MockEventSender.EXPECT().SendEvent(mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+	var eventSent bool
+	mb := &mockSecretBackend{
+		sendEvent: func(_ context.Context, _ event.EventType, _ map[string]string) error {
+			eventSent = true
+			return nil
+		},
+	}
 
 	s := secret.NewSecret(mb, "default")
 
@@ -35,38 +41,50 @@ func TestRevokeAccessToken_GitlabRevokesToken(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.Nil(t, resp)
+	require.True(t, eventSent)
 }
 
 func TestRevokeAccessToken_VaultRevokes(t *testing.T) {
 	tests := []struct {
-		name      string
-		tokenType token.Type
-		parentId  string
-		extra     map[string]any
-		setupMock func(*mocks.MockClient)
+		name       string
+		tokenType  token.Type
+		parentId   string
+		extra      map[string]any
+		setupStub  func(*stubClient)
 	}{
 		{
 			name:      "personal",
 			tokenType: token.TypePersonal,
 			parentId:  "user1",
-			setupMock: func(c *mocks.MockClient) {
-				c.EXPECT().RevokePersonalAccessToken(mock.Anything, int64(42)).Return(nil).Once()
+			setupStub: func(c *stubClient) {
+				c.revokePersonalAccessToken = func(_ context.Context, tokenId int64) error {
+					require.Equal(t, int64(42), tokenId)
+					return nil
+				}
 			},
 		},
 		{
 			name:      "project",
 			tokenType: token.TypeProject,
 			parentId:  "proj1",
-			setupMock: func(c *mocks.MockClient) {
-				c.EXPECT().RevokeProjectAccessToken(mock.Anything, int64(42), "proj1").Return(nil).Once()
+			setupStub: func(c *stubClient) {
+				c.revokeProjectAccessToken = func(_ context.Context, tokenId int64, projectId string) error {
+					require.Equal(t, int64(42), tokenId)
+					require.Equal(t, "proj1", projectId)
+					return nil
+				}
 			},
 		},
 		{
 			name:      "group",
 			tokenType: token.TypeGroup,
 			parentId:  "grp1",
-			setupMock: func(c *mocks.MockClient) {
-				c.EXPECT().RevokeGroupAccessToken(mock.Anything, int64(42), "grp1").Return(nil).Once()
+			setupStub: func(c *stubClient) {
+				c.revokeGroupAccessToken = func(_ context.Context, tokenId int64, groupId string) error {
+					require.Equal(t, int64(42), tokenId)
+					require.Equal(t, "grp1", groupId)
+					return nil
+				}
 			},
 		},
 		{
@@ -74,8 +92,11 @@ func TestRevokeAccessToken_VaultRevokes(t *testing.T) {
 			tokenType: token.TypeUserServiceAccount,
 			parentId:  "user1",
 			extra:     map[string]any{"token": "glpat-secret"},
-			setupMock: func(c *mocks.MockClient) {
-				c.EXPECT().RevokeUserServiceAccountAccessToken(mock.Anything, "glpat-secret").Return(nil).Once()
+			setupStub: func(c *stubClient) {
+				c.revokeUserServiceAccountAccessToken = func(_ context.Context, tok string) error {
+					require.Equal(t, "glpat-secret", tok)
+					return nil
+				}
 			},
 		},
 		{
@@ -83,43 +104,62 @@ func TestRevokeAccessToken_VaultRevokes(t *testing.T) {
 			tokenType: token.TypeGroupServiceAccount,
 			parentId:  "grp1",
 			extra:     map[string]any{"token": "glpat-secret"},
-			setupMock: func(c *mocks.MockClient) {
-				c.EXPECT().RevokeGroupServiceAccountAccessToken(mock.Anything, "glpat-secret").Return(nil).Once()
+			setupStub: func(c *stubClient) {
+				c.revokeGroupServiceAccountAccessToken = func(_ context.Context, tok string) error {
+					require.Equal(t, "glpat-secret", tok)
+					return nil
+				}
 			},
 		},
 		{
 			name:      "pipeline project trigger",
 			tokenType: token.TypePipelineProjectTrigger,
 			parentId:  "100",
-			setupMock: func(c *mocks.MockClient) {
-				c.EXPECT().RevokePipelineProjectTriggerAccessToken(mock.Anything, int64(100), int64(42)).Return(nil).Once()
+			setupStub: func(c *stubClient) {
+				c.revokePipelineProjectTriggerAccessToken = func(_ context.Context, projectId int64, tokenId int64) error {
+					require.Equal(t, int64(100), projectId)
+					require.Equal(t, int64(42), tokenId)
+					return nil
+				}
 			},
 		},
 		{
 			name:      "group deploy",
 			tokenType: token.TypeGroupDeploy,
 			parentId:  "200",
-			setupMock: func(c *mocks.MockClient) {
-				c.EXPECT().RevokeGroupDeployToken(mock.Anything, int64(200), int64(42)).Return(nil).Once()
+			setupStub: func(c *stubClient) {
+				c.revokeGroupDeployToken = func(_ context.Context, groupId, deployTokenId int64) error {
+					require.Equal(t, int64(200), groupId)
+					require.Equal(t, int64(42), deployTokenId)
+					return nil
+				}
 			},
 		},
 		{
 			name:      "project deploy",
 			tokenType: token.TypeProjectDeploy,
 			parentId:  "300",
-			setupMock: func(c *mocks.MockClient) {
-				c.EXPECT().RevokeProjectDeployToken(mock.Anything, int64(300), int64(42)).Return(nil).Once()
+			setupStub: func(c *stubClient) {
+				c.revokeProjectDeployToken = func(_ context.Context, projectId, deployTokenId int64) error {
+					require.Equal(t, int64(300), projectId)
+					require.Equal(t, int64(42), deployTokenId)
+					return nil
+				}
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mb := newMockSecretBackend(t)
-			client := mocks.NewMockClient(t)
-			tt.setupMock(client)
-			mb.MockClientProvider.EXPECT().GetClientByName(mock.Anything, mock.Anything, "default").Return(client, nil).Once()
-			mb.MockEventSender.EXPECT().SendEvent(mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+			client := &stubClient{}
+			tt.setupStub(client)
+
+			mb := &mockSecretBackend{
+				getClientByName: func(_ context.Context, _ logical.Storage, name string) (gitlab.Client, error) {
+					require.Equal(t, "default", name)
+					return client, nil
+				},
+			}
 
 			s := secret.NewSecret(mb, "default")
 
@@ -134,11 +174,18 @@ func TestRevokeAccessToken_VaultRevokes(t *testing.T) {
 }
 
 func TestRevokeAccessToken_TokenNotFound(t *testing.T) {
-	mb := newMockSecretBackend(t)
-	client := mocks.NewMockClient(t)
-	client.EXPECT().RevokePersonalAccessToken(mock.Anything, int64(42)).Return(errs.ErrAccessTokenNotFound).Once()
-	mb.MockClientProvider.EXPECT().GetClientByName(mock.Anything, mock.Anything, "default").Return(client, nil).Once()
-	mb.MockEventSender.EXPECT().SendEvent(mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+	client := &stubClient{
+		revokePersonalAccessToken: func(_ context.Context, tokenId int64) error {
+			require.Equal(t, int64(42), tokenId)
+			return errs.ErrAccessTokenNotFound
+		},
+	}
+	mb := &mockSecretBackend{
+		getClientByName: func(_ context.Context, _ logical.Storage, name string) (gitlab.Client, error) {
+			require.Equal(t, "default", name)
+			return client, nil
+		},
+	}
 
 	s := secret.NewSecret(mb, "default")
 
@@ -151,11 +198,18 @@ func TestRevokeAccessToken_TokenNotFound(t *testing.T) {
 }
 
 func TestRevokeAccessToken_UsesConfigNameFromSecret(t *testing.T) {
-	mb := newMockSecretBackend(t)
-	client := mocks.NewMockClient(t)
-	client.EXPECT().RevokePersonalAccessToken(mock.Anything, int64(42)).Return(nil).Once()
-	mb.MockClientProvider.EXPECT().GetClientByName(mock.Anything, mock.Anything, "custom-config").Return(client, nil).Once()
-	mb.MockEventSender.EXPECT().SendEvent(mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+	client := &stubClient{
+		revokePersonalAccessToken: func(_ context.Context, tokenId int64) error {
+			require.Equal(t, int64(42), tokenId)
+			return nil
+		},
+	}
+	mb := &mockSecretBackend{
+		getClientByName: func(_ context.Context, _ logical.Storage, name string) (gitlab.Client, error) {
+			require.Equal(t, "custom-config", name)
+			return client, nil
+		},
+	}
 
 	s := secret.NewSecret(mb, "default")
 
