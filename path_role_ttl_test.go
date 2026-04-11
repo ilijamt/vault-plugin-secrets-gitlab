@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
@@ -44,11 +44,11 @@ func TestPathRolesTTL(t *testing.T) {
 			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
 			maps.Copy(role, map[string]any{
-				"ttl": (gitlab.DefaultAccessTokenMaxPossibleTTL + time.Hour).String(),
+				"ttl": (backend.DefaultAccessTokenMaxPossibleTTL + time.Hour).String(),
 			})
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+				Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 				Data: role,
 			})
 			require.Error(t, err)
@@ -64,11 +64,11 @@ func TestPathRolesTTL(t *testing.T) {
 			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
 			maps.Copy(role, map[string]any{
-				"ttl": (gitlab.DefaultAccessTokenMaxPossibleTTL).String(),
+				"ttl": (backend.DefaultAccessTokenMaxPossibleTTL).String(),
 			})
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+				Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 				Data: role,
 			})
 			require.NoError(t, err)
@@ -78,12 +78,12 @@ func TestPathRolesTTL(t *testing.T) {
 			// read a role
 			resp, err = b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.ReadOperation,
-				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+				Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
 			require.NoError(t, resp.Error())
-			require.EqualValues(t, int64(gitlab.DefaultAccessTokenMaxPossibleTTL.Seconds()), resp.Data["ttl"])
+			require.EqualValues(t, int64(backend.DefaultAccessTokenMaxPossibleTTL.Seconds()), resp.Data["ttl"])
 		})
 	})
 
@@ -110,7 +110,7 @@ func TestPathRolesTTL(t *testing.T) {
 
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+				Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 				Data: role,
 			})
 			require.NoError(t, err)
@@ -120,7 +120,7 @@ func TestPathRolesTTL(t *testing.T) {
 			// read a role
 			resp, err = b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.ReadOperation,
-				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+				Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
@@ -138,7 +138,7 @@ func TestPathRolesTTL(t *testing.T) {
 			})
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+				Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 				Data: role,
 			})
 			require.Error(t, err)
@@ -171,7 +171,7 @@ func TestPathRolesTTL(t *testing.T) {
 			})
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+				Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 				Data: role,
 			})
 			require.Error(t, err)
@@ -191,7 +191,7 @@ func TestPathRolesTTL(t *testing.T) {
 			})
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+				Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 				Data: role,
 			})
 			require.NoError(t, err)
@@ -201,7 +201,7 @@ func TestPathRolesTTL(t *testing.T) {
 			// read a role
 			resp, err = b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.ReadOperation,
-				Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+				Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)

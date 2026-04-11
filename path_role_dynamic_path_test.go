@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
@@ -28,7 +28,7 @@ func TestPathRolesWithDynamicPath(t *testing.T) {
 	ctx := getCtxGitlabClient(t, "unit")
 	var bFlags = flags.Flags{}
 	b, l, _, _ := getBackendWithFlagsWithEvents(ctx, bFlags)
-	require.NoError(t, writeBackendConfigWithName(ctx, b, l, defaultConfig, gitlab.DefaultConfigName))
+	require.NoError(t, writeBackendConfigWithName(ctx, b, l, defaultConfig, backend.DefaultConfigName))
 
 	tests := []struct {
 		name        string
@@ -81,7 +81,7 @@ func TestPathRolesWithDynamicPath(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: tt.operation,
-				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+				Path:      fmt.Sprintf("%s/%d", backend.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
 					"path":         tt.path,
 					"name":         tt.name,

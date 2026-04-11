@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	g "gitlab.com/gitlab-org/api/client-go"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -26,7 +26,7 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName),
+		Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName),
 		Storage:   l,
 		Data: map[string]any{
 			"token":              gitlabComPersonalAccessToken,
@@ -49,7 +49,7 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 		ctxRotate, _ := ctxTestTime(ctx, t.Name(), tokenName)
 		resp, err := b.HandleRequest(ctxRotate, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s/rotate", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s/rotate", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{},
 		})
 		require.NoError(t, err)

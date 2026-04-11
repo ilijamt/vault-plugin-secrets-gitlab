@@ -14,8 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 	g "gitlab.com/gitlab-org/api/client-go"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
+	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
 	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -30,7 +31,7 @@ func TestWithNormalUser_GAT(t *testing.T) {
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+		Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		Data: map[string]any{
 			"token":              getGitlabToken(tokenName).Token,
 			"base_url":           url,
@@ -51,7 +52,7 @@ func TestWithNormalUser_GAT(t *testing.T) {
 	{
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/gat", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/gat", backend.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "example",
 				"name":                 `gat-token`,
@@ -72,7 +73,7 @@ func TestWithNormalUser_GAT(t *testing.T) {
 		ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
 		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
 			Operation: logical.ReadOperation, Storage: l,
-			Path: fmt.Sprintf("%s/gat", gitlab.PathTokenRoleStorage),
+			Path: fmt.Sprintf("%s/gat", tokenPaths.PathTokenRoleStorage),
 		})
 
 		require.NoError(t, err)

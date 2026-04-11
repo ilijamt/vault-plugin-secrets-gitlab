@@ -34,7 +34,7 @@ type dummyProvider struct {
 	paths []*framework.Path
 }
 
-func (d *dummyProvider) Name() string            { return d.name }
+func (d *dummyProvider) Name() string             { return d.name }
 func (d *dummyProvider) Paths() []*framework.Path { return d.paths }
 
 // errorStorage is a logical.Storage where Get always returns an error.

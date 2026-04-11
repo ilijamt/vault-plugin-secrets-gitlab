@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
@@ -25,7 +25,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
@@ -43,7 +43,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
@@ -62,7 +62,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
@@ -80,7 +80,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
@@ -99,7 +99,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
@@ -117,7 +117,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
@@ -135,7 +135,7 @@ func TestPathConfig_AutoRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":              getGitlabToken("admin_user_root").Token,
 				"base_url":           url,
@@ -169,7 +169,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		b.SetClient(newInMemoryClient(true), gitlab.DefaultConfigName)
+		b.SetClient(newInMemoryClient(true), backend.DefaultConfigName)
 		err = b.PeriodicFunc(ctx, &logical.Request{Storage: l})
 		require.NoError(t, err)
 	})
@@ -188,11 +188,11 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		require.NoError(t, err)
 
 		client.rotateMainToken.Token.Token = "new token"
-		b.SetClient(client, gitlab.DefaultConfigName)
+		b.SetClient(client, backend.DefaultConfigName)
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -206,7 +206,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -240,11 +240,11 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 
 		var expiresAt = time.Now().Add(100 * 24 * time.Hour)
 		client.mainTokenInfo.ExpiresAt = &expiresAt
-		b.SetClient(client, gitlab.DefaultConfigName)
+		b.SetClient(client, backend.DefaultConfigName)
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -258,7 +258,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)

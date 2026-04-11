@@ -12,10 +12,11 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
+	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
@@ -32,7 +33,7 @@ func TestPathTokenRoles(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathTokenRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", tokenPaths.PathTokenRoleStorage), Storage: l,
 		})
 		require.Error(t, err)
 		require.Nil(t, resp)
@@ -63,7 +64,7 @@ func TestPathTokenRoles(t *testing.T) {
 		// create a role
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathRoleStorage, roleName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathRoleStorage, roleName), Storage: l,
 			Data: map[string]any{
 				"path":                 path,
 				"name":                 tokenType.String(),
@@ -79,7 +80,7 @@ func TestPathTokenRoles(t *testing.T) {
 		require.NoError(t, resp.Error())
 
 		// read an access token
-		reqPath := fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, roleName)
+		reqPath := fmt.Sprintf("%s/%s", tokenPaths.PathTokenRoleStorage, roleName)
 		if dynamicPath && pathExtra != "" {
 			reqPath = fmt.Sprintf("%s/%s", reqPath, pathExtra)
 		}
@@ -104,7 +105,7 @@ func TestPathTokenRoles(t *testing.T) {
 		// revoke the access token
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.RevokeOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, leaseId), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", tokenPaths.PathTokenRoleStorage, leaseId), Storage: l,
 			Secret: secret,
 		})
 		require.NoError(t, err)
@@ -119,7 +120,7 @@ func TestPathTokenRoles(t *testing.T) {
 		// calling revoke with nil secret
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.RevokeOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, leaseId), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", tokenPaths.PathTokenRoleStorage, leaseId), Storage: l,
 		})
 		require.Error(t, err)
 		require.Nil(t, resp)
@@ -136,7 +137,7 @@ func TestPathTokenRoles(t *testing.T) {
 			}
 			resp, err = b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.RevokeOperation,
-				Path:      fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, leaseId), Storage: l,
+				Path:      fmt.Sprintf("%s/%s", tokenPaths.PathTokenRoleStorage, leaseId), Storage: l,
 				Secret: secret,
 			})
 			require.Error(t, err)
@@ -196,7 +197,7 @@ func TestPathTokenRoles(t *testing.T) {
 		roleName := "test"
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathRoleStorage, roleName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathRoleStorage, roleName), Storage: l,
 			Data: map[string]any{
 				"path":                 path,
 				"name":                 token.TypePersonal.String(),
@@ -212,7 +213,7 @@ func TestPathTokenRoles(t *testing.T) {
 		require.NoError(t, resp.Error())
 
 		// valid path
-		reqPath := fmt.Sprintf("%s/%s/v-test-end", gitlab.PathTokenRoleStorage, roleName)
+		reqPath := fmt.Sprintf("%s/%s/v-test-end", tokenPaths.PathTokenRoleStorage, roleName)
 		req := &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      reqPath,
@@ -225,7 +226,7 @@ func TestPathTokenRoles(t *testing.T) {
 		require.NoError(t, resp.Error())
 
 		// path doesn't match regex
-		reqPath = fmt.Sprintf("%s/%s/a-test-end", gitlab.PathTokenRoleStorage, roleName)
+		reqPath = fmt.Sprintf("%s/%s/a-test-end", tokenPaths.PathTokenRoleStorage, roleName)
 		req = &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      reqPath,
@@ -238,7 +239,7 @@ func TestPathTokenRoles(t *testing.T) {
 		require.ErrorContains(t, resp.Error(), "path doesn't match regex")
 
 		// invalid path
-		reqPath = fmt.Sprintf("%s/%s/test/end", gitlab.PathTokenRoleStorage, roleName)
+		reqPath = fmt.Sprintf("%s/%s/test/end", tokenPaths.PathTokenRoleStorage, roleName)
 		req = &logical.Request{
 			Operation: logical.ReadOperation,
 			Path:      reqPath,

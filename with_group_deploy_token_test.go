@@ -12,8 +12,9 @@ import (
 	"github.com/stretchr/testify/require"
 	g "gitlab.com/gitlab-org/api/client-go"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
+	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
 	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -28,7 +29,7 @@ func TestWithGroupDeployToken(t *testing.T) {
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+		Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		Data: map[string]any{
 			"token":              getGitlabToken(tokenName).Token,
 			"base_url":           url,
@@ -50,7 +51,7 @@ func TestWithGroupDeployToken(t *testing.T) {
 	{
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/role", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/role", backend.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "example",
 				"name":                 token2.TypeGroupDeploy.String(),
@@ -69,7 +70,7 @@ func TestWithGroupDeployToken(t *testing.T) {
 		ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
 		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
 			Operation: logical.ReadOperation, Storage: l,
-			Path: fmt.Sprintf("%s/role", gitlab.PathTokenRoleStorage),
+			Path: fmt.Sprintf("%s/role", tokenPaths.PathTokenRoleStorage),
 		})
 
 		require.NoError(t, err)
@@ -81,7 +82,7 @@ func TestWithGroupDeployToken(t *testing.T) {
 		require.NotNil(t, secret)
 	}
 
-	c = b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx)
+	c = b.GetClient(backend.DefaultConfigName).GitlabClient(ctx)
 	require.NotNil(t, c)
 
 	{

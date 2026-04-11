@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	configPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
@@ -122,7 +122,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			e := new(config.EntryConfig)
 			assert.Empty(t, e)
-			warnings, err := e.UpdateFromFieldData(&framework.FieldData{Raw: test.raw, Schema: gitlab.FieldSchemaConfig})
+			warnings, err := e.UpdateFromFieldData(&framework.FieldData{Raw: test.raw, Schema: configPaths.FieldSchemaConfig})
 			assert.Equal(t, test.warnings, warnings)
 			if test.expectedConfig == nil {
 				test.expectedConfig = &config.EntryConfig{AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL}

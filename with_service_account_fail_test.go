@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	g "gitlab.com/gitlab-org/api/client-go"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
@@ -31,7 +31,7 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.UpdateOperation,
-				Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+				Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 				Data: map[string]any{
 					"token":              gitlabServiceAccountToken,
 					"base_url":           gitlabServiceAccountUrl,
@@ -46,9 +46,9 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 			require.NoError(t, resp.Error())
 			require.NotEmpty(t, events)
 
-			require.Nil(t, b.GetClient(gitlab.DefaultConfigName))
+			require.Nil(t, b.GetClient(backend.DefaultConfigName))
 			var client glab.Client
-			client, err = b.GetClientByName(ctx, l, gitlab.DefaultConfigName)
+			client, err = b.GetClientByName(ctx, l, backend.DefaultConfigName)
 			require.NoError(t, err)
 			require.NotNil(t, client)
 			var gClient = client.GitlabClient(ctx)
@@ -60,12 +60,12 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 
 			resp, err = b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/user-service-account", gitlab.PathRoleStorage), Storage: l,
+				Path:      fmt.Sprintf("%s/user-service-account", backend.PathRoleStorage), Storage: l,
 				Data: map[string]any{
 					"path":                 usr.Username,
 					"name":                 fmt.Sprintf(`user-service-account-%s`, usr.Username),
 					"token_type":           token.TypeUserServiceAccount.String(),
-					"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+					"ttl":                  backend.DefaultAccessTokenMinTTL,
 					"scopes":               token.ValidUserServiceAccountTokenScopes,
 					"gitlab_revokes_token": false,
 				},

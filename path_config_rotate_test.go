@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 )
 
@@ -20,7 +20,7 @@ func TestPathConfigRotate(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s/rotate", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s/rotate", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)

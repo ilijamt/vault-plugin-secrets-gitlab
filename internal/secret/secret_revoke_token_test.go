@@ -46,11 +46,11 @@ func TestRevokeAccessToken_GitlabRevokesToken(t *testing.T) {
 
 func TestRevokeAccessToken_VaultRevokes(t *testing.T) {
 	tests := []struct {
-		name       string
-		tokenType  token.Type
-		parentId   string
-		extra      map[string]any
-		setupStub  func(*stubClient)
+		name      string
+		tokenType token.Type
+		parentId  string
+		extra     map[string]any
+		setupStub func(*stubClient)
 	}{
 		{
 			name:      "personal",

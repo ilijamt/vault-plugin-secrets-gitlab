@@ -25,6 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 	g "gitlab.com/gitlab-org/api/client-go"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
@@ -108,14 +109,14 @@ func getBackendWithFlagsWithEvents(ctx context.Context, flags flags.Flags) (*git
 func writeBackendConfigWithName(ctx context.Context, b *gitlab.Backend, l logical.Storage, config map[string]any, name string) error {
 	var _, err = b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, cmp.Or(name, gitlab.DefaultConfigName)), Storage: l,
+		Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, cmp.Or(name, backend.DefaultConfigName)), Storage: l,
 		Data: config,
 	})
 	return err
 }
 
 func writeBackendConfig(ctx context.Context, b *gitlab.Backend, l logical.Storage, config map[string]any) error {
-	return writeBackendConfigWithName(ctx, b, l, config, gitlab.DefaultConfigName)
+	return writeBackendConfigWithName(ctx, b, l, config, backend.DefaultConfigName)
 }
 
 func getBackendWithEventsAndConfig(ctx context.Context, config map[string]any) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {

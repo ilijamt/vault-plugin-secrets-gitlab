@@ -12,9 +12,10 @@ import (
 	"github.com/stretchr/testify/require"
 	g "gitlab.com/gitlab-org/api/client-go"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
+	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
 	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -29,7 +30,7 @@ func TestWithServiceAccountGroup(t *testing.T) {
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+		Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		Data: map[string]any{
 			"token":              gitlabServiceAccountToken,
 			"base_url":           gitlabServiceAccountUrl,
@@ -44,9 +45,9 @@ func TestWithServiceAccountGroup(t *testing.T) {
 	require.NoError(t, resp.Error())
 	require.NotEmpty(t, events)
 
-	require.Nil(t, b.GetClient(gitlab.DefaultConfigName))
+	require.Nil(t, b.GetClient(backend.DefaultConfigName))
 	var client glab.Client
-	client, err = b.GetClientByName(ctx, l, gitlab.DefaultConfigName)
+	client, err = b.GetClientByName(ctx, l, backend.DefaultConfigName)
 	require.NoError(t, err)
 	require.NotNil(t, client)
 	var gClient = client.GitlabClient(ctx)
@@ -65,12 +66,12 @@ func TestWithServiceAccountGroup(t *testing.T) {
 	// Create a group service account role
 	resp, err = b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.CreateOperation,
-		Path:      fmt.Sprintf("%s/group-service-account", gitlab.PathRoleStorage), Storage: l,
+		Path:      fmt.Sprintf("%s/group-service-account", backend.PathRoleStorage), Storage: l,
 		Data: map[string]any{
 			"path":                 fmt.Sprintf("%s/%s", gid, sa.UserName),
 			"name":                 `vault-generated-{{ .token_type }}-token`,
 			"token_type":           token2.TypeGroupServiceAccount.String(),
-			"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+			"ttl":                  backend.DefaultAccessTokenMinTTL,
 			"scopes":               token2.ValidGroupServiceAccountTokenScopes,
 			"gitlab_revokes_token": false,
 		},
@@ -79,13 +80,13 @@ func TestWithServiceAccountGroup(t *testing.T) {
 	require.NotNil(t, resp)
 	require.NoError(t, resp.Error())
 	require.Empty(t, resp.Warnings)
-	require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
+	require.EqualValues(t, resp.Data["config_name"], backend.DefaultConfigName)
 
 	// Get a new token for the service account
 	ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
 	resp, err = b.HandleRequest(ctxIssueToken, &logical.Request{
 		Operation: logical.ReadOperation, Storage: l,
-		Path: fmt.Sprintf("%s/group-service-account", gitlab.PathTokenRoleStorage),
+		Path: fmt.Sprintf("%s/group-service-account", tokenPaths.PathTokenRoleStorage),
 	})
 
 	require.NoError(t, err)

@@ -8,8 +8,8 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
+	flagsPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/flags"
 )
 
 func TestPathFlags(t *testing.T) {
@@ -19,7 +19,7 @@ func TestPathFlags(t *testing.T) {
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.ReadOperation,
-		Path:      gitlab.PathConfigFlags, Storage: l,
+		Path:      flagsPaths.PathConfigFlags, Storage: l,
 	})
 
 	require.NoError(t, err)
@@ -30,7 +30,7 @@ func TestPathFlags(t *testing.T) {
 
 	resp, err = b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      gitlab.PathConfigFlags, Storage: l,
+		Path:      flagsPaths.PathConfigFlags, Storage: l,
 		Data: map[string]interface{}{
 			"show_config_token":          "true",
 			"allow_runtime_flags_change": "false",

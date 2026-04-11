@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
@@ -34,7 +34,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+			Path:      fmt.Sprintf("%s/%d", backend.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",
@@ -56,7 +56,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+			Path:      fmt.Sprintf("%s/%d", backend.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",
@@ -77,7 +77,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+			Path:      fmt.Sprintf("%s/%d", backend.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 			Data: map[string]any{
 				"path":         "user",
 				"name":         "Example user personal token",

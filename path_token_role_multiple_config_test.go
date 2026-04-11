@@ -10,8 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 	g "gitlab.com/gitlab-org/api/client-go"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
+	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -95,7 +96,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			var tokenName = rd.tokenName
 			var data = map[string]any{
 				"name":       fmt.Sprintf("%s-{{ .role_name }}-{{ .config_name }}-{{ .token_type }}", rd.path),
-				"token_type": rd.tokenType.String(), "path": rd.path, "config_name": cfg, "ttl": gitlab.DefaultAccessTokenMinTTL,
+				"token_type": rd.tokenType.String(), "path": rd.path, "config_name": cfg, "ttl": backend.DefaultAccessTokenMinTTL,
 			}
 
 			switch rd.tokenType {
@@ -112,7 +113,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/%s", gitlab.PathRoleStorage, rd.roleName), Storage: l,
+				Path:      fmt.Sprintf("%s/%s", backend.PathRoleStorage, rd.roleName), Storage: l,
 				Data: data,
 			})
 			require.NoError(t, err)
@@ -124,7 +125,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
 			resp, err = b.HandleRequest(ctxIssueToken, &logical.Request{
 				Operation: logical.ReadOperation, Storage: l,
-				Path: fmt.Sprintf("%s/%s", gitlab.PathTokenRoleStorage, rd.roleName),
+				Path: fmt.Sprintf("%s/%s", tokenPaths.PathTokenRoleStorage, rd.roleName),
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
@@ -161,7 +162,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.ListOperation,
-		Path:      gitlab.PathRoleStorage, Storage: l,
+		Path:      backend.PathRoleStorage, Storage: l,
 	})
 	require.NoError(t, err)
 	require.NotNil(t, resp)

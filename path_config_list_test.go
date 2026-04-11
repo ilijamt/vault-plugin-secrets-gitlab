@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 )
 
@@ -24,7 +24,7 @@ func TestPathConfigList(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ListOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      backend.PathConfigStorage, Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -40,7 +40,7 @@ func TestPathConfigList(t *testing.T) {
 				"base_url": cmp.Or(os.Getenv("GITLAB_URL"), "http://localhost:8080/"),
 				"type":     gitlabTypes.TypeSaaS.String(),
 			},
-			gitlab.DefaultConfigName,
+			backend.DefaultConfigName,
 		)
 		require.NoError(t, err)
 		require.NotNil(t, events)
@@ -71,7 +71,7 @@ func TestPathConfigList(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ListOperation,
-			Path:      gitlab.PathConfigStorage, Storage: l,
+			Path:      backend.PathConfigStorage, Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -79,7 +79,7 @@ func TestPathConfigList(t *testing.T) {
 		require.NotNil(t, resp.Data["keys"])
 		keysResponse := resp.Data["keys"].([]string)
 		slices.Sort(keysResponse)
-		keysExpected := []string{gitlab.DefaultConfigName, "admin", "normal"}
+		keysExpected := []string{backend.DefaultConfigName, "admin", "normal"}
 		slices.Sort(keysExpected)
 		require.EqualValues(t, keysExpected, keysResponse)
 		require.Len(t, keysResponse, 3)
@@ -92,7 +92,7 @@ func TestPathConfigList(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -101,7 +101,7 @@ func TestPathConfigList(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/normal", gitlab.PathConfigStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/normal", backend.PathConfigStorage), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -110,7 +110,7 @@ func TestPathConfigList(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/admin", gitlab.PathConfigStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/admin", backend.PathConfigStorage), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)

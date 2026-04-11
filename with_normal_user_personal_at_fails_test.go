@@ -12,8 +12,9 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
+	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -28,7 +29,7 @@ func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+		Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		Data: map[string]any{
 			"token":              getGitlabToken(tokenName).Token,
 			"base_url":           url,
@@ -46,7 +47,7 @@ func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 	{
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/normal-user", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/normal-user", backend.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "normal-user",
 				"name":                 token.TypePersonal.String(),
@@ -70,7 +71,7 @@ func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 		ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
 		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
 			Operation: logical.ReadOperation, Storage: l,
-			Path: fmt.Sprintf("%s/normal-user", gitlab.PathTokenRoleStorage),
+			Path: fmt.Sprintf("%s/normal-user", tokenPaths.PathTokenRoleStorage),
 		})
 
 		require.Nil(t, resp)

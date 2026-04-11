@@ -14,8 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 	g "gitlab.com/gitlab-org/api/client-go"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
+	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
 	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -30,7 +31,7 @@ func TestWithAdminUser_PAT_AdminUser_GitlabRevokesToken(t *testing.T) {
 
 	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.UpdateOperation,
-		Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+		Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		Data: map[string]any{
 			"token":              getGitlabToken(tokenName).Token,
 			"base_url":           url,
@@ -52,7 +53,7 @@ func TestWithAdminUser_PAT_AdminUser_GitlabRevokesToken(t *testing.T) {
 	{
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/normal-user", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/normal-user", backend.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "normal-user",
 				"name":                 token2.TypePersonal.String(),
@@ -76,7 +77,7 @@ func TestWithAdminUser_PAT_AdminUser_GitlabRevokesToken(t *testing.T) {
 		ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
 		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
 			Operation: logical.ReadOperation, Storage: l,
-			Path: fmt.Sprintf("%s/normal-user", gitlab.PathTokenRoleStorage),
+			Path: fmt.Sprintf("%s/normal-user", tokenPaths.PathTokenRoleStorage),
 		})
 
 		require.NoError(t, err)

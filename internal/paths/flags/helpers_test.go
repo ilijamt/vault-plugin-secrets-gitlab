@@ -9,9 +9,9 @@ import (
 
 // mockFlagsBackend is a hand-written mock satisfying the flagsBackend interface.
 type mockFlagsBackend struct {
-	flags      flags.Flags
+	flags       flags.Flags
 	updateFlags func(fn func(*flags.Flags))
-	sendEvent  func(ctx context.Context, eventType event.EventType, metadata map[string]string) error
+	sendEvent   func(ctx context.Context, eventType event.EventType, metadata map[string]string) error
 }
 
 func (m *mockFlagsBackend) Flags() flags.Flags {

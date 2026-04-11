@@ -38,7 +38,7 @@ func Factory(flags flags.Flags) logical.Factory {
 func factory(ctx context.Context, conf *logical.BackendConfig, f flags.Flags) (logical.Backend, error) {
 	b := backend.New(f)
 
-	s := secret.NewSecret(b, DefaultConfigName)
+	s := secret.NewSecret(b, backend.DefaultConfigName)
 
 	err := b.Init(ctx, conf,
 		backend.WithVersion(Version),

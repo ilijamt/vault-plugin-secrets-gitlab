@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
@@ -26,7 +26,7 @@ func TestPathConfig(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -41,7 +41,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -59,7 +59,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
@@ -73,7 +73,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 
 		require.NoError(t, err)
@@ -86,7 +86,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.Nil(t, resp)
@@ -94,7 +94,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -115,7 +115,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
@@ -129,7 +129,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 
 		require.NoError(t, err)
@@ -142,7 +142,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.Nil(t, resp)
@@ -150,7 +150,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -170,7 +170,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":    "invalid-token",
 				"base_url": url,
@@ -191,7 +191,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{},
 		})
 
@@ -212,7 +212,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.PatchOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: nil,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: nil,
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
@@ -233,7 +233,7 @@ func TestPathConfig(t *testing.T) {
 
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.PatchOperation,
-			Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+			Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 			Data: map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
 				"base_url": url,
@@ -249,7 +249,7 @@ func TestPathConfig(t *testing.T) {
 	t.Run("patch a config", func(t *testing.T) {
 		httpClient, url := getClient(t, "unit")
 		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
-		var path = fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName)
+		var path = fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName)
 
 		b, l, events, err := getBackendWithEvents(ctx)
 		require.NoError(t, err)
@@ -280,9 +280,9 @@ func TestPathConfig(t *testing.T) {
 		require.NotEmpty(t, tokenOriginalSha1Hash)
 		require.Equal(t, gitlabTypes.TypeSelfManaged.String(), resp.Data["type"])
 
-		require.Nil(t, b.GetClient(gitlab.DefaultConfigName))
+		require.Nil(t, b.GetClient(backend.DefaultConfigName))
 		var client glab.Client
-		client, err = b.GetClientByName(ctx, l, gitlab.DefaultConfigName)
+		client, err = b.GetClientByName(ctx, l, backend.DefaultConfigName)
 		require.NoError(t, err)
 		require.NotNil(t, client)
 		var gClient = client.GitlabClient(ctx)
@@ -304,7 +304,7 @@ func TestPathConfig(t *testing.T) {
 		require.NotEqual(t, tokenOriginalSha1Hash, tokenNewSha1Hash)
 
 		require.Equal(t, gitlabTypes.TypeSaaS.String(), resp.Data["type"])
-		require.Nil(t, b.GetClient(gitlab.DefaultConfigName))
+		require.Nil(t, b.GetClient(backend.DefaultConfigName))
 
 		events.expectEvents(t, []expectedEvent{
 			{eventType: "gitlab/config-write"},

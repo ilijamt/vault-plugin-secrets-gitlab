@@ -9,10 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
+	configPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
@@ -29,7 +29,7 @@ func TestEntryConfigMerge(t *testing.T) {
 		e := new(config.EntryConfig)
 		warnings, changes, err := e.Merge(&framework.FieldData{
 			Raw:    map[string]interface{}{"token": struct{}{}},
-			Schema: gitlab.FieldSchemaConfig,
+			Schema: configPaths.FieldSchemaConfig,
 		})
 		require.Empty(t, warnings)
 		require.Empty(t, changes)
@@ -136,7 +136,7 @@ func TestEntryConfigMerge(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			warnings, changes, err := test.originalConfig.Merge(&framework.FieldData{
 				Raw:    test.raw,
-				Schema: gitlab.FieldSchemaConfig,
+				Schema: configPaths.FieldSchemaConfig,
 			})
 			assert.EqualValues(t, test.warnings, warnings)
 			if test.changes == nil {

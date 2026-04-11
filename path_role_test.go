@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
@@ -29,7 +29,7 @@ func TestPathRolesList(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ListOperation,
-			Path:      gitlab.PathRoleStorage, Storage: l,
+			Path:      backend.PathRoleStorage, Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -51,7 +51,7 @@ func TestPathRoles(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 		})
 		require.NoError(t, err)
 		require.Nil(t, resp)
@@ -63,7 +63,7 @@ func TestPathRoles(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -79,12 +79,12 @@ func TestPathRoles(t *testing.T) {
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
-					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+					Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
 						"name":                 token.TypePersonal.String(),
 						"token_type":           token.TypePersonal.String(),
-						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+						"ttl":                  backend.DefaultAccessTokenMinTTL,
 						"scopes":               token.ValidPersonalTokenScopes,
 						"gitlab_revokes_token": false,
 					},
@@ -100,13 +100,13 @@ func TestPathRoles(t *testing.T) {
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
-					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+					Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
 						"name":                 token.TypePersonal.String(),
 						"access_level":         token.AccessLevelOwnerPermissions.String(),
 						"token_type":           token.TypePersonal.String(),
-						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+						"ttl":                  backend.DefaultAccessTokenMinTTL,
 						"scopes":               token.ValidPersonalTokenScopes,
 						"gitlab_revokes_token": false,
 					},
@@ -124,12 +124,12 @@ func TestPathRoles(t *testing.T) {
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
-					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+					Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
 						"name":                 token.TypeProject.String(),
 						"token_type":           token.TypeProject.String(),
-						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+						"ttl":                  backend.DefaultAccessTokenMinTTL,
 						"scopes":               token.ValidProjectTokenScopes,
 						"gitlab_revokes_token": false,
 					},
@@ -144,13 +144,13 @@ func TestPathRoles(t *testing.T) {
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
-					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+					Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
 						"name":                 token.TypeProject.String(),
 						"access_level":         token.AccessLevelOwnerPermissions.String(),
 						"token_type":           token.TypeProject.String(),
-						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+						"ttl":                  backend.DefaultAccessTokenMinTTL,
 						"scopes":               token.ValidProjectTokenScopes,
 						"gitlab_revokes_token": false,
 					},
@@ -169,12 +169,12 @@ func TestPathRoles(t *testing.T) {
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
-					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+					Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
 						"name":                 token.TypeGroup.String(),
 						"token_type":           token.TypeGroup.String(),
-						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+						"ttl":                  backend.DefaultAccessTokenMinTTL,
 						"scopes":               token.ValidGroupTokenScopes,
 						"gitlab_revokes_token": false,
 					},
@@ -189,13 +189,13 @@ func TestPathRoles(t *testing.T) {
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
 					Operation: logical.CreateOperation,
-					Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+					Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 					Data: map[string]any{
 						"path":                 "user",
 						"name":                 token.TypeGroup.String(),
 						"access_level":         token.AccessLevelOwnerPermissions.String(),
 						"token_type":           token.TypeGroup.String(),
-						"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+						"ttl":                  backend.DefaultAccessTokenMinTTL,
 						"scopes":               token.ValidGroupTokenScopes,
 						"gitlab_revokes_token": false,
 					},
@@ -204,7 +204,7 @@ func TestPathRoles(t *testing.T) {
 				require.NotNil(t, resp)
 				require.NoError(t, resp.Error())
 				require.Empty(t, resp.Warnings)
-				require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
+				require.EqualValues(t, resp.Data["config_name"], backend.DefaultConfigName)
 			})
 		})
 
@@ -216,7 +216,7 @@ func TestPathRoles(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 			Data: map[string]any{},
 		})
 		require.Error(t, err)
@@ -233,12 +233,12 @@ func TestPathRoles(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 			Data: map[string]any{
 				"path":                 "user",
 				"name":                 "{{ . } invalid template",
 				"token_type":           token.TypePersonal.String(),
-				"ttl":                  gitlab.DefaultAccessTokenMinTTL,
+				"ttl":                  backend.DefaultAccessTokenMinTTL,
 				"scopes":               token.ValidPersonalTokenScopes,
 				"gitlab_revokes_token": false,
 			},
@@ -256,7 +256,7 @@ func TestPathRoles(t *testing.T) {
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+				Path:      fmt.Sprintf("%s/%d", backend.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
 					"path":         "user",
 					"name":         "Example user personal token",
@@ -268,7 +268,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
-			require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
+			require.EqualValues(t, resp.Data["config_name"], backend.DefaultConfigName)
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
@@ -277,7 +277,7 @@ func TestPathRoles(t *testing.T) {
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+				Path:      fmt.Sprintf("%s/%d", backend.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
 					"path":                 "user",
 					"name":                 "Example project personal token",
@@ -302,7 +302,7 @@ func TestPathRoles(t *testing.T) {
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+				Path:      fmt.Sprintf("%s/%d", backend.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
 					"path":       "user",
 					"name":       "Example user personal token",
@@ -313,7 +313,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
-			require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
+			require.EqualValues(t, resp.Data["config_name"], backend.DefaultConfigName)
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
@@ -322,7 +322,7 @@ func TestPathRoles(t *testing.T) {
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+				Path:      fmt.Sprintf("%s/%d", backend.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
 					"path":       "user",
 					"name":       "Example user personal token",
@@ -346,7 +346,7 @@ func TestPathRoles(t *testing.T) {
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+				Path:      fmt.Sprintf("%s/%d", backend.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
 					"path":         "user",
 					"name":         "Example user personal token",
@@ -358,7 +358,7 @@ func TestPathRoles(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
-			require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
+			require.EqualValues(t, resp.Data["config_name"], backend.DefaultConfigName)
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
@@ -367,7 +367,7 @@ func TestPathRoles(t *testing.T) {
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.CreateOperation,
-				Path:      fmt.Sprintf("%s/%d", gitlab.PathRoleStorage, time.Now().UnixNano()), Storage: l,
+				Path:      fmt.Sprintf("%s/%d", backend.PathRoleStorage, time.Now().UnixNano()), Storage: l,
 				Data: map[string]any{
 					"path":         "user",
 					"name":         "Example user personal token",
@@ -389,7 +389,7 @@ func TestPathRoles(t *testing.T) {
 		require.NoError(t, err)
 		hasExistenceCheck, exists, err := b.HandleExistenceCheck(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 		})
 
 		require.True(t, hasExistenceCheck)
@@ -412,7 +412,7 @@ func TestPathRoles(t *testing.T) {
 		func() {
 			resp, err := b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.UpdateOperation,
-				Path:      fmt.Sprintf("%s/%s", gitlab.PathConfigStorage, gitlab.DefaultConfigName), Storage: l,
+				Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
 				Data: defaultConfig,
 			})
 			require.NoError(t, err)
@@ -434,19 +434,19 @@ func TestPathRoles(t *testing.T) {
 		// create a role
 		resp, err := b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.CreateOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 			Data: roleData,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
 		require.Empty(t, resp.Warnings)
-		require.EqualValues(t, resp.Data["config_name"], gitlab.TypeConfigDefault)
+		require.EqualValues(t, resp.Data["config_name"], backend.DefaultConfigName)
 
 		// read a role
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -460,7 +460,7 @@ func TestPathRoles(t *testing.T) {
 		roleData["path"] = "user2"
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.UpdateOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 			Data: roleData,
 		})
 		require.NoError(t, err)
@@ -472,7 +472,7 @@ func TestPathRoles(t *testing.T) {
 		// read a role
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -485,7 +485,7 @@ func TestPathRoles(t *testing.T) {
 		// delete a role
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.DeleteOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 		})
 		require.NoError(t, err)
 		require.Nil(t, resp)
@@ -493,7 +493,7 @@ func TestPathRoles(t *testing.T) {
 		// read a role
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
-			Path:      fmt.Sprintf("%s/test", gitlab.PathRoleStorage), Storage: l,
+			Path:      fmt.Sprintf("%s/test", backend.PathRoleStorage), Storage: l,
 		})
 		require.NoError(t, err)
 		require.Nil(t, resp)
