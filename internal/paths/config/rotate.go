@@ -152,12 +152,11 @@ func (p *Provider) PeriodicFunc(ctx context.Context, req *logical.Request) (err 
 // Invalidate implements backend.InvalidateHandler.
 // It clears the cached client when a config key changes.
 func (p *Provider) Invalidate(ctx context.Context, key string) {
-	if strings.HasPrefix(key, backend.PathConfigStorage) {
-		parts := strings.SplitN(key, "/", 2)
-		var name = parts[1]
-		p.b.Logger().Warn(fmt.Sprintf("Gitlab config for %s changed, reinitializing the gitlab client", name))
+	if strings.HasPrefix(key, backend.PathConfigStorage+"/") {
+		_, name, _ := strings.Cut(key, "/")
+		p.b.Logger().Warn(fmt.Sprintf("Gitlab config for %s changed, deleting gitlab client", name))
 		p.b.ClientLock()
-		defer p.b.ClientUnlock()
 		p.b.DeleteClient(name)
+		p.b.ClientUnlock()
 	}
 }
