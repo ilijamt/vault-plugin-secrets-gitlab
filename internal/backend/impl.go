@@ -21,7 +21,17 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
-var _ Backend = (*Impl)(nil)
+var (
+	_ Logging       = (*Impl)(nil)
+	_ FlagsProvider = (*Impl)(nil)
+	_ ClientReader  = (*Impl)(nil)
+	_ ClientManager = (*Impl)(nil)
+	_ ClientLocker  = (*Impl)(nil)
+	_ RoleLocker    = (*Impl)(nil)
+	_ ConfigStore   = (*Impl)(nil)
+	_ RoleStore     = (*Impl)(nil)
+	_ EventSender   = (*Impl)(nil)
+)
 
 // Impl is the concrete implementation of the Backend interface.
 type Impl struct {

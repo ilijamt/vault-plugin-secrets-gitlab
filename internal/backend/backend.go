@@ -25,12 +25,17 @@ type FlagsProvider interface {
 	UpdateFlags(fn func(*flags.Flags))
 }
 
-// ClientProvider abstracts obtaining a gitlab client by config name.
-type ClientProvider interface {
+// ClientReader provides read-only client access by config name.
+type ClientReader interface {
+	GetClientByName(ctx context.Context, s logical.Storage, name string) (gitlab.Client, error)
+}
+
+// ClientManager extends ClientReader with client lifecycle management.
+type ClientManager interface {
+	ClientReader
 	GetClient(name string) gitlab.Client
 	SetClient(client gitlab.Client, name string)
 	DeleteClient(name string)
-	GetClientByName(ctx context.Context, s logical.Storage, name string) (gitlab.Client, error)
 }
 
 // ClientLocker provides client-level read/write locking.
@@ -62,14 +67,18 @@ type EventSender interface {
 	SendEvent(ctx context.Context, eventType event.EventType, metadata map[string]string) error
 }
 
-// Backend defines the full contract that composes all sub-interfaces.
+type WriteSafeReplicationState interface {
+	WriteSafeReplicationState() bool
+}
+
 type Backend interface {
 	Logging
 	FlagsProvider
-	ClientProvider
+	ClientManager
 	ClientLocker
 	RoleLocker
 	ConfigStore
 	RoleStore
 	EventSender
+	WriteSafeReplicationState
 }
