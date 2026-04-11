@@ -46,8 +46,7 @@ test: coverage
 
 coverage: check-go clean-coverage
 	mkdir -p $(BUILD_DIR)
-	$(eval COVERPKGS := $(shell $(GO) list ./... | grep -v /internal/mocks | tr '\n' ','))
-	$(GO) test ./... -cover -coverpkg=$(COVERPKGS) -coverprofile=$(COVER_PROFILE) -race -tags $(TAGS) -count 1 $(TEST_ARGS)
+	$(GO) test ./... -cover -coverprofile=$(COVER_PROFILE) -race -tags $(TAGS) -count 1 $(TEST_ARGS)
 	$(GO) tool cover -html=$(COVER_PROFILE) -o $(COVER_HTML)
 
 clean-coverage:
@@ -66,6 +65,3 @@ vault-dev: check-vault clean build
 	mkdir -p $(VAULT_PLUGIN_DIR)
 	cp -f $(BUILD_DIR)/$(PLUGIN_BIN) $(VAULT_PLUGIN_DIR)/$(PLUGIN_BIN)
 	$(VAULT) server -dev -dev-root-token-id=$(VAULT_ROOT_TOKEN) -dev-plugin-dir=$(shell pwd)/$(VAULT_PLUGIN_DIR)
-
-generate-mocks:
-	mockery

@@ -18,7 +18,7 @@ func (p *Provider) pathRolesDelete(ctx context.Context, req *logical.Request, da
 	lock.Lock()
 	defer lock.Unlock()
 
-	_, err = p.b.GetRole(ctx, roleName, req.Storage)
+	_, err = p.b.GetRole(ctx, req.Storage, roleName)
 	if err != nil {
 		return nil, fmt.Errorf("error getting role: %w", err)
 	}

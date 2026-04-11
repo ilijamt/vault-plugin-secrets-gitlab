@@ -103,7 +103,7 @@ func (p *Provider) pathConfigTokenRotateHandler(ctx context.Context, request *lo
 	}
 	p.b.ClientLock()
 	defer p.b.ClientUnlock()
-	err = p.b.SaveConfig(ctx, config, request.Storage)
+	err = p.b.SaveConfig(ctx, request.Storage, config)
 	if err != nil {
 		p.b.Logger().Error("failed to store configuration for revocation", "err", err)
 		return nil, err

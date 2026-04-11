@@ -54,12 +54,12 @@ type RoleLocker interface {
 // ConfigStore provides config CRUD operations.
 type ConfigStore interface {
 	GetConfig(ctx context.Context, s logical.Storage, name string) (*config.EntryConfig, error)
-	SaveConfig(ctx context.Context, cfg *config.EntryConfig, s logical.Storage) error
+	SaveConfig(ctx context.Context, s logical.Storage, cfg *config.EntryConfig) error
 }
 
 // RoleStore provides role read operations.
 type RoleStore interface {
-	GetRole(ctx context.Context, name string, s logical.Storage) (*role.Role, error)
+	GetRole(ctx context.Context, s logical.Storage, name string) (*role.Role, error)
 }
 
 // EventSender abstracts sending audit/events from the backend.

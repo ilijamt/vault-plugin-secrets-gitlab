@@ -14,7 +14,7 @@ func (p *Provider) pathRolesRead(ctx context.Context, req *logical.Request, data
 	lock.RLock()
 	defer lock.RUnlock()
 
-	role, err := p.b.GetRole(ctx, roleName, req.Storage)
+	role, err := p.b.GetRole(ctx, req.Storage, roleName)
 	if err != nil {
 		return logical.ErrorResponse("error reading role"), err
 	}

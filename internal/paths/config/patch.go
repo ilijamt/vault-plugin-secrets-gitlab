@@ -36,7 +36,7 @@ func (p *Provider) pathConfigPatch(ctx context.Context, req *logical.Request, da
 
 	p.b.ClientLock()
 	defer p.b.ClientUnlock()
-	if err = p.b.SaveConfig(ctx, config, req.Storage); err == nil {
+	if err = p.b.SaveConfig(ctx, req.Storage, config); err == nil {
 		lrd := config.LogicalResponseData(p.b.Flags().ShowConfigToken)
 		_ = p.b.SendEvent(ctx, eventPatch, changes)
 		p.b.SetClient(nil, name)

@@ -201,7 +201,7 @@ func (p *Provider) pathRoles() *framework.Path {
 
 func (p *Provider) pathRoleExistenceCheck(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
 	name := data.Get("role_name").(string)
-	role, err := p.b.GetRole(ctx, name, req.Storage)
+	role, err := p.b.GetRole(ctx, req.Storage, name)
 	if err != nil {
 		if strings.Contains(err.Error(), logical.ErrReadOnly.Error()) {
 			return false, nil

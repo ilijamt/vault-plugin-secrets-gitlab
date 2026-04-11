@@ -73,7 +73,7 @@ func TestGetConfig(t *testing.T) {
 	require.NoError(t, err)
 	assert.Nil(t, cfg)
 
-	require.NoError(t, b.SaveConfig(ctx, &config.EntryConfig{Name: "a", BaseURL: "https://gitlab.com"}, s))
+	require.NoError(t, b.SaveConfig(ctx, s, &config.EntryConfig{Name: "a", BaseURL: "https://gitlab.com"}))
 	cfg, err = b.GetConfig(ctx, s, "a")
 	require.NoError(t, err)
 	assert.Equal(t, "https://gitlab.com", cfg.BaseURL)
@@ -81,7 +81,7 @@ func TestGetConfig(t *testing.T) {
 
 func TestGetRole(t *testing.T) {
 	b := backend.New(flags.Flags{})
-	r, err := b.GetRole(t.Context(), "missing", &logical.InmemStorage{})
+	r, err := b.GetRole(t.Context(), &logical.InmemStorage{}, "missing")
 	require.NoError(t, err)
 	assert.Nil(t, r)
 }
@@ -101,10 +101,12 @@ func TestGetClientByName(t *testing.T) {
 	b.SetClient(&dummyClient{valid: false}, "stale")
 	_, err = b.GetClientByName(ctx, s, "stale")
 	assert.Error(t, err)
+	assert.ErrorContains(t, err, "not found")
 
 	// client injected via context is used
 	ctxC := &dummyClient{valid: true}
-	got, err = b.GetClientByName(gitlab.ClientNewContext(ctx, ctxC), s, "ctx")
+	require.NoError(t, b.SaveConfig(t.Context(), s, &config.EntryConfig{Name: "ctx-cfg"}))
+	got, err = b.GetClientByName(gitlab.ClientNewContext(ctx, ctxC), s, "ctx-cfg")
 	require.NoError(t, err)
 	assert.Same(t, ctxC, got)
 }
@@ -122,7 +124,7 @@ func TestGetClientByName_NewGitlabClientError(t *testing.T) {
 	b := newTestBackend(t)
 	s := &logical.InmemStorage{}
 
-	require.NoError(t, b.SaveConfig(t.Context(), &config.EntryConfig{Name: "bad", BaseURL: "", Token: ""}, s))
+	require.NoError(t, b.SaveConfig(t.Context(), s, &config.EntryConfig{Name: "bad", BaseURL: "", Token: ""}))
 
 	_, err := b.GetClientByName(t.Context(), s, "bad")
 	assert.Error(t, err)
@@ -132,7 +134,7 @@ func TestGetClientByName_NewGitlabClientSuccess(t *testing.T) {
 	b := newTestBackend(t)
 	s := &logical.InmemStorage{}
 
-	require.NoError(t, b.SaveConfig(t.Context(), &config.EntryConfig{Name: "good", BaseURL: "https://gitlab.com", Token: "glpat-test"}, s))
+	require.NoError(t, b.SaveConfig(t.Context(), s, &config.EntryConfig{Name: "good", BaseURL: "https://gitlab.com", Token: "glpat-test"}))
 
 	got, err := b.GetClientByName(t.Context(), s, "good")
 	require.NoError(t, err)

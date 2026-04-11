@@ -22,15 +22,17 @@ import (
 )
 
 var (
-	_ Logging       = (*Impl)(nil)
-	_ FlagsProvider = (*Impl)(nil)
-	_ ClientReader  = (*Impl)(nil)
-	_ ClientManager = (*Impl)(nil)
-	_ ClientLocker  = (*Impl)(nil)
-	_ RoleLocker    = (*Impl)(nil)
-	_ ConfigStore   = (*Impl)(nil)
-	_ RoleStore     = (*Impl)(nil)
-	_ EventSender   = (*Impl)(nil)
+	_ Logging                   = (*Impl)(nil)
+	_ FlagsProvider             = (*Impl)(nil)
+	_ ClientReader              = (*Impl)(nil)
+	_ ClientManager             = (*Impl)(nil)
+	_ ClientLocker              = (*Impl)(nil)
+	_ RoleLocker                = (*Impl)(nil)
+	_ ConfigStore               = (*Impl)(nil)
+	_ RoleStore                 = (*Impl)(nil)
+	_ EventSender               = (*Impl)(nil)
+	_ WriteSafeReplicationState = (*Impl)(nil)
+	_ Backend                   = (*Impl)(nil)
 )
 
 // Impl is the concrete implementation of the Backend interface.
@@ -156,13 +158,17 @@ func (b *Impl) GetClientByName(ctx context.Context, s logical.Storage, name stri
 		return client, nil
 	}
 
-	b.ClientRLock()
-	defer b.ClientRUnlock()
+	b.ClientLock()
+	defer b.ClientUnlock()
 	var config *modelConfig.EntryConfig
 	config, err = b.GetConfig(ctx, s, name)
 	if err != nil {
 		b.Logger().Error("Failed to retrieve configuration", "error", err.Error())
 		return nil, err
+	}
+
+	if config == nil {
+		return nil, fmt.Errorf("configuration %q not found", name)
 	}
 
 	var httpClient *http.Client
@@ -207,10 +213,10 @@ func (b *Impl) GetConfig(ctx context.Context, s logical.Storage, name string) (*
 	return model.Get[modelConfig.EntryConfig](ctx, s, fmt.Sprintf("%s/%s", PathConfigStorage, name))
 }
 
-func (b *Impl) SaveConfig(ctx context.Context, config *modelConfig.EntryConfig, s logical.Storage) error {
+func (b *Impl) SaveConfig(ctx context.Context, s logical.Storage, config *modelConfig.EntryConfig) error {
 	return model.Save(ctx, s, PathConfigStorage, config)
 }
 
-func (b *Impl) GetRole(ctx context.Context, name string, s logical.Storage) (*role.Role, error) {
+func (b *Impl) GetRole(ctx context.Context, s logical.Storage, name string) (*role.Role, error) {
 	return model.Get[role.Role](ctx, s, fmt.Sprintf("%s/%s", PathRoleStorage, name))
 }

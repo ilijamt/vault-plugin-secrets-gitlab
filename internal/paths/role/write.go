@@ -32,8 +32,8 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 	var configName = cmp.Or(data.Get("config_name").(string), backend.DefaultConfigName)
 
 	p.b.ClientRLock()
-	defer p.b.ClientRUnlock()
 	config, err = p.b.GetConfig(ctx, req.Storage, configName)
+	p.b.ClientRUnlock()
 	if err != nil {
 		return logical.ErrorResponse(fmt.Sprintf("missing %s configuration for gitlab", configName)), err
 	}

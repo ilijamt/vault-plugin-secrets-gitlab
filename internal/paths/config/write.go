@@ -31,7 +31,7 @@ func (p *Provider) pathConfigWrite(ctx context.Context, req *logical.Request, da
 	defer p.b.ClientUnlock()
 	var lResp *logical.Response
 
-	if err = p.b.SaveConfig(ctx, config, req.Storage); err == nil {
+	if err = p.b.SaveConfig(ctx, req.Storage, config); err == nil {
 		_ = p.b.SendEvent(ctx, eventWrite, map[string]string{
 			"path":               fmt.Sprintf("%s/%s", backend.PathConfigStorage, name),
 			"auto_rotate_token":  strconv.FormatBool(config.AutoRotateToken),

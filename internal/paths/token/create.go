@@ -29,7 +29,7 @@ func (p *Provider) pathTokenRoleCreate(ctx context.Context, req *logical.Request
 	lock.RLock()
 	defer lock.RUnlock()
 
-	role, err = p.b.GetRole(ctx, roleName, req.Storage)
+	role, err = p.b.GetRole(ctx, req.Storage, roleName)
 	if err != nil {
 		return nil, fmt.Errorf("error getting role: %w", err)
 	}
