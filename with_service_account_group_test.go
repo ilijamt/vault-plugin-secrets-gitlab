@@ -13,6 +13,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go"
 
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
@@ -43,8 +44,12 @@ func TestWithServiceAccountGroup(t *testing.T) {
 	require.NoError(t, resp.Error())
 	require.NotEmpty(t, events)
 
-	require.NotNil(t, b.GetClient(gitlab.DefaultConfigName))
-	var gClient = b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx)
+	require.Nil(t, b.GetClient(gitlab.DefaultConfigName))
+	var client glab.Client
+	client, err = b.GetClientByName(ctx, l, gitlab.DefaultConfigName)
+	require.NoError(t, err)
+	require.NotNil(t, client)
+	var gClient = client.GitlabClient(ctx)
 	require.NotNil(t, gClient)
 
 	// Create a group service account

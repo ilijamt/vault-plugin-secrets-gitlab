@@ -14,6 +14,7 @@ import (
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
+	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -278,7 +279,14 @@ func TestPathConfig(t *testing.T) {
 		tokenOriginalSha1Hash := resp.Data["token_sha1_hash"].(string)
 		require.NotEmpty(t, tokenOriginalSha1Hash)
 		require.Equal(t, gitlabTypes.TypeSelfManaged.String(), resp.Data["type"])
-		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx))
+
+		require.Nil(t, b.GetClient(gitlab.DefaultConfigName))
+		var client glab.Client
+		client, err = b.GetClientByName(ctx, l, gitlab.DefaultConfigName)
+		require.NoError(t, err)
+		require.NotNil(t, client)
+		var gClient = client.GitlabClient(ctx)
+		require.NotNil(t, gClient)
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.PatchOperation,
@@ -296,7 +304,7 @@ func TestPathConfig(t *testing.T) {
 		require.NotEqual(t, tokenOriginalSha1Hash, tokenNewSha1Hash)
 
 		require.Equal(t, gitlabTypes.TypeSaaS.String(), resp.Data["type"])
-		require.NotNil(t, b.GetClient(gitlab.DefaultConfigName).GitlabClient(ctx))
+		require.Nil(t, b.GetClient(gitlab.DefaultConfigName))
 
 		events.expectEvents(t, []expectedEvent{
 			{eventType: "gitlab/config-write"},

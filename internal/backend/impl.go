@@ -124,6 +124,7 @@ func (b *Impl) SetClient(client g.Client, name string) {
 	name = configName(name)
 	if client == nil {
 		b.Logger().Debug("Setting a nil client", "name", name)
+		b.DeleteClient(name)
 		return
 	}
 	b.Logger().Debug("Setting a new client", "name", name)
