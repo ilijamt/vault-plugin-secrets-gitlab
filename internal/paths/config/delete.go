@@ -9,6 +9,7 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 )
 
 func (p *Provider) pathConfigDelete(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
@@ -16,8 +17,9 @@ func (p *Provider) pathConfigDelete(ctx context.Context, req *logical.Request, d
 	defer p.b.ClientUnlock()
 	var err error
 	var name = data.Get("config_name").(string)
+	var config *modelConfig.EntryConfig
 
-	if config, err := p.b.GetConfig(ctx, req.Storage, name); err == nil {
+	if config, err = p.b.GetConfig(ctx, req.Storage, name); err == nil {
 		if config == nil {
 			return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 		}
