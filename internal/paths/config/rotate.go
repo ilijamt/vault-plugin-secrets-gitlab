@@ -64,7 +64,7 @@ func (p *Provider) checkAndRotateConfigToken(ctx context.Context, request *logic
 
 func (p *Provider) pathConfigTokenRotateHandler(ctx context.Context, request *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
 	var name = data.Get("config_name").(string)
-	l := p.lock(name)
+	l := p.b.LockForKey("config", name)
 	l.Lock()
 	defer l.Unlock()
 

@@ -25,7 +25,7 @@ func (p *Provider) pathTokenRoleCreate(ctx context.Context, req *logical.Request
 	var role *modelRole.Role
 	var roleName = data.Get("role_name").(string)
 
-	lock := p.b.RoleLockForKey(roleName)
+	lock := p.b.LockForKey("role", roleName)
 	lock.RLock()
 	defer lock.RUnlock()
 

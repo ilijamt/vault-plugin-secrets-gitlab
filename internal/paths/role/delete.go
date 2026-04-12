@@ -14,7 +14,7 @@ func (p *Provider) pathRolesDelete(ctx context.Context, req *logical.Request, da
 	var resp *logical.Response
 	var err error
 	var roleName = data.Get("role_name").(string)
-	lock := p.b.RoleLockForKey(roleName)
+	lock := p.b.LockForKey("role", roleName)
 	lock.Lock()
 	defer lock.Unlock()
 

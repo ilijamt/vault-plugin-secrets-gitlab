@@ -24,7 +24,7 @@ type mockTokenBackend struct {
 }
 
 func (m *mockTokenBackend) Logger() hclog.Logger { return hclog.NewNullLogger() }
-func (m *mockTokenBackend) RoleLockForKey(_ string) *locksutil.LockEntry {
+func (m *mockTokenBackend) LockForKey(_, _ string) *locksutil.LockEntry {
 	return locksutil.CreateLocks()[0]
 }
 func (m *mockTokenBackend) GetRole(_ context.Context, _ logical.Storage, _ string) (*modelRole.Role, error) {

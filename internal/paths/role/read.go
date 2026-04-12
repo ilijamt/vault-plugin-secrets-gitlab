@@ -10,7 +10,7 @@ import (
 func (p *Provider) pathRolesRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var roleName = data.Get("role_name").(string)
 
-	lock := p.b.RoleLockForKey(roleName)
+	lock := p.b.LockForKey("role", roleName)
 	lock.RLock()
 	defer lock.RUnlock()
 

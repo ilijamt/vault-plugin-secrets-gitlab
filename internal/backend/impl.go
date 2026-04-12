@@ -28,8 +28,7 @@ var (
 	_ ClientGetter              = (*Impl)(nil)
 	_ ClientSetter              = (*Impl)(nil)
 	_ ClientDeleter             = (*Impl)(nil)
-	_ ClientLocker              = (*Impl)(nil)
-	_ RoleLocker                = (*Impl)(nil)
+	_ Locker                    = (*Impl)(nil)
 	_ ConfigStore               = (*Impl)(nil)
 	_ RoleStore                 = (*Impl)(nil)
 	_ EventSender               = (*Impl)(nil)
@@ -41,20 +40,13 @@ var (
 type Impl struct {
 	*framework.Backend
 
-	flags          flags.Flags
-	lockFlagsMutex sync.RWMutex
+	flags flags.Flags
 
 	// The client that we can use to create and revoke the access tokens
 	clients sync.Map
 
-	// Mutex to protect access to gitlab clients, a change to the gitlab client config
-	// would invalidate the gitlab client, so it will need to be reinitialized
-	// a change to the config should delete the client from the map, and the next request will
-	// create a new client with the new config
-	lockClientMutex sync.Mutex
-
-	// roleLocks to protect access for roles, during modifications, deletion
-	roleLocks []*locksutil.LockEntry
+	// locks provides per-key locking scoped by path prefix for roles, configs, clients, etc.
+	locks []*locksutil.LockEntry
 
 	// pathProviders holds the registered path providers with their optional hooks
 	pathProviders []PathProvider
@@ -63,9 +55,9 @@ type Impl struct {
 // New creates a new BackendImpl with the given flags. Call Init to complete setup.
 func New(f flags.Flags) *Impl {
 	return &Impl{
-		roleLocks: locksutil.CreateLocks(),
-		clients:   sync.Map{},
-		flags:     f,
+		locks:   locksutil.CreateLocks(),
+		clients: sync.Map{},
+		flags:   f,
 	}
 }
 
@@ -161,8 +153,9 @@ func (b *Impl) GetClientByName(ctx context.Context, s logical.Storage, name stri
 		return client, nil
 	}
 
-	b.ClientLock()
-	defer b.ClientUnlock()
+	cl := b.LockForKey("client", name)
+	cl.Lock()
+	defer cl.Unlock()
 
 	// Re-check after lock acquisition — another goroutine may have created the client while we waited.
 	if client = b.GetClient(name); client != nil && client.Valid(ctx) {
@@ -195,27 +188,21 @@ func (b *Impl) SendEvent(ctx context.Context, eventType event.EventType, metadat
 }
 
 func (b *Impl) Flags() flags.Flags {
-	b.lockFlagsMutex.RLock()
-	defer b.lockFlagsMutex.RUnlock()
+	l := b.LockForKey("flags", "default")
+	l.RLock()
+	defer l.RUnlock()
 	return b.flags
 }
 
 func (b *Impl) UpdateFlags(fn func(*flags.Flags)) {
-	b.lockFlagsMutex.Lock()
-	defer b.lockFlagsMutex.Unlock()
+	l := b.LockForKey("flags", "default")
+	l.Lock()
+	defer l.Unlock()
 	fn(&b.flags)
 }
 
-func (b *Impl) ClientLock() {
-	b.lockClientMutex.Lock()
-}
-
-func (b *Impl) ClientUnlock() {
-	b.lockClientMutex.Unlock()
-}
-
-func (b *Impl) RoleLockForKey(key string) *locksutil.LockEntry {
-	return locksutil.LockForKey(b.roleLocks, key)
+func (b *Impl) LockForKey(path, key string) *locksutil.LockEntry {
+	return locksutil.LockForKey(b.locks, path+"/"+key)
 }
 
 func (b *Impl) GetConfig(ctx context.Context, s logical.Storage, name string) (*modelConfig.EntryConfig, error) {

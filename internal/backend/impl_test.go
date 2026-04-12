@@ -50,17 +50,15 @@ func TestClientDefaultName(t *testing.T) {
 	assert.Same(t, c, b.GetClient(backend.DefaultConfigName))
 }
 
-func TestClientLocking(t *testing.T) {
+func TestLockForKey(t *testing.T) {
 	b := backend.New(flags.Flags{})
-	b.ClientLock()
-	b.ClientUnlock()
-}
 
-func TestRoleLockForKey(t *testing.T) {
-	b := backend.New(flags.Flags{})
-	l := b.RoleLockForKey("k")
+	l := b.LockForKey("role", "k")
 	require.NotNil(t, l)
-	assert.Same(t, l, b.RoleLockForKey("k"))
+	assert.Same(t, l, b.LockForKey("role", "k"))
+
+	// Different paths with the same key produce different locks.
+	assert.NotSame(t, b.LockForKey("role", "x"), b.LockForKey("config", "x"))
 }
 
 func TestGetConfig(t *testing.T) {

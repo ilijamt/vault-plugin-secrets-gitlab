@@ -16,7 +16,7 @@ import (
 
 func (p *Provider) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	name := data.Get("config_name").(string)
-	l := p.lock(name)
+	l := p.b.LockForKey("config", name)
 	l.Lock()
 	defer l.Unlock()
 

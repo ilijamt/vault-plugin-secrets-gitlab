@@ -117,7 +117,7 @@ var (
 // roleBackend defines the narrow interface this provider needs.
 type roleBackend interface {
 	backend.Logging
-	backend.RoleLocker
+	backend.Locker
 	backend.RoleStore
 	backend.ConfigStore
 	backend.EventSender

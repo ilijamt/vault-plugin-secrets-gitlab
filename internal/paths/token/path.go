@@ -42,7 +42,7 @@ var (
 // tokenBackend defines the narrow interface this provider needs.
 type tokenBackend interface {
 	backend.Logging
-	backend.RoleLocker
+	backend.Locker
 	backend.RoleStore
 	backend.ClientReader
 	backend.EventSender

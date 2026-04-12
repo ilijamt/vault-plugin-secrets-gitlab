@@ -233,8 +233,8 @@ func TestInvalidate(t *testing.T) {
 		key        string
 		wantClient string
 	}{
-		"matching config key":  {key: "config/myconfig", wantClient: "myconfig"},
-		"non-matching key":     {key: "roles/myrole", wantClient: ""},
+		"matching config key": {key: "config/myconfig", wantClient: "myconfig"},
+		"non-matching key":    {key: "roles/myrole", wantClient: ""},
 	}
 
 	for name, tt := range tests {

@@ -195,7 +195,7 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 		return logical.ErrorResponse(err.Error()), err
 	}
 
-	lock := p.b.RoleLockForKey(roleName)
+	lock := p.b.LockForKey("role", roleName)
 	lock.Lock()
 	defer lock.Unlock()
 

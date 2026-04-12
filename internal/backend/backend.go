@@ -45,16 +45,9 @@ type ClientDeleter interface {
 	DeleteClient(name string)
 }
 
-// ClientLocker provides client-level locking for compound operations
-// (e.g. SaveConfig + SetClient) that must be atomic.
-type ClientLocker interface {
-	ClientLock()
-	ClientUnlock()
-}
-
-// RoleLocker provides per-role key locking.
-type RoleLocker interface {
-	RoleLockForKey(key string) *locksutil.LockEntry
+// Locker provides per-key locking scoped by a path prefix.
+type Locker interface {
+	LockForKey(path, key string) *locksutil.LockEntry
 }
 
 // ConfigStore provides config CRUD operations.
@@ -84,8 +77,7 @@ type Backend interface {
 	ClientGetter
 	ClientSetter
 	ClientDeleter
-	ClientLocker
-	RoleLocker
+	Locker
 	ConfigStore
 	RoleStore
 	EventSender

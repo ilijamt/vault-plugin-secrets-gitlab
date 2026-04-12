@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
 	g "gitlab.com/gitlab-org/api/client-go"
 
@@ -43,6 +44,9 @@ type mockConfigBackend struct {
 }
 
 func (m *mockConfigBackend) Logger() hclog.Logger { return hclog.NewNullLogger() }
+func (m *mockConfigBackend) LockForKey(_, _ string) *locksutil.LockEntry {
+	return locksutil.CreateLocks()[0]
+}
 
 func (m *mockConfigBackend) Flags() flags.Flags { return m.flagsVal }
 
