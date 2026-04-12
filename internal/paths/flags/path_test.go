@@ -14,7 +14,7 @@ import (
 func TestPathFlags_Name(t *testing.T) {
 	mb := &mockFlagsBackend{}
 	p := pathflags.New(mb)
-	require.NotEmpty(t, p.Name())
+	assert.Equal(t, "flags", p.Name())
 }
 
 func TestPathFlags_UpdateOperationAvailability(t *testing.T) {

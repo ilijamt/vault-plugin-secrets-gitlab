@@ -1,6 +1,7 @@
 package flags_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/hashicorp/vault/sdk/framework"
@@ -8,30 +9,95 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	pathflags "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/flags"
 )
 
 func TestPathFlagsUpdate(t *testing.T) {
-	mb := &mockFlagsBackend{
-		flags: flags.Flags{AllowRuntimeFlagsChange: true},
-	}
+	t.Run("sets show_config_token and sends event", func(t *testing.T) {
+		var sentEventType event.EventType
+		var sentMetadata map[string]string
 
-	p := pathflags.New(mb)
-	paths := p.Paths()
+		mb := &mockFlagsBackend{
+			flags: flags.Flags{AllowRuntimeFlagsChange: true},
+			sendEvent: func(_ context.Context, eventType event.EventType, metadata map[string]string) error {
+				sentEventType = eventType
+				sentMetadata = metadata
+				return nil
+			},
+		}
 
-	updateOp := paths[0].Operations[logical.UpdateOperation]
-	require.NotNil(t, updateOp)
+		p := pathflags.New(mb)
+		paths := p.Paths()
 
-	fd := &framework.FieldData{
-		Raw:    map[string]interface{}{"show_config_token": true},
-		Schema: paths[0].Fields,
-	}
+		updateOp := paths[0].Operations[logical.UpdateOperation]
+		require.NotNil(t, updateOp)
 
-	resp, err := updateOp.Handler()(t.Context(), &logical.Request{}, fd)
-	require.NoError(t, err)
-	require.NotNil(t, resp)
-	assert.Equal(t, true, resp.Data["show_config_token"])
-	assert.Equal(t, true, resp.Data["allow_runtime_flags_change"])
-	assert.True(t, mb.flags.ShowConfigToken)
+		fd := &framework.FieldData{
+			Raw:    map[string]interface{}{"show_config_token": true},
+			Schema: paths[0].Fields,
+		}
+
+		resp, err := updateOp.Handler()(t.Context(), &logical.Request{}, fd)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		assert.Equal(t, true, resp.Data["show_config_token"])
+		assert.True(t, mb.flags.ShowConfigToken)
+
+		assert.Equal(t, "flags-write", sentEventType.String())
+		assert.Equal(t, "true", sentMetadata["show_config_token"])
+	})
+
+	t.Run("allow_runtime_flags_change is not modifiable", func(t *testing.T) {
+		mb := &mockFlagsBackend{
+			flags: flags.Flags{
+				AllowRuntimeFlagsChange: true,
+				ShowConfigToken:         false,
+			},
+		}
+
+		p := pathflags.New(mb)
+		paths := p.Paths()
+
+		updateOp := paths[0].Operations[logical.UpdateOperation]
+		require.NotNil(t, updateOp)
+
+		fd := &framework.FieldData{
+			Raw:    map[string]interface{}{"allow_runtime_flags_change": false},
+			Schema: paths[0].Fields,
+		}
+
+		resp, err := updateOp.Handler()(t.Context(), &logical.Request{}, fd)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		assert.Equal(t, true, resp.Data["allow_runtime_flags_change"])
+		assert.True(t, mb.flags.AllowRuntimeFlagsChange)
+	})
+
+	t.Run("no fields provided leaves flags unchanged", func(t *testing.T) {
+		mb := &mockFlagsBackend{
+			flags: flags.Flags{
+				AllowRuntimeFlagsChange: true,
+				ShowConfigToken:         true,
+			},
+		}
+
+		p := pathflags.New(mb)
+		paths := p.Paths()
+
+		updateOp := paths[0].Operations[logical.UpdateOperation]
+		require.NotNil(t, updateOp)
+
+		fd := &framework.FieldData{
+			Raw:    map[string]interface{}{},
+			Schema: paths[0].Fields,
+		}
+
+		resp, err := updateOp.Handler()(t.Context(), &logical.Request{}, fd)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		assert.Equal(t, true, resp.Data["show_config_token"])
+		assert.True(t, mb.flags.ShowConfigToken)
+	})
 }
