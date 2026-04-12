@@ -25,7 +25,9 @@ var (
 	_ Logging                   = (*Impl)(nil)
 	_ FlagsProvider             = (*Impl)(nil)
 	_ ClientReader              = (*Impl)(nil)
-	_ ClientManager             = (*Impl)(nil)
+	_ ClientGetter              = (*Impl)(nil)
+	_ ClientSetter              = (*Impl)(nil)
+	_ ClientDeleter             = (*Impl)(nil)
 	_ ClientLocker              = (*Impl)(nil)
 	_ RoleLocker                = (*Impl)(nil)
 	_ ConfigStore               = (*Impl)(nil)
@@ -45,9 +47,11 @@ type Impl struct {
 	// The client that we can use to create and revoke the access tokens
 	clients sync.Map
 
-	// Mutex to protect access to gitlab clients and client configs, a change to the gitlab client config
+	// Mutex to protect access to gitlab clients, a change to the gitlab client config
 	// would invalidate the gitlab client, so it will need to be reinitialized
-	lockClientMutex sync.RWMutex
+	// a change to the config should delete the client from the map, and the next request will
+	// create a new client with the new config
+	lockClientMutex sync.Mutex
 
 	// roleLocks to protect access for roles, during modifications, deletion
 	roleLocks []*locksutil.LockEntry
@@ -150,16 +154,21 @@ func (b *Impl) DeleteClient(name string) {
 }
 
 func (b *Impl) GetClientByName(ctx context.Context, s logical.Storage, name string) (client g.Client, err error) {
-	if c, ok := b.clients.Load(configName(name)); ok {
-		client = c.(g.Client)
-	}
-	if client != nil && client.Valid(ctx) {
+	name = configName(name)
+
+	if client = b.GetClient(name); client != nil && client.Valid(ctx) {
 		b.Logger().Debug("Returning existing gitlab client")
 		return client, nil
 	}
 
 	b.ClientLock()
 	defer b.ClientUnlock()
+
+	// Re-check after lock acquisition — another goroutine may have created the client while we waited.
+	if client = b.GetClient(name); client != nil && client.Valid(ctx) {
+		return client, nil
+	}
+
 	var config *modelConfig.EntryConfig
 	config, err = b.GetConfig(ctx, s, name)
 	if err != nil {
@@ -197,13 +206,13 @@ func (b *Impl) UpdateFlags(fn func(*flags.Flags)) {
 	fn(&b.flags)
 }
 
-func (b *Impl) ClientLock() { b.lockClientMutex.Lock() }
+func (b *Impl) ClientLock() {
+	b.lockClientMutex.Lock()
+}
 
-func (b *Impl) ClientUnlock() { b.lockClientMutex.Unlock() }
-
-func (b *Impl) ClientRLock() { b.lockClientMutex.RLock() }
-
-func (b *Impl) ClientRUnlock() { b.lockClientMutex.RUnlock() }
+func (b *Impl) ClientUnlock() {
+	b.lockClientMutex.Unlock()
+}
 
 func (b *Impl) RoleLockForKey(key string) *locksutil.LockEntry {
 	return locksutil.LockForKey(b.roleLocks, key)

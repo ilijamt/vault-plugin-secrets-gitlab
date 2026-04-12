@@ -54,8 +54,6 @@ func TestClientLocking(t *testing.T) {
 	b := backend.New(flags.Flags{})
 	b.ClientLock()
 	b.ClientUnlock()
-	b.ClientRLock()
-	b.ClientRUnlock()
 }
 
 func TestRoleLockForKey(t *testing.T) {
@@ -140,4 +138,26 @@ func TestGetClientByName_NewGitlabClientSuccess(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, got)
 	assert.Same(t, got, b.GetClient("good"))
+}
+
+func TestGetClientByName_ConcurrentAccess(t *testing.T) {
+	b := newTestBackend(t)
+	s := &logical.InmemStorage{}
+
+	require.NoError(t, b.SaveConfig(t.Context(), s, &config.EntryConfig{Name: "race", BaseURL: "https://gitlab.com", Token: "glpat-test"}))
+
+	const goroutines = 10
+	errs := make(chan error, goroutines)
+
+	for range goroutines {
+		go func() {
+			_, err := b.GetClientByName(t.Context(), s, "race")
+			errs <- err
+		}()
+	}
+
+	for range goroutines {
+		require.NoError(t, <-errs)
+	}
+	assert.NotNil(t, b.GetClient("race"))
 }

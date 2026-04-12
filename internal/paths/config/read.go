@@ -11,9 +11,6 @@ import (
 )
 
 func (p *Provider) pathConfigRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
-	p.b.ClientRLock()
-	defer p.b.ClientRUnlock()
-
 	var name = data.Get("config_name").(string)
 	var config *modelConfig.EntryConfig
 	if config, err = p.b.GetConfig(ctx, req.Storage, name); err == nil {

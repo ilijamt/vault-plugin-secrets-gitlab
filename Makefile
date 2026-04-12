@@ -5,6 +5,9 @@ VAULT ?= vault
 
 COVER_PROFILE ?= $(BUILD_DIR)/coverage.out
 COVER_HTML ?= $(BUILD_DIR)/coverage.html
+COVER_PKG ?= github.com/ilijamt/vault-plugin-secrets-gitlab/...
+
+TEST_PKG ?= ./...
 
 # Default build tags for tests; can be overridden:
 #   make test TAGS="unit,local"
@@ -46,7 +49,7 @@ test: coverage
 
 coverage: check-go clean-coverage
 	mkdir -p $(BUILD_DIR)
-	$(GO) test ./... -cover -coverpkg=github.com/ilijamt/vault-plugin-secrets-gitlab/... -coverprofile=$(COVER_PROFILE) -race -tags $(TAGS) -count 1 $(TEST_ARGS)
+	$(GO) test $(TEST_PKG) -cover -coverpkg=$(COVER_PKG) -coverprofile=$(COVER_PROFILE) -race -tags $(TAGS) -count 1 $(TEST_ARGS)
 	$(GO) tool cover -html=$(COVER_PROFILE) -o $(COVER_HTML)
 
 clean-coverage:

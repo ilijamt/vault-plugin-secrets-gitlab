@@ -26,7 +26,7 @@ func (p *Provider) pathConfigDelete(ctx context.Context, req *logical.Request, d
 			_ = p.b.SendEvent(ctx, eventDelete, map[string]string{
 				"path": fmt.Sprintf("%s/%s", backend.PathConfigStorage, name),
 			})
-			p.b.SetClient(nil, name)
+			p.b.DeleteClient(name)
 		}
 	}
 

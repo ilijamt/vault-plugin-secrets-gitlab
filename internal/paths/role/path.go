@@ -120,7 +120,6 @@ type roleBackend interface {
 	backend.RoleLocker
 	backend.RoleStore
 	backend.ConfigStore
-	backend.ClientLocker
 	backend.EventSender
 }
 

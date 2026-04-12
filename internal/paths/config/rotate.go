@@ -68,13 +68,10 @@ func (p *Provider) pathConfigTokenRotateHandler(ctx context.Context, request *lo
 	var config *modelConfig.EntryConfig
 	var client gitlab.Client
 
-	p.b.ClientRLock()
 	if config, err = p.b.GetConfig(ctx, request.Storage, name); err != nil {
-		p.b.ClientRUnlock()
 		p.b.Logger().Error("Failed to fetch configuration", "error", err.Error())
 		return nil, err
 	}
-	p.b.ClientRUnlock()
 
 	if config == nil {
 		// no configuration yet so we don't need to rotate anything
@@ -121,7 +118,7 @@ func (p *Provider) pathConfigTokenRotateHandler(ctx context.Context, request *lo
 		"config_name": entryToken.ConfigName,
 	})
 
-	p.b.SetClient(nil, name)
+	p.b.DeleteClient(name)
 	return lResp, err
 }
 
@@ -155,8 +152,6 @@ func (p *Provider) Invalidate(ctx context.Context, key string) {
 	if strings.HasPrefix(key, backend.PathConfigStorage+"/") {
 		_, name, _ := strings.Cut(key, "/")
 		p.b.Logger().Warn(fmt.Sprintf("Gitlab config for %s changed, deleting gitlab client", name))
-		p.b.ClientLock()
 		p.b.DeleteClient(name)
-		p.b.ClientUnlock()
 	}
 }

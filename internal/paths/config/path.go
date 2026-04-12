@@ -88,7 +88,9 @@ var (
 type configBackend interface {
 	backend.Logging
 	backend.FlagsProvider
-	backend.ClientManager
+	backend.ClientReader
+	backend.ClientSetter
+	backend.ClientDeleter
 	backend.ClientLocker
 	backend.ConfigStore
 	backend.EventSender

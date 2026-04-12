@@ -30,20 +30,26 @@ type ClientReader interface {
 	GetClientByName(ctx context.Context, s logical.Storage, name string) (gitlab.Client, error)
 }
 
-// ClientManager extends ClientReader with client lifecycle management.
-type ClientManager interface {
-	ClientReader
+// ClientGetter provides direct cache access to a stored client.
+type ClientGetter interface {
 	GetClient(name string) gitlab.Client
+}
+
+// ClientSetter stores a client in the cache.
+type ClientSetter interface {
 	SetClient(client gitlab.Client, name string)
+}
+
+// ClientDeleter removes a client from the cache.
+type ClientDeleter interface {
 	DeleteClient(name string)
 }
 
-// ClientLocker provides client-level read/write locking.
+// ClientLocker provides client-level locking for compound operations
+// (e.g. SaveConfig + SetClient) that must be atomic.
 type ClientLocker interface {
 	ClientLock()
 	ClientUnlock()
-	ClientRLock()
-	ClientRUnlock()
 }
 
 // RoleLocker provides per-role key locking.
@@ -74,7 +80,10 @@ type WriteSafeReplicationState interface {
 type Backend interface {
 	Logging
 	FlagsProvider
-	ClientManager
+	ClientReader
+	ClientGetter
+	ClientSetter
+	ClientDeleter
 	ClientLocker
 	RoleLocker
 	ConfigStore

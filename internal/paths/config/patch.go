@@ -39,7 +39,7 @@ func (p *Provider) pathConfigPatch(ctx context.Context, req *logical.Request, da
 	if err = p.b.SaveConfig(ctx, req.Storage, config); err == nil {
 		lrd := config.LogicalResponseData(p.b.Flags().ShowConfigToken)
 		_ = p.b.SendEvent(ctx, eventPatch, changes)
-		p.b.SetClient(nil, name)
+		p.b.DeleteClient(name)
 		p.b.Logger().Debug("Patched config", "lrd", lrd, "warnings", warnings)
 		lResp = &logical.Response{Data: lrd, Warnings: warnings}
 	}
