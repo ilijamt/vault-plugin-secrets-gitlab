@@ -24,7 +24,10 @@ func (d *dummyClient) Valid(_ context.Context) bool { return d.valid }
 func newTestBackend(t *testing.T, opts ...backend.InitOption) *backend.Impl {
 	t.Helper()
 	b := backend.New(flags.Flags{})
-	require.NoError(t, b.Init(t.Context(), &logical.BackendConfig{System: &logical.StaticSystemView{}}, opts...))
+	require.NoError(t, b.Init(t.Context(), &logical.BackendConfig{
+		System:       &logical.StaticSystemView{},
+		EventsSender: &logical.MockEventSender{},
+	}, opts...))
 	return b
 }
 

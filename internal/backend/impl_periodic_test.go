@@ -82,7 +82,8 @@ func TestPeriodicFunc_WriteSafeReplicationState(t *testing.T) {
 				b.Init(
 					t.Context(),
 					&logical.BackendConfig{
-						System: &logical.StaticSystemView{ReplicationStateVal: tt.replicationState},
+						System:       &logical.StaticSystemView{ReplicationStateVal: tt.replicationState},
+						EventsSender: &logical.MockEventSender{},
 					},
 					backend.WithProviders(p),
 				),
