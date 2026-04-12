@@ -2,22 +2,10 @@ template: testify
 template-data:
   unroll-variadic: true
 packages:
-  github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend:
-    config:
-      dir: internal/mocks
-      pkgname: mocks
-      filename: mock_backend.go
-    interfaces:
-      ClientProvider: {}
-      EventSender: {}
-      FlagsProvider: {}
-      InvalidateHandler: {}
-      PathProvider: {}
-      PeriodicHandler: {}
-  github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab:
-    config:
-      dir: internal/mocks
-      pkgname: mocks
-      filename: mock_gitlab.go
-    interfaces:
-      Client: {}
+  # github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab:
+  #   config:
+  #     dir: internal/mocks
+  #     pkgname: mocks
+  #     filename: mock_gitlab.go
+  #   interfaces:
+  #     Client: {}
