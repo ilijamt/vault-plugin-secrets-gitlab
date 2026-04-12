@@ -7,15 +7,15 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
-	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 )
 
-func (p *Provider) pathConfigPatch(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
-	var name = data.Get("config_name").(string)
-	var warnings []string
-	var changes map[string]string
-	var config *modelConfig.EntryConfig
-	config, err = p.b.GetConfig(ctx, req.Storage, name)
+func (p *Provider) pathConfigPatch(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+	name := data.Get("config_name").(string)
+	l := p.lock(name)
+	l.Lock()
+	defer l.Unlock()
+
+	config, err := p.b.GetConfig(ctx, req.Storage, name)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (p *Provider) pathConfigPatch(ctx context.Context, req *logical.Request, da
 		return logical.ErrorResponse(errs.ErrBackendNotConfigured.Error()), nil
 	}
 
-	warnings, changes, err = config.Merge(data)
+	warnings, changes, err := config.Merge(data)
 	if err != nil {
 		return nil, err
 	}
@@ -34,15 +34,13 @@ func (p *Provider) pathConfigPatch(ctx context.Context, req *logical.Request, da
 		}
 	}
 
-	p.b.ClientLock()
-	defer p.b.ClientUnlock()
-	if err = p.b.SaveConfig(ctx, req.Storage, config); err == nil {
-		lrd := config.LogicalResponseData(p.b.Flags().ShowConfigToken)
-		_ = p.b.SendEvent(ctx, eventPatch, changes)
-		p.b.DeleteClient(name)
-		p.b.Logger().Debug("Patched config", "lrd", lrd, "warnings", warnings)
-		lResp = &logical.Response{Data: lrd, Warnings: warnings}
+	if err = p.b.SaveConfig(ctx, req.Storage, config); err != nil {
+		return nil, err
 	}
 
-	return lResp, err
+	lrd := config.LogicalResponseData(p.b.Flags().ShowConfigToken)
+	_ = p.b.SendEvent(ctx, eventPatch, changes)
+	p.b.DeleteClient(name)
+	p.b.Logger().Debug("Patched config", "lrd", lrd, "warnings", warnings)
+	return &logical.Response{Data: lrd, Warnings: warnings}, nil
 }

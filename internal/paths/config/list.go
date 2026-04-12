@@ -16,8 +16,8 @@ import (
 const (
 	pathListConfigHelpSyn  = `Lists existing configs`
 	pathListConfigHelpDesc = `
-This path allows you to list all available configurations that have been set up within the GitLab Access Tokens Backend. 
-These configurations typically include credentials, base URLs, and other settings required for managing access tokens 
+This path allows you to list all available configurations that have been set up within the GitLab Access Tokens Backend.
+These configurations typically include credentials, base URLs, and other settings required for managing access tokens
 across different GitLab environments.`
 )
 
@@ -57,13 +57,11 @@ func (p *Provider) pathListConfig() *framework.Path {
 	}
 }
 
-func (p *Provider) pathConfigList(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
-	var configs []string
-	configs, err = req.Storage.List(ctx, fmt.Sprintf("%s/", backend.PathConfigStorage))
-	lResp = logical.ErrorResponse("Error listing configs")
-	if err == nil {
-		lResp = logical.ListResponse(configs)
+func (p *Provider) pathConfigList(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+	configs, err := req.Storage.List(ctx, fmt.Sprintf("%s/", backend.PathConfigStorage))
+	if err != nil {
+		return logical.ErrorResponse("Error listing configs"), err
 	}
 	p.b.Logger().Debug("Available", "configs", configs)
-	return lResp, err
+	return logical.ListResponse(configs), nil
 }

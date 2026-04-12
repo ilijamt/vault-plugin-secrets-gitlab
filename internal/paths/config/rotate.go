@@ -64,7 +64,11 @@ func (p *Provider) checkAndRotateConfigToken(ctx context.Context, request *logic
 
 func (p *Provider) pathConfigTokenRotateHandler(ctx context.Context, request *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
 	var name = data.Get("config_name").(string)
-	p.b.Logger().Debug("Running pathConfigTokenRotate")
+	l := p.lock(name)
+	l.Lock()
+	defer l.Unlock()
+
+	p.b.Logger().Debug("Running rotate config token handler", "config_name", name)
 	var config *modelConfig.EntryConfig
 	var client gitlab.Client
 
@@ -98,8 +102,6 @@ func (p *Provider) pathConfigTokenRotateHandler(ctx context.Context, request *lo
 	if entryToken.ExpiresAt != nil {
 		config.TokenExpiresAt = *entryToken.ExpiresAt
 	}
-	p.b.ClientLock()
-	defer p.b.ClientUnlock()
 	err = p.b.SaveConfig(ctx, request.Storage, config)
 	if err != nil {
 		p.b.Logger().Error("failed to store configuration for revocation", "err", err)

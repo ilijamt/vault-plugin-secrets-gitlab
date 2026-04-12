@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/vault/sdk/framework"
+	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
@@ -91,7 +92,6 @@ type configBackend interface {
 	backend.ClientReader
 	backend.ClientSetter
 	backend.ClientDeleter
-	backend.ClientLocker
 	backend.ConfigStore
 	backend.EventSender
 }
@@ -100,13 +100,18 @@ type configBackend interface {
 // and backend.InvalidateHandler for config paths.
 type Provider struct {
 	b configBackend
+	l []*locksutil.LockEntry
 }
 
 func (p *Provider) Name() string { return "config" }
 
 // New creates a new config path provider.
 func New(b configBackend) *Provider {
-	return &Provider{b: b}
+	return &Provider{b: b, l: locksutil.CreateLocks()}
+}
+
+func (p *Provider) lock(name string) *locksutil.LockEntry {
+	return locksutil.LockForKey(p.l, name)
 }
 
 // Paths returns all config-related framework paths.
