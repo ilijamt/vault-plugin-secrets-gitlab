@@ -1,3 +1,52 @@
-run:
-  deadline: 3m
+version: "2"
 
+run:
+  timeout: 3m
+
+linters:
+  enable:
+  - errorlint
+  - nilerr
+  - bodyclose
+  - durationcheck
+  - gosec
+  - unconvert
+  - unparam
+  - gocritic
+  - revive
+  - misspell
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    exclude-functions:
+    - (github.com/hashicorp/go-hclog.Logger).Warn
+    - (github.com/hashicorp/go-hclog.Logger).Info
+    - (github.com/hashicorp/go-hclog.Logger).Debug
+    - (github.com/hashicorp/go-hclog.Logger).Error
+
+  gocritic:
+    enabled-tags:
+    - diagnostic
+    - performance
+    disabled-checks:
+    - hugeParam
+    - rangeValCopy
+
+  govet:
+    enable-all: true
+    disable:
+    - fieldalignment
+
+issues:
+  exclude-rules:
+  - path: _test\.go
+    linters:
+    - errcheck
+    - gosec
+    - unparam
+    - gocritic
+  - path: testdata/
+    linters:
+    - errcheck
+    - gosec
