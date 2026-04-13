@@ -8,7 +8,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
 )
 
-func TestRule(t *testing.T) {
+func TestRole(t *testing.T) {
 	r := role.Role{Name: "Name"}
 	require.False(t, r.IsNil())
 	require.EqualValues(t, "Name", r.GetName())
