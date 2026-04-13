@@ -27,7 +27,7 @@ func (t *TokenGroupServiceAccount) Data() (d map[string]any) {
 
 func (t *TokenGroupServiceAccount) Event(m map[string]string) (d map[string]string) {
 	d = map[string]string{"user_id": strconv.FormatInt(t.UserID, 10)}
-	maps.Copy(d, t.Token.Event(m))
+	maps.Copy(d, t.TokenWithScopes.Event(m))
 	return d
 }
 

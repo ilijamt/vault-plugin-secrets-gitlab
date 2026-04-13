@@ -26,7 +26,7 @@ func (t *TokenGroupDeploy) Data() (d map[string]any) {
 
 func (t *TokenGroupDeploy) Event(m map[string]string) (d map[string]string) {
 	d = map[string]string{"username": t.Username}
-	maps.Copy(d, t.Token.Event(m))
+	maps.Copy(d, t.TokenWithScopes.Event(m))
 	return d
 }
 
