@@ -10,26 +10,28 @@ import (
 
 func TestType(t *testing.T) {
 	var tests = []struct {
+		name     string
 		expected types.Type
 		input    string
 		err      bool
 	}{
 		{
+			name:     "saas",
 			expected: types.TypeSaaS,
 			input:    types.TypeSaaS.String(),
-			err:      false,
 		},
 		{
+			name:     "self-managed",
 			expected: types.TypeSelfManaged,
 			input:    types.TypeSelfManaged.String(),
-			err:      false,
 		},
 		{
+			name:     "dedicated",
 			expected: types.TypeDedicated,
 			input:    types.TypeDedicated.String(),
-			err:      false,
 		},
 		{
+			name:     "unknown",
 			expected: types.TypeUnknown,
 			input:    types.TypeUnknown.String(),
 			err:      true,
@@ -37,14 +39,15 @@ func TestType(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Logf("assert parse(%s) = %s (err: %v)", test.input, test.expected, test.err)
-		val, err := types.TypeParse(test.input)
-		if test.err {
-			assert.ErrorIs(t, err, types.ErrUnknownType)
-		} else {
-			assert.NoError(t, err)
-			assert.EqualValues(t, test.expected, val)
-			assert.EqualValues(t, test.expected.Value(), test.expected.String())
-		}
+		t.Run(test.name, func(t *testing.T) {
+			val, err := types.TypeParse(test.input)
+			if test.err {
+				assert.ErrorIs(t, err, types.ErrUnknownType)
+			} else {
+				assert.NoError(t, err)
+				assert.EqualValues(t, test.expected, val)
+				assert.EqualValues(t, test.expected.Value(), test.expected.String())
+			}
+		})
 	}
 }
