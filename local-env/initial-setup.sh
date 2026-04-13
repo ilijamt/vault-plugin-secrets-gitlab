@@ -53,7 +53,7 @@ run terraform apply --auto-approve
 cd ..
 
 stage "Saving access tokens to testdata"
-cat tf/tokens.json | jq . > ../testdata/tokens.json
+cat tf/tokens.json | jq . > ../tests/integration/testdata/tokens.json
 
 stage "Backing up volumes"
 run bash ./backup-volumes.sh
