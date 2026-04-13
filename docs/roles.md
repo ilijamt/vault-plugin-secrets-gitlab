@@ -27,7 +27,7 @@ Format of the path is the full path of the project for example `group/project` o
 
 #### token_type is group
 
-Format of the path is the full path of the project for example `group` or `group/subgroup`
+Format of the path is the full path of the group for example `group`, `group/subgroup`, or `group/subgroup/subsubgroup` for deeper nesting.
 
 #### token_type is user-service-account
 
@@ -43,7 +43,7 @@ Format of the path is the full path of the project for example `group/project` o
 
 #### token_type is group-deploy
 
-Format of the path is the full path of the project for example `group` or `group/subgroup`
+Format of the path is the full path of the group for example `group`, `group/subgroup`, or `group/subgroup/subsubgroup` for deeper nesting.
 
 #### token_type is pipeline-project-trigger
 

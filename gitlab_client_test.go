@@ -123,25 +123,45 @@ func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
 }
 
 func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
-	var ctx = t.Context()
-	var err error
 	var tokenName = "admin_user_root"
 	httpClient, url := getClient(t, "unit")
-	var client glab.Client
-	client, err = glab.NewGitlabClient(&config.EntryConfig{
+	client, err := glab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken(tokenName).Token,
 		BaseURL: url,
 	}, httpClient, nil)
 	require.NoError(t, err)
 	require.NotNil(t, client)
-	require.True(t, client.Valid(ctx))
+	require.True(t, client.Valid(t.Context()))
 
-	groupId, err := client.GetGroupIdByPath(ctx, "test")
-	require.NoError(t, err)
-	require.EqualValues(t, 3, groupId)
+	tests := []struct {
+		name        string
+		path        string
+		expectedId  int64
+		expectedErr error
+	}{
+		{name: "top-level group", path: "test", expectedId: 2},
+		{name: "nested group", path: "level-1/level-2/level-3"},
+		{name: "first level nested group", path: "level-1/level-2"},
+		{name: "nonexistent group", path: "nonexistent", expectedErr: errs.ErrInvalidValue},
+		{name: "nonexistent second level nested group", path: "level-1/level-2/nonexistent", expectedErr: errs.ErrInvalidValue},
+		{name: "nonexistent first level nested group", path: "level-1/nonexistent/level-3", expectedErr: errs.ErrInvalidValue},
+	}
 
-	_, err = client.GetGroupIdByPath(ctx, "nonexistent")
-	require.ErrorIs(t, err, errs.ErrInvalidValue)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			groupId, err := client.GetGroupIdByPath(t.Context(), tc.path)
+			if tc.expectedErr != nil {
+				require.ErrorIs(t, err, tc.expectedErr)
+			} else {
+				require.NoError(t, err)
+				if tc.expectedId > 0 {
+					require.EqualValues(t, tc.expectedId, groupId)
+				} else {
+					require.Greater(t, groupId, int64(0))
+				}
+			}
+		})
+	}
 }
 
 func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
