@@ -1,0 +1,35 @@
+apiVersion: generators.external-secrets.io/v1alpha1
+kind: VaultDynamicSecret
+metadata:
+  name: gitlab-regcred-example-service-dynamic-secret
+spec:
+  path: <path_to_vault_gitlab_plugin>/token/<gitlab_token_role>
+  method: POST
+  resultType: Data
+  provider:
+    server: https://<vault_url>
+    auth:
+      kubernetes:
+        mountPath: <kubernetes_mount_path>
+        role: <kubernetes_mount_role>
+        serviceAccountRef:
+          name: default
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: gitlab-regcred-example-service-external-secret
+spec:
+  refreshInterval: 168h
+  target:
+    name: gitlab-regcred-example-service
+    template:
+      type: kubernetes.io/dockerconfigjson
+      data:
+        .dockerconfigjson: '{"auths":{"<url_to_container_registry>":{"auth":"{{ print .username ":" .token | b64enc }}"}}}'
+  dataFrom:
+  - sourceRef:
+      generatorRef:
+        apiVersion: generators.external-secrets.io/v1alpha1
+        kind: VaultDynamicSecret
+        name: gitlab-regcred-example-service-dynamic-secret
