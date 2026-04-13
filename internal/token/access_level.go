@@ -1,9 +1,10 @@
 package token
 
 import (
-	"errors"
 	"fmt"
 	"slices"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 
 	g "gitlab.com/gitlab-org/api/client-go"
 )
@@ -23,8 +24,6 @@ const (
 )
 
 var (
-	ErrUnknownAccessLevel = errors.New("unknown access level")
-
 	ValidAccessLevels = []string{
 		AccessLevelNoPermissions.String(),
 		AccessLevelMinimalAccessPermissions.String(),
@@ -92,5 +91,5 @@ func ParseAccessLevel(value string) (AccessLevel, error) {
 	if slices.Contains(ValidAccessLevels, value) {
 		return AccessLevel(value), nil
 	}
-	return AccessLevelUnknown, fmt.Errorf("failed to parse '%s': %w", value, ErrUnknownAccessLevel)
+	return AccessLevelUnknown, fmt.Errorf("failed to parse '%s': %w", value, errs.ErrUnknownAccessLevel)
 }

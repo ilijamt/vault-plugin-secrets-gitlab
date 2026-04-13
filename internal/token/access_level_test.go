@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
@@ -63,7 +64,7 @@ func TestAccessLevel(t *testing.T) {
 			val, err := gitlab.ParseAccessLevel(test.input)
 			assert.EqualValues(t, test.expected, val)
 			if test.err {
-				assert.ErrorIs(t, err, gitlab.ErrUnknownAccessLevel)
+				assert.ErrorIs(t, err, errs.ErrUnknownAccessLevel)
 				assert.Less(t, val.Value(), 0)
 			} else {
 				assert.NoError(t, err)
