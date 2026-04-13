@@ -140,7 +140,7 @@ func (gc *gitlabClient) Metadata(ctx context.Context) (metadata *g.Metadata, err
 func (gc *gitlabClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, path, name string, projectId int64, description string, expiresAt *time.Time) (et *modelToken.TokenPipelineProjectTrigger, err error) {
 	var pt *g.PipelineTrigger
 	defer func() {
-		gc.logger.Debug("Create a pipeline project trigger access token", "path", path, "name", name, "projectId", description, "description", "error", err)
+		gc.logger.Debug("Create a pipeline project trigger access token", "path", path, "name", name, "projectId", projectId, "description", description, "error", err)
 	}()
 
 	if pt, _, err = gc.client.PipelineTriggers.AddPipelineTrigger(
