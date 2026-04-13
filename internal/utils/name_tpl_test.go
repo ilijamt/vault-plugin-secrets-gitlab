@@ -35,6 +35,7 @@ func (t *tokenName) LogicalResponseData() map[string]any {
 var _ utils.TokenNameData = (*tokenName)(nil)
 
 func TestTokenNameGenerator(t *testing.T) {
+	now := time.Now().UTC()
 	var tests = []struct {
 		in     *tokenName
 		outVal string
@@ -127,7 +128,7 @@ func TestTokenNameGenerator(t *testing.T) {
 					"token_type": "personal",
 				},
 			},
-			fmt.Sprintf("test-personal-%d-%02d", time.Now().UTC().Year(), time.Now().UTC().Month()),
+			fmt.Sprintf("test-personal-%d-%02d", now.Year(), now.Month()),
 			false,
 		},
 	}
