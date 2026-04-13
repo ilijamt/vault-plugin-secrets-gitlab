@@ -59,7 +59,7 @@ const (
 
 var (
 
-	// ValidPersonalTokenScopes defines the actions you can perform when you authenticate with a project access token.
+	// ValidPersonalTokenScopes defines the actions you can perform when you authenticate with a personal access token.
 	ValidPersonalTokenScopes = []string{
 		ScopeApi.String(),
 		ScopeReadUser.String(),
