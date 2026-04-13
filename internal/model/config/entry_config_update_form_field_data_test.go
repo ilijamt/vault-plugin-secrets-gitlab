@@ -34,7 +34,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 			name:     "no data should fail",
 			raw:      map[string]interface{}{},
 			err:      true,
-			warnings: []string{"auto_rotate_token not specified setting to 24h0m0s"},
+			warnings: []string{"auto_rotate_before not specified setting to 24h0m0s"},
 			errMap: map[string]int{
 				errs.ErrFieldRequired.Error(): 3,
 			},
@@ -46,7 +46,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 				"type":     "type",
 			},
 			expectedConfig: &config.EntryConfig{AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL, BaseURL: "https://gitlab.com"},
-			warnings:       []string{"auto_rotate_token not specified setting to 24h0m0s"},
+			warnings:       []string{"auto_rotate_before not specified setting to 24h0m0s"},
 			err:            true,
 			errMap: map[string]int{
 				errs.ErrFieldRequired.Error():      1,
@@ -71,7 +71,7 @@ func TestEntryConfigUpdateFromFieldData(t *testing.T) {
 				AutoRotateBefore: config.DefaultAutoRotateBeforeMinTTL,
 				BaseURL:          "https://gitlab.com",
 			},
-			warnings: []string{"auto_rotate_token not specified setting to 24h0m0s"},
+			warnings: []string{"auto_rotate_before not specified setting to 24h0m0s"},
 			raw: map[string]interface{}{
 				"token":    "token",
 				"type":     gitlabTypes.TypeSelfManaged.String(),

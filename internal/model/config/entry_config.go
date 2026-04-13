@@ -90,15 +90,15 @@ func (e *EntryConfig) updateAutoRotateBefore(data *framework.FieldData) (warning
 	if val, ok := data.GetOk("auto_rotate_before"); ok {
 		atr, _ := utils.ConvertToInt(val)
 		if atr > int(DefaultAutoRotateBeforeMaxTTL.Seconds()) {
-			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be bigger than %s: %w", DefaultAutoRotateBeforeMaxTTL, errs.ErrInvalidValue))
+			err = multierror.Append(err, fmt.Errorf("auto_rotate_before can not be bigger than %s: %w", DefaultAutoRotateBeforeMaxTTL, errs.ErrInvalidValue))
 		} else if atr <= int(DefaultAutoRotateBeforeMinTTL.Seconds())-1 {
-			err = multierror.Append(err, fmt.Errorf("auto_rotate_token can not be less than %s: %w", DefaultAutoRotateBeforeMinTTL, errs.ErrInvalidValue))
+			err = multierror.Append(err, fmt.Errorf("auto_rotate_before can not be less than %s: %w", DefaultAutoRotateBeforeMinTTL, errs.ErrInvalidValue))
 		} else {
 			e.AutoRotateBefore = time.Duration(atr) * time.Second
 		}
 	} else {
 		e.AutoRotateBefore = DefaultAutoRotateBeforeMinTTL
-		warnings = append(warnings, fmt.Sprintf("auto_rotate_token not specified setting to %s", DefaultAutoRotateBeforeMinTTL))
+		warnings = append(warnings, fmt.Sprintf("auto_rotate_before not specified setting to %s", DefaultAutoRotateBeforeMinTTL))
 	}
 	return warnings, err
 }
