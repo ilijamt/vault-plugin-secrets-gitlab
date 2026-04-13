@@ -41,7 +41,7 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 	}
 
 	tokenType, _ = token.ParseType(data.Get("token_type").(string))
-	accessLevel, _ = token.AccessLevelParse(data.Get("access_level").(string))
+	accessLevel, _ = token.ParseAccessLevel(data.Get("access_level").(string))
 
 	var role = modelRole.Role{
 		RoleName:            roleName,

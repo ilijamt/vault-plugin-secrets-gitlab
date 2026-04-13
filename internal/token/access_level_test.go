@@ -60,7 +60,7 @@ func TestAccessLevel(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			val, err := gitlab.AccessLevelParse(test.input)
+			val, err := gitlab.ParseAccessLevel(test.input)
 			assert.EqualValues(t, test.expected, val)
 			if test.err {
 				assert.ErrorIs(t, err, gitlab.ErrUnknownAccessLevel)

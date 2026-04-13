@@ -88,7 +88,7 @@ func (i AccessLevel) Value() int {
 	return -1
 }
 
-func AccessLevelParse(value string) (AccessLevel, error) {
+func ParseAccessLevel(value string) (AccessLevel, error) {
 	if slices.Contains(ValidAccessLevels, value) {
 		return AccessLevel(value), nil
 	}
