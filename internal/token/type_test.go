@@ -68,7 +68,6 @@ func TestTokenType(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			val, err := token.ParseType(test.input)
 			assert.EqualValues(t, test.expected, val)
-			assert.EqualValues(t, test.expected.Value(), test.expected.String())
 			if test.err {
 				assert.ErrorIs(t, err, errs.ErrUnknownTokenType)
 			} else {

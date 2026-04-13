@@ -39,10 +39,6 @@ func (i Type) String() string {
 	return string(i)
 }
 
-func (i Type) Value() string {
-	return i.String()
-}
-
 func ParseType(value string) (Type, error) {
 	if slices.Contains(ValidTokenTypes, value) {
 		return Type(value), nil

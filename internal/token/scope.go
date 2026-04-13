@@ -141,10 +141,6 @@ func (i Scope) String() string {
 	return string(i)
 }
 
-func (i Scope) Value() string {
-	return i.String()
-}
-
 func ParseScope(value string) (Scope, error) {
 	if slices.Contains(ValidGroupTokenScopes, value) ||
 		slices.Contains(ValidPipelineProjectTokenScopes, value) ||
