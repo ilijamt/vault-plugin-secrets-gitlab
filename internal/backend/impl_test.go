@@ -2,6 +2,7 @@ package backend_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/assert"
@@ -158,4 +159,53 @@ func TestGetClientByName_ConcurrentAccess(t *testing.T) {
 		require.NoError(t, <-errs)
 	}
 	assert.NotNil(t, b.GetClient("race"))
+}
+
+func TestGetClientByName_DoubleCheckHit(t *testing.T) {
+	b := newTestBackend(t)
+	gs := &gatedStorage{
+		entered: make(chan struct{}),
+		gate:    make(chan struct{}),
+	}
+
+	// Save config before gating — writes go through InmemStorage directly.
+	require.NoError(t, b.SaveConfig(t.Context(), &gs.InmemStorage, &config.EntryConfig{
+		Name: "dbl", BaseURL: "https://gitlab.com", Token: "glpat-test",
+	}))
+
+	var clientA, clientB gitlab.Client
+	var errA, errB error
+
+	// Goroutine A: acquires the lock, then blocks inside storage.Get.
+	doneA := make(chan struct{})
+	go func() {
+		defer close(doneA)
+		clientA, errA = b.GetClientByName(t.Context(), gs, "dbl")
+	}()
+
+	// Wait until A is inside Get (meaning it holds the client lock).
+	<-gs.entered
+
+	// Goroutine B: passes the first check (no cached client), then blocks on the lock.
+	doneB := make(chan struct{})
+	go func() {
+		defer close(doneB)
+		clientB, errB = b.GetClientByName(t.Context(), gs, "dbl")
+	}()
+
+	// Give B time to reach the lock.
+	time.Sleep(50 * time.Millisecond)
+
+	// Release the gate — A finishes, caches the client, releases the lock.
+	// B then acquires the lock, hits the re-check, and returns the cached client.
+	close(gs.gate)
+
+	<-doneA
+	<-doneB
+
+	require.NoError(t, errA)
+	require.NoError(t, errB)
+	require.NotNil(t, clientA)
+	require.NotNil(t, clientB)
+	assert.Same(t, clientA, clientB)
 }

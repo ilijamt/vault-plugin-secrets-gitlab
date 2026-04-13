@@ -3,6 +3,7 @@ package backend_test
 import (
 	"context"
 	"errors"
+	"sync"
 	"testing"
 
 	"github.com/hashicorp/vault/sdk/framework"
@@ -52,4 +53,19 @@ func newErrorStorage() *errorStorage {
 
 func (e *errorStorage) Get(_ context.Context, _ string) (*logical.StorageEntry, error) {
 	return nil, e.err
+}
+
+// gatedStorage wraps InmemStorage so that Get blocks until the gate is released.
+// This lets tests control goroutine ordering for the double-checked locking path.
+type gatedStorage struct {
+	logical.InmemStorage
+	entered chan struct{} // closed on first Get — signals the caller holds the lock
+	gate    chan struct{} // Get blocks until this is closed
+	once    sync.Once
+}
+
+func (g *gatedStorage) Get(ctx context.Context, key string) (*logical.StorageEntry, error) {
+	g.once.Do(func() { close(g.entered) })
+	<-g.gate
+	return g.InmemStorage.Get(ctx, key)
 }
