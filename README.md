@@ -6,7 +6,7 @@ Vault Plugin for Gitlab Access Token
 [![GitHub](https://img.shields.io/github/license/ilijamt/vault-plugin-secrets-gitlab)](LICENSE)
 [![Release](https://img.shields.io/github/release/ilijamt/vault-plugin-secrets-gitlab.svg)](https://github.com/ilijamt/vault-plugin-secrets-gitlab/releases/latest)
 
-This is a standalone backend plugin for use with Hashicorp Vault. This plugin allows for Gitlab to generate personal,
+This is a standalone backend plugin for use with Hashicorp Vault/OpenBao. This plugin allows for Gitlab to generate personal,
 project and group access tokens. This was created so we can automate the creation/revocation of access tokens
 through Vault.
 
