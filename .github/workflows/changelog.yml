@@ -29,7 +29,6 @@ jobs:
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --verbose
         env:
           OUTPUT: CHANGELOG.md
           GITHUB_REPO: ${{ github.repository }}
@@ -38,7 +37,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
-          if git diff --quiet -- CHANGELOG.md; then
+          if [ -z "$(git status --porcelain -- CHANGELOG.md)" ]; then
             echo "No changelog changes."
             exit 0
           fi
