@@ -8,10 +8,15 @@ All notable changes to this project will be documented in this file.
 ### <!-- 4 -->Documentation
 
 - Clarify plugin support for OpenBao
+- *(changelog)* Regenerate CHANGELOG.md [skip ci]
 
 ### <!-- 6 -->CI
 
 - *(workflows)* Configured changelog generation for automated releases
+
+### <!-- 7 -->Dependencies
+
+- *(deps)* Bump actions/checkout from 4 to 6 (#331) (#331)
 
 ### <!-- 9 -->Chore
 
