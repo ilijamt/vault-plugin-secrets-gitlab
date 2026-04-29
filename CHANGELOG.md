@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 - Clarify plugin support for OpenBao
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
+- *(changelog)* Regenerate CHANGELOG.md [skip ci]
 
 ### <!-- 6 -->CI
 
@@ -17,6 +18,7 @@ All notable changes to this project will be documented in this file.
 ### <!-- 7 -->Dependencies
 
 - *(deps)* Bump actions/checkout from 4 to 6 (#331) (#331)
+- *(deps)* Bump softprops/action-gh-release from 2 to 3 (#330)
 
 ### <!-- 9 -->Chore
 
