@@ -33,7 +33,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:29 GMT
+                - Thu, 30 Apr 2026 11:31:21 GMT
+            Nel:
+                - '{"max_age": 0}'
             Server:
                 - nginx
             Strict-Transport-Security:
@@ -41,14 +43,14 @@ interactions:
             Vary:
                 - Origin
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JY90D38739088V3TXDKH","version":"1"}'
+                - '{"correlation_id":"01KQF2GQV1N92W4CHXMJWAPRPZ","version":"1"}'
             X-Request-Id:
-                - 01KP31JY90D38739088V3TXDKH
+                - 01KQF2GQV1N92W4CHXMJWAPRPZ
             X-Runtime:
-                - "0.015003"
+                - "0.010171"
         status: 404 Not Found
         code: 404
-        duration: 18.08375ms
+        duration: 11.931875ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -69,19 +71,21 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 80
-        body: '{"message":"404 Could not find group access token with token_id: 999 Not Found"}'
+        content_length: 46
+        body: '{"message":"404 group Access Token Not Found"}'
         headers:
             Cache-Control:
                 - no-cache
             Connection:
                 - keep-alive
             Content-Length:
-                - "80"
+                - "46"
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:29 GMT
+                - Thu, 30 Apr 2026 11:31:21 GMT
+            Nel:
+                - '{"max_age": 0}'
             Server:
                 - nginx
             Strict-Transport-Security:
@@ -93,14 +97,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JYA5H8Z56WCCDBDKSMGQ","version":"1"}'
+                - '{"correlation_id":"01KQF2GQVDZYT6P9B9QC1RS58Q","version":"1"}'
             X-Request-Id:
-                - 01KP31JYA5H8Z56WCCDBDKSMGQ
+                - 01KQF2GQVDZYT6P9B9QC1RS58Q
             X-Runtime:
-                - "0.063346"
+                - "0.038957"
         status: 404 Not Found
         code: 404
-        duration: 65.618833ms
+        duration: 41.024875ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -121,19 +125,21 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 82
-        body: '{"message":"404 Could not find project access token with token_id: 999 Not Found"}'
+        content_length: 48
+        body: '{"message":"404 project Access Token Not Found"}'
         headers:
             Cache-Control:
                 - no-cache
             Connection:
                 - keep-alive
             Content-Length:
-                - "82"
+                - "48"
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:29 GMT
+                - Thu, 30 Apr 2026 11:31:21 GMT
+            Nel:
+                - '{"max_age": 0}'
             Server:
                 - nginx
             Strict-Transport-Security:
@@ -145,11 +151,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JYEBK0YWP7WW2Q1J4VRB","version":"1"}'
+                - '{"correlation_id":"01KQF2GQWPG8MAG1JZ2Z0936BV","version":"1"}'
             X-Request-Id:
-                - 01KP31JYEBK0YWP7WW2Q1J4VRB
+                - 01KQF2GQWPG8MAG1JZ2Z0936BV
             X-Runtime:
-                - "0.045859"
+                - "0.047819"
         status: 404 Not Found
         code: 404
-        duration: 48.664583ms
+        duration: 49.917833ms

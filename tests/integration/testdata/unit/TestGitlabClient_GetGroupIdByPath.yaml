@@ -25,7 +25,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '{"id":4,"web_url":"http://39a8a32fb6c8/groups/test","name":"test","path":"test","description":"A test group","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"test","full_path":"test","created_at":"2026-04-13T09:02:43.776Z","parent_id":null,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"shared_with_groups":[],"runners_token":"GR1348941-X5hBuxiCeAkszSyhZqY","enabled_git_access_protocol":"all","prevent_sharing_groups_outside_hierarchy":false,"projects":[],"shared_projects":[]}'
+        body: '{"id":2,"web_url":"http://627f002dc588/groups/test","name":"test","path":"test","description":"A test group","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"test","full_path":"test","created_at":"2026-04-29T22:07:38.125Z","parent_id":null,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"shared_with_groups":[],"runners_token":"GR1348941uCD4BuJy7G_DY8gDCxtD","enabled_git_access_protocol":"all","prevent_sharing_groups_outside_hierarchy":false,"projects":[],"shared_projects":[]}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -34,9 +34,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:27 GMT
+                - Thu, 30 Apr 2026 11:31:20 GMT
             Etag:
-                - W/"eb110be5107465a990c10b982436d129"
+                - W/"6ed6526fbc2bb26498698abcf547fe62"
+            Nel:
+                - '{"max_age": 0}'
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -51,14 +53,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JWBB1BVC7AJM79RSF3BP","version":"1"}'
+                - '{"correlation_id":"01KQF2GPT43RBCNZS6GQSG823N","version":"1"}'
             X-Request-Id:
-                - 01KP31JWBB1BVC7AJM79RSF3BP
+                - 01KQF2GPT43RBCNZS6GQSG823N
             X-Runtime:
-                - "0.082696"
+                - "0.202098"
         status: 200 OK
         code: 200
-        duration: 87.24075ms
+        duration: 206.620125ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -83,7 +85,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '{"id":9,"web_url":"http://39a8a32fb6c8/groups/level-1/level-2/level-3","name":"l3","path":"level-3","description":"Two levels down","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"l1 / l2 / l3","full_path":"level-1/level-2/level-3","created_at":"2026-04-13T09:02:54.902Z","parent_id":7,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"shared_with_groups":[],"runners_token":"GR1348941YX-Q3g1PQe1HQGs2td6Q","projects":[],"shared_projects":[]}'
+        body: '{"id":9,"web_url":"http://627f002dc588/groups/level-1/level-2/level-3","name":"l3","path":"level-3","description":"Two levels down","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"l1 / l2 / l3","full_path":"level-1/level-2/level-3","created_at":"2026-04-29T22:07:49.500Z","parent_id":7,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"shared_with_groups":[],"runners_token":"GR1348941yBzrfVt8Evmx2UtkSXjp","projects":[],"shared_projects":[]}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -92,9 +94,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:27 GMT
+                - Thu, 30 Apr 2026 11:31:20 GMT
             Etag:
-                - W/"bc78a8afe17c914b79ca8ad847543b45"
+                - W/"8dc105ed515c219a1d9818ff570d5dd6"
+            Nel:
+                - '{"max_age": 0}'
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -109,14 +113,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JWH6VMPF684SYCJETQQ1","version":"1"}'
+                - '{"correlation_id":"01KQF2GQ0PTDZKEYHKR7DB9SZY","version":"1"}'
             X-Request-Id:
-                - 01KP31JWH6VMPF684SYCJETQQ1
+                - 01KQF2GQ0PTDZKEYHKR7DB9SZY
             X-Runtime:
-                - "0.104640"
+                - "0.036750"
         status: 200 OK
         code: 200
-        duration: 108.129917ms
+        duration: 39.883875ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -141,7 +145,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '{"id":7,"web_url":"http://39a8a32fb6c8/groups/level-1/level-2","name":"l2","path":"level-2","description":"One level down","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"l1 / l2","full_path":"level-1/level-2","created_at":"2026-04-13T09:02:49.337Z","parent_id":2,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"shared_with_groups":[],"runners_token":"GR1348941xaUHM5Ddwu8xQg14TqQs","projects":[],"shared_projects":[]}'
+        body: '{"id":7,"web_url":"http://627f002dc588/groups/level-1/level-2","name":"l2","path":"level-2","description":"One level down","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"l1 / l2","full_path":"level-1/level-2","created_at":"2026-04-29T22:07:43.961Z","parent_id":4,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"shared_with_groups":[],"runners_token":"GR1348941TYotjM77Jwy3q5PeFr_6","projects":[],"shared_projects":[]}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -150,9 +154,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:28 GMT
+                - Thu, 30 Apr 2026 11:31:20 GMT
             Etag:
-                - W/"ce70d47dc7dcec312f104ca55b09f018"
+                - W/"7cbd2c388862109b6dd6984f72436806"
+            Nel:
+                - '{"max_age": 0}'
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -167,14 +173,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JWR1YZ17FWY3J5WD4ACD","version":"1"}'
+                - '{"correlation_id":"01KQF2GQ1Y48FPMJ5PEJ4W5V7C","version":"1"}'
             X-Request-Id:
-                - 01KP31JWR1YZ17FWY3J5WD4ACD
+                - 01KQF2GQ1Y48FPMJ5PEJ4W5V7C
             X-Runtime:
-                - "0.028943"
+                - "0.326791"
         status: 200 OK
         code: 200
-        duration: 31.667333ms
+        duration: 332.492375ms
     - id: 3
       request:
         proto: HTTP/1.1
@@ -207,7 +213,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:28 GMT
+                - Thu, 30 Apr 2026 11:31:20 GMT
+            Nel:
+                - '{"max_age": 0}'
             Server:
                 - nginx
             Strict-Transport-Security:
@@ -219,14 +227,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JWT2VBNBEJMG4VP7Q5WQ","version":"1"}'
+                - '{"correlation_id":"01KQF2GQCBYGK7Z8Z6Z5XBZ94M","version":"1"}'
             X-Request-Id:
-                - 01KP31JWT2VBNBEJMG4VP7Q5WQ
+                - 01KQF2GQCBYGK7Z8Z6Z5XBZ94M
             X-Runtime:
-                - "0.200483"
+                - "0.015786"
         status: 404 Not Found
         code: 404
-        duration: 203.391ms
+        duration: 17.933458ms
     - id: 4
       request:
         proto: HTTP/1.1
@@ -259,7 +267,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:28 GMT
+                - Thu, 30 Apr 2026 11:31:20 GMT
+            Nel:
+                - '{"max_age": 0}'
             Server:
                 - nginx
             Strict-Transport-Security:
@@ -271,14 +281,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JX6XGJXA0KPW9J850077","version":"1"}'
+                - '{"correlation_id":"01KQF2GQCX5YR06E6RFGFTSM6T","version":"1"}'
             X-Request-Id:
-                - 01KP31JX6XGJXA0KPW9J850077
+                - 01KQF2GQCX5YR06E6RFGFTSM6T
             X-Runtime:
-                - "0.171369"
+                - "0.212892"
         status: 404 Not Found
         code: 404
-        duration: 176.722166ms
+        duration: 217.96ms
     - id: 5
       request:
         proto: HTTP/1.1
@@ -311,7 +321,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:28 GMT
+                - Thu, 30 Apr 2026 11:31:20 GMT
+            Nel:
+                - '{"max_age": 0}'
             Server:
                 - nginx
             Strict-Transport-Security:
@@ -323,11 +335,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JXHZ4WY3AYZWCQ4YWK5V","version":"1"}'
+                - '{"correlation_id":"01KQF2GQKQWFBPCEYE4ZZPH07P","version":"1"}'
             X-Request-Id:
-                - 01KP31JXHZ4WY3AYZWCQ4YWK5V
+                - 01KQF2GQKQWFBPCEYE4ZZPH07P
             X-Runtime:
-                - "0.015117"
+                - "0.020762"
         status: 404 Not Found
         code: 404
-        duration: 19.656541ms
+        duration: 23.126458ms

@@ -28,7 +28,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '[{"id":1,"username":"root","name":"Administrator","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/ca0320603d91c061ffd2e60f58565563021d169858deb720e104eb430032481c?s=80\u0026d=identicon","web_url":"http://39a8a32fb6c8/root","created_at":"2026-04-13T09:00:37.126Z","bio":"","location":"","public_email":null,"skype":"","linkedin":"","twitter":"","discord":"","website_url":"","organization":"","job_title":"","pronouns":null,"bot":false,"work_information":null,"followers":0,"following":0,"is_followed":false,"local_time":null,"last_sign_in_at":null,"confirmed_at":"2026-04-13T09:00:37.020Z","last_activity_on":"2026-04-13","email":"gitlab_admin_53c862@example.com","theme_id":3,"color_scheme_id":1,"projects_limit":100000,"current_sign_in_at":null,"identities":[],"can_create_group":true,"can_create_project":true,"two_factor_enabled":false,"external":false,"private_profile":false,"commit_email":"gitlab_admin_53c862@example.com","is_admin":true,"note":null,"namespace_id":1,"created_by":null,"email_reset_offered_at":null}]'
+        body: '[{"id":1,"username":"root","name":"Administrator","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/3226c1a8e86cfd367550cff4c1ec6fdcd516035048ae291fbe0b68ad046546e4?s=80\u0026d=identicon","web_url":"http://627f002dc588/root","created_at":"2026-04-29T22:05:35.220Z","bio":"","location":"","public_email":null,"skype":"","linkedin":"","twitter":"","discord":"","website_url":"","organization":"","job_title":"","pronouns":null,"bot":false,"work_information":null,"followers":0,"following":0,"is_followed":false,"local_time":null,"last_sign_in_at":null,"confirmed_at":"2026-04-29T22:05:35.070Z","last_activity_on":"2026-04-29","email":"gitlab_admin_1a3cbf@example.com","theme_id":3,"color_scheme_id":1,"projects_limit":100000,"current_sign_in_at":null,"identities":[],"can_create_group":true,"can_create_project":true,"two_factor_enabled":false,"external":false,"private_profile":false,"commit_email":"gitlab_admin_1a3cbf@example.com","is_admin":true,"note":null,"namespace_id":1,"created_by":null,"email_reset_offered_at":null}]'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -37,11 +37,13 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:29 GMT
+                - Thu, 30 Apr 2026 11:31:21 GMT
             Etag:
-                - W/"f0c3ec2056b30db1adfae874901307a1"
+                - W/"3b87cc4dca29ea4f061c8d43d3927ce4"
             Link:
-                - <http://39a8a32fb6c8/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=root&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://39a8a32fb6c8/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=root&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
+                - <http://627f002dc588/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=root&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://627f002dc588/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=root&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
+            Nel:
+                - '{"max_age": 0}'
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -56,7 +58,7 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JXKKV3ABY0BR85R4RQJN","version":"1"}'
+                - '{"correlation_id":"01KQF2GQMH700EECDJW4E0MSN8","version":"1"}'
             X-Next-Page:
                 - ""
             X-Page:
@@ -66,13 +68,13 @@ interactions:
             X-Prev-Page:
                 - ""
             X-Request-Id:
-                - 01KP31JXKKV3ABY0BR85R4RQJN
+                - 01KQF2GQMH700EECDJW4E0MSN8
             X-Runtime:
-                - "0.173421"
+                - "0.163823"
             X-Total:
                 - "1"
             X-Total-Pages:
                 - "1"
         status: 200 OK
         code: 200
-        duration: 176.48675ms
+        duration: 166.226ms
