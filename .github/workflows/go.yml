@@ -26,9 +26,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      versions: ${{ steps.set.outputs.versions }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: set
+        name: Discover GitLab versions
+        run: |
+          versions=$(ls -1 tests/integration/testdata/local | sort | jq -R . | jq -sc .)
+          if [ "$versions" = "[]" ]; then
+            echo "ERROR: no GitLab versions found under tests/integration/testdata/local/"
+            exit 1
+          fi
+          echo "versions=$versions" >> "$GITHUB_OUTPUT"
+          echo "Discovered: $versions"
+
   test:
+    needs: discover
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        gitlab-version: ${{ fromJson(needs.discover.outputs.versions) }}
     steps:
       - uses: actions/checkout@v6
       - name: Set up Go
@@ -38,10 +61,43 @@ jobs:
           cache: true
       - name: Build
         run: make build
-      - name: Test
-        run: make test
+      - name: Test against GitLab ${{ matrix.gitlab-version }}
+        run: make test GITLAB_VERSIONS=${{ matrix.gitlab-version }}
         env:
           GITLAB_SERVICE_ACCOUNT_URL: ${{ vars.GITLAB_SERVICE_ACCOUNT_URL }}
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: covdata-${{ matrix.gitlab-version }}
+          path: build/covdata/${{ matrix.gitlab-version }}
+          if-no-files-found: error
+          retention-days: 1
+
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: "go.mod"
+          cache: true
+      - name: Download per-version coverage data
+        uses: actions/download-artifact@v4
+        with:
+          path: build/covdata
+          pattern: covdata-*
+      - name: Merge coverage
+        run: |
+          mkdir -p build
+          dirs=$(find build/covdata -mindepth 1 -maxdepth 1 -type d | paste -sd, -)
+          if [ -z "$dirs" ]; then
+            echo "ERROR: no coverage data downloaded"
+            exit 1
+          fi
+          go tool covdata textfmt -i="$dirs" -o build/coverage.out
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v6
         env:
