@@ -21,10 +21,20 @@ func getClient(t *testing.T, target string) (client *http.Client, u string) {
 
 	defaultGitlabHost := "localhost:8080"
 
-	filename := fmt.Sprintf("testdata/%s/%s", target, sanitizePath(t.Name()))
+	var filename string
+	switch target {
+	case "unit", "local":
+		version := os.Getenv("GITLAB_VERSION")
+		if version == "" {
+			t.Fatal("GITLAB_VERSION env var must be set for unit/local cassettes; run via 'make test' or export GITLAB_VERSION explicitly")
+		}
+		filename = fmt.Sprintf("testdata/%s/%s/%s", target, version, sanitizePath(t.Name()))
+	default:
+		filename = fmt.Sprintf("testdata/%s/%s", target, sanitizePath(t.Name()))
+	}
 	r, err := recorder.New(filename,
 		[]recorder.Option{
-			recorder.WithSkipRequestLatency(false),
+			recorder.WithSkipRequestLatency(os.Getenv("SKIP_REQUEST_LATENCY") != ""),
 			recorder.WithMode(recorder.ModeRecordOnce),
 			recorder.WithMatcher(
 				cassette.NewDefaultMatcher(
@@ -38,10 +48,6 @@ func getClient(t *testing.T, target string) (client *http.Client, u string) {
 			recorder.WithHook(func(i *cassette.Interaction) error {
 				i.Request.Headers.Set("Private-Token", "REPLACED-TOKEN")
 				i.Response.Body = tokenFieldRegex.ReplaceAllString(i.Response.Body, `"token":"REPLACED-TOKEN"`)
-				// u, _ := url.Parse(i.Request.URL)
-				// u.Host = defaultGitlabHost
-				// i.Request.Host = u.Host
-				// i.Request.URL = u.String()
 				return nil
 			}, recorder.BeforeSaveHook),
 		}...,

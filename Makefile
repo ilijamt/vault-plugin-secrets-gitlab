@@ -18,6 +18,22 @@ TAGS ?= unit,local,saas,selfhosted
 TEST_ARGS ?=
 
 BUILD_DIR ?= build
+
+# GitLab versions to run integration tests against. Auto-discovered from
+# tests/integration/testdata/local/<version>/ subdirectories. Override to test
+# a single version, e.g.:
+#   make test GITLAB_VERSIONS=17.11.7
+GITLAB_VERSIONS ?= $(shell ls -1 tests/integration/testdata/local 2>/dev/null | sort)
+
+# Per-version binary coverage directory root (Go covdir format). Each test run
+# writes its own subdir; we merge them at the end via `go tool covdata textfmt`.
+COVER_DATA_DIR ?= $(BUILD_DIR)/covdata
+
+# URL of the local GitLab instance booted by local-env/docker-compose.yml.
+# The compose file always exposes the single web service on port 8080, so this
+# rarely changes; override only if you've remapped the host port.
+GITLAB_URL ?= http://localhost:8080
+
 PLUGIN_CMD ?= vault-plugin-secrets-gitlab
 PLUGIN_BIN ?= gitlab
 
@@ -48,12 +64,26 @@ clean:
 test: coverage
 
 coverage: check-go clean-coverage
+	@if [ -z "$(GITLAB_VERSIONS)" ]; then \
+		echo "ERROR: no GitLab versions found under tests/integration/testdata/local/. Set GITLAB_VERSIONS or populate testdata."; \
+		exit 1; \
+	fi
 	mkdir -p $(BUILD_DIR)
-	$(GO) test $(TEST_PKG) -cover -coverpkg=$(COVER_PKG) -coverprofile=$(COVER_PROFILE) -race -tags $(TAGS) -count 1 $(TEST_ARGS)
+	@for v in $(GITLAB_VERSIONS); do \
+		echo "=== Testing against GitLab $$v ==="; \
+		mkdir -p $(COVER_DATA_DIR)/$$v; \
+		GITLAB_VERSION=$$v GITLAB_URL=$(GITLAB_URL) $(GO) test $(TEST_PKG) -cover -coverpkg=$(COVER_PKG) \
+			-race -tags $(TAGS) -count 1 $(TEST_ARGS) \
+			-args -test.gocoverdir=$(abspath $(COVER_DATA_DIR))/$$v || exit $$?; \
+	done
+	$(GO) tool covdata textfmt \
+		-i=$$(echo $(COVER_DATA_DIR)/* | tr ' ' ',') \
+		-o $(COVER_PROFILE)
 	$(GO) tool cover -html=$(COVER_PROFILE) -o $(COVER_HTML)
 
 clean-coverage:
 	rm -f $(COVER_PROFILE) $(COVER_HTML)
+	rm -rf $(COVER_DATA_DIR)
 
 build: check-go
 	mkdir -p $(BUILD_DIR)

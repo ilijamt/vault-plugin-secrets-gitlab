@@ -2,6 +2,9 @@
 
 set -eu
 
+VERSION="${1:-17.11.7}"
+export GITLAB_IMAGE_TAG="${VERSION}-ce.0"
+
 BOLD='\033[1m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
@@ -18,14 +21,17 @@ run() {
   "$@"
 }
 
-stage "Removing old backup"
-run rm -f backup.tar
+BACKUP_FILE="backup.${VERSION}.tar"
+
+stage "Removing old backup ${BACKUP_FILE}"
+run rm -f "${BACKUP_FILE}"
 
 stage "Stopping containers"
 run docker compose stop
 
-stage "Creating backup archive"
-run docker run --rm --volumes-from vpsg-web-1 -v "$(pwd)":/backup ubuntu tar cvf /backup/backup.tar /etc/gitlab /var/opt/gitlab/postgresql/ > /dev/null
+stage "Creating backup archive ${BACKUP_FILE}"
+run docker run --rm --volumes-from vpsg-web-1 -v "$(pwd)":/backup ubuntu \
+  tar cvf "/backup/${BACKUP_FILE}" /etc/gitlab /var/opt/gitlab/postgresql/ > /dev/null
 
 stage "Starting containers"
 run docker compose up -d
