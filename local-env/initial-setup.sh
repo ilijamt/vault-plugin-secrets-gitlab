@@ -22,7 +22,12 @@ run() {
 }
 
 TOKENS_OUT="../tests/integration/testdata/tokens.${VERSION}.json"
-TF_DATA_DIR_VAL=".terraform.${VERSION}"
+TF_DIR="tf/${VERSION}"
+
+if [ ! -d "${TF_DIR}" ]; then
+  echo "ERROR: no terraform directory at ${TF_DIR} for version ${VERSION}. Create it (copy from an existing tf/<version>/) and adjust the gitlab provider version in versions.tf."
+  exit 1
+fi
 
 fn() {
   local cmd=$1
@@ -40,7 +45,7 @@ run docker compose down --remove-orphans --volumes
 
 stage "Starting containers for GitLab ${VERSION} (image gitlab/gitlab-ce:${GITLAB_IMAGE_TAG})"
 run docker compose up -d --wait
-run rm -rf "tf/${TF_DATA_DIR_VAL}" tf/terraform.tfstate*
+run rm -rf "${TF_DIR}/.terraform" "${TF_DIR}/terraform.tfstate"*
 run docker compose up -d --wait
 
 stage "Waiting for GitLab to be ready"
@@ -52,14 +57,14 @@ done
 stage "Creating initial admin access token"
 fn 'token = User.find_by_username("root").personal_access_tokens.create(name: "Initial token", expires_at: DateTime.now.next_month(6).to_time, scopes: [:api, :read_api, :read_user, :sudo, :admin_mode, :create_runner, :k8s_proxy, :read_repository, :write_repository, :ai_features, :read_service_ping]); token.set_token("glpat-secret-random-token"); token.save!'
 
-stage "Running Terraform"
-cd tf || exit
-TF_DATA_DIR="${TF_DATA_DIR_VAL}" run terraform init
-TF_DATA_DIR="${TF_DATA_DIR_VAL}" run terraform apply --auto-approve
-cd ..
+stage "Running Terraform from ${TF_DIR}"
+cd "${TF_DIR}" || exit
+run terraform init
+run terraform apply --auto-approve
+cd - >/dev/null
 
 stage "Saving access tokens to testdata (${TOKENS_OUT})"
-cat tf/tokens.json | jq . > "${TOKENS_OUT}"
+cat "${TF_DIR}/tokens.json" | jq . > "${TOKENS_OUT}"
 
 stage "Backing up volumes"
 run bash ./backup-volumes.sh "${VERSION}"

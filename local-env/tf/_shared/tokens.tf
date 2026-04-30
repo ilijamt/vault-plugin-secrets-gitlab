@@ -1,5 +1,5 @@
 resource "local_file" "tokens" {
-  filename = "${path.module}/tokens.json"
+  filename = "${path.root}/tokens.json"
   content = jsonencode({
     admin_user_root = {
       id         = gitlab_personal_access_token.admin_user_root.id

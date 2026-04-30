@@ -3,34 +3,18 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
 
+- Input validation for GitLab version in backup-volumes.sh and restore-volumes.sh
+- Separated Terraform configurations into shared and version-specific modules
 
-### <!-- 4 -->Documentation
+### Changed
 
-- Clarify plugin support for OpenBao
-- *(changelog)* Regenerate CHANGELOG.md [skip ci]
-- *(changelog)* Regenerate CHANGELOG.md [skip ci]
-- *(changelog)* Regenerate CHANGELOG.md [skip ci]
+- Updated example GitLab version in README from 18.5.2 to 18.11.2
 
-### <!-- 5 -->Tests
+### Removed
 
-- Upgrade to 17.11.7 for local and unit testing
-
-### <!-- 6 -->CI
-
-- *(workflows)* Configured changelog generation for automated releases
-- *(workflows)* Configured matrix testing for GitLab version discovery
-
-### <!-- 7 -->Dependencies
-
-- *(deps)* Bump actions/checkout from 4 to 6 (#331) (#331)
-- *(deps)* Bump softprops/action-gh-release from 2 to 3 (#330)
-
-### <!-- 9 -->Chore
-
-- Configured git-cliff for changelog generation
-- *(workflows)* Updated changelog workflow to use git status
-- Parameterized GitLab version in local setup scripts
+- Deleted top-level tokens.json file
 
 ## [0.11.0] - 2026-04-20
 
