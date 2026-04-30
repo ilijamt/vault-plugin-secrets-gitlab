@@ -22,7 +22,7 @@ interactions:
         proto_major: 1
         proto_minor: 1
         content_length: 217
-        body: '{"id":2,"name":"Initial token","revoked":false,"created_at":"2026-04-13T09:02:43.969Z","description":null,"scopes":["api"],"user_id":2,"last_used_at":"2026-04-13T09:07:37.594Z","active":true,"expires_at":"2027-04-12"}'
+        body: '{"id":2,"name":"Initial token","revoked":false,"created_at":"2026-04-30T11:43:40.391Z","description":null,"scopes":["api"],"user_id":3,"last_used_at":"2026-04-30T11:46:24.399Z","active":true,"expires_at":"2027-04-29"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -33,9 +33,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:10:31 GMT
+                - Thu, 30 Apr 2026 11:46:25 GMT
             Etag:
-                - W/"f0186f07c469b63dfc7f5df6552ae500"
+                - W/"9132ee9736a79a66ac59e11ea12ceca1"
+            Nel:
+                - '{"max_age": 0}'
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -49,14 +51,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31PMZ2XYJXG7RYG0N1HPJA","version":"1"}'
+                - '{"correlation_id":"01KQF3CB12M5TPG9QGPK3HQ2X9","version":"1"}'
             X-Request-Id:
-                - 01KP31PMZ2XYJXG7RYG0N1HPJA
+                - 01KQF3CB12M5TPG9QGPK3HQ2X9
             X-Runtime:
-                - "0.013634"
+                - "0.010171"
         status: 200 OK
         code: 200
-        duration: 16.270916ms
+        duration: 12.091916ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -78,7 +80,7 @@ interactions:
         proto_major: 1
         proto_minor: 1
         content_length: 236
-        body: '{"version":"17.10.3","revision":"22d4014a923","kas":{"enabled":true,"externalUrl":"ws://39a8a32fb6c8/-/kubernetes-agent/","externalK8sProxyUrl":"http://39a8a32fb6c8/-/kubernetes-agent/k8s-proxy/","version":"17.10.3"},"enterprise":false}'
+        body: '{"version":"17.11.7","revision":"5ad4b58c943","kas":{"enabled":true,"externalUrl":"ws://2031aab316e4/-/kubernetes-agent/","externalK8sProxyUrl":"http://2031aab316e4/-/kubernetes-agent/k8s-proxy/","version":"17.11.7"},"enterprise":false}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -89,9 +91,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:10:31 GMT
+                - Thu, 30 Apr 2026 11:46:25 GMT
             Etag:
-                - W/"2a84a41db68c0c681a198888290fe139"
+                - W/"8b5cc4aedbe6164f9f9428e3d2b1c503"
+            Nel:
+                - '{"max_age": 0}'
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -105,14 +109,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31PN05STSVBHG9YJPGHD4J","version":"1"}'
+                - '{"correlation_id":"01KQF3CB1E912R8JCVH7K5C4H0","version":"1"}'
             X-Request-Id:
-                - 01KP31PN05STSVBHG9YJPGHD4J
+                - 01KQF3CB1E912R8JCVH7K5C4H0
             X-Runtime:
-                - "0.017055"
+                - "0.013235"
         status: 200 OK
         code: 200
-        duration: 19.618917ms
+        duration: 14.930709ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -140,7 +144,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '[{"id":2,"username":"normal-user","name":"Normal User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/30ee3a8ed91c220db688a3bde115c203763b4281374c40835f69168786a590af?s=80\u0026d=identicon","web_url":"http://39a8a32fb6c8/normal-user"}]'
+        body: '[{"id":3,"username":"normal-user","name":"Normal User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/30ee3a8ed91c220db688a3bde115c203763b4281374c40835f69168786a590af?s=80\u0026d=identicon","web_url":"http://2031aab316e4/normal-user"}]'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -149,11 +153,13 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:10:31 GMT
+                - Thu, 30 Apr 2026 11:46:25 GMT
             Etag:
-                - W/"9b72398216d2758f6440969f69c32e09"
+                - W/"65a9ff135e78ed79070f9f3fd18fa23a"
             Link:
-                - <http://39a8a32fb6c8/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://39a8a32fb6c8/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
+                - <http://2031aab316e4/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://2031aab316e4/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=normal-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
+            Nel:
+                - '{"max_age": 0}'
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
@@ -168,7 +174,7 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31PN1H94CFZVDQ91WJR0KJ","version":"1"}'
+                - '{"correlation_id":"01KQF3CB1XTHZEH65AM1FJXBGF","version":"1"}'
             X-Next-Page:
                 - ""
             X-Page:
@@ -178,16 +184,16 @@ interactions:
             X-Prev-Page:
                 - ""
             X-Request-Id:
-                - 01KP31PN1H94CFZVDQ91WJR0KJ
+                - 01KQF3CB1XTHZEH65AM1FJXBGF
             X-Runtime:
-                - "0.023278"
+                - "0.017860"
             X-Total:
                 - "1"
             X-Total-Pages:
                 - "1"
         status: 200 OK
         code: 200
-        duration: 26.104166ms
+        duration: 19.678208ms
     - id: 3
       request:
         proto: HTTP/1.1
@@ -195,7 +201,7 @@ interactions:
         proto_minor: 1
         content_length: 67
         host: localhost:8080
-        body: '{"name":"personal","expires_at":"2026-04-19","scopes":["read_api"]}'
+        body: '{"name":"personal","expires_at":"2026-05-06","scopes":["read_api"]}'
         headers:
             Accept:
                 - application/json
@@ -205,7 +211,7 @@ interactions:
                 - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
-        url: http://localhost:8080/api/v4/users/2/personal_access_tokens
+        url: http://localhost:8080/api/v4/users/3/personal_access_tokens
         method: POST
       response:
         proto: HTTP/1.1
@@ -223,7 +229,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:10:31 GMT
+                - Thu, 30 Apr 2026 11:46:25 GMT
+            Nel:
+                - '{"max_age": 0}'
             Server:
                 - nginx
             Strict-Transport-Security:
@@ -235,11 +243,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31PN3725YTPMZYNE5TEPSG","version":"1"}'
+                - '{"correlation_id":"01KQF3CB2H91S0HZ8CMJGKYYJX","version":"1"}'
             X-Request-Id:
-                - 01KP31PN3725YTPMZYNE5TEPSG
+                - 01KQF3CB2H91S0HZ8CMJGKYYJX
             X-Runtime:
-                - "0.013745"
+                - "0.014160"
         status: 403 Forbidden
         code: 403
-        duration: 16.309958ms
+        duration: 16.233625ms

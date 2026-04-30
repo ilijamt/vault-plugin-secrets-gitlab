@@ -33,7 +33,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:27 GMT
+                - Thu, 30 Apr 2026 11:31:19 GMT
+            Nel:
+                - '{"max_age": 0}'
             Server:
                 - nginx
             Strict-Transport-Security:
@@ -41,14 +43,14 @@ interactions:
             Vary:
                 - Origin
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JVT1EW84VPEH8DGJ40N5","version":"1"}'
+                - '{"correlation_id":"01KQF2GPME56CATZVNEY8NG2AW","version":"1"}'
             X-Request-Id:
-                - 01KP31JVT1EW84VPEH8DGJ40N5
+                - 01KQF2GPME56CATZVNEY8NG2AW
             X-Runtime:
-                - "0.114726"
+                - "0.131026"
         status: 404 Not Found
         code: 404
-        duration: 116.979458ms
+        duration: 133.348583ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -81,7 +83,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:27 GMT
+                - Thu, 30 Apr 2026 11:31:19 GMT
+            Nel:
+                - '{"max_age": 0}'
             Server:
                 - nginx
             Strict-Transport-Security:
@@ -93,14 +97,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JW1DF9V60M5TTA0AQXQW","version":"1"}'
+                - '{"correlation_id":"01KQF2GPRMEX24ZAR3KXGT9RGG","version":"1"}'
             X-Request-Id:
-                - 01KP31JW1DF9V60M5TTA0AQXQW
+                - 01KQF2GPRMEX24ZAR3KXGT9RGG
             X-Runtime:
-                - "0.123076"
+                - "0.027047"
         status: 404 Not Found
         code: 404
-        duration: 125.97425ms
+        duration: 29.232833ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -133,7 +137,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:27 GMT
+                - Thu, 30 Apr 2026 11:31:20 GMT
+            Nel:
+                - '{"max_age": 0}'
             Server:
                 - nginx
             Strict-Transport-Security:
@@ -145,11 +151,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31JW9AHFHGFT3YJ95VD8N5","version":"1"}'
+                - '{"correlation_id":"01KQF2GPSJ7APKKPR3C0JM8AFG","version":"1"}'
             X-Request-Id:
-                - 01KP31JW9AHFHGFT3YJ95VD8N5
+                - 01KQF2GPSJ7APKKPR3C0JM8AFG
             X-Runtime:
-                - "0.024958"
+                - "0.014632"
         status: 404 Not Found
         code: 404
-        duration: 27.95225ms
+        duration: 16.504959ms

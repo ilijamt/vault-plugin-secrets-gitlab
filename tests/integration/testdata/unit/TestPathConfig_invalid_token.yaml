@@ -33,7 +33,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Mon, 13 Apr 2026 09:08:32 GMT
+                - Thu, 30 Apr 2026 11:31:23 GMT
+            Nel:
+                - '{"max_age": 0}'
             Server:
                 - nginx
             Strict-Transport-Security:
@@ -45,11 +47,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KP31K0ZGCE75YTFTG3HBR9MS","version":"1"}'
+                - '{"correlation_id":"01KQF2GSTSM4G9PV1X9W38FZZ6","version":"1"}'
             X-Request-Id:
-                - 01KP31K0ZGCE75YTFTG3HBR9MS
+                - 01KQF2GSTSM4G9PV1X9W38FZZ6
             X-Runtime:
-                - "0.009078"
+                - "0.007492"
         status: 401 Unauthorized
         code: 401
-        duration: 12.843333ms
+        duration: 9.734125ms

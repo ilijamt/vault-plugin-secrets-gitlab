@@ -139,7 +139,7 @@ func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 		expectedId  int64
 		expectedErr error
 	}{
-		{name: "top-level group", path: "test", expectedId: 4},
+		{name: "top-level group", path: "test", expectedId: 2},
 		{name: "nested group", path: "level-1/level-2/level-3"},
 		{name: "first level nested group", path: "level-1/level-2"},
 		{name: "nonexistent group", path: "nonexistent", expectedErr: errs.ErrInvalidValue},

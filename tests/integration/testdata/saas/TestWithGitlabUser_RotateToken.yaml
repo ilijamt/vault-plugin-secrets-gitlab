@@ -23,24 +23,24 @@ interactions:
         proto_minor: 0
         content_length: -1
         uncompressed: true
-        body: '{"id":19138059,"name":"test-tf","revoked":false,"created_at":"2026-01-29T23:45:00.558Z","description":"","scopes":["read_user","read_repository","read_virtual_registry","read_registry","read_api","self_rotate","write_repository","write_virtual_registry","write_registry","api","ai_features","create_runner","manage_runner","k8s_proxy"],"user_id":32923,"last_used_at":"2026-01-29T23:45:42.717Z","active":true,"expires_at":"2026-05-01","last_used_ips":[]}'
+        body: '{"id":23293516,"name":"vault","revoked":false,"created_at":"2026-04-30T11:19:25.477Z","description":"","scopes":["read_user","read_repository","read_virtual_registry","read_registry","read_api","self_rotate","write_repository","write_virtual_registry","write_registry","api","ai_features","create_runner","manage_runner","k8s_proxy"],"user_id":32923,"last_used_at":"2026-04-30T11:19:42.699Z","active":true,"granular":false,"expires_at":"2026-05-30","last_used_ips":[]}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Cf-Cache-Status:
                 - MISS
             Cf-Ray:
-                - 9c5c9ad15e576053-AMS
+                - 9f462784cd25fba7-AMS
             Content-Security-Policy:
                 - default-src 'none'
             Content-Type:
                 - application/json
             Date:
-                - Thu, 29 Jan 2026 23:45:42 GMT
+                - Thu, 30 Apr 2026 11:19:57 GMT
             Etag:
-                - W/"dbdd3986ebd80c430fdd8395e035c5d2"
+                - W/"19a400cedb1525276bd7dddda1bca2b2"
             Gitlab-Lb:
-                - haproxy-main-31-lb-gprd
+                - haproxy-main-19-lb-gprd
             Gitlab-Sv:
                 - api-gke-us-east1-b
             Nel:
@@ -50,18 +50,17 @@ interactions:
             Ratelimit-Name:
                 - throttle_authenticated_api
             Ratelimit-Observed:
-                - "1"
+                - "2"
             Ratelimit-Remaining:
-                - "1999"
+                - "1998"
             Ratelimit-Reset:
-                - "1769730360"
+                - "1777548000"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
                 - cloudflare
             Set-Cookie:
-                - __cf_bm=QQDxYT2LEbGJzruRKA6HzXiwmHzKMYYc7.LH3SsABJ0-1769730342-1.0.1.1-f2Vmr02bDm0uaiOfE8OW9k99QTnlHvdLtj0cnpg0AG5J1ZnP9A0M63CoqtBvWAiCMurKb_BxYsvs1gjwH0Aat6QpvMu6UIeIKe72t.zF4Y8; path=/; expires=Fri, 30-Jan-26 00:15:42 GMT; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
-                - _cfuvid=teWKDtt4Df0nIyJBxP5kid7R.OVIq_7S1FEwMYxH4L8-1769730342814-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+                - _cfuvid=B26_FsOa0sPCSIc.v0OhpAV47VczsAPWME4btc.Ia9w-1777547996.9306998-1.0.1.1-b96fk6hiXK4brAoa00SAAvS7LywEHoHF3D7Bg1JFOkA; HttpOnly; SameSite=None; Secure; Path=/; Domain=gitlab.com
             Strict-Transport-Security:
                 - max-age=31536000
             Vary:
@@ -71,14 +70,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"9c5c9ad164636053-ATL","version":"1"}'
+                - '{"correlation_id":"9f462784cd25fba7-AMS","version":"1"}'
             X-Request-Id:
-                - 9c5c9ad164636053-ATL
+                - 9f462784cd25fba7-AMS
             X-Runtime:
-                - "0.057017"
+                - "0.030189"
         status: 200 OK
         code: 200
-        duration: 253.029583ms
+        duration: 799.70925ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -101,26 +100,26 @@ interactions:
         proto_minor: 0
         content_length: -1
         uncompressed: true
-        body: '{"version":"18.9.0-pre","revision":"dbbe7dd684a","kas":{"enabled":true,"externalUrl":"wss://kas.gitlab.com","externalK8sProxyUrl":"https://kas.gitlab.com/k8s-proxy","version":"18.9.0-rc1+bf2b6d2792386a6da84f149d5199cf549254fab8"},"enterprise":true}'
+        body: '{"version":"19.0.0-pre","revision":"eb0186b2d46","kas":{"enabled":true,"externalUrl":"wss://kas.gitlab.com","externalK8sProxyUrl":"https://kas.gitlab.com/k8s-proxy","version":"19.0.0-rc1+71509a561abef2837f29bf95582cc93bbefac716"},"enterprise":true}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Cf-Cache-Status:
                 - MISS
             Cf-Ray:
-                - 9c5c9ad44b586053-AMS
+                - 9f46278b5cbdfba7-AMS
             Content-Security-Policy:
                 - default-src 'none'
             Content-Type:
                 - application/json
             Date:
-                - Thu, 29 Jan 2026 23:45:43 GMT
+                - Thu, 30 Apr 2026 11:19:58 GMT
             Etag:
-                - W/"ef00988fd1cd07c3627ef37c95a02234"
+                - W/"bdc5602bc224aba8366503b8b56dda75"
             Gitlab-Lb:
-                - haproxy-main-02-lb-gprd
+                - haproxy-main-37-lb-gprd
             Gitlab-Sv:
-                - api-gke-us-east1-c
+                - api-gke-us-east1-b
             Nel:
                 - '{"max_age": 0}'
             Ratelimit-Limit:
@@ -128,18 +127,17 @@ interactions:
             Ratelimit-Name:
                 - throttle_authenticated_api
             Ratelimit-Observed:
-                - "2"
+                - "3"
             Ratelimit-Remaining:
-                - "1998"
+                - "1997"
             Ratelimit-Reset:
-                - "1769730360"
+                - "1777548000"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
                 - cloudflare
             Set-Cookie:
-                - __cf_bm=CTWntsCQSGTR1hogSgrukFx.81NEy4p3SX_9bc8XAOY-1769730343-1.0.1.1-9_TS13MkQyyvt7qI_QoWcL4zL17TNHeMNMOTylyAw3Z3Bc.heEdzvlyf5Wp2edf8GIb.DKhmw7OG4kf9IhcThC1TtXCOaoDyqyYLNgozw0Y; path=/; expires=Fri, 30-Jan-26 00:15:43 GMT; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
-                - _cfuvid=499WQ5qGSn0oR8HDOHzFhfaqpJO4cuZNa1QC2wml7jc-1769730343278-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+                - _cfuvid=xLUWh0JcWFwYwg9L9agWEj7hJjOGeDxaj1vyQcUZ5YA-1777547997.975905-1.0.1.1-O0hdXSbokSyGzEs.KreYbOUBiRwwj_WIlczZyb6p83U; HttpOnly; SameSite=None; Secure; Path=/; Domain=gitlab.com
             Strict-Transport-Security:
                 - max-age=31536000
             Vary:
@@ -149,14 +147,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"9c5c9ad455206053-ATL","version":"1"}'
+                - '{"correlation_id":"9f46278b5cbdfba7-AMS","version":"1"}'
             X-Request-Id:
-                - 9c5c9ad455206053-ATL
+                - 9f46278b5cbdfba7-AMS
             X-Runtime:
-                - "0.054801"
+                - "0.049555"
         status: 200 OK
         code: 200
-        duration: 206.216542ms
+        duration: 248.623875ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -179,24 +177,24 @@ interactions:
         proto_minor: 0
         content_length: -1
         uncompressed: true
-        body: '{"id":19138059,"name":"test-tf","revoked":false,"created_at":"2026-01-29T23:45:00.558Z","description":"","scopes":["read_user","read_repository","read_virtual_registry","read_registry","read_api","self_rotate","write_repository","write_virtual_registry","write_registry","api","ai_features","create_runner","manage_runner","k8s_proxy"],"user_id":32923,"last_used_at":"2026-01-29T23:45:42.717Z","active":true,"expires_at":"2026-05-01","last_used_ips":[]}'
+        body: '{"id":23293516,"name":"vault","revoked":false,"created_at":"2026-04-30T11:19:25.477Z","description":"","scopes":["read_user","read_repository","read_virtual_registry","read_registry","read_api","self_rotate","write_repository","write_virtual_registry","write_registry","api","ai_features","create_runner","manage_runner","k8s_proxy"],"user_id":32923,"last_used_at":"2026-04-30T11:19:42.699Z","active":true,"granular":false,"expires_at":"2026-05-30","last_used_ips":[]}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Cf-Cache-Status:
                 - MISS
             Cf-Ray:
-                - 9c5c9ad6ef5e6053-AMS
+                - 9f46278e8b93fba7-AMS
             Content-Security-Policy:
                 - default-src 'none'
             Content-Type:
                 - application/json
             Date:
-                - Thu, 29 Jan 2026 23:45:43 GMT
+                - Thu, 30 Apr 2026 11:19:58 GMT
             Etag:
-                - W/"dbdd3986ebd80c430fdd8395e035c5d2"
+                - W/"19a400cedb1525276bd7dddda1bca2b2"
             Gitlab-Lb:
-                - haproxy-main-25-lb-gprd
+                - haproxy-main-19-lb-gprd
             Gitlab-Sv:
                 - api-gke-us-east1-b
             Nel:
@@ -206,18 +204,17 @@ interactions:
             Ratelimit-Name:
                 - throttle_authenticated_api
             Ratelimit-Observed:
-                - "3"
+                - "4"
             Ratelimit-Remaining:
-                - "1997"
+                - "1996"
             Ratelimit-Reset:
-                - "1769730360"
+                - "1777548000"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
                 - cloudflare
             Set-Cookie:
-                - __cf_bm=AnKfYKLxc3XuJs8rIIqzEpSvmeR_9GtAXl3698f1Rb0-1769730343-1.0.1.1-w1XQbuGwjF.4qvklaTs7JRg2UqRAWw7jUTPH0KiwuDQJ2pVagYFbvBEB4tesLZK37Dpz38S91eJLdNmHHN4rLCCJnWU5gFapW8MvRsjFjM8; path=/; expires=Fri, 30-Jan-26 00:15:43 GMT; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
-                - _cfuvid=NaxFoay5jM6Rq8r_wyKIe6od4lRsT5bXlaJZOYPArX4-1769730343752-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+                - _cfuvid=CuhNcccpB2w.OtaI2gugEUXZcSlrWngZehwanuvM9wE-1777547998.4870248-1.0.1.1-iB2RxE51e34LSLtnOVoSnJjg6Fh1zGx.rnmxw0zKQ3c; HttpOnly; SameSite=None; Secure; Path=/; Domain=gitlab.com
             Strict-Transport-Security:
                 - max-age=31536000
             Vary:
@@ -227,14 +224,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"9c5c9ad6f5e56053-ATL","version":"1"}'
+                - '{"correlation_id":"9f46278e8b93fba7-AMS","version":"1"}'
             X-Request-Id:
-                - 9c5c9ad6f5e56053-ATL
+                - 9f46278e8b93fba7-AMS
             X-Runtime:
-                - "0.094083"
+                - "0.074577"
         status: 200 OK
         code: 200
-        duration: 263.394167ms
+        duration: 293.964292ms
     - id: 3
       request:
         proto: HTTP/1.1
@@ -257,107 +254,26 @@ interactions:
         proto_minor: 0
         content_length: -1
         uncompressed: true
-        body: '{"id":32923,"username":"ilijamt","public_email":"","name":"Ilija Matoski","state":"active","locked":false,"avatar_url":"https://secure.gravatar.com/avatar/e1bd6bdeae5b3bcd803934a067f39933dd21f9da7974c8e3623ee21ece5fea61?s=80\u0026d=identicon","web_url":"https://gitlab.com/ilijamt","created_at":"2014-05-19T14:51:54.441Z","bio":"","location":"","linkedin":"","twitter":"","discord":"","website_url":"","github":"","job_title":"","pronouns":null,"organization":"","bot":false,"work_information":null,"local_time":"11:45 PM"}'
+        body: '{"id":32923,"username":"ilijamt","public_email":"","name":"Ilija Matoski","state":"active","locked":false,"avatar_url":"https://secure.gravatar.com/avatar/e1bd6bdeae5b3bcd803934a067f39933dd21f9da7974c8e3623ee21ece5fea61?s=80\u0026d=identicon","web_url":"https://gitlab.com/ilijamt","created_at":"2014-05-19T14:51:54.441Z","bio":"","location":"","linkedin":"","twitter":"","discord":"","website_url":"","github":"","job_title":"","pronouns":null,"organization":"","bot":false,"work_information":null,"local_time":"11:19 AM"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Cf-Cache-Status:
                 - MISS
             Cf-Ray:
-                - 9c5c9ada3c6e6053-AMS
+                - 9f4627922b5afba7-AMS
             Content-Security-Policy:
                 - default-src 'none'
             Content-Type:
                 - application/json
             Date:
-                - Thu, 29 Jan 2026 23:45:44 GMT
+                - Thu, 30 Apr 2026 11:19:59 GMT
             Etag:
-                - W/"3c3732385386d5e71d5d6f507a0f38d4"
+                - W/"ebc0b04dd21d97ef05fe87d1367651b0"
             Gitlab-Lb:
-                - haproxy-main-49-lb-gprd
+                - haproxy-main-15-lb-gprd
             Gitlab-Sv:
-                - gke-cny-api
-            Nel:
-                - '{"max_age": 0}'
-            Ratelimit-Limit:
-                - "2000"
-            Ratelimit-Name:
-                - throttle_authenticated_api
-            Ratelimit-Observed:
-                - "4"
-            Ratelimit-Remaining:
-                - "1996"
-            Ratelimit-Reset:
-                - "1769730360"
-            Referrer-Policy:
-                - strict-origin-when-cross-origin
-            Server:
-                - cloudflare
-            Set-Cookie:
-                - __cf_bm=ahcSX921HKU7iUcM1_w0VYepssQmRwySHPmYPJ2NEMI-1769730344-1.0.1.1-ecSirSDeFBKyH6Qfbq1JFqD6LYnGsqbfUSZ6EBO6nJxhJH2zS2c32.tkDkrd2aSP3LlLqCAbOYdqxBlDGnJFdldkzafaCRywBkMsbNlnNDI; path=/; expires=Fri, 30-Jan-26 00:15:44 GMT; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
-                - _cfuvid=a._rfKRWT4sVANgOpQEmNCS7Px5P3dng4QsyHlNF4Ec-1769730344217-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
-            Strict-Transport-Security:
-                - max-age=31536000
-            Vary:
-                - Origin, Accept-Encoding
-            X-Content-Type-Options:
-                - nosniff
-            X-Frame-Options:
-                - SAMEORIGIN
-            X-Gitlab-Meta:
-                - '{"correlation_id":"9c5c9ada46746053-ATL","version":"1"}'
-            X-Request-Id:
-                - 9c5c9ada46746053-ATL
-            X-Runtime:
-                - "0.041755"
-        status: 200 OK
-        code: 200
-        duration: 201.181166ms
-    - id: 4
-      request:
-        proto: HTTP/1.1
-        proto_major: 1
-        proto_minor: 1
-        content_length: 27
-        host: gitlab.com
-        body: '{"expires_at":"2026-07-05"}'
-        headers:
-            Accept:
-                - application/json
-            Content-Type:
-                - application/json
-            Private-Token:
-                - REPLACED-TOKEN
-            User-Agent:
-                - go-gitlab
-        url: https://gitlab.com/api/v4/personal_access_tokens/19138059/rotate
-        method: POST
-      response:
-        proto: HTTP/2.0
-        proto_major: 2
-        proto_minor: 0
-        content_length: -1
-        uncompressed: true
-        body: '{"id":19138064,"name":"test-tf","revoked":false,"created_at":"2026-01-29T23:45:44.559Z","description":"","scopes":["read_user","read_repository","read_virtual_registry","read_registry","read_api","self_rotate","write_repository","write_virtual_registry","write_registry","api","ai_features","create_runner","manage_runner","k8s_proxy"],"user_id":32923,"last_used_at":null,"active":true,"expires_at":"2026-07-05","token":"glpat-jZNryA-18cKvhWM5mBKDsG86MQp1OnBlagk.01.0z0rt35nd"}'
-        headers:
-            Cache-Control:
-                - max-age=0, private, must-revalidate
-            Cf-Cache-Status:
-                - DYNAMIC
-            Cf-Ray:
-                - 9c5c9adcb84e6053-AMS
-            Content-Security-Policy:
-                - default-src 'none'
-            Content-Type:
-                - application/json
-            Date:
-                - Thu, 29 Jan 2026 23:45:44 GMT
-            Etag:
-                - W/"758d0f7413d7ca1fdd6f014193899c05"
-            Gitlab-Lb:
-                - haproxy-main-10-lb-gprd
-            Gitlab-Sv:
-                - api-gke-us-east1-b
+                - api-gke-us-east1-d
             Nel:
                 - '{"max_age": 0}'
             Ratelimit-Limit:
@@ -369,14 +285,13 @@ interactions:
             Ratelimit-Remaining:
                 - "1995"
             Ratelimit-Reset:
-                - "1769730360"
+                - "1777548000"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
                 - cloudflare
             Set-Cookie:
-                - __cf_bm=l4VUrt5g7ZkKZ6e317nK7lFDE30Ogt1NmTnYzbyg86o-1769730344-1.0.1.1-PLiua8mJOyHMCeDyKnO3silOxi_1qLpDRj4HVg9Ir5g42dL1gKW7W6Qd9kkKy1NrsyqV9tWN9NNeWAjLYN9iTnDlUG29_NyUqZb8YI7bQts; path=/; expires=Fri, 30-Jan-26 00:15:44 GMT; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
-                - _cfuvid=IzJJnAAEazCNHkw89H4HD1GtrnZU.8D6Dy4zZ.u0Nas-1769730344657-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+                - _cfuvid=3N7m3jg.6PzPdKT9XpEhdPHGYAOXCXUBpcXb9xoZmq0-1777547999.0675442-1.0.1.1-ulUuptM2ucvx4qt_7T95UWxg5shfFEeOPARp4CJZawg; HttpOnly; SameSite=None; Secure; Path=/; Domain=gitlab.com
             Strict-Transport-Security:
                 - max-age=31536000
             Vary:
@@ -386,14 +301,94 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"9c5c9adcd7216053-IAD","version":"1"}'
+                - '{"correlation_id":"9f4627922b5afba7-AMS","version":"1"}'
             X-Request-Id:
-                - 9c5c9adcd7216053-IAD
+                - 9f4627922b5afba7-AMS
             X-Runtime:
-                - "0.099643"
+                - "0.041118"
         status: 200 OK
         code: 200
-        duration: 315.847042ms
+        duration: 383.079375ms
+    - id: 4
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 27
+        host: gitlab.com
+        body: '{"expires_at":"2026-05-31"}'
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: https://gitlab.com/api/v4/personal_access_tokens/23293516/rotate
+        method: POST
+      response:
+        proto: HTTP/2.0
+        proto_major: 2
+        proto_minor: 0
+        content_length: -1
+        uncompressed: true
+        body: '{"id":23293532,"name":"vault","revoked":false,"created_at":"2026-04-30T11:19:59.927Z","description":"","scopes":["read_user","read_repository","read_virtual_registry","read_registry","read_api","self_rotate","write_repository","write_virtual_registry","write_registry","api","ai_features","create_runner","manage_runner","k8s_proxy"],"user_id":32923,"last_used_at":null,"active":true,"granular":false,"expires_at":"2026-05-31","token":"REPLACED-TOKEN"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Cf-Cache-Status:
+                - DYNAMIC
+            Cf-Ray:
+                - 9f462796df1ffba7-AMS
+            Content-Security-Policy:
+                - default-src 'none'
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 30 Apr 2026 11:20:00 GMT
+            Etag:
+                - W/"862f5cf6e4da6acbd2ad29db0eff2fb6"
+            Gitlab-Lb:
+                - haproxy-main-08-lb-gprd
+            Gitlab-Sv:
+                - api-gke-us-east1-c
+            Nel:
+                - '{"max_age": 0}'
+            Ratelimit-Limit:
+                - "2000"
+            Ratelimit-Name:
+                - throttle_authenticated_api
+            Ratelimit-Observed:
+                - "6"
+            Ratelimit-Remaining:
+                - "1994"
+            Ratelimit-Reset:
+                - "1777548000"
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - cloudflare
+            Set-Cookie:
+                - _cfuvid=9HZ7_o_Id40jM2uq485vYUtHZJr2ZhzQX3O_HuCsZms-1777547999.812494-1.0.1.1-hBKcSYo5jB3W7cHajj.bEGrXBIuBU_FfZy0t0YQp8yY; HttpOnly; SameSite=None; Secure; Path=/; Domain=gitlab.com
+            Strict-Transport-Security:
+                - max-age=31536000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"9f462796df1ffba7-AMS","version":"1"}'
+            X-Request-Id:
+                - 9f462796df1ffba7-AMS
+            X-Runtime:
+                - "0.082819"
+        status: 200 OK
+        code: 200
+        duration: 331.259791ms
     - id: 5
       request:
         proto: HTTP/1.1
@@ -422,7 +417,7 @@ interactions:
             Cf-Cache-Status:
                 - MISS
             Cf-Ray:
-                - 9c5c9ae0bf3c6053-AMS
+                - 9f46279b098afba7-AMS
             Content-Length:
                 - "106"
             Content-Security-Policy:
@@ -430,11 +425,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 29 Jan 2026 23:45:45 GMT
+                - Thu, 30 Apr 2026 11:20:00 GMT
             Gitlab-Lb:
-                - haproxy-main-54-lb-gprd
+                - haproxy-main-26-lb-gprd
             Gitlab-Sv:
-                - api-gke-us-east1-d
+                - api-gke-us-east1-c
             Nel:
                 - '{"max_age": 0}'
             Ratelimit-Limit:
@@ -442,18 +437,17 @@ interactions:
             Ratelimit-Name:
                 - throttle_unauthenticated_api
             Ratelimit-Observed:
-                - "2"
+                - "1"
             Ratelimit-Remaining:
-                - "498"
+                - "499"
             Ratelimit-Reset:
-                - "1769730360"
+                - "1777548060"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
                 - cloudflare
             Set-Cookie:
-                - __cf_bm=rf4dus_yjQSzZm8s.koWI2o2MgtKtUFS.43tLS24koo-1769730345-1.0.1.1-9KdxL0QEXcx8KL4nMssOk83YMOJ7bgykyWEyT3sx8nhtuOJxZcdfHrmt23aCASmSQcVfx6KF3_98PXkdj1vzCU8a9sduRpNy8P7XAcwrvK0; path=/; expires=Fri, 30-Jan-26 00:15:45 GMT; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
-                - _cfuvid=S0E7SPxIWbaNwmkKX.QBy7CdKkR_UiBkcK9pcQDVBCY-1769730345236-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+                - _cfuvid=Jmmw688UDQfIuF.ydakeRg3MEwHAmhTWacFiADzOGJ0-1777548000.4863048-1.0.1.1-RpZIM3hta1FpZUCepfsKcppouhJca5jKMoaGkBujv2g; HttpOnly; SameSite=None; Secure; Path=/; Domain=gitlab.com
             Strict-Transport-Security:
                 - max-age=31536000
             Vary:
@@ -463,14 +457,14 @@ interactions:
             X-Content-Type-Options:
                 - nosniff
             X-Gitlab-Meta:
-                - '{"correlation_id":"9c5c9ae0c0056053-ATL","version":"1"}'
+                - '{"correlation_id":"9f46279b098afba7-AMS","version":"1"}'
             X-Request-Id:
-                - 9c5c9ae0c0056053-ATL
+                - 9f46279b098afba7-AMS
             X-Runtime:
-                - "0.024859"
+                - "0.032389"
         status: 401 Unauthorized
         code: 401
-        duration: 176.713917ms
+        duration: 242.754292ms
     - id: 6
       request:
         proto: HTTP/1.1
@@ -493,24 +487,24 @@ interactions:
         proto_minor: 0
         content_length: -1
         uncompressed: true
-        body: '{"id":19138064,"name":"test-tf","revoked":false,"created_at":"2026-01-29T23:45:44.559Z","description":"","scopes":["read_user","read_repository","read_virtual_registry","read_registry","read_api","self_rotate","write_repository","write_virtual_registry","write_registry","api","ai_features","create_runner","manage_runner","k8s_proxy"],"user_id":32923,"last_used_at":"2026-01-29T23:45:45.516Z","active":true,"expires_at":"2026-07-05","last_used_ips":[]}'
+        body: '{"id":23293532,"name":"vault","revoked":false,"created_at":"2026-04-30T11:19:59.927Z","description":"","scopes":["read_user","read_repository","read_virtual_registry","read_registry","read_api","self_rotate","write_repository","write_virtual_registry","write_registry","api","ai_features","create_runner","manage_runner","k8s_proxy"],"user_id":32923,"last_used_at":"2026-04-30T11:20:01.124Z","active":true,"granular":false,"expires_at":"2026-05-31","last_used_ips":[]}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Cf-Cache-Status:
                 - MISS
             Cf-Ray:
-                - 9c5c9ae2fb0d6053-AMS
+                - 9f46279e594ffba7-AMS
             Content-Security-Policy:
                 - default-src 'none'
             Content-Type:
                 - application/json
             Date:
-                - Thu, 29 Jan 2026 23:45:45 GMT
+                - Thu, 30 Apr 2026 11:20:01 GMT
             Etag:
-                - W/"958fe1ec89f30661b1398cc0d6b23035"
+                - W/"8aa38d370df6844456f81a0faddc5485"
             Gitlab-Lb:
-                - haproxy-main-55-lb-gprd
+                - haproxy-main-19-lb-gprd
             Gitlab-Sv:
                 - api-gke-us-east1-b
             Nel:
@@ -520,18 +514,17 @@ interactions:
             Ratelimit-Name:
                 - throttle_authenticated_api
             Ratelimit-Observed:
-                - "6"
+                - "1"
             Ratelimit-Remaining:
-                - "1994"
+                - "1999"
             Ratelimit-Reset:
-                - "1769730360"
+                - "1777548060"
             Referrer-Policy:
                 - strict-origin-when-cross-origin
             Server:
                 - cloudflare
             Set-Cookie:
-                - __cf_bm=nq7nmbwLZiYKZFwPjInaeEahtcBlC7Ix.e7rQQLKV0Q-1769730345-1.0.1.1-RvLxKF1IkJP.k4_ibGWY05B6EfqGXYE72JdAabHRQDgZlx_ZfDW1yM5.HDk4hPGDSSFW_kK.avnvys27aTQiXJktoUoS1E.P9gLTYUqtgqU; path=/; expires=Fri, 30-Jan-26 00:15:45 GMT; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
-                - _cfuvid=wULDSllVd3WDOHzyzhPmWez93pS0Kd.pbNyDxKoHEyM-1769730345621-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+                - _cfuvid=qAYxhxKR4ZMDF7ZPRwLrDKGpENst09ZrJEt1Gx02oJI-1777548001.0162086-1.0.1.1-jfWFanSPCRwxEY1RJrSwycNZO03h.y6Utf1QsJSUrzc; HttpOnly; SameSite=None; Secure; Path=/; Domain=gitlab.com
             Strict-Transport-Security:
                 - max-age=31536000
             Vary:
@@ -541,11 +534,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"9c5c9ae300766053-ATL","version":"1"}'
+                - '{"correlation_id":"9f46279e594ffba7-AMS","version":"1"}'
             X-Request-Id:
-                - 9c5c9ae300766053-ATL
+                - 9f46279e594ffba7-AMS
             X-Runtime:
-                - "0.054597"
+                - "0.086324"
         status: 200 OK
         code: 200
-        duration: 205.519375ms
+        duration: 400.677667ms

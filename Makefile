@@ -28,7 +28,7 @@ VAULT_ADDR ?= http://127.0.0.1:8200
 PLUGIN_NAME ?= gitlab
 PLUGIN_TYPE ?= secret
 
-.PHONY: test coverage clean clean-coverage build vault-plugin-enable vault-dev check-go check-vault generate-mocks
+.PHONY: test coverage clean clean-coverage build vault-plugin-enable vault-dev check-go check-vault generate-mocks fetch-token-timestamps fetch-token-timestamps-saas fetch-token-timestamps-selfhosted
 
 check-go:
 	@command -v "$(GO)" >/dev/null 2>&1 || { \
@@ -68,3 +68,20 @@ vault-dev: check-vault clean build
 	mkdir -p $(VAULT_PLUGIN_DIR)
 	cp -f $(BUILD_DIR)/$(PLUGIN_BIN) $(VAULT_PLUGIN_DIR)/$(PLUGIN_BIN)
 	$(VAULT) server -dev -dev-root-token-id=$(VAULT_ROOT_TOKEN) -dev-plugin-dir=$(shell pwd)/$(VAULT_PLUGIN_DIR)
+
+fetch-token-timestamps: fetch-token-timestamps-saas fetch-token-timestamps-selfhosted
+
+fetch-token-timestamps-saas:
+	@command -v jq >/dev/null 2>&1 || { echo "ERROR: 'jq' not found in PATH."; exit 1; }
+	@test -n "$$GITLAB_COM_TOKEN" || { echo "ERROR: GITLAB_COM_TOKEN is not set."; exit 1; }
+	curl --fail --silent --header "PRIVATE-TOKEN: $$GITLAB_COM_TOKEN" \
+		"https://gitlab.com/api/v4/personal_access_tokens/self" \
+		| jq -rj '.created_at' > tests/integration/testdata/gitlab-com
+
+fetch-token-timestamps-selfhosted:
+	@command -v jq >/dev/null 2>&1 || { echo "ERROR: 'jq' not found in PATH."; exit 1; }
+	@test -n "$$GITLAB_SERVICE_ACCOUNT_TOKEN" || { echo "ERROR: GITLAB_SERVICE_ACCOUNT_TOKEN is not set."; exit 1; }
+	@test -n "$$GITLAB_SERVICE_ACCOUNT_URL" || { echo "ERROR: GITLAB_SERVICE_ACCOUNT_URL is not set."; exit 1; }
+	curl --fail --silent --header "PRIVATE-TOKEN: $$GITLAB_SERVICE_ACCOUNT_TOKEN" \
+		"$$GITLAB_SERVICE_ACCOUNT_URL/api/v4/personal_access_tokens/self" \
+		| jq -rj '.created_at' > tests/integration/testdata/gitlab-selfhosted
