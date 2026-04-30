@@ -10,10 +10,16 @@ All notable changes to this project will be documented in this file.
 - Clarify plugin support for OpenBao
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
+- *(changelog)* Regenerate CHANGELOG.md [skip ci]
+
+### <!-- 5 -->Tests
+
+- Upgrade to 17.11.7 for local and unit testing
 
 ### <!-- 6 -->CI
 
 - *(workflows)* Configured changelog generation for automated releases
+- *(workflows)* Configured matrix testing for GitLab version discovery
 
 ### <!-- 7 -->Dependencies
 
@@ -24,6 +30,7 @@ All notable changes to this project will be documented in this file.
 
 - Configured git-cliff for changelog generation
 - *(workflows)* Updated changelog workflow to use git status
+- Parameterized GitLab version in local setup scripts
 
 ## [0.11.0] - 2026-04-20
 
