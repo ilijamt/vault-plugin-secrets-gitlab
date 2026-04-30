@@ -2,6 +2,9 @@
 
 set -eu
 
+VERSION="${1:-17.11.7}"
+export GITLAB_IMAGE_TAG="${VERSION}-ce.0"
+
 BOLD='\033[1m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
@@ -18,6 +21,9 @@ run() {
   "$@"
 }
 
+TOKENS_OUT="../tests/integration/testdata/tokens.${VERSION}.json"
+TF_DATA_DIR_VAL=".terraform.${VERSION}"
+
 fn() {
   local cmd=$1
   echo "$cmd"
@@ -32,9 +38,9 @@ stage "Tearing down existing environment"
 run docker compose kill
 run docker compose down --remove-orphans --volumes
 
-stage "Starting containers"
+stage "Starting containers for GitLab ${VERSION} (image gitlab/gitlab-ce:${GITLAB_IMAGE_TAG})"
 run docker compose up -d --wait
-run rm -f tf/terraform.tfstate*
+run rm -rf "tf/${TF_DATA_DIR_VAL}" tf/terraform.tfstate*
 run docker compose up -d --wait
 
 stage "Waiting for GitLab to be ready"
@@ -48,15 +54,15 @@ fn 'token = User.find_by_username("root").personal_access_tokens.create(name: "I
 
 stage "Running Terraform"
 cd tf || exit
-run terraform init
-run terraform apply --auto-approve
+TF_DATA_DIR="${TF_DATA_DIR_VAL}" run terraform init
+TF_DATA_DIR="${TF_DATA_DIR_VAL}" run terraform apply --auto-approve
 cd ..
 
-stage "Saving access tokens to testdata"
-cat tf/tokens.json | jq . > ../tests/integration/testdata/tokens.json
+stage "Saving access tokens to testdata (${TOKENS_OUT})"
+cat tf/tokens.json | jq . > "${TOKENS_OUT}"
 
 stage "Backing up volumes"
-run bash ./backup-volumes.sh
+run bash ./backup-volumes.sh "${VERSION}"
 
 stage "Waiting for GitLab to be ready"
 until is_gitlab_up; do

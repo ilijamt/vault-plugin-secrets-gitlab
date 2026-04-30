@@ -645,8 +645,12 @@ func (g generatedToken) CreatedAtTime() (t time.Time) {
 type generatedTokens map[string]generatedToken
 
 var loadTokens = sync.OnceValues(func() (t generatedTokens, err error) {
+	version := os.Getenv("GITLAB_VERSION")
+	if version == "" {
+		return t, errors.New("GITLAB_VERSION env var must be set to load tokens; run via 'make test' or export GITLAB_VERSION explicitly")
+	}
 	var payload []byte
-	if payload, err = os.ReadFile("./testdata/tokens.json"); err != nil {
+	if payload, err = os.ReadFile(fmt.Sprintf("./testdata/tokens.%s.json", version)); err != nil {
 		return t, err
 	}
 
