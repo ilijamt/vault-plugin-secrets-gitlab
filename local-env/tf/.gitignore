@@ -1,4 +1,4 @@
-/.terraform
-/.terraform.lock.hcl
-/terraform.*
-/plan
+.terraform
+.terraform.lock.hcl
+terraform.*
+plan
