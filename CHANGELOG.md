@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
+- *(changelog)* Regenerate CHANGELOG.md [skip ci]
 
 ### <!-- 5 -->Tests
 
@@ -25,6 +26,7 @@ All notable changes to this project will be documented in this file.
 
 - *(workflows)* Configured changelog generation for automated releases
 - *(workflows)* Configured matrix testing for GitLab version discovery
+- *(workflows)* Configured artifact path to exclude version directories
 
 ### <!-- 7 -->Dependencies
 
