@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -29,7 +29,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 	}
 
 	t.Run("should fail if have defined scopes or access level", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -51,7 +51,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 	})
 
 	t.Run("ttl is set", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -72,7 +72,7 @@ func TestPathRolesPipelineProjectTrigger(t *testing.T) {
 	})
 
 	t.Run("ttl is optional", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{

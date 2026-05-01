@@ -56,7 +56,7 @@ var (
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Scopes",
 			},
-			AllowedValues: utils.ToAny(token.ValidPersonalTokenScopes...),
+			AllowedValues: utils.ToAny(token.AllValidScopes()...),
 		},
 		"ttl": {
 			Type:        framework.TypeDurationSecond,
@@ -73,7 +73,7 @@ var (
 			DisplayAttrs: &framework.DisplayAttributes{
 				Name: "Access Level",
 			},
-			AllowedValues: utils.ToAny(token.ValidAccessLevels...),
+			AllowedValues: utils.ToAny(token.AllValidAccessLevels()...),
 		},
 		"token_type": {
 			Type:          framework.TypeString,

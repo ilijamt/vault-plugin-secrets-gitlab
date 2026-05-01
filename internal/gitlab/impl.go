@@ -12,7 +12,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/sdk/helper/logging"
-	g "gitlab.com/gitlab-org/api/client-go"
+	g "gitlab.com/gitlab-org/api/client-go/v2"
 	"golang.org/x/time/rate"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
@@ -326,7 +326,7 @@ func (gc *gitlabClient) RotateCurrentToken(ctx context.Context) (token *modelTok
 	}
 
 	var usr *g.User
-	usr, _, err = gc.client.Users.GetUser(currentEntryToken.UserID, g.GetUsersOptions{})
+	usr, _, err = gc.client.Users.GetUser(currentEntryToken.UserID, &g.GetUserOptions{})
 	if err != nil {
 		return nil, nil, err
 	}

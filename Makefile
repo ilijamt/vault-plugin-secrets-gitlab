@@ -10,8 +10,8 @@ COVER_PKG ?= github.com/ilijamt/vault-plugin-secrets-gitlab/...
 TEST_PKG ?= ./...
 
 # Default build tags for tests; can be overridden:
-#   make test TAGS="unit,local"
-TAGS ?= unit,local,saas,selfhosted
+#   make test TAGS="paths,e2e"
+TAGS ?= paths,e2e,saas,selfhosted
 
 # Default test args; can be overridden:
 #   make test TEST_ARGS="-run TestFoo -v"
@@ -20,10 +20,10 @@ TEST_ARGS ?=
 BUILD_DIR ?= build
 
 # GitLab versions to run integration tests against. Auto-discovered from
-# tests/integration/testdata/local/<version>/ subdirectories. Override to test
+# tests/integration/testdata/e2e/<version>/ subdirectories. Override to test
 # a single version, e.g.:
 #   make test GITLAB_VERSIONS=17.11.7
-GITLAB_VERSIONS ?= $(shell ls -1 tests/integration/testdata/local 2>/dev/null | sort)
+GITLAB_VERSIONS ?= $(shell ls -1 tests/integration/testdata/e2e 2>/dev/null | sort)
 
 # Per-version binary coverage directory root (Go covdir format). Each test run
 # writes its own subdir; we merge them at the end via `go tool covdata textfmt`.
@@ -65,7 +65,7 @@ test: coverage
 
 coverage: check-go clean-coverage
 	@if [ -z "$(GITLAB_VERSIONS)" ]; then \
-		echo "ERROR: no GitLab versions found under tests/integration/testdata/local/. Set GITLAB_VERSIONS or populate testdata."; \
+		echo "ERROR: no GitLab versions found under tests/integration/testdata/e2e/. Set GITLAB_VERSIONS or populate testdata."; \
 		exit 1; \
 	fi
 	mkdir -p $(BUILD_DIR)

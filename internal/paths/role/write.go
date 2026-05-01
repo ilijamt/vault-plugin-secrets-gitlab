@@ -79,51 +79,24 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 		err = multierror.Append(err, fmt.Errorf("token_type='%s', should be one of %v: %w", data.Get("token_type").(string), token.ValidTokenTypes, errs.ErrFieldInvalidValue))
 	}
 
-	// validate access level and which fields to skip for validation
-	var validAccessLevels []string
-	var validScopes []string
+	// version-aware validation tables: empty config.GitlabVersion is lenient
+	// (every known value is accepted) so first-write roles aren't blocked.
+	gitlabVersion := config.GitlabVersion
+	allowedAccessLevels, accessLevelApplicable := token.ValidAccessLevelsFor(tokenType, gitlabVersion)
+	allowedScopes, scopesApplicable := token.ValidScopesFor(tokenType, gitlabVersion)
+
+	// noEmptyScopes: deploy tokens require at least one scope.
 	var noEmptyScopes bool
 	var skipFields []string
 
 	switch tokenType {
-	case token.TypePersonal:
-		validAccessLevels = token.ValidPersonalAccessLevels
-		validScopes = token.ValidPersonalTokenScopes
-		noEmptyScopes = false
+	case token.TypePersonal, token.TypeUserServiceAccount, token.TypeGroupServiceAccount:
 		skipFields = []string{"config_name", "access_level"}
-	case token.TypeGroup:
-		validAccessLevels = token.ValidGroupAccessLevels
-		validScopes = token.ValidGroupTokenScopes
-		noEmptyScopes = false
+	case token.TypeGroup, token.TypeProject:
 		skipFields = []string{"config_name"}
-	case token.TypeProject:
-		validAccessLevels = token.ValidProjectAccessLevels
-		validScopes = token.ValidProjectTokenScopes
-		noEmptyScopes = false
-		skipFields = []string{"config_name"}
-	case token.TypeUserServiceAccount:
-		validAccessLevels = token.ValidUserServiceAccountAccessLevels
-		validScopes = token.ValidUserServiceAccountTokenScopes
-		noEmptyScopes = false
-		skipFields = []string{"config_name", "access_level"}
-	case token.TypeGroupServiceAccount:
-		validAccessLevels = token.ValidGroupServiceAccountAccessLevels
-		validScopes = token.ValidGroupServiceAccountTokenScopes
-		noEmptyScopes = false
-		skipFields = []string{"config_name", "access_level"}
 	case token.TypePipelineProjectTrigger:
-		validAccessLevels = token.ValidPipelineProjectTriggerAccessLevels
-		validScopes = []string{}
-		noEmptyScopes = false
 		skipFields = []string{"config_name", "access_level", "scopes"}
-	case token.TypeProjectDeploy:
-		validAccessLevels = token.ValidProjectDeployAccessLevels
-		validScopes = token.ValidProjectDeployTokenScopes
-		noEmptyScopes = true
-		skipFields = []string{"config_name", "access_level"}
-	case token.TypeGroupDeploy:
-		validAccessLevels = token.ValidGroupDeployAccessLevels
-		validScopes = token.ValidGroupDeployTokenScopes
+	case token.TypeProjectDeploy, token.TypeGroupDeploy:
 		noEmptyScopes = true
 		skipFields = []string{"config_name", "access_level"}
 	}
@@ -169,22 +142,31 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 		}
 	}
 
-	if !slices.Contains(validAccessLevels, accessLevel.String()) {
-		err = multierror.Append(err, fmt.Errorf("access_level='%s', should be one of %v: %w", data.Get("access_level").(string), validAccessLevels, errs.ErrFieldInvalidValue))
-	}
-
-	for _, scope := range role.Scopes {
-		if !slices.Contains(validScopes, scope) {
-			invalidScopes = append(invalidScopes, scope)
+	if !accessLevelApplicable {
+		// Token type does not take an access_level — only the empty value is allowed.
+		if accessLevel != token.AccessLevelUnknown {
+			err = multierror.Append(err, fmt.Errorf("access_level='%s', should be one of %v: %w", data.Get("access_level").(string), allowedAccessLevels, errs.ErrFieldInvalidValue))
 		}
+	} else if !token.IsAccessLevelAllowed(tokenType, accessLevel, gitlabVersion) {
+		err = multierror.Append(err, fmt.Errorf("access_level='%s' not allowed for token_type='%s' on gitlab %s, should be one of %v: %w", data.Get("access_level").(string), tokenType, gitlabVersion, allowedAccessLevels, errs.ErrFieldInvalidValue))
 	}
 
-	if len(invalidScopes) > 0 {
-		err = multierror.Append(err, fmt.Errorf("scopes='%v', should be one or more of '%v': %w", invalidScopes, validScopes, errs.ErrFieldInvalidValue))
-	}
-
-	if noEmptyScopes && len(role.Scopes) == 0 {
-		err = multierror.Append(err, fmt.Errorf("should be one or more of '%v': %w", validScopes, errs.ErrFieldInvalidValue))
+	if !scopesApplicable {
+		if len(role.Scopes) > 0 {
+			err = multierror.Append(err, fmt.Errorf("token_type='%s' does not support scopes: %w", tokenType, errs.ErrFieldInvalidValue))
+		}
+	} else {
+		for _, scope := range role.Scopes {
+			if !token.IsScopeAllowed(tokenType, token.Scope(scope), gitlabVersion) {
+				invalidScopes = append(invalidScopes, scope)
+			}
+		}
+		if len(invalidScopes) > 0 {
+			err = multierror.Append(err, fmt.Errorf("scopes='%v' not allowed for token_type='%s' on gitlab %s, should be one or more of '%v': %w", invalidScopes, tokenType, gitlabVersion, allowedScopes, errs.ErrFieldInvalidValue))
+		}
+		if noEmptyScopes && len(role.Scopes) == 0 {
+			err = multierror.Append(err, fmt.Errorf("should be one or more of '%v': %w", allowedScopes, errs.ErrFieldInvalidValue))
+		}
 	}
 
 	if tokenType == token.TypeUserServiceAccount && (config.Type == gitlabTypes.TypeSaaS || config.Type == gitlabTypes.TypeDedicated) {

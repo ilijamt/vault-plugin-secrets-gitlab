@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -39,7 +39,7 @@ func TestPathRolesTTL(t *testing.T) {
 		}
 
 		t.Run("role.TTL > DefaultAccessTokenMaxPossibleTTL", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
@@ -59,7 +59,7 @@ func TestPathRolesTTL(t *testing.T) {
 		})
 
 		t.Run("ttl = maxTTL", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
@@ -100,7 +100,7 @@ func TestPathRolesTTL(t *testing.T) {
 		}
 
 		t.Run("ttl >= 1h && ttl <= DefaultAccessTokenMaxPossibleTTL", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
@@ -129,7 +129,7 @@ func TestPathRolesTTL(t *testing.T) {
 		})
 
 		t.Run("ttl < 1h", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
@@ -162,7 +162,7 @@ func TestPathRolesTTL(t *testing.T) {
 		}
 
 		t.Run("ttl < 24h", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			var role = maps.Clone(generalRole)
@@ -182,7 +182,7 @@ func TestPathRolesTTL(t *testing.T) {
 		})
 
 		t.Run("ttl >= 24h && ttl <= DefaultAccessTokenMaxPossibleTTL", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			var role = maps.Clone(generalRole)

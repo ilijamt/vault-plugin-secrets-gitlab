@@ -10,13 +10,13 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "gitlab.com/gitlab-org/api/client-go"
+	g "gitlab.com/gitlab-org/api/client-go/v2"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
-	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
@@ -70,9 +70,9 @@ func TestWithServiceAccountGroup(t *testing.T) {
 		Data: map[string]any{
 			"path":                 fmt.Sprintf("%s/%s", gid, sa.UserName),
 			"name":                 `vault-generated-{{ .token_type }}-token`,
-			"token_type":           token2.TypeGroupServiceAccount.String(),
+			"token_type":           token.TypeGroupServiceAccount.String(),
 			"ttl":                  backend.DefaultAccessTokenMinTTL,
-			"scopes":               token2.ValidGroupServiceAccountTokenScopes,
+			"scopes":               validScopesFor(token.TypeGroupServiceAccount),
 			"gitlab_revokes_token": false,
 		},
 	})
@@ -92,14 +92,14 @@ func TestWithServiceAccountGroup(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.NoError(t, resp.Error())
-	var token = resp.Data["token"].(string)
-	require.NotEmpty(t, token)
+	var newToken = resp.Data["token"].(string)
+	require.NotEmpty(t, newToken)
 	secret := resp.Secret
 	require.NotNil(t, secret)
 
 	{
 		// Validate that the new token works
-		c, err := g.NewClient(token, g.WithHTTPClient(httpClient), g.WithBaseURL(gitlabServiceAccountUrl))
+		c, err := g.NewClient(newToken, g.WithHTTPClient(httpClient), g.WithBaseURL(gitlabServiceAccountUrl))
 		require.NoError(t, err)
 		require.NotNil(t, c)
 		pat, resp, err := c.PersonalAccessTokens.GetSinglePersonalAccessToken()

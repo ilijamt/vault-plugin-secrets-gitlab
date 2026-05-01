@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -24,7 +24,7 @@ import (
 
 func TestPathRolesList(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -46,7 +46,7 @@ func TestPathRoles(t *testing.T) {
 	}
 
 	t.Run("delete non existing role", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -58,7 +58,7 @@ func TestPathRoles(t *testing.T) {
 	})
 
 	t.Run("we get error if backend is not set up during role write", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -74,7 +74,7 @@ func TestPathRoles(t *testing.T) {
 	t.Run("access level", func(t *testing.T) {
 		t.Run(token.TypePersonal.String(), func(t *testing.T) {
 			t.Run("no access level defined", func(t *testing.T) {
-				ctx := getCtxGitlabClient(t, "unit")
+				ctx := getCtxGitlabClient(t, "paths")
 				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -85,7 +85,7 @@ func TestPathRoles(t *testing.T) {
 						"name":                 token.TypePersonal.String(),
 						"token_type":           token.TypePersonal.String(),
 						"ttl":                  backend.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidPersonalTokenScopes,
+						"scopes":               validScopesFor(token.TypePersonal),
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -95,7 +95,7 @@ func TestPathRoles(t *testing.T) {
 				require.Empty(t, resp.Warnings)
 			})
 			t.Run("with access level defined", func(t *testing.T) {
-				ctx := getCtxGitlabClient(t, "unit")
+				ctx := getCtxGitlabClient(t, "paths")
 				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -107,7 +107,7 @@ func TestPathRoles(t *testing.T) {
 						"access_level":         token.AccessLevelOwnerPermissions.String(),
 						"token_type":           token.TypePersonal.String(),
 						"ttl":                  backend.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidPersonalTokenScopes,
+						"scopes":               validScopesFor(token.TypePersonal),
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -119,7 +119,7 @@ func TestPathRoles(t *testing.T) {
 
 		t.Run(token.TypeProject.String(), func(t *testing.T) {
 			t.Run("no access level defined", func(t *testing.T) {
-				ctx := getCtxGitlabClient(t, "unit")
+				ctx := getCtxGitlabClient(t, "paths")
 				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -130,7 +130,7 @@ func TestPathRoles(t *testing.T) {
 						"name":                 token.TypeProject.String(),
 						"token_type":           token.TypeProject.String(),
 						"ttl":                  backend.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidProjectTokenScopes,
+						"scopes":               validScopesFor(token.TypeProject),
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -139,7 +139,7 @@ func TestPathRoles(t *testing.T) {
 				require.Error(t, resp.Error())
 			})
 			t.Run("with access level defined", func(t *testing.T) {
-				ctx := getCtxGitlabClient(t, "unit")
+				ctx := getCtxGitlabClient(t, "paths")
 				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -151,7 +151,7 @@ func TestPathRoles(t *testing.T) {
 						"access_level":         token.AccessLevelOwnerPermissions.String(),
 						"token_type":           token.TypeProject.String(),
 						"ttl":                  backend.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidProjectTokenScopes,
+						"scopes":               validScopesFor(token.TypeProject),
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -164,7 +164,7 @@ func TestPathRoles(t *testing.T) {
 
 		t.Run(token.TypeGroup.String(), func(t *testing.T) {
 			t.Run("no access level defined", func(t *testing.T) {
-				ctx := getCtxGitlabClient(t, "unit")
+				ctx := getCtxGitlabClient(t, "paths")
 				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -175,7 +175,7 @@ func TestPathRoles(t *testing.T) {
 						"name":                 token.TypeGroup.String(),
 						"token_type":           token.TypeGroup.String(),
 						"ttl":                  backend.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidGroupTokenScopes,
+						"scopes":               validScopesFor(token.TypeGroup),
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -184,7 +184,7 @@ func TestPathRoles(t *testing.T) {
 				require.Error(t, resp.Error())
 			})
 			t.Run("with access level defined", func(t *testing.T) {
-				ctx := getCtxGitlabClient(t, "unit")
+				ctx := getCtxGitlabClient(t, "paths")
 				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -196,7 +196,7 @@ func TestPathRoles(t *testing.T) {
 						"access_level":         token.AccessLevelOwnerPermissions.String(),
 						"token_type":           token.TypeGroup.String(),
 						"ttl":                  backend.DefaultAccessTokenMinTTL,
-						"scopes":               token.ValidGroupTokenScopes,
+						"scopes":               validScopesFor(token.TypeGroup),
 						"gitlab_revokes_token": false,
 					},
 				})
@@ -211,7 +211,7 @@ func TestPathRoles(t *testing.T) {
 	})
 
 	t.Run("create with missing parameters", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -224,11 +224,14 @@ func TestPathRoles(t *testing.T) {
 		require.Error(t, resp.Error())
 		var errorMap = utils.CountErrByName(err.(*multierror.Error))
 		assert.EqualValues(t, 4, errorMap[errs.ErrFieldRequired.Error()])
-		assert.EqualValues(t, 2, errorMap[errs.ErrFieldInvalidValue.Error()])
+		// Only token_type is reported as invalid — when the token type is
+		// unknown the validators correctly skip access_level/scopes gating
+		// (they're not meaningfully applicable to an unknown type).
+		assert.EqualValues(t, 1, errorMap[errs.ErrFieldInvalidValue.Error()])
 	})
 
 	t.Run("invalid name template", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -239,7 +242,7 @@ func TestPathRoles(t *testing.T) {
 				"name":                 "{{ . } invalid template",
 				"token_type":           token.TypePersonal.String(),
 				"ttl":                  backend.DefaultAccessTokenMinTTL,
-				"scopes":               token.ValidPersonalTokenScopes,
+				"scopes":               validScopesFor(token.TypePersonal),
 				"gitlab_revokes_token": false,
 			},
 		})
@@ -251,7 +254,7 @@ func TestPathRoles(t *testing.T) {
 
 	t.Run("Project token scopes", func(t *testing.T) {
 		t.Run("valid scopes", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -263,7 +266,7 @@ func TestPathRoles(t *testing.T) {
 					"access_level": token.AccessLevelOwnerPermissions.String(),
 					"ttl":          "48h",
 					"token_type":   token.TypeProject.String(),
-					"scopes":       token.ValidProjectTokenScopes,
+					"scopes":       validScopesFor(token.TypeProject),
 				},
 			})
 			require.NoError(t, err)
@@ -272,7 +275,7 @@ func TestPathRoles(t *testing.T) {
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -284,7 +287,7 @@ func TestPathRoles(t *testing.T) {
 					"access_level":         token.AccessLevelOwnerPermissions.String(),
 					"token_type":           token.TypeProject.String(),
 					"ttl":                  "48h",
-					"scopes":               token.ValidPersonalTokenScopes,
+					"scopes":               validScopesFor(token.TypePersonal),
 					"gitlab_revokes_token": false,
 				},
 			})
@@ -297,7 +300,7 @@ func TestPathRoles(t *testing.T) {
 
 	t.Run("Personal token scopes", func(t *testing.T) {
 		t.Run("valid scopes", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -308,7 +311,7 @@ func TestPathRoles(t *testing.T) {
 					"name":       "Example user personal token",
 					"ttl":        "48h",
 					"token_type": token.TypePersonal.String(),
-					"scopes":     token.ValidPersonalTokenScopes,
+					"scopes":     validScopesFor(token.TypePersonal),
 				},
 			})
 			require.NoError(t, err)
@@ -317,7 +320,7 @@ func TestPathRoles(t *testing.T) {
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -341,7 +344,7 @@ func TestPathRoles(t *testing.T) {
 
 	t.Run("Group token scopes", func(t *testing.T) {
 		t.Run("valid scopes", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -353,7 +356,7 @@ func TestPathRoles(t *testing.T) {
 					"ttl":          "48h",
 					"access_level": token.AccessLevelOwnerPermissions.String(),
 					"token_type":   token.TypeGroup.String(),
-					"scopes":       token.ValidProjectTokenScopes,
+					"scopes":       validScopesFor(token.TypeProject),
 				},
 			})
 			require.NoError(t, err)
@@ -362,7 +365,7 @@ func TestPathRoles(t *testing.T) {
 		})
 
 		t.Run("invalid scopes", func(t *testing.T) {
-			ctx := getCtxGitlabClient(t, "unit")
+			ctx := getCtxGitlabClient(t, "paths")
 			var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 			require.NoError(t, err)
 			resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -373,7 +376,7 @@ func TestPathRoles(t *testing.T) {
 					"name":         "Example user personal token",
 					"access_level": token.AccessLevelOwnerPermissions.String(),
 					"token_type":   token.TypeGroup.String(),
-					"scopes":       token.ValidPersonalTokenScopes,
+					"scopes":       validScopesFor(token.TypePersonal),
 				},
 			})
 			require.Error(t, err)
@@ -384,7 +387,7 @@ func TestPathRoles(t *testing.T) {
 	})
 
 	t.Run("update handler existence check", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
 		hasExistenceCheck, exists, err := b.HandleExistenceCheck(ctx, &logical.Request{
@@ -398,7 +401,7 @@ func TestPathRoles(t *testing.T) {
 	})
 
 	t.Run("full flow check roles", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, events, err = getBackendWithEvents(ctx)
 		require.NoError(t, err)
 

@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "gitlab.com/gitlab-org/api/client-go"
+	g "gitlab.com/gitlab-org/api/client-go/v2"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
@@ -18,7 +18,7 @@ import (
 )
 
 func TestPathTokenRolesMultipleConfigs(t *testing.T) {
-	httpClient, gitlabUrl := getClient(t, "unit")
+	httpClient, gitlabUrl := getClient(t, "paths")
 	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)

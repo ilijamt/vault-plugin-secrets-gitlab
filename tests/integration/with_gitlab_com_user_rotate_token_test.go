@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "gitlab.com/gitlab-org/api/client-go"
+	g "gitlab.com/gitlab-org/api/client-go/v2"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"

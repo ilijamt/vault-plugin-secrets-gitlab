@@ -36,9 +36,9 @@ jobs:
       - id: set
         name: Discover GitLab versions
         run: |
-          versions=$(ls -1 tests/integration/testdata/local | sort | jq -R . | jq -sc .)
+          versions=$(ls -1 tests/integration/testdata/e2e | sort | jq -R . | jq -sc .)
           if [ "$versions" = "[]" ]; then
-            echo "ERROR: no GitLab versions found under tests/integration/testdata/local/"
+            echo "ERROR: no GitLab versions found under tests/integration/testdata/e2e/"
             exit 1
           fi
           echo "versions=$versions" >> "$GITHUB_OUTPUT"

@@ -9,13 +9,13 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "gitlab.com/gitlab-org/api/client-go"
+	g "gitlab.com/gitlab-org/api/client-go/v2"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
 	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
-	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
 
@@ -68,9 +68,9 @@ func TestWithServiceAccountUser(t *testing.T) {
 		Data: map[string]any{
 			"path":                 usr.Username,
 			"name":                 `vault-generated-{{ .token_type }}-token`,
-			"token_type":           token2.TypeUserServiceAccount.String(),
+			"token_type":           token.TypeUserServiceAccount.String(),
 			"ttl":                  backend.DefaultAccessTokenMinTTL,
-			"scopes":               token2.ValidUserServiceAccountTokenScopes,
+			"scopes":               validScopesFor(token.TypeUserServiceAccount),
 			"gitlab_revokes_token": false,
 		},
 	})
@@ -90,14 +90,14 @@ func TestWithServiceAccountUser(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.NoError(t, resp.Error())
-	var token = resp.Data["token"].(string)
-	require.NotEmpty(t, token)
+	var newToken = resp.Data["token"].(string)
+	require.NotEmpty(t, newToken)
 	secret := resp.Secret
 	require.NotNil(t, secret)
 
 	{
 		// Validate that the new token works
-		c, err := g.NewClient(token, g.WithHTTPClient(httpClient), g.WithBaseURL(gitlabServiceAccountUrl))
+		c, err := g.NewClient(newToken, g.WithHTTPClient(httpClient), g.WithBaseURL(gitlabServiceAccountUrl))
 		require.NoError(t, err)
 		require.NotNil(t, c)
 		pat, resp, err := c.PersonalAccessTokens.GetSinglePersonalAccessToken()

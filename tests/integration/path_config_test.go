@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -21,7 +21,7 @@ import (
 
 func TestPathConfig(t *testing.T) {
 	t.Run("initial config should be empty fail with backend not configured", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -35,7 +35,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("deleting uninitialized config should fail with backend not configured", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 
@@ -51,7 +51,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("write, read, delete and read config", func(t *testing.T) {
-		httpClient, url := getClient(t, "unit")
+		httpClient, url := getClient(t, "paths")
 		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, l, events, err := getBackendWithEvents(ctx)
@@ -107,7 +107,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("write, read, delete and read config with show config token", func(t *testing.T) {
-		httpClient, url := getClient(t, "unit")
+		httpClient, url := getClient(t, "paths")
 		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, l, events, err := getBackendWithFlagsWithEvents(ctx, flags.Flags{ShowConfigToken: true})
@@ -162,7 +162,7 @@ func TestPathConfig(t *testing.T) {
 		})
 	})
 	t.Run("invalid token", func(t *testing.T) {
-		httpClient, url := getClient(t, "unit")
+		httpClient, url := getClient(t, "paths")
 		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, l, events, err := getBackendWithEvents(ctx)
@@ -185,7 +185,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("missing token from the request", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		b, l, err := getBackend(ctx)
 		require.NoError(t, err)
 
@@ -204,7 +204,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("patch a config with no storage", func(t *testing.T) {
-		httpClient, url := getClient(t, "unit")
+		httpClient, url := getClient(t, "paths")
 		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, _, err := getBackend(ctx)
@@ -225,7 +225,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("patch a config no backend", func(t *testing.T) {
-		httpClient, url := getClient(t, "unit")
+		httpClient, url := getClient(t, "paths")
 		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 		b, l, err := getBackend(ctx)
@@ -247,7 +247,7 @@ func TestPathConfig(t *testing.T) {
 	})
 
 	t.Run("patch a config", func(t *testing.T) {
-		httpClient, url := getClient(t, "unit")
+		httpClient, url := getClient(t, "paths")
 		ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 		var path = fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName)
 

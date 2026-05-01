@@ -2,7 +2,7 @@ package token
 
 import (
 	"fmt"
-	"slices"
+	"sort"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 )
@@ -57,100 +57,176 @@ const (
 	ScopeUnknown = Scope("")
 )
 
-var (
+// scopeMinVersionByTokenType maps a token type to the scopes it supports and
+// the GitLab MAJOR.MINOR version each became available.
+//
+// A token type whose value is nil indicates "scopes is not applicable for
+// this token type" (pipeline trigger). "0.0" means always allowed within the
+// supported window. Scopes whose introduction version is unverified
+// (create_runner, ai_features) are recorded as "0.0" — the lenient default
+// per the version-aware-tokens plan.
+var scopeMinVersionByTokenType = map[Type]map[Scope]string{
+	TypePersonal: {
+		ScopeApi:                  "0.0",
+		ScopeReadApi:              "0.0",
+		ScopeReadUser:             "0.0",
+		ScopeReadRepository:       "0.0",
+		ScopeWriteRepository:      "0.0",
+		ScopeReadRegistry:         "0.0",
+		ScopeWriteRegistry:        "0.0",
+		ScopeReadVirtualRegistry:  "18.0",
+		ScopeWriteVirtualRegistry: "18.0",
+		ScopeSudo:                 "0.0",
+		ScopeAdminMode:            "0.0",
+		ScopeCreateRunner:         "0.0",
+		ScopeManageRunner:         "17.1",
+		ScopeAiFeatures:           "0.0",
+		ScopeK8SProxy:             "0.0",
+		ScopeSelfRotate:           "17.9",
+		ScopeReadServicePing:      "17.1",
+	},
+	TypeProject: {
+		ScopeApi:             "0.0",
+		ScopeReadApi:         "0.0",
+		ScopeReadRegistry:    "0.0",
+		ScopeWriteRegistry:   "0.0",
+		ScopeReadRepository:  "0.0",
+		ScopeWriteRepository: "0.0",
+		ScopeCreateRunner:    "0.0",
+		ScopeManageRunner:    "17.1",
+		ScopeAiFeatures:      "0.0",
+		ScopeK8SProxy:        "0.0",
+		ScopeSelfRotate:      "17.9",
+	},
+	TypeGroup: {
+		ScopeApi:                  "0.0",
+		ScopeReadApi:              "0.0",
+		ScopeReadRegistry:         "0.0",
+		ScopeWriteRegistry:        "0.0",
+		ScopeReadVirtualRegistry:  "18.0",
+		ScopeWriteVirtualRegistry: "18.0",
+		ScopeReadRepository:       "0.0",
+		ScopeWriteRepository:      "0.0",
+		ScopeCreateRunner:         "0.0",
+		ScopeManageRunner:         "17.1",
+		ScopeAiFeatures:           "0.0",
+		ScopeK8SProxy:             "0.0",
+		ScopeSelfRotate:           "17.9",
+	},
+	TypeProjectDeploy: {
+		ScopeReadRepository:       "0.0",
+		ScopeReadRegistry:         "0.0",
+		ScopeWriteRegistry:        "0.0",
+		ScopeReadVirtualRegistry:  "18.0",
+		ScopeWriteVirtualRegistry: "18.0",
+		ScopeReadPackageRegistry:  "0.0",
+		ScopeWritePackageRegistry: "0.0",
+	},
+	TypeGroupDeploy: {
+		ScopeReadRepository:       "0.0",
+		ScopeReadRegistry:         "0.0",
+		ScopeWriteRegistry:        "0.0",
+		ScopeReadVirtualRegistry:  "18.0",
+		ScopeWriteVirtualRegistry: "18.0",
+		ScopeReadPackageRegistry:  "0.0",
+		ScopeWritePackageRegistry: "0.0",
+	},
+	TypeUserServiceAccount: {
+		ScopeApi:                  "0.0",
+		ScopeReadApi:              "0.0",
+		ScopeReadUser:             "0.0",
+		ScopeReadRepository:       "0.0",
+		ScopeWriteRepository:      "0.0",
+		ScopeReadRegistry:         "0.0",
+		ScopeWriteRegistry:        "0.0",
+		ScopeReadVirtualRegistry:  "18.0",
+		ScopeWriteVirtualRegistry: "18.0",
+		ScopeSudo:                 "0.0",
+		ScopeAdminMode:            "0.0",
+		ScopeCreateRunner:         "0.0",
+		ScopeManageRunner:         "17.1",
+		ScopeAiFeatures:           "0.0",
+		ScopeK8SProxy:             "0.0",
+		ScopeSelfRotate:           "17.9",
+		ScopeReadServicePing:      "17.1",
+	},
+	TypeGroupServiceAccount: {
+		ScopeApi:                  "0.0",
+		ScopeReadApi:              "0.0",
+		ScopeReadRegistry:         "0.0",
+		ScopeWriteRegistry:        "0.0",
+		ScopeReadVirtualRegistry:  "18.0",
+		ScopeWriteVirtualRegistry: "18.0",
+		ScopeReadRepository:       "0.0",
+		ScopeWriteRepository:      "0.0",
+		ScopeCreateRunner:         "0.0",
+		ScopeManageRunner:         "17.1",
+		ScopeAiFeatures:           "0.0",
+		ScopeK8SProxy:             "0.0",
+		ScopeSelfRotate:           "17.9",
+	},
+	TypePipelineProjectTrigger: nil, // not applicable
+}
 
-	// ValidPersonalTokenScopes defines the actions you can perform when you authenticate with a personal access token.
-	ValidPersonalTokenScopes = []string{
-		ScopeApi.String(),
-		ScopeReadUser.String(),
-		ScopeReadApi.String(),
-		ScopeReadRepository.String(),
-		ScopeWriteRepository.String(),
-		ScopeReadRegistry.String(),
-		ScopeWriteRegistry.String(),
-		ScopeReadVirtualRegistry.String(),
-		ScopeWriteVirtualRegistry.String(),
-		ScopeSudo.String(),
-		ScopeAdminMode.String(),
-		ScopeCreateRunner.String(),
-		ScopeManageRunner.String(),
-		ScopeAiFeatures.String(),
-		ScopeK8SProxy.String(),
-		ScopeSelfRotate.String(),
-		ScopeReadServicePing.String(),
+// ValidScopesFor returns the scopes allowed for tokenType on the given GitLab
+// version, sorted alphabetically. applicable is false if tokenType does not
+// take a scopes field (pipeline trigger). When version is empty the gate is
+// lenient — every scope the token type accepts is returned.
+func ValidScopesFor(tokenType Type, gitlabVersion string) (scopes []Scope, applicable bool) {
+	inner, present := scopeMinVersionByTokenType[tokenType]
+	if !present || inner == nil {
+		return nil, false
 	}
-
-	ValidProjectTokenScopes = []string{
-		ScopeApi.String(),
-		ScopeReadApi.String(),
-		ScopeReadRegistry.String(),
-		ScopeWriteRegistry.String(),
-		ScopeReadRepository.String(),
-		ScopeWriteRepository.String(),
-		ScopeCreateRunner.String(),
-		ScopeManageRunner.String(),
-		ScopeAiFeatures.String(),
-		ScopeK8SProxy.String(),
-		ScopeSelfRotate.String(),
+	for s, minV := range inner {
+		if atLeast(gitlabVersion, minV) {
+			scopes = append(scopes, s)
+		}
 	}
+	sort.Slice(scopes, func(i, j int) bool { return scopes[i] < scopes[j] })
+	return scopes, true
+}
 
-	ValidGroupTokenScopes = []string{
-		ScopeApi.String(),
-		ScopeReadApi.String(),
-		ScopeReadRegistry.String(),
-		ScopeWriteRegistry.String(),
-		ScopeReadVirtualRegistry.String(),
-		ScopeWriteVirtualRegistry.String(),
-		ScopeReadRepository.String(),
-		ScopeWriteRepository.String(),
-		ScopeCreateRunner.String(),
-		ScopeManageRunner.String(),
-		ScopeAiFeatures.String(),
-		ScopeK8SProxy.String(),
-		ScopeSelfRotate.String(),
+// IsScopeAllowed reports whether scope is a valid scope for tokenType on
+// gitlabVersion. Returns false if tokenType does not take a scopes field.
+func IsScopeAllowed(tokenType Type, scope Scope, gitlabVersion string) bool {
+	inner, present := scopeMinVersionByTokenType[tokenType]
+	if !present || inner == nil {
+		return false
 	}
-
-	ValidUserServiceAccountTokenScopes = ValidPersonalTokenScopes
-
-	ValidGroupServiceAccountTokenScopes = ValidGroupTokenScopes
-
-	ValidPipelineProjectTokenScopes []string
-
-	ValidProjectDeployTokenScopes = []string{
-		ScopeReadRepository.String(),
-		ScopeReadRegistry.String(),
-		ScopeWriteRegistry.String(),
-		ScopeReadVirtualRegistry.String(),
-		ScopeWriteVirtualRegistry.String(),
-		ScopeReadPackageRegistry.String(),
-		ScopeWritePackageRegistry.String(),
+	minV, ok := inner[scope]
+	if !ok {
+		return false
 	}
+	return atLeast(gitlabVersion, minV)
+}
 
-	ValidGroupDeployTokenScopes = []string{
-		ScopeReadRepository.String(),
-		ScopeReadRegistry.String(),
-		ScopeWriteRegistry.String(),
-		ScopeReadVirtualRegistry.String(),
-		ScopeWriteVirtualRegistry.String(),
-		ScopeReadPackageRegistry.String(),
-		ScopeWritePackageRegistry.String(),
+// AllValidScopes returns the union of scopes accepted by any token type at
+// any version — used to populate the OpenAPI schema's AllowedValues at
+// backend startup, before a GitLab version is known.
+func AllValidScopes() []string {
+	seen := map[Scope]struct{}{}
+	for _, inner := range scopeMinVersionByTokenType {
+		for s := range inner {
+			seen[s] = struct{}{}
+		}
 	}
-)
+	out := make([]string, 0, len(seen))
+	for s := range seen {
+		out = append(out, s.String())
+	}
+	sort.Strings(out)
+	return out
+}
 
 func (i Scope) String() string {
 	return string(i)
 }
 
 func ParseScope(value string) (Scope, error) {
-	if slices.Contains(ValidGroupTokenScopes, value) ||
-		slices.Contains(ValidPipelineProjectTokenScopes, value) ||
-		slices.Contains(ValidGroupDeployTokenScopes, value) ||
-		slices.Contains(ValidProjectDeployTokenScopes, value) ||
-		slices.Contains(ValidPersonalTokenScopes, value) ||
-		slices.Contains(ValidProjectTokenScopes, value) ||
-		slices.Contains(ValidUserServiceAccountTokenScopes, value) ||
-		slices.Contains(ValidGroupServiceAccountTokenScopes, value) {
-		return Scope(value), nil
+	for _, inner := range scopeMinVersionByTokenType {
+		if _, ok := inner[Scope(value)]; ok {
+			return Scope(value), nil
+		}
 	}
 	return ScopeUnknown, fmt.Errorf("failed to parse '%s': %w", value, errs.ErrUnknownTokenScope)
 }

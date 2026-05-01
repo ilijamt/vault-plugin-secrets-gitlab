@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -28,7 +28,7 @@ func TestPathTokenRoles(t *testing.T) {
 	}
 
 	t.Run("role not found", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -42,7 +42,7 @@ func TestPathTokenRoles(t *testing.T) {
 
 	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level token.AccessLevel, gitlabRevokesToken bool, path string, dynamicPath bool, pathExtra string) {
 		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t, path: %s", tokenType, level, gitlabRevokesToken, path)
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		client := newInMemoryClient(true)
 		ctx = g.ClientNewContext(ctx, client)
 		var b, l, events, err = getBackendWithEvents(ctx)
@@ -185,7 +185,7 @@ func TestPathTokenRoles(t *testing.T) {
 	})
 
 	t.Run("edge cases with dynamic path", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		client := newInMemoryClient(true)
 		ctx = g.ClientNewContext(ctx, client)
 		var b, l, _, err = getBackendWithEvents(ctx)

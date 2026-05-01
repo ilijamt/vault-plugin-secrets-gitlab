@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -63,7 +63,7 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 	var tokenName = "super-secret-token"
 	ctx, timeExpiresAt := ctxTestTime(t.Context(), t.Name(), tokenName)
 	var err error
-	httpClient, url := getClient(t, "unit")
+	httpClient, url := getClient(t, "paths")
 	var client glab.Client
 	client, err = glab.NewGitlabClient(&config.EntryConfig{
 		Token:   tokenName,
@@ -106,7 +106,7 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
 	var ctx = t.Context()
 	var err error
-	httpClient, url := getClient(t, "unit")
+	httpClient, url := getClient(t, "paths")
 	var client glab.Client
 	client, err = glab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
@@ -124,7 +124,7 @@ func TestGitlabClient_RevokeToken_NotFound(t *testing.T) {
 
 func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 	var tokenName = "admin_user_root"
-	httpClient, url := getClient(t, "unit")
+	httpClient, url := getClient(t, "paths")
 	client, err := glab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken(tokenName).Token,
 		BaseURL: url,
@@ -167,7 +167,7 @@ func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
 	var ctx = t.Context()
 	var err error
-	httpClient, url := getClient(t, "unit")
+	httpClient, url := getClient(t, "paths")
 	var client glab.Client
 	client, err = glab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
@@ -185,7 +185,7 @@ func TestGitlabClient_GetUserIdByUsername(t *testing.T) {
 func TestGitlabClient_GetUserIdByUsernameDoesNotMatch(t *testing.T) {
 	var err error
 	var ctx = t.Context()
-	httpClient, url := getClient(t, "unit")
+	httpClient, url := getClient(t, "paths")
 	var client glab.Client
 	client, err = glab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
@@ -207,7 +207,7 @@ func TestGitlabClient_GetUserIdByUsernameDoesNotMatch(t *testing.T) {
 func TestGitlabClient_Revoke_NonExistingTokens(t *testing.T) {
 	var ctx = t.Context()
 	var err error
-	httpClient, url := getClient(t, "unit")
+	httpClient, url := getClient(t, "paths")
 	var client glab.Client
 	client, err = glab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
@@ -225,7 +225,7 @@ func TestGitlabClient_Revoke_NonExistingTokens(t *testing.T) {
 func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 	var err error
 	var ctx = t.Context()
-	httpClient, url := getClient(t, "unit")
+	httpClient, url := getClient(t, "paths")
 	var client glab.Client
 	client, err = glab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
@@ -244,7 +244,7 @@ func TestGitlabClient_CurrentTokenInfo(t *testing.T) {
 func TestGitlabClient_Metadata(t *testing.T) {
 	var err error
 	var ctx = t.Context()
-	httpClient, url := getClient(t, "unit")
+	httpClient, url := getClient(t, "paths")
 	var client glab.Client
 	client, err = glab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken("admin_user_root").Token,
@@ -263,7 +263,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	var err error
 	var tokenName = "admin_user_root"
 	ctx, timeExpiresAt := ctxTestTime(t.Context(), t.Name(), tokenName)
-	httpClient, url := getClient(t, "unit")
+	httpClient, url := getClient(t, "paths")
 	var client glab.Client
 	client, err = glab.NewGitlabClient(&config.EntryConfig{
 		Token:   getGitlabToken(tokenName).Token,
@@ -319,7 +319,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 func TestGitlabClient_RotateCurrentToken(t *testing.T) {
 	var err error
 	var ctx = t.Context()
-	httpClient, url := getClient(t, "unit")
+	httpClient, url := getClient(t, "paths")
 	var client glab.Client
 	var tokenName = "admin_user_auto_rotate_token_1"
 	client, err = glab.NewGitlabClient(&config.EntryConfig{

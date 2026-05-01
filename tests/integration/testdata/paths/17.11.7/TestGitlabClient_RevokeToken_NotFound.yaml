@@ -1,0 +1,161 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/999
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 27
+        body: '{"message":"404 Not found"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "27"
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:50 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2PJQD00GZBQFE871EDTD","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2PJQD00GZBQFE871EDTD
+            X-Runtime:
+                - "0.054577"
+        status: 404 Not Found
+        code: 404
+        duration: 56.89225ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups/group/access_tokens/999
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 33
+        body: '{"message":"404 Group Not Found"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "33"
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:50 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2PMG7SMB4RJA5SA05X1G","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2PMG7SMB4RJA5SA05X1G
+            X-Runtime:
+                - "0.016894"
+        status: 404 Not Found
+        code: 404
+        duration: 19.029458ms
+    - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/projects/project/access_tokens/999
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 35
+        body: '{"message":"404 Project Not Found"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "35"
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:50 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2PN48THAVCEA5KBYYCS2","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2PN48THAVCEA5KBYYCS2
+            X-Runtime:
+                - "0.014354"
+        status: 404 Not Found
+        code: 404
+        duration: 16.247042ms

@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -25,7 +25,7 @@ func TestPathRolesWithDynamicPath(t *testing.T) {
 		"type":     gitlabTypes.TypeSelfManaged.String(),
 	}
 
-	ctx := getCtxGitlabClient(t, "unit")
+	ctx := getCtxGitlabClient(t, "paths")
 	var bFlags = flags.Flags{}
 	b, l, _, _ := getBackendWithFlagsWithEvents(ctx, bFlags)
 	require.NoError(t, writeBackendConfigWithName(ctx, b, l, defaultConfig, backend.DefaultConfigName))

@@ -10,7 +10,7 @@ import (
 	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
-	g "gitlab.com/gitlab-org/api/client-go"
+	g "gitlab.com/gitlab-org/api/client-go/v2"
 )
 
 func (p *Provider) updateConfigClientInfo(ctx context.Context, config *modelConfig.EntryConfig) (et *token.TokenConfig, err error) {
