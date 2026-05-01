@@ -69,7 +69,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: covdata-${{ matrix.gitlab-version }}
-          path: build/covdata/${{ matrix.gitlab-version }}
+          path: build/covdata/
           if-no-files-found: error
           retention-days: 1
 
@@ -89,12 +89,14 @@ jobs:
         with:
           path: build/covdata
           pattern: covdata-*
+          merge-multiple: true
       - name: Merge coverage
         run: |
           mkdir -p build
-          dirs=$(find build/covdata -mindepth 1 -maxdepth 1 -type d | paste -sd, -)
+          dirs=$(find build/covdata -type f -name 'covmeta.*' -printf '%h\n' | sort -u | paste -sd, -)
           if [ -z "$dirs" ]; then
             echo "ERROR: no coverage data downloaded"
+            ls -laR build/covdata 2>/dev/null || true
             exit 1
           fi
           go tool covdata textfmt -i="$dirs" -o build/coverage.out
