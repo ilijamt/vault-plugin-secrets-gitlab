@@ -44,6 +44,9 @@ func TestPathTokenRoles(t *testing.T) {
 		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t, path: %s", tokenType, level, gitlabRevokesToken, path)
 		ctx := getCtxGitlabClient(t, "paths")
 		client := newInMemoryClient(true)
+		if !gitlabRevokesToken {
+			t.Cleanup(func() { requireNoDanglingTokens(t, client) })
+		}
 		ctx = g.ClientNewContext(ctx, client)
 		var b, l, events, err = getBackendWithEvents(ctx)
 		require.NoError(t, err)

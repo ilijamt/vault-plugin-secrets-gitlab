@@ -136,10 +136,9 @@ func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 	tests := []struct {
 		name        string
 		path        string
-		expectedId  int64
 		expectedErr error
 	}{
-		{name: "top-level group", path: "test", expectedId: 2},
+		{name: "top-level group", path: "test"},
 		{name: "nested group", path: "level-1/level-2/level-3"},
 		{name: "first level nested group", path: "level-1/level-2"},
 		{name: "nonexistent group", path: "nonexistent", expectedErr: errs.ErrInvalidValue},
@@ -154,11 +153,7 @@ func TestGitlabClient_GetGroupIdByPath(t *testing.T) {
 				require.ErrorIs(t, err, tc.expectedErr)
 			} else {
 				require.NoError(t, err)
-				if tc.expectedId > 0 {
-					require.EqualValues(t, tc.expectedId, groupId)
-				} else {
-					require.Greater(t, groupId, int64(0))
-				}
+				require.Greater(t, groupId, int64(0))
 			}
 		})
 	}

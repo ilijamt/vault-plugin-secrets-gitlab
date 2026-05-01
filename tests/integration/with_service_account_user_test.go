@@ -24,24 +24,14 @@ func TestWithServiceAccountUser(t *testing.T) {
 	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 	var tokenName = ""
 
-	b, l, events, err := getBackendWithEvents(ctx)
-	require.NoError(t, err)
-
-	resp, err := b.HandleRequest(ctx, &logical.Request{
-		Operation: logical.UpdateOperation,
-		Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
-		Data: map[string]any{
-			"token":              gitlabServiceAccountToken,
-			"base_url":           gitlabServiceAccountUrl,
-			"auto_rotate_token":  true,
-			"auto_rotate_before": "24h",
-			"type":               gitlabTypes.TypeSelfManaged.String(),
-		},
+	b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
+		"token":              gitlabServiceAccountToken,
+		"base_url":           gitlabServiceAccountUrl,
+		"auto_rotate_token":  true,
+		"auto_rotate_before": "24h",
+		"type":               gitlabTypes.TypeSelfManaged.String(),
 	})
-
 	require.NoError(t, err)
-	require.NotNil(t, resp)
-	require.NoError(t, resp.Error())
 	require.NotEmpty(t, events)
 
 	require.Nil(t, b.GetClient(backend.DefaultConfigName))
@@ -62,7 +52,7 @@ func TestWithServiceAccountUser(t *testing.T) {
 	})
 
 	// Create a user service account role
-	resp, err = b.HandleRequest(ctx, &logical.Request{
+	resp, err := b.HandleRequest(ctx, &logical.Request{
 		Operation: logical.CreateOperation,
 		Path:      fmt.Sprintf("%s/user-service-account", backend.PathRoleStorage), Storage: l,
 		Data: map[string]any{

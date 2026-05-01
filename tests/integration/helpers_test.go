@@ -219,6 +219,19 @@ type inMemoryClient struct {
 	valueGetProjectIdByPath int64
 }
 
+// LiveTokens returns a snapshot of access tokens currently held by the
+// in-memory client (those created but not yet revoked). Pair with
+// requireNoDanglingTokens to assert that a test cleaned up after itself.
+func (i *inMemoryClient) LiveTokens() map[string]t.Token {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	out := make(map[string]t.Token, len(i.accessTokens))
+	for k, v := range i.accessTokens {
+		out[k] = v
+	}
+	return out
+}
+
 func (i *inMemoryClient) GetProjectIdByPath(ctx context.Context, path string) (int64, error) {
 	if i.getProjectIdByPathError {
 		return -1, fmt.Errorf("unable to get project id by path")
@@ -583,12 +596,24 @@ func sanitizePath(path string) string {
 	return strings.ReplaceAll(builder.String(), "__", "_")
 }
 
+// requireNoDanglingTokens fails the test if the in-memory client still holds
+// any unrevoked access tokens. Register via t.Cleanup in tests whose contract
+// is that every token created should also be revoked.
+func requireNoDanglingTokens(t *testing.T, c *inMemoryClient) {
+	t.Helper()
+	if live := c.LiveTokens(); len(live) > 0 {
+		t.Errorf("test left %d unrevoked tokens in inMemoryClient: %v", len(live), live)
+	}
+}
+
 func getCtxGitlabClient(t *testing.T, target string) context.Context {
+	t.Helper()
 	httpClient, _ := getClient(t, target)
 	return utils.HttpClientNewContext(t.Context(), httpClient)
 }
 
 func getCtxGitlabClientWithUrl(t *testing.T, target string) (context.Context, string) {
+	t.Helper()
 	httpClient, url := getClient(t, target)
 	return utils.HttpClientNewContext(t.Context(), httpClient), url
 }

@@ -24,24 +24,14 @@ func TestWithGroupDeployToken(t *testing.T) {
 	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 	var tokenName = "normal_user_initial_token"
 
-	b, l, events, err := getBackendWithEvents(ctx)
-	require.NoError(t, err)
-
-	resp, err := b.HandleRequest(ctx, &logical.Request{
-		Operation: logical.UpdateOperation,
-		Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
-		Data: map[string]any{
-			"token":              getGitlabToken(tokenName).Token,
-			"base_url":           url,
-			"auto_rotate_token":  true,
-			"auto_rotate_before": "24h",
-			"type":               gitlabTypes.TypeSelfManaged.String(),
-		},
+	b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
+		"token":              getGitlabToken(tokenName).Token,
+		"base_url":           url,
+		"auto_rotate_token":  true,
+		"auto_rotate_before": "24h",
+		"type":               gitlabTypes.TypeSelfManaged.String(),
 	})
-
 	require.NoError(t, err)
-	require.NotNil(t, resp)
-	require.NoError(t, resp.Error())
 	require.NotEmpty(t, events)
 
 	var c *g.Client

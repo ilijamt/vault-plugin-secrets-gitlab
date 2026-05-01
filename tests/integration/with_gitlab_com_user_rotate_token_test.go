@@ -21,25 +21,14 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 	var tokenName = ""
 
-	b, l, events, err := getBackendWithEvents(ctx)
-	require.NoError(t, err)
-
-	resp, err := b.HandleRequest(ctx, &logical.Request{
-		Operation: logical.UpdateOperation,
-		Path:      fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName),
-		Storage:   l,
-		Data: map[string]any{
-			"token":              gitlabComPersonalAccessToken,
-			"base_url":           gitlabComUrl,
-			"auto_rotate_token":  true,
-			"auto_rotate_before": "24h",
-			"type":               gitlabTypes.TypeSaaS.String(),
-		},
+	b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
+		"token":              gitlabComPersonalAccessToken,
+		"base_url":           gitlabComUrl,
+		"auto_rotate_token":  true,
+		"auto_rotate_before": "24h",
+		"type":               gitlabTypes.TypeSaaS.String(),
 	})
-
 	require.NoError(t, err)
-	require.NotNil(t, resp)
-	require.NoError(t, resp.Error())
 	require.NotEmpty(t, events)
 
 	var oldToken, newToken string

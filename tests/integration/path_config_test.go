@@ -81,7 +81,9 @@ func TestPathConfig(t *testing.T) {
 		require.NoError(t, resp.Error())
 		assert.NotEmpty(t, resp.Data["token_sha1_hash"])
 		assert.NotEmpty(t, resp.Data["base_url"])
-		require.Len(t, events.eventsProcessed, 1)
+		events.expectEvents(t, []expectedEvent{
+			{eventType: "gitlab/config-write"},
+		})
 		require.Empty(t, resp.Data["token"])
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
@@ -90,7 +92,10 @@ func TestPathConfig(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.Nil(t, resp)
-		require.Len(t, events.eventsProcessed, 2)
+		events.expectEvents(t, []expectedEvent{
+			{eventType: "gitlab/config-write"},
+			{eventType: "gitlab/config-delete"},
+		})
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
@@ -99,11 +104,6 @@ func TestPathConfig(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.Error(t, resp.Error())
-
-		events.expectEvents(t, []expectedEvent{
-			{eventType: "gitlab/config-write"},
-			{eventType: "gitlab/config-delete"},
-		})
 	})
 
 	t.Run("write, read, delete and read config with show config token", func(t *testing.T) {
@@ -137,7 +137,9 @@ func TestPathConfig(t *testing.T) {
 		require.NoError(t, resp.Error())
 		assert.NotEmpty(t, resp.Data["token_sha1_hash"])
 		assert.NotEmpty(t, resp.Data["base_url"])
-		require.Len(t, events.eventsProcessed, 1)
+		events.expectEvents(t, []expectedEvent{
+			{eventType: "gitlab/config-write"},
+		})
 		require.NotEmpty(t, resp.Data["token"])
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
@@ -146,7 +148,10 @@ func TestPathConfig(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.Nil(t, resp)
-		require.Len(t, events.eventsProcessed, 2)
+		events.expectEvents(t, []expectedEvent{
+			{eventType: "gitlab/config-write"},
+			{eventType: "gitlab/config-delete"},
+		})
 
 		resp, err = b.HandleRequest(ctx, &logical.Request{
 			Operation: logical.ReadOperation,
@@ -155,11 +160,6 @@ func TestPathConfig(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.Error(t, resp.Error())
-
-		events.expectEvents(t, []expectedEvent{
-			{eventType: "gitlab/config-write"},
-			{eventType: "gitlab/config-delete"},
-		})
 	})
 	t.Run("invalid token", func(t *testing.T) {
 		httpClient, url := getClient(t, "paths")
