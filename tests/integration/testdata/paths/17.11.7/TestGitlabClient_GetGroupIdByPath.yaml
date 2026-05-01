@@ -1,0 +1,345 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups/test
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        content_length: -1
+        uncompressed: true
+        body: '{"id":2,"web_url":"http://709c6a19016d/groups/test","name":"test","path":"test","description":"A test group","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"test","full_path":"test","created_at":"2026-05-01T20:53:23.159Z","parent_id":null,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"shared_with_groups":[],"runners_token":"GR1348941kEBCwUu1XLFWwQ8SFcUN","enabled_git_access_protocol":"all","prevent_sharing_groups_outside_hierarchy":false,"projects":[],"shared_projects":[]}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:50 GMT
+            Etag:
+                - W/"afc2f7fcda202e8518164bf3fab14590"
+            Nel:
+                - '{"max_age": 0}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Accept-Encoding
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2PNP52SZQEVJA4VJCKPD","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2PNP52SZQEVJA4VJCKPD
+            X-Runtime:
+                - "0.080509"
+        status: 200 OK
+        code: 200
+        duration: 84.473708ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups/level-1%2Flevel-2%2Flevel-3
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        content_length: -1
+        uncompressed: true
+        body: '{"id":9,"web_url":"http://709c6a19016d/groups/level-1/level-2/level-3","name":"l3","path":"level-3","description":"Two levels down","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"l1 / l2 / l3","full_path":"level-1/level-2/level-3","created_at":"2026-05-01T20:53:34.526Z","parent_id":7,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"shared_with_groups":[],"runners_token":"GR1348941NJJt5m5M5sJyxxFxwXjg","projects":[],"shared_projects":[]}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:50 GMT
+            Etag:
+                - W/"fae00a35ab89358316e3fa990606d071"
+            Nel:
+                - '{"max_age": 0}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Accept-Encoding
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2PRDFXR9BFDD61XBX9ZZ","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2PRDFXR9BFDD61XBX9ZZ
+            X-Runtime:
+                - "0.027739"
+        status: 200 OK
+        code: 200
+        duration: 31.514084ms
+    - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups/level-1%2Flevel-2
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        content_length: -1
+        uncompressed: true
+        body: '{"id":7,"web_url":"http://709c6a19016d/groups/level-1/level-2","name":"l2","path":"level-2","description":"One level down","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"mentions_disabled":null,"lfs_enabled":true,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"l1 / l2","full_path":"level-1/level-2","created_at":"2026-05-01T20:53:29.121Z","parent_id":6,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"shared_with_groups":[],"runners_token":"GR13489411wyc5Smjw1RQxatS1QZK","projects":[],"shared_projects":[]}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:50 GMT
+            Etag:
+                - W/"7642c0cca8465cbb170e30ff5f761c79"
+            Nel:
+                - '{"max_age": 0}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Accept-Encoding
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2PSD30D9DT3435P9ZSXJ","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2PSD30D9DT3435P9ZSXJ
+            X-Runtime:
+                - "0.025037"
+        status: 200 OK
+        code: 200
+        duration: 27.193375ms
+    - id: 3
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups/nonexistent
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 33
+        body: '{"message":"404 Group Not Found"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "33"
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:50 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2PT8Z2R64GMJB8JCYXST","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2PT8Z2R64GMJB8JCYXST
+            X-Runtime:
+                - "0.166243"
+        status: 404 Not Found
+        code: 404
+        duration: 168.897125ms
+    - id: 4
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups/level-1%2Flevel-2%2Fnonexistent
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 33
+        body: '{"message":"404 Group Not Found"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "33"
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:50 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2PZJZZ640676PQ4KT197","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2PZJZZ640676PQ4KT197
+            X-Runtime:
+                - "0.014263"
+        status: 404 Not Found
+        code: 404
+        duration: 16.345209ms
+    - id: 5
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups/level-1%2Fnonexistent%2Flevel-3
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 33
+        body: '{"message":"404 Group Not Found"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "33"
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:50 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2Q02QCARTHHZ4ZPSHP2D","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2Q02QCARTHHZ4ZPSHP2D
+            X-Runtime:
+                - "0.117199"
+        status: 404 Not Found
+        code: 404
+        duration: 120.182542ms

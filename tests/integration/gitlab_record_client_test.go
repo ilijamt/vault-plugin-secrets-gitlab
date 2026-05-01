@@ -1,4 +1,4 @@
-//go:build unit || saas || selfhosted || local
+//go:build paths || saas || selfhosted || e2e
 
 package integration_test
 
@@ -23,10 +23,10 @@ func getClient(t *testing.T, target string) (client *http.Client, u string) {
 
 	var filename string
 	switch target {
-	case "unit", "local":
+	case "paths", "e2e":
 		version := os.Getenv("GITLAB_VERSION")
 		if version == "" {
-			t.Fatal("GITLAB_VERSION env var must be set for unit/local cassettes; run via 'make test' or export GITLAB_VERSION explicitly")
+			t.Fatal("GITLAB_VERSION env var must be set for paths/e2e cassettes; run via 'make test' or export GITLAB_VERSION explicitly")
 		}
 		filename = fmt.Sprintf("testdata/%s/%s/%s", target, version, sanitizePath(t.Name()))
 	default:

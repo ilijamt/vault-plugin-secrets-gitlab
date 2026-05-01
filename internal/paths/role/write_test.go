@@ -107,6 +107,74 @@ func TestPathRolesWrite_ConfigErrors(t *testing.T) {
 	})
 }
 
+func TestPathRolesWrite_VersionGating(t *testing.T) {
+	// configWithVersion returns a backend whose config carries a GitLab version.
+	configWithVersion := func(v string) *mockRoleBackend {
+		c := testConfig()
+		c.GitlabVersion = v
+		return &mockRoleBackend{config: c}
+	}
+
+	t.Run("self_rotate rejected on 17.0", func(t *testing.T) {
+		raw := personalRaw()
+		raw["scopes"] = token.ScopeSelfRotate.String()
+		resp, err := writeHandler(configWithVersion("17.0"))(t.Context(), newRequest(), newFieldData(raw))
+		require.Error(t, err)
+		require.NotNil(t, resp)
+		assert.Contains(t, err.Error(), "self_rotate")
+	})
+
+	t.Run("self_rotate accepted on 17.9", func(t *testing.T) {
+		raw := personalRaw()
+		raw["scopes"] = token.ScopeSelfRotate.String()
+		resp, err := writeHandler(configWithVersion("17.9"))(t.Context(), newRequest(), newFieldData(raw))
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.False(t, resp.IsError())
+	})
+
+	t.Run("planner rejected on group AT at 17.0", func(t *testing.T) {
+		raw := map[string]interface{}{
+			"role_name":    "group-role",
+			"path":         "my-group/sub",
+			"name":         "group-token",
+			"token_type":   token.TypeGroup.String(),
+			"access_level": token.AccessLevelPlannerPermissions.String(),
+			"scopes":       token.ScopeApi.String(),
+			"ttl":          86400,
+		}
+		resp, err := writeHandler(configWithVersion("17.0"))(t.Context(), newRequest(), newFieldData(raw))
+		require.Error(t, err)
+		require.NotNil(t, resp)
+		assert.Contains(t, err.Error(), "planner")
+	})
+
+	t.Run("planner accepted on group AT at 17.7", func(t *testing.T) {
+		raw := map[string]interface{}{
+			"role_name":    "group-role",
+			"path":         "my-group/sub",
+			"name":         "group-token",
+			"token_type":   token.TypeGroup.String(),
+			"access_level": token.AccessLevelPlannerPermissions.String(),
+			"scopes":       token.ScopeApi.String(),
+			"ttl":          86400,
+		}
+		resp, err := writeHandler(configWithVersion("17.7"))(t.Context(), newRequest(), newFieldData(raw))
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.False(t, resp.IsError())
+	})
+
+	t.Run("empty version is lenient", func(t *testing.T) {
+		raw := personalRaw()
+		raw["scopes"] = token.ScopeSelfRotate.String()
+		resp, err := writeHandler(configWithVersion(""))(t.Context(), newRequest(), newFieldData(raw))
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.False(t, resp.IsError())
+	})
+}
+
 func TestPathRolesWrite_ValidationErrors(t *testing.T) {
 	tests := []struct {
 		name        string

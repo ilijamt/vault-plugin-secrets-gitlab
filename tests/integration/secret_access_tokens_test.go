@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -17,7 +17,7 @@ import (
 )
 
 func TestSecretAccessTokenRevokeToken(t *testing.T) {
-	httpClient, url := getClient(t, "unit")
+	httpClient, url := getClient(t, "paths")
 	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 	b, l, events, err := getBackendWithEvents(ctx)

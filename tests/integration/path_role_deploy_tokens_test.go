@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -51,7 +51,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.tokenType.String(), func(t *testing.T) {
 			t.Run("should create role successfully", func(t *testing.T) {
-				ctx := getCtxGitlabClient(t, "unit")
+				ctx := getCtxGitlabClient(t, "paths")
 				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -71,7 +71,7 @@ func TestPathRolesDeployTokens(t *testing.T) {
 			})
 
 			t.Run("fail to create role due to missing scopes and wrong access level", func(t *testing.T) {
-				ctx := getCtxGitlabClient(t, "unit")
+				ctx := getCtxGitlabClient(t, "paths")
 				var b, l, err = getBackendWithConfig(ctx, defaultConfig)
 				require.NoError(t, err)
 				resp, err := b.HandleRequest(ctx, &logical.Request{

@@ -1,0 +1,182 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/self
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 223
+        body: '{"id":3,"name":"Auto rotate token 1","revoked":false,"created_at":"2026-05-01T20:53:23.676Z","description":null,"scopes":["api"],"user_id":2,"last_used_at":"2026-05-01T22:20:51.881Z","active":true,"expires_at":"2027-04-30"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "223"
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:51 GMT
+            Etag:
+                - W/"1ee6bc7888ff85c5afcf7d4190d3ab11"
+            Nel:
+                - '{"max_age": 0}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2R7CQ7BN937F0EV2138Z","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2R7CQ7BN937F0EV2138Z
+            X-Runtime:
+                - "0.066758"
+        status: 200 OK
+        code: 200
+        duration: 69.187875ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/users/2
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        content_length: -1
+        uncompressed: true
+        body: '{"id":2,"username":"admin-user","name":"Admin User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/af0325f5b5bc22760340e6e28bbe467949a83cf3a620329417c7718f89e0f7c5?s=80\u0026d=identicon","web_url":"http://709c6a19016d/admin-user","created_at":"2026-05-01T20:53:23.216Z","bio":"","location":"","public_email":null,"skype":"","linkedin":"","twitter":"","discord":"","website_url":"","organization":"","job_title":"","pronouns":null,"bot":false,"work_information":null,"local_time":null,"last_sign_in_at":null,"confirmed_at":"2026-05-01T20:53:23.159Z","last_activity_on":"2026-05-01","email":"admin@local","theme_id":3,"color_scheme_id":1,"projects_limit":0,"current_sign_in_at":null,"identities":[],"can_create_group":false,"can_create_project":false,"two_factor_enabled":false,"external":false,"private_profile":false,"commit_email":"admin@local","is_admin":true,"note":"","namespace_id":3,"created_by":{"id":1,"username":"root","name":"Administrator","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/bcd8dabe6305c5b76ce677a592c46f294d600182c8f1df0a4c272cfdbb708fa3?s=80\u0026d=identicon","web_url":"http://709c6a19016d/root"},"email_reset_offered_at":null,"highest_role":0,"current_sign_in_ip":null,"last_sign_in_ip":null,"sign_in_count":0}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:51 GMT
+            Etag:
+                - W/"6f454db21e4e9c831ff31f26bfca024d"
+            Nel:
+                - '{"max_age": 0}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Accept-Encoding
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2R9J8AKVJ0WB3MY0PJRY","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2R9J8AKVJ0WB3MY0PJRY
+            X-Runtime:
+                - "0.033028"
+        status: 200 OK
+        code: 200
+        duration: 35.50075ms
+    - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 27
+        host: localhost:8080
+        body: '{"expires_at":"2027-05-01"}'
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/3/rotate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 239
+        body: '{"id":40,"name":"Auto rotate token 1","revoked":false,"created_at":"2026-05-01T22:20:51.943Z","description":null,"scopes":["api"],"user_id":2,"last_used_at":null,"active":true,"expires_at":"2027-05-01","token":"REPLACED-TOKEN"}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "239"
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 01 May 2026 22:20:51 GMT
+            Etag:
+                - W/"9faf364df2fa100dbb57e7552d8b5bd1"
+            Nel:
+                - '{"max_age": 0}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KQJT2RAP89NE1QJAC13VREYC","version":"1"}'
+            X-Request-Id:
+                - 01KQJT2RAP89NE1QJAC13VREYC
+            X-Runtime:
+                - "0.032904"
+        status: 200 OK
+        code: 200
+        duration: 35.138083ms

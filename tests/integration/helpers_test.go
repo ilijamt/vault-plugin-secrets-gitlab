@@ -1,4 +1,4 @@
-//go:build unit || saas || selfhosted || local
+//go:build paths || saas || selfhosted || e2e
 
 package integration_test
 
@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/vault/sdk/helper/logging"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "gitlab.com/gitlab-org/api/client-go"
+	g "gitlab.com/gitlab-org/api/client-go/v2"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
@@ -43,6 +43,23 @@ var (
 	gitlabServiceAccountUrl      = cmp.Or(os.Getenv("GITLAB_SERVICE_ACCOUNT_URL"), "http://localhost:8080")
 	gitlabServiceAccountToken    = cmp.Or(os.Getenv("GITLAB_SERVICE_ACCOUNT_TOKEN"), "REPLACED-TOKEN")
 )
+
+// validScopesFor returns every scope the given token type accepts at the
+// GitLab version reported via GITLAB_VERSION (set by the integration test
+// harness via `make test`). When GITLAB_VERSION is unset the gate is lenient
+// and every known scope is returned. Returns nil for token types that do not
+// take a scopes field (e.g. pipeline trigger).
+func validScopesFor(tokenType t.Type) []string {
+	scopes, applicable := t.ValidScopesFor(tokenType, os.Getenv("GITLAB_VERSION"))
+	if !applicable {
+		return nil
+	}
+	out := make([]string, 0, len(scopes))
+	for _, s := range scopes {
+		out = append(out, s.String())
+	}
+	return out
+}
 
 type expectedEvent struct {
 	eventType string

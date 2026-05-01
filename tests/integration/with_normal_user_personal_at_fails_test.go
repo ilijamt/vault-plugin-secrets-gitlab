@@ -1,4 +1,4 @@
-//go:build local
+//go:build e2e
 
 package integration_test
 
@@ -20,7 +20,7 @@ import (
 )
 
 func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
-	httpClient, url := getClient(t, "local")
+	httpClient, url := getClient(t, "e2e")
 	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 	var tokenName = "normal_user_initial_token"
 

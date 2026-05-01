@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -15,7 +15,7 @@ import (
 func TestBackend(t *testing.T) {
 	var err error
 	var b *gitlab.Backend
-	ctx := getCtxGitlabClient(t, "unit")
+	ctx := getCtxGitlabClient(t, "paths")
 	b, _, err = getBackend(ctx)
 	require.NoError(t, err)
 	require.NotNil(t, b)

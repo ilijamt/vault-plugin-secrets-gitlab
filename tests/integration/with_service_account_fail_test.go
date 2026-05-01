@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "gitlab.com/gitlab-org/api/client-go"
+	g "gitlab.com/gitlab-org/api/client-go/v2"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
@@ -66,7 +66,7 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 					"name":                 fmt.Sprintf(`user-service-account-%s`, usr.Username),
 					"token_type":           token.TypeUserServiceAccount.String(),
 					"ttl":                  backend.DefaultAccessTokenMinTTL,
-					"scopes":               token.ValidUserServiceAccountTokenScopes,
+					"scopes":               validScopesFor(token.TypeUserServiceAccount),
 					"gitlab_revokes_token": false,
 				},
 			})

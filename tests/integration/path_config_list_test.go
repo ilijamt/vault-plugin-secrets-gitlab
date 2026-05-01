@@ -1,4 +1,4 @@
-//go:build unit
+//go:build paths
 
 package integration_test
 
@@ -19,7 +19,7 @@ import (
 
 func TestPathConfigList(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, err = getBackend(ctx)
 		require.NoError(t, err)
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -33,7 +33,7 @@ func TestPathConfigList(t *testing.T) {
 	})
 
 	t.Run("multiple configs", func(t *testing.T) {
-		ctx := getCtxGitlabClient(t, "unit")
+		ctx := getCtxGitlabClient(t, "paths")
 		var b, l, events, err = getBackendWithEventsAndConfigName(ctx,
 			map[string]any{
 				"token":    getGitlabToken("admin_user_root").Token,
