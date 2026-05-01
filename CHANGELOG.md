@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 ### <!-- 0 -->Features
 
 - *(local-env)* Added input validation for GitLab version in setup scripts
+- *(token)* [**breaking**] Add version-aware scope and access_level validation (#332)
 
 ### <!-- 4 -->Documentation
 
@@ -19,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
 - Updated regex pattern in endpoint configuration docs
+- *(changelog)* Regenerate CHANGELOG.md [skip ci]
 
 ### <!-- 5 -->Tests
 
