@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
 - Updated regex pattern in endpoint configuration docs
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
+- *(changelog)* Regenerate CHANGELOG.md [skip ci]
 
 ### <!-- 5 -->Tests
 
@@ -43,6 +44,7 @@ All notable changes to this project will be documented in this file.
 - *(workflows)* Updated changelog workflow to use git status
 - Parameterized GitLab version in local setup scripts
 - *(workflows)* Updated GitHub Actions for artifact actions
+- *(workflows)* Updated GitHub Actions for latest artifact usage
 
 ## [0.11.0] - 2026-04-20
 
