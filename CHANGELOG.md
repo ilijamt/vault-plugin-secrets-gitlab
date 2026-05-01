@@ -22,10 +22,12 @@ All notable changes to this project will be documented in this file.
 - Updated regex pattern in endpoint configuration docs
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
+- *(changelog)* Regenerate CHANGELOG.md [skip ci]
 
 ### <!-- 5 -->Tests
 
 - Upgrade to 17.11.7 for local and unit testing
+- *(integration)* Fix in-memory client bugs and harden ctxTestTime
 
 ### <!-- 6 -->CI
 
