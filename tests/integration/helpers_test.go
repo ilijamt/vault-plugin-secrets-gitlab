@@ -355,7 +355,7 @@ func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Con
 func (i *inMemoryClient) GetGroupIdByPath(ctx context.Context, path string) (int64, error) {
 	idx := slices.Index(i.groups, path)
 	if idx == -1 {
-		i.users = append(i.groups, path)
+		i.groups = append(i.groups, path)
 		idx = slices.Index(i.groups, path)
 	}
 	return int64(idx), nil
@@ -384,7 +384,7 @@ func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context
 	var tok *token.TokenUserServiceAccount
 	var err error
 	var cpat *token.TokenPersonal
-	if cpat, err = i.CreatePersonalAccessToken(ctx, username, userId, name, expiresAt, scopes); err != nil && cpat != nil {
+	if cpat, err = i.CreatePersonalAccessToken(ctx, username, userId, name, expiresAt, scopes); err == nil && cpat != nil {
 		tok = &token.TokenUserServiceAccount{
 			TokenWithScopes: token.TokenWithScopes{
 				Token: token.Token{
@@ -601,11 +601,12 @@ func parseTimeFromFile(name string) (t time.Time, err error) {
 	return time.Parse(time.RFC3339, string(buff))
 }
 
-func ctxTestTime(ctx context.Context, testName string, tokenName string) (_ context.Context, t time.Time) {
+func ctxTestTime(ctx context.Context, tb testing.TB, tokenName string) (_ context.Context, t time.Time) {
+	tb.Helper()
 	var token = getGitlabToken(tokenName)
 	if token.Empty() {
 		var err error
-		switch testName {
+		switch tb.Name() {
 		case "TestGitlabClient_InvalidToken":
 			// no token for this test
 		case "TestWithGitlabUser_RotateToken":
@@ -620,7 +621,7 @@ func ctxTestTime(ctx context.Context, testName string, tokenName string) (_ cont
 				panic(err)
 			}
 		default:
-			panic(fmt.Errorf("unknown test name %s", testName))
+			tb.Fatalf("unknown test name %s", tb.Name())
 		}
 	} else {
 		t = token.CreatedAtTime()

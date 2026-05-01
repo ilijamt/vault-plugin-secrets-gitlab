@@ -61,7 +61,7 @@ func TestGitlabClient(t *testing.T) {
 
 func TestGitlabClient_InvalidToken(t *testing.T) {
 	var tokenName = "super-secret-token"
-	ctx, timeExpiresAt := ctxTestTime(t.Context(), t.Name(), tokenName)
+	ctx, timeExpiresAt := ctxTestTime(t.Context(), t, tokenName)
 	var err error
 	httpClient, url := getClient(t, "paths")
 	var client glab.Client
@@ -262,7 +262,7 @@ func TestGitlabClient_Metadata(t *testing.T) {
 func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 	var err error
 	var tokenName = "admin_user_root"
-	ctx, timeExpiresAt := ctxTestTime(t.Context(), t.Name(), tokenName)
+	ctx, timeExpiresAt := ctxTestTime(t.Context(), t, tokenName)
 	httpClient, url := getClient(t, "paths")
 	var client glab.Client
 	client, err = glab.NewGitlabClient(&config.EntryConfig{
@@ -330,7 +330,7 @@ func TestGitlabClient_RotateCurrentToken(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, client)
 	require.True(t, client.Valid(ctx))
-	ctx, _ = ctxTestTime(ctx, t.Name(), tokenName)
+	ctx, _ = ctxTestTime(ctx, t, tokenName)
 	newToken, oldToken, err := client.RotateCurrentToken(ctx)
 	require.NoError(t, err)
 	require.NotNil(t, newToken)

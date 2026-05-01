@@ -68,7 +68,7 @@ func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 
 	// issue a personal access token
 	{
-		ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
+		ctxIssueToken, _ := ctxTestTime(ctx, t, tokenName)
 		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
 			Operation: logical.ReadOperation, Storage: l,
 			Path: fmt.Sprintf("%s/normal-user", tokenPaths.PathTokenRoleStorage),

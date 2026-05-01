@@ -64,7 +64,7 @@ func TestWithPipelineProjectTriggerAccessToken(t *testing.T) {
 	}
 
 	{
-		ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
+		ctxIssueToken, _ := ctxTestTime(ctx, t, tokenName)
 		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
 			Operation: logical.ReadOperation, Storage: l,
 			Path: fmt.Sprintf("%s/pptat", tokenPaths.PathTokenRoleStorage),

@@ -127,7 +127,7 @@ func TestPathTokenRolesMultipleConfigs(t *testing.T) {
 			require.EqualValues(t, cfg, resp.Data["config_name"], "create role %q config_name mismatch", rd.roleName)
 
 			t.Logf("issuing token for role %q (impersonating %q)", rd.roleName, tokenName)
-			ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
+			ctxIssueToken, _ := ctxTestTime(ctx, t, tokenName)
 			resp, err = b.HandleRequest(ctxIssueToken, &logical.Request{
 				Operation: logical.ReadOperation, Storage: l,
 				Path: fmt.Sprintf("%s/%s", tokenPaths.PathTokenRoleStorage, rd.roleName),

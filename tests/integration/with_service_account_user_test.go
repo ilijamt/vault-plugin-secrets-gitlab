@@ -81,7 +81,7 @@ func TestWithServiceAccountUser(t *testing.T) {
 	require.EqualValues(t, resp.Data["config_name"], backend.DefaultConfigName)
 
 	// Get a new token for the service account
-	ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
+	ctxIssueToken, _ := ctxTestTime(ctx, t, tokenName)
 	resp, err = b.HandleRequest(ctxIssueToken, &logical.Request{
 		Operation: logical.ReadOperation, Storage: l,
 		Path: fmt.Sprintf("%s/user-service-account", tokenPaths.PathTokenRoleStorage),

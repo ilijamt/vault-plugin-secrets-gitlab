@@ -75,7 +75,7 @@ func TestWithNormalUser_ProjectAT(t *testing.T) {
 
 	// issue a group access token
 	{
-		ctxIssueToken, _ := ctxTestTime(ctx, t.Name(), tokenName)
+		ctxIssueToken, _ := ctxTestTime(ctx, t, tokenName)
 		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
 			Operation: logical.ReadOperation, Storage: l,
 			Path: fmt.Sprintf("%s/pat", tokenPaths.PathTokenRoleStorage),

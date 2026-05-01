@@ -46,7 +46,7 @@ func TestWithGitlabUser_RotateToken(t *testing.T) {
 
 	// Rotate the main token
 	{
-		ctxRotate, _ := ctxTestTime(ctx, t.Name(), tokenName)
+		ctxRotate, _ := ctxTestTime(ctx, t, tokenName)
 		resp, err := b.HandleRequest(ctxRotate, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s/rotate", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,
