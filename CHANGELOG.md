@@ -17,6 +17,8 @@ All notable changes to this project will be documented in this file.
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
+- *(changelog)* Regenerate CHANGELOG.md [skip ci]
+- Updated regex pattern in endpoint configuration docs
 
 ### <!-- 5 -->Tests
 
