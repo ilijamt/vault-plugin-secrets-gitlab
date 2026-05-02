@@ -1,0 +1,41 @@
+name: Mirror to GitLab
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-to-gitlab
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Configure SSH and push --mirror to GitLab
+        env:
+          GITLAB_SSH_KEY: ${{ secrets.GITLAB_MIRROR_SSH_KEY }}
+          GITLAB_REPO: ${{ vars.GITLAB_MIRROR_REPO }}
+        run: |
+          set -euo pipefail
+          : "${GITLAB_SSH_KEY:?GITLAB_MIRROR_SSH_KEY secret not set}"
+          : "${GITLAB_REPO:?GITLAB_MIRROR_REPO var not set (expected git@gitlab.com:owner/repo.git)}"
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${GITLAB_SSH_KEY}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -t rsa,ecdsa,ed25519 gitlab.com >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+          git remote add gitlab "${GITLAB_REPO}"
+          git push --prune gitlab \
+            '+refs/remotes/origin/*:refs/heads/*' \
+            '+refs/tags/*:refs/tags/*'
