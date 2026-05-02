@@ -32,7 +32,7 @@ Integration tests
 =================
 
 Integration tests live in `tests/integration/` and are gated by build tags
-(`unit`, `local`, `saas`, `selfhosted`). The `saas` and `selfhosted` suites
+(`paths`, `e2e`, `saas`, `selfhosted`). The `saas` and `selfhosted` suites
 talk to real GitLab instances and need a few environment variables plus
 prepared testdata files that pin the `created_at` timestamp of the token
 used to authenticate.

@@ -28,18 +28,18 @@ The version argument selects which backup tarball to read/write. Use `restore` t
 
 ### Recording cassettes
 
-Tests record HTTP fixtures into `tests/integration/testdata/{unit,local}/<version>/`. Tokens for that version live in `tests/integration/testdata/tokens.<version>.json`. To record against a fresh setup:
+Tests record HTTP fixtures into `tests/integration/testdata/{paths,e2e}/<version>/`. Tokens for that version live in `tests/integration/testdata/tokens.<version>.json`. To record against a fresh setup:
 
 ```bash
 # pinned (17.11.7)
 bash initial-setup.sh 17.11.7
 GITLAB_VERSION=17.11.7 GITLAB_URL=http://localhost:8080 \
-  make test TAGS=unit,local GITLAB_VERSIONS=17.11.7
+  make test TAGS=paths,e2e GITLAB_VERSIONS=17.11.7
 
 # switch to 18.11.2
 bash initial-setup.sh 18.11.2
 GITLAB_VERSION=18.11.2 GITLAB_URL=http://localhost:8080 \
-  make test TAGS=unit,local GITLAB_VERSIONS=18.11.2
+  make test TAGS=paths,e2e GITLAB_VERSIONS=18.11.2
 ```
 
 Plain `make test` (no extra env) replays all per-version cassettes already on disk and produces a merged coverage report under `build/coverage.{out,html}`. Per-version binary coverage is preserved under `build/covdata/<version>/` for inspection via `go tool covdata percent -i=build/covdata/<version>`.
