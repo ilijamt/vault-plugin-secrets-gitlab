@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.12.0] - 2026-05-02
 
 
 ### <!-- 0 -->Features
@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file.
 - *(integration)* Added test for token rotation during expiration window
 - *(integration)* Standardized environment setup for service account tests
 - *(integration)* Added tests for 18.11.2
+- *(integration)* Simplifiy inmemory client and adjust tests
 
 ### <!-- 6 -->CI
 
