@@ -29,12 +29,22 @@ The current authentication model requires providing Vault with a Gitlab Token.
 ## Quick links
 
 - Vault Website – https://www.vaultproject.io
-- Personal Access Tokens – https://docs.gitlab.com/api/personal_access_tokens/
-- Project Access Tokens – https://docs.gitlab.com/api/project_access_tokens/
-- Group Access Tokens – https://docs.gitlab.com/api/group_access_tokens/
-- User/Group Service Account Tokens – https://docs.gitlab.com/api/service_accounts/
-- Pipeline Project Trigger Tokens - https://docs.gitlab.com/api/pipeline_triggers/
-- Group/Project Deploy Tokens – https://docs.gitlab.com/user/project/deploy_tokens/
+
+## Token types
+
+> **All tiers** = Free + Premium + Ultimate · **All offerings** = GitLab.com + Self-Managed + Dedicated
+
+| Token type | Tier | Offering | Status |
+| --- | --- | --- | --- |
+| [Personal Access Tokens](https://docs.gitlab.com/api/personal_access_tokens/) | All tiers | All offerings | GA |
+| [Project Access Tokens](https://docs.gitlab.com/api/project_access_tokens/) | All tiers | All offerings | GA |
+| [Group Access Tokens](https://docs.gitlab.com/api/group_access_tokens/) | All tiers | All offerings | GA |
+| [User/Group Service Account Tokens](https://docs.gitlab.com/api/service_accounts/)¹ | All tiers | All offerings | GA |
+| [Pipeline Project Trigger Tokens](https://docs.gitlab.com/api/pipeline_triggers/) | All tiers | All offerings | GA |
+| [Group/Project Deploy Tokens](https://docs.gitlab.com/user/project/deploy_tokens/) | All tiers | All offerings | GA |
+| [Runner Controller Tokens](https://docs.gitlab.com/api/runner_controller_tokens/) | **Ultimate only** | **Self-Managed, Dedicated** | **Experiment** |
+
+¹ Service accounts on GitLab Free are capped: up to 100 per top-level group on GitLab.com, or 100 per instance on Self-Managed. Premium and Ultimate are unlimited.
 
 ## Getting started
 
