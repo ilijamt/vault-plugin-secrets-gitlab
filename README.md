@@ -16,11 +16,15 @@ through Vault.
 
 The current authentication model requires providing Vault with a Gitlab Token.
 
-## GitLab support
+## GitLab Support
 
-- GitLab CE/EE - Self Managed (tested against 17.10.3)
-- gitlab.com (cannot use personal access token, and user service account)
-- Dedicated Instance (cannot use personal access token, and user service account)
+- **GitLab CE/EE (Self-Managed)**
+  - 17.11.7 CE (tested)
+  - 18.11.2 CE (tested)
+- **GitLab.com**
+  - Personal access tokens and user service accounts are not supported
+- **GitLab Dedicated**
+  - Personal access tokens and user service accounts are not supported
 
 ## Quick links
 
