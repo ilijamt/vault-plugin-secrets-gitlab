@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 ### <!-- 4 -->Documentation
 
 - Update GitLab support documentation
+- Fix tags for tests they were refering the old tags
 
 ### <!-- 6 -->CI
 
