@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 ### <!-- 0 -->Features
 
 - *(local-env)* Added input validation for GitLab version in setup scripts
-- *(token)* [**breaking**] Add version-aware scope and access_level validation (#332)
+- *(token)* [**breaking**] Add version-aware scope and access_level validation
 
 ### <!-- 4 -->Documentation
 
@@ -23,11 +23,18 @@ All notable changes to this project will be documented in this file.
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
 - *(changelog)* Regenerate CHANGELOG.md [skip ci]
+- *(changelog)* Regenerate CHANGELOG.md [skip ci]
 
 ### <!-- 5 -->Tests
 
-- Upgrade to 17.11.7 for local and unit testing
+- *(integration)* Upgrade to 17.11.7 for local and unit testing
 - *(integration)* Fix in-memory client bugs and harden ctxTestTime
+- *(integration)* Consolidate setup, document layout, and harden assertions
+- *(integration)* Split helpers_test.go and add TestMain precondition checks
+- *(integration)* Introduced skipEmptyFS for cleaner test outputs
+- *(integration)* Added test for token rotation during expiration window
+- *(integration)* Standardized environment setup for service account tests
+- *(integration)* Added tests for 18.11.2
 
 ### <!-- 6 -->CI
 
@@ -47,6 +54,7 @@ All notable changes to this project will be documented in this file.
 - Parameterized GitLab version in local setup scripts
 - *(workflows)* Updated GitHub Actions for artifact actions
 - *(workflows)* Updated GitHub Actions for latest artifact usage
+- Add entry to .idea/vault-plugin-secrets-gitlab.iml
 
 ## [0.11.0] - 2026-04-20
 
