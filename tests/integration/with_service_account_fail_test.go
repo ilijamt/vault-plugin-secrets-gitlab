@@ -23,6 +23,7 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 		gitlabTypes.TypeDedicated,
 	} {
 		t.Run(typ.String(), func(t *testing.T) {
+			t.Setenv("GITLAB_VERSION", selfhostedPinnedVersion)
 			httpClient, _ := getClient(t, "selfhosted")
 			ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 

@@ -26,6 +26,8 @@ var (
 	gitlabServiceAccountToken    = cmp.Or(os.Getenv("GITLAB_SERVICE_ACCOUNT_TOKEN"), "REPLACED-TOKEN")
 )
 
+const selfhostedPinnedVersion = "17.11.7"
+
 // validScopesFor returns every scope the given token type accepts at the
 // GitLab version reported via GITLAB_VERSION (set by the integration test
 // harness via `make test`). When GITLAB_VERSION is unset the gate is lenient

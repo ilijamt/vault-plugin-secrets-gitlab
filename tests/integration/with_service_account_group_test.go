@@ -21,6 +21,7 @@ import (
 )
 
 func TestWithServiceAccountGroup(t *testing.T) {
+	t.Setenv("GITLAB_VERSION", selfhostedPinnedVersion)
 	httpClient, _ := getClient(t, "selfhosted")
 	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 	var tokenName = ""
