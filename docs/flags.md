@@ -7,3 +7,4 @@ There are some flags we can specify to enable/disable some functionality in the 
 |:---------------------------------:|:-------------:|:-------------------------------------------------------------------------:|----------------------------------------------------------------------------------------|
 |         show-config-token         |     false     |                                   true                                    | Display the token value when reading a config on it's endpoint like `/config/default`. |
 |    allow-runtime-flags-change     |     false     |                                   false                                   | Allows you to change the flags at runtime                                              |
+| enable-fine-grained-access-tokens |     false     |                                   false                                   | Enable fine-grained access tokens, minimal version of gitlab 18.10.                    |
