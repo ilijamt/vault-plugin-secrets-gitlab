@@ -28,14 +28,13 @@ The current authentication model requires providing Vault with a Gitlab Token.
 
 ## Quick links
 
-- Vault Website - https://www.vaultproject.io
-- Gitlab Personal Access Tokens - https://docs.gitlab.com/ee/api/personal_access_tokens.html
-- Gitlab Project Access Tokens - https://docs.gitlab.com/ee/api/project_access_tokens.html
-- Gitlab Group Access Tokens - https://docs.gitlab.com/ee/api/group_access_tokens.html
-- Gitlab User Service Account Tokens - https://docs.gitlab.com/api/user_service_accounts/
-- Gitlab Group Service Account Tokens - https://docs.gitlab.com/ee/api/group_service_accounts.html
-- Gitlab Pipeline Project Trigger Tokens - https://docs.gitlab.com/ee/api/pipeline_triggers.html
-- Gitlab Group/Project Deploy Tokens - https://docs.gitlab.com/ee/user/project/deploy_tokens
+- Vault Website – https://www.vaultproject.io
+- Personal Access Tokens – https://docs.gitlab.com/api/personal_access_tokens/
+- Project Access Tokens – https://docs.gitlab.com/api/project_access_tokens/
+- Group Access Tokens – https://docs.gitlab.com/api/group_access_tokens/
+- User/Group Service Account Tokens – https://docs.gitlab.com/api/service_accounts/
+- Pipeline Project Trigger Tokens - https://docs.gitlab.com/api/pipeline_triggers/
+- Group/Project Deploy Tokens – https://docs.gitlab.com/user/project/deploy_tokens/
 
 ## Getting started
 
