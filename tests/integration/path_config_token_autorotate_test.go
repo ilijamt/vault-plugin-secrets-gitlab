@@ -225,6 +225,44 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		})
 	})
 
+	t.Run("periodic func rotates token when expires_at is within rotation window", func(t *testing.T) {
+		var client = newInMemoryClient(true)
+		ctx, url := getCtxGitlabClientWithUrl(t, "paths")
+		ctx = glab.ClientNewContext(ctx, newInMemoryClient(true))
+		b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
+			"token":              "original-token",
+			"base_url":           url,
+			"auto_rotate_token":  true,
+			"auto_rotate_before": config.DefaultAutoRotateBeforeMinTTL.String(),
+			"type":               gitlabTypes.TypeSelfManaged.String(),
+		})
+		require.NoError(t, err)
+
+		stored, err := b.GetConfig(ctx, l, backend.DefaultConfigName)
+		require.NoError(t, err)
+		require.NotNil(t, stored)
+		stored.TokenExpiresAt = time.Now().Add(1 * time.Minute)
+		require.NoError(t, b.SaveConfig(ctx, l, stored))
+
+		client.rotateMainToken.Token.Token = "rotated-token"
+		b.SetClient(client, backend.DefaultConfigName)
+
+		events.resetEvents(t)
+
+		err = b.PeriodicFunc(ctx, &logical.Request{Storage: l})
+		require.NoError(t, err)
+		assert.EqualValues(t, 1, client.calledRotateMainToken)
+
+		events.expectEvents(t, []expectedEvent{
+			{eventType: "gitlab/config-token-rotate"},
+		})
+
+		rotated, err := b.GetConfig(ctx, l, backend.DefaultConfigName)
+		require.NoError(t, err)
+		require.NotNil(t, rotated)
+		assert.Equal(t, "rotated-token", rotated.Token)
+	})
+
 	t.Run("call auto rotate the main token but the token is still valid", func(t *testing.T) {
 		var client = newInMemoryClient(true)
 		ctx, url := getCtxGitlabClientWithUrl(t, "paths")
