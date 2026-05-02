@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 - Update GitLab support documentation
 - Fix tags for tests they were refering the old tags
+- Update to the new links for gitlab tokens
 
 ### <!-- 6 -->CI
 
