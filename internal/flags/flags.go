@@ -11,11 +11,15 @@ type Flags struct {
 
 	// AllowRuntimeFlagsChange determines whether runtime flags can be dynamically modified during execution.
 	AllowRuntimeFlagsChange bool `json:"allow_runtime_flags_change" mapstructure:"allow_runtime_flags_change"`
+
+	// EnableRunnerControllerToken determines whether the runner controller token should be enabled.
+	EnableRunnerControllerToken bool `json:"enable_runner_controller_token" mapstructure:"enable_runner_controller_token"`
 }
 
 // FlagSet configures the provided FlagSet with flags managed by the Flags struct and returns the updated FlagSet.
 func (f *Flags) FlagSet(fs *flag.FlagSet) *flag.FlagSet {
 	fs.BoolVar(&f.ShowConfigToken, "show-config-token", false, "Display the token value when reading it's config the configuration endpoint.")
 	fs.BoolVar(&f.AllowRuntimeFlagsChange, "allow-runtime-flags-change", false, "Allows you to change the flags dynamically at runtime.")
+	fs.BoolVar(&f.EnableRunnerControllerToken, "enable-runner-controller-token", false, "Enables the runner controller token.")
 	return fs
 }
