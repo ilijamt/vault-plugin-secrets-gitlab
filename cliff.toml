@@ -38,6 +38,7 @@ commit_preprocessors = [
     { pattern = '\s+\(#\d+\)\s*$', replace = "" },
 ]
 commit_parsers = [
+    { message = "^docs\\(changelog\\): regenerate CHANGELOG\\.md", skip  = true },
     { message = "^feat",                          group = "<!-- 0 -->Features" },
     { message = "^fix",                           group = "<!-- 1 -->Bug Fixes" },
     { message = "^perf",                          group = "<!-- 2 -->Performance" },
