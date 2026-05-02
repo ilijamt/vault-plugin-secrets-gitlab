@@ -4,15 +4,16 @@ package integration_test
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"slices"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 	g "gitlab.com/gitlab-org/api/client-go/v2"
 
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
@@ -22,26 +23,42 @@ import (
 
 var _ glab.Client = new(inMemoryClient)
 
-func newInMemoryClient(valid bool) *inMemoryClient {
-	return &inMemoryClient{
-		users:        make([]string, 0),
-		valid:        valid,
-		accessTokens: make(map[string]t.Token),
+func newInMemoryClient(tt *testing.T, valid bool) *inMemoryClient {
+	tt.Helper()
+	c := &inMemoryClient{
+		users:           make([]string, 0),
+		groups:          make([]string, 0),
+		valid:           valid,
+		accessTokens:    make(map[string]t.Token),
+		injectedErrors:  make(map[string]bool),
+		mainTokenInfo:   newSeededTokenConfig(),
+		rotateMainToken: newSeededTokenConfig(),
+	}
+	tt.Cleanup(func() {
+		assert.Empty(tt, c.LiveTokens(), "test left unrevoked tokens in inMemoryClient")
+	})
+	return c
+}
 
-		mainTokenInfo: token.TokenConfig{
-			TokenWithScopes: token.TokenWithScopes{
-				Token: token.Token{
-					CreatedAt: g.Ptr(time.Now()),
-					ExpiresAt: g.Ptr(time.Now()),
-				},
-			},
-		},
-		rotateMainToken: token.TokenConfig{
-			TokenWithScopes: token.TokenWithScopes{
-				Token: token.Token{
-					CreatedAt: g.Ptr(time.Now()),
-					ExpiresAt: g.Ptr(time.Now()),
-				},
+func (i *inMemoryClient) ForgetToken(key string) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	delete(i.accessTokens, key)
+}
+
+func (i *inMemoryClient) ForgetAllTokens() {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	clear(i.accessTokens)
+}
+
+func newSeededTokenConfig() token.TokenConfig {
+	now := time.Now()
+	return token.TokenConfig{
+		TokenWithScopes: token.TokenWithScopes{
+			Token: token.Token{
+				CreatedAt: g.Ptr(now),
+				ExpiresAt: g.Ptr(now),
 			},
 		},
 	}
@@ -54,24 +71,7 @@ type inMemoryClient struct {
 	muLock          sync.Mutex
 	valid           bool
 
-	personalAccessTokenRevokeError                    bool
-	groupAccessTokenRevokeError                       bool
-	projectAccessTokenRevokeError                     bool
-	personalAccessTokenCreateError                    bool
-	groupAccessTokenCreateError                       bool
-	projectAccessTokenCreateError                     bool
-	revokeUserServiceAccountPersonalAccessTokenError  bool
-	revokeGroupServiceAccountPersonalAccessTokenError bool
-	createUserServiceAccountAccessTokenError          bool
-	createGroupServiceAccountAccessTokenError         bool
-	createPipelineProjectTriggerAccessTokenError      bool
-	revokePipelineProjectTriggerAccessTokenError      bool
-	metadataError                                     bool
-	revokeProjectDeployTokenError                     bool
-	revokeGroupDeployTokenError                       bool
-	createProjectDeployTokenError                     bool
-	createGroupDeployTokenError                       bool
-	getProjectIdByPathError                           bool
+	injectedErrors map[string]bool
 
 	calledMainToken       int64
 	calledRotateMainToken int64
@@ -85,9 +85,54 @@ type inMemoryClient struct {
 	valueGetProjectIdByPath int64
 }
 
-// LiveTokens returns a snapshot of access tokens currently held by the
-// in-memory client (those created but not yet revoked). Pair with
-// requireNoDanglingTokens to assert that a test cleaned up after itself.
+func (i *inMemoryClient) InjectError(method string) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	i.injectedErrors[method] = true
+}
+
+func (i *inMemoryClient) injectedErrLocked(method string) error {
+	if i.injectedErrors[method] {
+		return fmt.Errorf("%s", method)
+	}
+	return nil
+}
+
+func tokenKey(typ t.Type, parts ...any) string {
+	segments := make([]string, 0, len(parts)+1)
+	segments = append(segments, typ.String())
+	for _, p := range parts {
+		segments = append(segments, fmt.Sprintf("%v", p))
+	}
+	return strings.Join(segments, "_")
+}
+
+func (i *inMemoryClient) nextID() int64 {
+	i.internalCounter++
+	return i.internalCounter
+}
+
+func newTokenBase(id int64, parentID, path, name, prefix string, typ t.Type, expiresAt *time.Time) token.Token {
+	return token.Token{
+		TokenID:   id,
+		ParentID:  parentID,
+		Path:      path,
+		Name:      name,
+		Token:     fmt.Sprintf("%s-%s", prefix, uuid.New().String()),
+		TokenType: typ,
+		CreatedAt: g.Ptr(time.Now()),
+		ExpiresAt: expiresAt,
+	}
+}
+
+func indexOrAppend(s *[]string, val string) int {
+	if idx := slices.Index(*s, val); idx >= 0 {
+		return idx
+	}
+	*s = append(*s, val)
+	return len(*s) - 1
+}
+
 func (i *inMemoryClient) LiveTokens() map[string]t.Token {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
@@ -99,8 +144,10 @@ func (i *inMemoryClient) LiveTokens() map[string]t.Token {
 }
 
 func (i *inMemoryClient) GetProjectIdByPath(ctx context.Context, path string) (int64, error) {
-	if i.getProjectIdByPathError {
-		return -1, fmt.Errorf("unable to get project id by path")
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if err := i.injectedErrLocked("GetProjectIdByPath"); err != nil {
+		return -1, err
 	}
 	return i.valueGetProjectIdByPath, nil
 }
@@ -108,85 +155,64 @@ func (i *inMemoryClient) GetProjectIdByPath(ctx context.Context, path string) (i
 func (i *inMemoryClient) CreateProjectDeployToken(ctx context.Context, path string, projectId int64, name string, expiresAt *time.Time, scopes []string) (et *token.TokenProjectDeploy, err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.createProjectDeployTokenError {
-		return nil, fmt.Errorf("unable to create project deploy token")
+	if err := i.injectedErrLocked("CreateProjectDeployToken"); err != nil {
+		return nil, err
 	}
-	i.internalCounter++
-	var tokenId = i.internalCounter
-	key := fmt.Sprintf("%s_%v_%v", t.TypeProjectDeploy.String(), projectId, tokenId)
-	var entryToken = &token.TokenProjectDeploy{
+	id := i.nextID()
+	entryToken := &token.TokenProjectDeploy{
 		TokenWithScopes: token.TokenWithScopes{
-			Token: token.Token{
-				TokenID:   tokenId,
-				ParentID:  strconv.FormatInt(projectId, 10),
-				Path:      path,
-				Name:      name,
-				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
-				TokenType: t.TypeProjectDeploy,
-				ExpiresAt: expiresAt,
-				CreatedAt: g.Ptr(time.Now())},
+			Token:  newTokenBase(id, strconv.FormatInt(projectId, 10), path, name, "glpat", t.TypeProjectDeploy, expiresAt),
 			Scopes: scopes,
 		},
 		Username: uuid.New().String(),
 	}
-	i.accessTokens[key] = entryToken
+	i.accessTokens[tokenKey(t.TypeProjectDeploy, projectId, id)] = entryToken
 	return entryToken, nil
 }
 
 func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string, groupId int64, name string, expiresAt *time.Time, scopes []string) (et *token.TokenGroupDeploy, err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.createGroupDeployTokenError {
-		return nil, fmt.Errorf("unable to create project deploy token")
+	if err := i.injectedErrLocked("CreateGroupDeployToken"); err != nil {
+		return nil, err
 	}
-	i.internalCounter++
-	var tokenId = i.internalCounter
-	key := fmt.Sprintf("%s_%v_%v", t.TypeGroupDeploy.String(), groupId, tokenId)
-	var entryToken = &token.TokenGroupDeploy{
+	id := i.nextID()
+	entryToken := &token.TokenGroupDeploy{
 		TokenWithScopes: token.TokenWithScopes{
-			Token: token.Token{
-				TokenID:   tokenId,
-				ParentID:  strconv.FormatInt(groupId, 10),
-				Path:      path,
-				Name:      name,
-				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
-				TokenType: t.TypeGroupDeploy,
-				ExpiresAt: expiresAt,
-				CreatedAt: g.Ptr(time.Now()),
-			},
+			Token:  newTokenBase(id, strconv.FormatInt(groupId, 10), path, name, "glpat", t.TypeGroupDeploy, expiresAt),
 			Scopes: scopes,
 		},
 		Username: uuid.New().String(),
 	}
-	i.accessTokens[key] = entryToken
+	i.accessTokens[tokenKey(t.TypeGroupDeploy, groupId, id)] = entryToken
 	return entryToken, nil
 }
 
 func (i *inMemoryClient) RevokeProjectDeployToken(ctx context.Context, projectId, deployTokenId int64) (err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.revokeProjectDeployTokenError {
-		return errors.New("revoke project deploy token error")
+	if err := i.injectedErrLocked("RevokeProjectDeployToken"); err != nil {
+		return err
 	}
-	key := fmt.Sprintf("%s_%v_%v", t.TypeProjectDeploy.String(), projectId, deployTokenId)
-	delete(i.accessTokens, key)
+	delete(i.accessTokens, tokenKey(t.TypeProjectDeploy, projectId, deployTokenId))
 	return nil
 }
 
 func (i *inMemoryClient) RevokeGroupDeployToken(ctx context.Context, groupId, deployTokenId int64) (err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.revokeGroupDeployTokenError {
-		return errors.New("revoke group deploy token error")
+	if err := i.injectedErrLocked("RevokeGroupDeployToken"); err != nil {
+		return err
 	}
-	key := fmt.Sprintf("%s_%v_%v", t.TypeGroupDeploy.String(), groupId, deployTokenId)
-	delete(i.accessTokens, key)
+	delete(i.accessTokens, tokenKey(t.TypeGroupDeploy, groupId, deployTokenId))
 	return nil
 }
 
 func (i *inMemoryClient) Metadata(ctx context.Context) (*g.Metadata, error) {
-	if i.metadataError {
-		return nil, errors.New("metadata error")
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if err := i.injectedErrLocked("Metadata"); err != nil {
+		return nil, err
 	}
 	return &g.Metadata{
 		Version:    "version",
@@ -198,46 +224,30 @@ func (i *inMemoryClient) Metadata(ctx context.Context) (*g.Metadata, error) {
 func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, path, name string, projectId int64, description string, expiresAt *time.Time) (et *token.TokenPipelineProjectTrigger, err error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.createPipelineProjectTriggerAccessTokenError {
-		return nil, fmt.Errorf("CreatePipelineProjectTriggerAccessToken")
+	if err := i.injectedErrLocked("CreatePipelineProjectTriggerAccessToken"); err != nil {
+		return nil, err
 	}
-	i.internalCounter++
-	var tokenId = i.internalCounter
-	key := fmt.Sprintf("%s_%v_%v", t.TypePipelineProjectTrigger.String(), projectId, tokenId)
-	var entryToken = &token.TokenPipelineProjectTrigger{
-		Token: token.Token{
-			TokenID:   tokenId,
-			ParentID:  strconv.FormatInt(projectId, 10),
-			Path:      strconv.FormatInt(projectId, 10),
-			Name:      name,
-			Token:     fmt.Sprintf("glptt-%s", uuid.New().String()),
-			TokenType: t.TypePipelineProjectTrigger,
-			ExpiresAt: expiresAt,
-			CreatedAt: g.Ptr(time.Now()),
-		},
+	id := i.nextID()
+	pid := strconv.FormatInt(projectId, 10)
+	entryToken := &token.TokenPipelineProjectTrigger{
+		Token: newTokenBase(id, pid, pid, name, "glptt", t.TypePipelineProjectTrigger, expiresAt),
 	}
-	i.accessTokens[key] = entryToken
+	i.accessTokens[tokenKey(t.TypePipelineProjectTrigger, projectId, id)] = entryToken
 	return entryToken, nil
 }
 
 func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int64, tokenId int64) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.revokePipelineProjectTriggerAccessTokenError {
-		return fmt.Errorf("RevokePipelineProjectTriggerAccessToken")
+	if err := i.injectedErrLocked("RevokePipelineProjectTriggerAccessToken"); err != nil {
+		return err
 	}
-	key := fmt.Sprintf("%s_%v_%v", t.TypePipelineProjectTrigger.String(), projectId, tokenId)
-	delete(i.accessTokens, key)
+	delete(i.accessTokens, tokenKey(t.TypePipelineProjectTrigger, projectId, tokenId))
 	return nil
 }
 
 func (i *inMemoryClient) GetGroupIdByPath(ctx context.Context, path string) (int64, error) {
-	idx := slices.Index(i.groups, path)
-	if idx == -1 {
-		i.groups = append(i.groups, path)
-		idx = slices.Index(i.groups, path)
-	}
-	return int64(idx), nil
+	return int64(indexOrAppend(&i.groups, path)), nil
 }
 
 func (i *inMemoryClient) GitlabClient(ctx context.Context) *g.Client {
@@ -247,17 +257,17 @@ func (i *inMemoryClient) GitlabClient(ctx context.Context) *g.Client {
 func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Context, path string, groupId string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenGroupServiceAccount, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.createGroupServiceAccountAccessTokenError {
-		return nil, fmt.Errorf("CreateGroupServiceAccountAccessToken")
+	if err := i.injectedErrLocked("CreateGroupServiceAccountAccessToken"); err != nil {
+		return nil, err
 	}
 	return nil, nil
 }
 
 func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenUserServiceAccount, error) {
 	i.muLock.Lock()
-	if i.createUserServiceAccountAccessTokenError {
+	if err := i.injectedErrLocked("CreateUserServiceAccountAccessToken"); err != nil {
 		i.muLock.Unlock()
-		return nil, fmt.Errorf("CreateUserServiceAccountAccessToken")
+		return nil, err
 	}
 	i.muLock.Unlock()
 	var tok *token.TokenUserServiceAccount
@@ -284,23 +294,23 @@ func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context
 	return tok, err
 }
 
-func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(ctx context.Context, token string) error {
+func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(ctx context.Context, tok string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.revokeUserServiceAccountPersonalAccessTokenError {
-		return errors.New("RevokeServiceAccountPersonalAccessToken")
+	if err := i.injectedErrLocked("RevokeUserServiceAccountAccessToken"); err != nil {
+		return err
 	}
-	delete(i.accessTokens, fmt.Sprintf("%s_%v", t.TypeUserServiceAccount.String(), token))
+	delete(i.accessTokens, tokenKey(t.TypeUserServiceAccount, tok))
 	return nil
 }
 
-func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(ctx context.Context, token string) error {
+func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(ctx context.Context, tok string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.revokeGroupServiceAccountPersonalAccessTokenError {
-		return errors.New("RevokeServiceAccountPersonalAccessToken")
+	if err := i.injectedErrLocked("RevokeGroupServiceAccountAccessToken"); err != nil {
+		return err
 	}
-	delete(i.accessTokens, fmt.Sprintf("%s_%v", t.TypeGroupServiceAccount.String(), token))
+	delete(i.accessTokens, tokenKey(t.TypeGroupServiceAccount, tok))
 	return nil
 }
 
@@ -328,132 +338,87 @@ func (i *inMemoryClient) Valid(ctx context.Context) bool {
 func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenPersonal, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.personalAccessTokenCreateError {
-		return nil, fmt.Errorf("CreatePersonalAccessToken")
+	if err := i.injectedErrLocked("CreatePersonalAccessToken"); err != nil {
+		return nil, err
 	}
-	i.internalCounter++
-	var tokenId = i.internalCounter
-	var entryToken = &token.TokenPersonal{
+	id := i.nextID()
+	entryToken := &token.TokenPersonal{
 		TokenWithScopes: token.TokenWithScopes{
-			Token: token.Token{
-				TokenID:   tokenId,
-				ParentID:  "",
-				Path:      username,
-				Name:      name,
-				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
-				TokenType: t.TypePersonal,
-				CreatedAt: g.Ptr(time.Now()),
-				ExpiresAt: &expiresAt,
-			},
+			Token:  newTokenBase(id, "", username, name, "glpat", t.TypePersonal, &expiresAt),
 			Scopes: scopes,
 		},
 		UserID: userId,
 	}
-	i.accessTokens[fmt.Sprintf("%s_%v", t.TypePersonal.String(), tokenId)] = entryToken
+	i.accessTokens[tokenKey(t.TypePersonal, id)] = entryToken
 	return entryToken, nil
 }
 
 func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*token.TokenGroup, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.groupAccessTokenCreateError {
-		return nil, fmt.Errorf("CreateGroupAccessToken")
+	if err := i.injectedErrLocked("CreateGroupAccessToken"); err != nil {
+		return nil, err
 	}
-	i.internalCounter++
-	var tokenId = i.internalCounter
-	var entryToken = &token.TokenGroup{
+	id := i.nextID()
+	entryToken := &token.TokenGroup{
 		TokenWithScopesAndAccessLevel: token.TokenWithScopesAndAccessLevel{
-			Token: token.Token{
-				TokenID:   tokenId,
-				ParentID:  groupId,
-				Path:      groupId,
-				Name:      name,
-				Token:     fmt.Sprintf("glgat-%s", uuid.New().String()),
-				TokenType: t.TypeGroup,
-				CreatedAt: g.Ptr(time.Now()),
-				ExpiresAt: &expiresAt,
-			},
+			Token:       newTokenBase(id, groupId, groupId, name, "glgat", t.TypeGroup, &expiresAt),
 			Scopes:      scopes,
 			AccessLevel: accessLevel,
 		},
 	}
-	i.accessTokens[fmt.Sprintf("%s_%v", t.TypeGroup.String(), tokenId)] = entryToken
+	i.accessTokens[tokenKey(t.TypeGroup, id)] = entryToken
 	return entryToken, nil
 }
 
 func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*token.TokenProject, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.projectAccessTokenCreateError {
-		return nil, fmt.Errorf("CreateProjectAccessToken")
+	if err := i.injectedErrLocked("CreateProjectAccessToken"); err != nil {
+		return nil, err
 	}
-	i.internalCounter++
-	var tokenId = i.internalCounter
-	var entryToken = &token.TokenProject{
+	id := i.nextID()
+	entryToken := &token.TokenProject{
 		TokenWithScopesAndAccessLevel: token.TokenWithScopesAndAccessLevel{
-			Token: token.Token{
-				Token:     fmt.Sprintf("glpat-%s", uuid.New().String()),
-				TokenType: t.TypeProject,
-				CreatedAt: g.Ptr(time.Now()),
-				ExpiresAt: &expiresAt,
-				TokenID:   tokenId,
-				ParentID:  projectId,
-				Name:      name,
-				Path:      projectId,
-			},
+			Token:       newTokenBase(id, projectId, projectId, name, "glpat", t.TypeProject, &expiresAt),
 			Scopes:      scopes,
 			AccessLevel: accessLevel,
 		},
 	}
-	i.accessTokens[fmt.Sprintf("%s_%v", t.TypeProject.String(), tokenId)] = entryToken
+	i.accessTokens[tokenKey(t.TypeProject, id)] = entryToken
 	return entryToken, nil
 }
 
 func (i *inMemoryClient) RevokePersonalAccessToken(ctx context.Context, tokenId int64) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.personalAccessTokenRevokeError {
-		return fmt.Errorf("RevokePersonalAccessToken")
+	if err := i.injectedErrLocked("RevokePersonalAccessToken"); err != nil {
+		return err
 	}
-	delete(i.accessTokens, fmt.Sprintf("%s_%v", t.TypePersonal.String(), tokenId))
+	delete(i.accessTokens, tokenKey(t.TypePersonal, tokenId))
 	return nil
 }
 
 func (i *inMemoryClient) RevokeProjectAccessToken(ctx context.Context, tokenId int64, projectId string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.projectAccessTokenRevokeError {
-		return fmt.Errorf("RevokeProjectAccessToken")
+	if err := i.injectedErrLocked("RevokeProjectAccessToken"); err != nil {
+		return err
 	}
-	delete(i.accessTokens, fmt.Sprintf("%s_%v", t.TypeProject.String(), tokenId))
+	delete(i.accessTokens, tokenKey(t.TypeProject, tokenId))
 	return nil
 }
 
 func (i *inMemoryClient) RevokeGroupAccessToken(ctx context.Context, tokenId int64, groupId string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
-	if i.groupAccessTokenRevokeError {
-		return fmt.Errorf("RevokeGroupAccessToken")
+	if err := i.injectedErrLocked("RevokeGroupAccessToken"); err != nil {
+		return err
 	}
-	delete(i.accessTokens, fmt.Sprintf("%s_%v", t.TypeGroup.String(), tokenId))
+	delete(i.accessTokens, tokenKey(t.TypeGroup, tokenId))
 	return nil
 }
 
 func (i *inMemoryClient) GetUserIdByUsername(ctx context.Context, username string) (int64, error) {
-	idx := slices.Index(i.users, username)
-	if idx == -1 {
-		i.users = append(i.users, username)
-		idx = slices.Index(i.users, username)
-	}
-	return int64(idx), nil
-}
-
-// requireNoDanglingTokens fails the test if the in-memory client still holds
-// any unrevoked access tokens. Register via t.Cleanup in tests whose contract
-// is that every token created should also be revoked.
-func requireNoDanglingTokens(t *testing.T, c *inMemoryClient) {
-	t.Helper()
-	if live := c.LiveTokens(); len(live) > 0 {
-		t.Errorf("test left %d unrevoked tokens in inMemoryClient: %v", len(live), live)
-	}
+	return int64(indexOrAppend(&i.users, username)), nil
 }

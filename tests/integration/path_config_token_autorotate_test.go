@@ -159,7 +159,7 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 	})
 
 	t.Run("no error when auto rotate is disabled and config is set", func(t *testing.T) {
-		var client = newInMemoryClient(true)
+		var client = newInMemoryClient(t, true)
 		ctx, url := getCtxGitlabClientWithUrl(t, "paths")
 		ctx = glab.ClientNewContext(ctx, client)
 		b, l, err := getBackendWithConfig(ctx, map[string]any{
@@ -169,15 +169,15 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		b.SetClient(newInMemoryClient(true), backend.DefaultConfigName)
+		b.SetClient(newInMemoryClient(t, true), backend.DefaultConfigName)
 		err = b.PeriodicFunc(ctx, &logical.Request{Storage: l})
 		require.NoError(t, err)
 	})
 
 	t.Run("call auto rotate the main token and rotate the token", func(t *testing.T) {
-		var client = newInMemoryClient(true)
+		var client = newInMemoryClient(t, true)
 		ctx, url := getCtxGitlabClientWithUrl(t, "paths")
-		ctx = glab.ClientNewContext(ctx, newInMemoryClient(true))
+		ctx = glab.ClientNewContext(ctx, newInMemoryClient(t, true))
 		b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
 			"token":              "token",
 			"base_url":           url,
@@ -226,9 +226,9 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 	})
 
 	t.Run("periodic func rotates token when expires_at is within rotation window", func(t *testing.T) {
-		var client = newInMemoryClient(true)
+		var client = newInMemoryClient(t, true)
 		ctx, url := getCtxGitlabClientWithUrl(t, "paths")
-		ctx = glab.ClientNewContext(ctx, newInMemoryClient(true))
+		ctx = glab.ClientNewContext(ctx, newInMemoryClient(t, true))
 		b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
 			"token":              "original-token",
 			"base_url":           url,
@@ -264,9 +264,9 @@ func TestPathConfig_AutoRotateToken(t *testing.T) {
 	})
 
 	t.Run("call auto rotate the main token but the token is still valid", func(t *testing.T) {
-		var client = newInMemoryClient(true)
+		var client = newInMemoryClient(t, true)
 		ctx, url := getCtxGitlabClientWithUrl(t, "paths")
-		ctx = glab.ClientNewContext(ctx, newInMemoryClient(true))
+		ctx = glab.ClientNewContext(ctx, newInMemoryClient(t, true))
 		b, l, err := getBackendWithConfig(ctx, map[string]any{
 			"token":              "token",
 			"base_url":           url,

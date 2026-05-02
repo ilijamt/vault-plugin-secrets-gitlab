@@ -20,11 +20,11 @@ func TestBackend(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, b)
 	require.Nil(t, b.GetClient(backend.DefaultConfigName))
-	b.SetClient(newInMemoryClient(true), backend.DefaultConfigName)
+	b.SetClient(newInMemoryClient(t, true), backend.DefaultConfigName)
 	require.NotNil(t, b.GetClient(backend.DefaultConfigName))
 	b.Invalidate(ctx, fmt.Sprintf("%s/%s", backend.PathConfigStorage, backend.DefaultConfigName))
 	require.Nil(t, b.GetClient(backend.DefaultConfigName))
-	b.SetClient(newInMemoryClient(true), backend.DefaultConfigName)
+	b.SetClient(newInMemoryClient(t, true), backend.DefaultConfigName)
 	require.NotNil(t, b.GetClient(backend.DefaultConfigName))
 	require.EqualValues(t, gitlab.Version, b.PluginVersion().Version)
 }

@@ -43,10 +43,7 @@ func TestPathTokenRoles(t *testing.T) {
 	var generalTokenCreation = func(t *testing.T, tokenType token.Type, level token.AccessLevel, gitlabRevokesToken bool, path string, dynamicPath bool, pathExtra string) {
 		t.Logf("token creation, token type: %s, level: %s, gitlab revokes token: %t, path: %s", tokenType, level, gitlabRevokesToken, path)
 		ctx := getCtxGitlabClient(t, "paths")
-		client := newInMemoryClient(true)
-		if !gitlabRevokesToken {
-			t.Cleanup(func() { requireNoDanglingTokens(t, client) })
-		}
+		client := newInMemoryClient(t, true)
 		ctx = g.ClientNewContext(ctx, client)
 		var b, l, events, err = getBackendWithEvents(ctx)
 		require.NoError(t, err)
@@ -114,10 +111,14 @@ func TestPathTokenRoles(t *testing.T) {
 		require.NoError(t, err)
 		require.Nil(t, resp)
 
+		key := fmt.Sprintf("%s_%v", tokenType.String(), tokenId)
 		if gitlabRevokesToken {
-			require.Contains(t, client.accessTokens, fmt.Sprintf("%s_%v", tokenType.String(), tokenId))
+			require.Contains(t, client.accessTokens, key)
+			// GitLab is the side that revokes; mirror that on the fake so
+			// newInMemoryClient's clean-state assertion holds at exit.
+			client.ForgetToken(key)
 		} else {
-			require.NotContains(t, client.accessTokens, fmt.Sprintf("%s_%v", tokenType.String(), tokenId))
+			require.NotContains(t, client.accessTokens, key)
 		}
 
 		// calling revoke with nil secret
@@ -132,11 +133,11 @@ func TestPathTokenRoles(t *testing.T) {
 			// calling revoke again would return a token not found in internal error
 			switch tokenType {
 			case token.TypeProject:
-				client.projectAccessTokenRevokeError = true
+				client.InjectError("RevokeProjectAccessToken")
 			case token.TypePersonal:
-				client.personalAccessTokenRevokeError = true
+				client.InjectError("RevokePersonalAccessToken")
 			case token.TypeGroup:
-				client.groupAccessTokenRevokeError = true
+				client.InjectError("RevokeGroupAccessToken")
 			}
 			resp, err = b.HandleRequest(ctx, &logical.Request{
 				Operation: logical.RevokeOperation,
@@ -189,7 +190,8 @@ func TestPathTokenRoles(t *testing.T) {
 
 	t.Run("edge cases with dynamic path", func(t *testing.T) {
 		ctx := getCtxGitlabClient(t, "paths")
-		client := newInMemoryClient(true)
+		client := newInMemoryClient(t, true)
+		t.Cleanup(client.ForgetAllTokens) // this test isn't exercising revocation
 		ctx = g.ClientNewContext(ctx, client)
 		var b, l, _, err = getBackendWithEvents(ctx)
 		require.NoError(t, err)
