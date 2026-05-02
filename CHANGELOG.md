@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+
+### <!-- 4 -->Documentation
+
+- Update GitLab support documentation
+
+### <!-- 6 -->CI
+
+- *(workflows)* Introduced GitHub Actions to mirror repo to GitLab
+
 ## [0.12.0] - 2026-05-02
 
 
