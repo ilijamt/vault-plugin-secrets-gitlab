@@ -3,6 +3,7 @@
 package integration_test
 
 import (
+	"bytes"
 	"cmp"
 	"fmt"
 	"net/http"
@@ -15,6 +16,17 @@ import (
 )
 
 var tokenFieldRegex = regexp.MustCompile(`"token":"[^"]*"`)
+
+type skipEmptyFS struct {
+	cassette.FS
+}
+
+func (c *skipEmptyFS) WriteFile(name string, data []byte) error {
+	if bytes.Contains(data, []byte("interactions: []")) {
+		return nil
+	}
+	return c.FS.WriteFile(name, data)
+}
 
 // getClient returns an HTTP client backed by a go-vcr recorder for the given
 // target. Cassettes live under tests/integration/testdata/<target>/...
@@ -52,6 +64,7 @@ func getClient(t *testing.T, target string) (client *http.Client, u string) {
 		[]recorder.Option{
 			recorder.WithSkipRequestLatency(os.Getenv("SKIP_REQUEST_LATENCY") != ""),
 			recorder.WithMode(recorder.ModeRecordOnce),
+			recorder.WithFS(&skipEmptyFS{FS: cassette.NewDiskFS()}),
 			recorder.WithMatcher(
 				cassette.NewDefaultMatcher(
 					cassette.WithIgnoreUserAgent(),
