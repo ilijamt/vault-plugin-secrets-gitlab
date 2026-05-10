@@ -17,6 +17,10 @@ All notable changes to this project will be documented in this file.
 
 - *(workflows)* Introduced GitHub Actions to mirror repo to GitLab
 
+### <!-- 7 -->Dependencies
+
+- *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#336)
+
 ## [0.12.0] - 2026-05-02
 
 
