@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Update to the new links for gitlab tokens
 - Update with a table of tiers and offerings for tokens
 - Removed runner controller token
+- *(docs)* Clarified plugin description and fixed typos in README
 
 ### <!-- 6 -->CI
 
