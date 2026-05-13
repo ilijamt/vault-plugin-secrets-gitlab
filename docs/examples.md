@@ -66,7 +66,7 @@ $ vault secrets tune -max-lease-ttl=8784h -default-lease-ttl=168h gitlab/
 
 Check https://developer.hashicorp.com/vault/docs/commands/secrets/tune for more information.
 
-There is a periodic func that runs that is responsible for autorotation and main token expiry time.
+A periodic job handles auto-rotation and main token expiry.
 
 ## Roles
 

@@ -1,5 +1,9 @@
-Terraform with Patch Values
----------------------------
+Terraform: Vault Manages the GitLab Token
+-----------------------------------------
+
+This example uses `vault_generic_endpoint` to write the plugin config to Vault once.
+After that, Vault owns the GitLab token (including auto-rotation) and Terraform stays
+out of the way.
 
 ```shell
 export TF_VAR_gitlab_base_url="http://localhost:8080"

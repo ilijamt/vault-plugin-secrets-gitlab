@@ -1,8 +1,8 @@
 Documentation
 =============
 
-This directory contains the reference documentation for the Vault Gitlab secrets plugin.
-If you are just getting started, begin with the quickstart in the root README.
+Reference docs for the Vault GitLab secrets plugin. If you are just getting started,
+begin with the quickstart in the root README.
 
 Contents:
 

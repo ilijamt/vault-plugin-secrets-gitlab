@@ -125,6 +125,8 @@ Can be
 
 ### gitlab_revokes_token
 
-This is a flag that doesn't expire the token when the token used to create the credentials expire.
-When the vault token used to create gitlab credentials with a TTL longer than the vault token, the new gitlab credentials will expire at the same time with the parent.
-Setting this up will not call the revoke endpoint on gitlab.
+When set to `true`, Vault will not call the revoke endpoint on GitLab when the lease expires.
+GitLab itself expires the token based on its TTL.
+
+If the Vault token used to create the credentials has a shorter TTL than the requested GitLab
+token, the GitLab credentials will expire together with the parent Vault token.
