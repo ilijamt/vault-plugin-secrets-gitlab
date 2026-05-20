@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 ### <!-- 7 -->Dependencies
 
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#336)
+- *(deps)* Bump actions/dependency-review-action from 4 to 5 (#337)
 
 ## [0.12.0] - 2026-05-02
 
