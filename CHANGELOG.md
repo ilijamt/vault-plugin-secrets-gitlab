@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#336)
 - *(deps)* Bump actions/dependency-review-action from 4 to 5 (#337)
 - *(deps)* Bump golang.org/x/mod from 0.35.0 to 0.36.0 (#339)
+- *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#338)
 
 ## [0.12.0] - 2026-05-02
 
