@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 
+### <!-- 0 -->Features
+
+- Added OCI support for OpenBao plugin distribution
+
 ### <!-- 4 -->Documentation
 
 - Update GitLab support documentation

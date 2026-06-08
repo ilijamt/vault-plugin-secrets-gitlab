@@ -32,6 +32,16 @@ jobs:
           go-version-file: "go.mod"
           cache: true
       - uses: anchore/sbom-action/download-syft@v0.24.0
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Run GoReleaser
         id: goreleaser
         uses: goreleaser/goreleaser-action@v7
@@ -48,3 +58,28 @@ jobs:
           set -euo pipefail
           checksum_file=$(echo "$ARTIFACTS" | jq -r '.[] | select (.type=="Checksum") | .path')
           echo "hashes=$(cat $checksum_file | base64 -w0)" >> "$GITHUB_OUTPUT"
+      - name: Build and push OCI image
+        env:
+          ARTIFACTS: "${{ steps.goreleaser.outputs.artifacts }}"
+          IMAGE: ghcr.io/${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          amd64=$(echo "$ARTIFACTS" | jq -r '.[] | select(.type=="Binary" and .goos=="linux" and .goarch=="amd64") | .path')
+          arm64=$(echo "$ARTIFACTS" | jq -r '.[] | select(.type=="Binary" and .goos=="linux" and .goarch=="arm64") | .path')
+          AMD64_BIN="$amd64" ARM64_BIN="$arm64" ALSO_LATEST=true bash scripts/build-oci.sh
+      - name: Publish OCI binary checksums
+        env:
+          ARTIFACTS: "${{ steps.goreleaser.outputs.artifacts }}"
+          TAG: ${{ github.ref_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          amd64=$(echo "$ARTIFACTS" | jq -r '.[] | select(.type=="Binary" and .goos=="linux" and .goarch=="amd64") | .path')
+          arm64=$(echo "$ARTIFACTS" | jq -r '.[] | select(.type=="Binary" and .goos=="linux" and .goarch=="arm64") | .path')
+          out="dist/vault-plugin-secrets-gitlab_${TAG#v}_BINARY_SHA256SUMS"
+          {
+            printf '%s  vault-plugin-secrets-gitlab_linux_amd64\n' "$(sha256sum "$amd64" | cut -d' ' -f1)"
+            printf '%s  vault-plugin-secrets-gitlab_linux_arm64\n' "$(sha256sum "$arm64" | cut -d' ' -f1)"
+          } > "$out"
+          gh release upload "$TAG" "$out" --clobber

@@ -88,6 +88,7 @@ vault read gitlab/token/personal/username
 - [Backend configuration](./docs/configuration.md)
 - [Role configuration and templating](./docs/roles.md)
 - [End-to-end examples](./docs/examples.md)
+- [Install as an OpenBao OCI plugin](./docs/openbao-oci.md)
 - [Upgrade guidance](./docs/upgrading.md)
 - [Local development](./docs/development.md)
 

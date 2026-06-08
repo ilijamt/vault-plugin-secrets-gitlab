@@ -1,0 +1,92 @@
+name: oci-backfill
+
+# Publish (or re-publish) the OCI image for a release that was cut before OCI
+# distribution existed. Builds the image from the binaries already attached to
+# the GitHub release, so it does not depend on that tag's .goreleaser.yaml.
+# Run manually: pick a tag, or leave "latest" for the most recent release.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release tag to publish (e.g. v1.2.3), or "latest"'
+        required: true
+        default: latest
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.version }}
+
+jobs:
+  backfill:
+    permissions:
+      contents: write
+      packages: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Resolve release tag
+        id: ver
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [ "$INPUT" = "latest" ]; then
+            tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName)
+          else
+            tag="$INPUT"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag: $tag"
+      - name: Download and extract release binaries
+        id: bins
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.ver.outputs.tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist/amd64 dist/arm64
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir dist \
+            --pattern 'vault-plugin-secrets-gitlab_linux_x86_64.tar.gz' \
+            --pattern 'vault-plugin-secrets-gitlab_linux_arm64.tar.gz'
+          tar -xzf dist/vault-plugin-secrets-gitlab_linux_x86_64.tar.gz -C dist/amd64
+          tar -xzf dist/vault-plugin-secrets-gitlab_linux_arm64.tar.gz  -C dist/arm64
+          amd64=$(ls dist/amd64/vault-plugin-secrets-gitlab_v*)
+          arm64=$(ls dist/arm64/vault-plugin-secrets-gitlab_v*)
+          echo "amd64=$amd64" >> "$GITHUB_OUTPUT"
+          echo "arm64=$arm64" >> "$GITHUB_OUTPUT"
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push OCI image
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}
+          TAG: ${{ steps.ver.outputs.tag }}
+          AMD64_BIN: ${{ steps.bins.outputs.amd64 }}
+          ARM64_BIN: ${{ steps.bins.outputs.arm64 }}
+        run: bash scripts/build-oci.sh
+      - name: Publish OCI binary checksums
+        env:
+          TAG: ${{ steps.ver.outputs.tag }}
+          AMD64_BIN: ${{ steps.bins.outputs.amd64 }}
+          ARM64_BIN: ${{ steps.bins.outputs.arm64 }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          out="dist/vault-plugin-secrets-gitlab_${TAG#v}_BINARY_SHA256SUMS"
+          {
+            printf '%s  vault-plugin-secrets-gitlab_linux_amd64\n' "$(sha256sum "$AMD64_BIN" | cut -d' ' -f1)"
+            printf '%s  vault-plugin-secrets-gitlab_linux_arm64\n' "$(sha256sum "$ARM64_BIN" | cut -d' ' -f1)"
+          } > "$out"
+          gh release upload "$TAG" "$out" --clobber

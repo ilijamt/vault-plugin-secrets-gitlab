@@ -11,5 +11,6 @@ Contents:
 - [Backend configuration](./configuration.md)
 - [Role configuration and templating](./roles.md)
 - [End-to-end examples](./examples.md)
+- [Install as an OpenBao OCI plugin](./openbao-oci.md)
 - [Upgrade guidance](./upgrading.md)
 - [Local development](./development.md)
