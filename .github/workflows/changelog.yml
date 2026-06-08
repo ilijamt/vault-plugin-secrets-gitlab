@@ -47,9 +47,19 @@ jobs:
           git commit -m "docs(changelog): regenerate CHANGELOG.md [skip ci]"
           git push origin HEAD:main
 
+      - name: Generate latest release notes
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip all
+        env:
+          OUTPUT: RELEASE_NOTES.md
+          GITHUB_REPO: ${{ github.repository }}
+
       - name: Upload changelog to release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v3
         with:
-          body_path: CHANGELOG.md
+          body_path: RELEASE_NOTES.md
           files: CHANGELOG.md
