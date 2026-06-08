@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 
+### <!-- 6 -->CI
+
+- *(workflows)* Updated changelog workflow to use release notes
+
+## [0.12.1] - 2026-06-08
+
+
 ### <!-- 0 -->Features
 
 - Added OCI support for OpenBao plugin distribution
