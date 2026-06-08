@@ -26,6 +26,10 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#338)
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#342)
 
+### Deps
+
+- Updated Go version in go.mod to 1.26.3
+
 ## [0.12.0] - 2026-05-02
 
 
