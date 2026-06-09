@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 
+### <!-- 4 -->Documentation
+
+- Updated OpenBao OCI plugin installation instructions
+
 ### <!-- 6 -->CI
 
 - *(workflows)* Updated changelog workflow to use release notes
