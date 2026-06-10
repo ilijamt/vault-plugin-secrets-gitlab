@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump codecov/codecov-action from 6 to 7 (#345)
 - *(deps)* Bump docker/setup-buildx-action from 3 to 4 (#344)
 - *(deps)* Bump docker/login-action from 3 to 4 (#343)
+- *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#347)
 
 ## [0.12.1] - 2026-06-08
 
