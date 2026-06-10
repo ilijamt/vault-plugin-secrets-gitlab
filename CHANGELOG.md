@@ -13,6 +13,13 @@ All notable changes to this project will be documented in this file.
 
 - *(workflows)* Updated changelog workflow to use release notes
 
+### <!-- 7 -->Dependencies
+
+- *(deps)* Bump docker/setup-qemu-action from 3 to 4 (#346)
+- *(deps)* Bump codecov/codecov-action from 6 to 7 (#345)
+- *(deps)* Bump docker/setup-buildx-action from 3 to 4 (#344)
+- *(deps)* Bump docker/login-action from 3 to 4 (#343)
+
 ## [0.12.1] - 2026-06-08
 
 
