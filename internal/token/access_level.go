@@ -77,6 +77,7 @@ var accessLevelMinVersionByTokenType = map[Type]map[AccessLevel]string{
 	TypePersonal:               nil,
 	TypeUserServiceAccount:     nil,
 	TypeGroupServiceAccount:    nil,
+	TypeProjectServiceAccount:  nil,
 	TypePipelineProjectTrigger: nil,
 	TypeProjectDeploy:          nil,
 	TypeGroupDeploy:            nil,

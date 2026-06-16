@@ -56,6 +56,7 @@ func TestGitlabClient(t *testing.T) {
 		require.NotNil(t, client)
 		require.ErrorIs(t, client.RevokeGroupServiceAccountAccessToken(ctx, ""), errs.ErrNilValue)
 		require.ErrorIs(t, client.RevokeUserServiceAccountAccessToken(ctx, ""), errs.ErrNilValue)
+		require.ErrorIs(t, client.RevokeProjectServiceAccountAccessToken(ctx, ""), errs.ErrNilValue)
 	})
 }
 

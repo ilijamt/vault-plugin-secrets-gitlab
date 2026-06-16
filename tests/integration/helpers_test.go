@@ -15,6 +15,8 @@ import (
 	"time"
 	"unicode"
 
+	"golang.org/x/mod/semver"
+
 	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -27,6 +29,24 @@ var (
 )
 
 const selfhostedPinnedVersion = "17.11.7"
+
+// projectServiceAccountMinVersion is the first GitLab version with the project service account API.
+const projectServiceAccountMinVersion = "18.11"
+
+// gitlabVersionAtLeast reports whether version >= minVersion, leniently for unparseable versions.
+func gitlabVersionAtLeast(version, minVersion string) bool {
+	canon := func(v string) string {
+		if !strings.HasPrefix(v, "v") {
+			v = "v" + v
+		}
+		return v
+	}
+	a, b := canon(version), canon(minVersion)
+	if !semver.IsValid(a) {
+		return true
+	}
+	return semver.Compare(a, b) >= 0
+}
 
 // validScopesFor returns every scope the given token type accepts at the
 // GitLab version reported via GITLAB_VERSION (set by the integration test
@@ -93,6 +113,7 @@ func ctxTestTime(ctx context.Context, tb testing.TB, tokenName string) (_ contex
 			}
 		case "TestWithServiceAccountUser",
 			"TestWithServiceAccountGroup",
+			"TestWithServiceAccountProject",
 			"TestWithServiceAccountUserFail_dedicated",
 			"TestWithServiceAccountUserFail_saas":
 			if t, err = parseTimeFromFile("gitlab-selfhosted"); err != nil {

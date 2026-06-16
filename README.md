@@ -28,6 +28,7 @@ The current authentication model requires providing Vault with a Gitlab Token.
 ## Quick links
 
 - Vault Website – https://www.vaultproject.io
+- OpenBao Website - https://openbao.org/
 
 ## Token types
 
@@ -38,11 +39,41 @@ The current authentication model requires providing Vault with a Gitlab Token.
 | [Personal Access Tokens](https://docs.gitlab.com/api/personal_access_tokens/) | All tiers | All offerings | GA |
 | [Project Access Tokens](https://docs.gitlab.com/api/project_access_tokens/) | All tiers | All offerings | GA |
 | [Group Access Tokens](https://docs.gitlab.com/api/group_access_tokens/) | All tiers | All offerings | GA |
-| [User/Group Service Account Tokens](https://docs.gitlab.com/api/service_accounts/)¹ | All tiers | All offerings | GA |
+| [User/Group/Project Service Account Tokens](https://docs.gitlab.com/api/service_accounts/)¹ | All tiers | All offerings | GA |
 | [Pipeline Project Trigger Tokens](https://docs.gitlab.com/api/pipeline_triggers/) | All tiers | All offerings | GA |
 | [Group/Project Deploy Tokens](https://docs.gitlab.com/user/project/deploy_tokens/) | All tiers | All offerings | GA |
 
 ¹ Service accounts on GitLab Free are capped: up to 100 per top-level group on GitLab.com, or 100 per instance on Self-Managed. Premium and Ultimate are unlimited.
+
+### What each `token_type` does
+
+Set `token_type` on the role. The `path` format and which fields apply depend on the type.
+
+| `token_type` | Issues | `path` format | `scopes` | `access_level` | Min GitLab² |
+| --- | --- | --- | :---: | :---: | :---: |
+| `personal` | A personal access token for an existing user | `{username}` | yes | n/a | all |
+| `project` | A project access token (project bot user) | `group/project` (or nested) | yes | yes | 13.10 |
+| `group` | A group access token (group bot user) | `group` (or `group/subgroup`) | yes | yes | 14.7 |
+| `user-service-account` | A PAT for an existing instance-level service account | `{username}` | yes | n/a | 16.1 |
+| `group-service-account` | A PAT for an existing group/subgroup service account | `{groupId}/{serviceAccountName}` | yes | n/a | 16.1 |
+| `project-service-account` | A PAT for an existing project service account | `{projectId}/{serviceAccountName}` | yes | n/a | 18.11 |
+| `pipeline-project-trigger` | A pipeline trigger token | `group/project` (or nested) | n/a | n/a | all |
+| `project-deploy` | A project deploy token | `group/project` (or nested) | yes | n/a | 12.9 |
+| `group-deploy` | A group deploy token | `group` (or `group/subgroup`) | yes | n/a | 12.9 |
+
+² Minimum GitLab version where the feature exists. `all` means it predates every supported version. The plugin itself is tested on 17.11.7 and 18.11.2.
+
+### What this plugin does and does not do
+
+| Capability | Supported | Notes |
+| --- | :---: | --- |
+| Create a token on demand for a role and return it via Vault | yes | |
+| Revoke the token when the Vault lease expires | yes | |
+| Let GitLab expire the token by TTL | yes | set `gitlab_revokes_token=true` |
+| Auto-rotate the config token used to talk to GitLab | yes | set `auto_rotate_token` |
+| Create the service account, user, project, or group | no | must already exist in GitLab |
+| Rotate an already-issued token in place | no | request a new token by reading the role again (you or your automation drive this; Vault does not do it on its own) |
+| Create `user-service-account` on GitLab.com (SaaS) or Dedicated | no | use `group-service-account` or `project-service-account` |
 
 ## Getting started
 

@@ -116,6 +116,9 @@ func revokeAccessToken(b secretBackend, defaultConfigName string) framework.Oper
 			case token.TypeGroupServiceAccount:
 				var token = req.Secret.InternalData["token"].(string)
 				err = client.RevokeGroupServiceAccountAccessToken(ctx, token)
+			case token.TypeProjectServiceAccount:
+				var token = req.Secret.InternalData["token"].(string)
+				err = client.RevokeProjectServiceAccountAccessToken(ctx, token)
 			case token.TypePipelineProjectTrigger:
 				var projectId int64
 				if projectId, err = strconv.ParseInt(parentId, 10, 64); err == nil {

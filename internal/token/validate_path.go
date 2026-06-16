@@ -23,7 +23,7 @@ Validation rules:
   - Path must not end with '-', '_', '.', '.git' or '.atom'.
   - Segment count rules per token type:
     -- TypePersonal, TypeUserServiceAccount: exactly 1 segment.
-    -- TypeGroupServiceAccount: exactly 2 segments.
+    -- TypeGroupServiceAccount, TypeProjectServiceAccount: exactly 2 segments.
     -- TypeProject, TypeGroup, TypeProjectDeploy, TypeGroupDeploy, TypePipelineProjectTrigger: 1 or more segments.
 
 Returns true if valid, else false.
@@ -63,6 +63,13 @@ func IsValidPath(path string, tokenType Type) (valid bool) {
 		/*
 			Format of the paths:
 				- {groupId}/{serviceAccountName}
+		*/
+		return len(segments) == 2
+
+	case TypeProjectServiceAccount:
+		/*
+			Format of the paths:
+				- {projectId}/{serviceAccountName}
 		*/
 		return len(segments) == 2
 

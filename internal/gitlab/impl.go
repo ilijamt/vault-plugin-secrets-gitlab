@@ -223,6 +223,37 @@ func (gc *gitlabClient) CreateGroupServiceAccountAccessToken(ctx context.Context
 	return et, err
 }
 
+func (gc *gitlabClient) CreateProjectServiceAccountAccessToken(ctx context.Context, path string, projectId string, userId int64, name string, expiresAt time.Time, scopes []string) (et *modelToken.TokenProjectServiceAccount, err error) {
+	var at *g.PersonalAccessToken
+	defer func() {
+		gc.logger.Debug("Create project service access token", "pat", at, "et", et, "path", path, "projectId", projectId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
+	}()
+	at, _, err = gc.client.Projects.CreateProjectServiceAccountPersonalAccessToken(projectId, userId, &g.CreateProjectServiceAccountPersonalAccessTokenOptions{
+		Name:      g.Ptr(name),
+		ExpiresAt: (*g.ISOTime)(&expiresAt),
+		Scopes:    &scopes,
+	}, g.WithContext(ctx))
+	if err == nil {
+		et = &modelToken.TokenProjectServiceAccount{
+			TokenWithScopes: modelToken.TokenWithScopes{
+				Token: modelToken.Token{
+					TokenID:   at.ID,
+					ParentID:  projectId,
+					Path:      path,
+					Name:      name,
+					Token:     at.Token,
+					TokenType: t.TypeProjectServiceAccount,
+					CreatedAt: at.CreatedAt,
+					ExpiresAt: (*time.Time)(at.ExpiresAt),
+				},
+				Scopes: scopes,
+			},
+			UserID: userId,
+		}
+	}
+	return et, err
+}
+
 func (gc *gitlabClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (et *modelToken.TokenUserServiceAccount, err error) {
 	defer func() {
 		gc.logger.Debug("Create user service access token", "et", et, "username", username, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
@@ -269,6 +300,24 @@ func (gc *gitlabClient) RevokeUserServiceAccountAccessToken(ctx context.Context,
 
 func (gc *gitlabClient) RevokeGroupServiceAccountAccessToken(ctx context.Context, token string) (err error) {
 	defer func() { gc.logger.Debug("Revoke group service account token", "token", token, "error", err) }()
+	if token == "" {
+		err = fmt.Errorf("%w: empty token", errs.ErrNilValue)
+		return err
+	}
+
+	var c *g.Client
+	if c, err = newGitlabClient(&modelConfig.EntryConfig{
+		BaseURL: gc.config.BaseURL,
+		Token:   token,
+	}, gc.httpClient); err == nil {
+		_, err = c.PersonalAccessTokens.RevokePersonalAccessTokenSelf(g.WithContext(ctx))
+	}
+
+	return err
+}
+
+func (gc *gitlabClient) RevokeProjectServiceAccountAccessToken(ctx context.Context, token string) (err error) {
+	defer func() { gc.logger.Debug("Revoke project service account token", "token", token, "error", err) }()
 	if token == "" {
 		err = fmt.Errorf("%w: empty token", errs.ErrNilValue)
 		return err

@@ -165,6 +165,21 @@ var scopeMinVersionByTokenType = map[Type]map[Scope]string{
 		ScopeK8SProxy:             "0.0",
 		ScopeSelfRotate:           "17.9",
 	},
+	TypeProjectServiceAccount: {
+		ScopeApi:                  "0.0",
+		ScopeReadApi:              "0.0",
+		ScopeReadRegistry:         "0.0",
+		ScopeWriteRegistry:        "0.0",
+		ScopeReadVirtualRegistry:  "18.0",
+		ScopeWriteVirtualRegistry: "18.0",
+		ScopeReadRepository:       "0.0",
+		ScopeWriteRepository:      "0.0",
+		ScopeCreateRunner:         "0.0",
+		ScopeManageRunner:         "17.1",
+		ScopeAiFeatures:           "0.0",
+		ScopeK8SProxy:             "0.0",
+		ScopeSelfRotate:           "17.9",
+	},
 	TypePipelineProjectTrigger: nil, // not applicable
 }
 

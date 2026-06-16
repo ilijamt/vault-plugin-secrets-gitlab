@@ -314,6 +314,25 @@ func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(ctx context.Contex
 	return nil
 }
 
+func (i *inMemoryClient) CreateProjectServiceAccountAccessToken(ctx context.Context, path string, projectId string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenProjectServiceAccount, error) {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if err := i.injectedErrLocked("CreateProjectServiceAccountAccessToken"); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (i *inMemoryClient) RevokeProjectServiceAccountAccessToken(ctx context.Context, tok string) error {
+	i.muLock.Lock()
+	defer i.muLock.Unlock()
+	if err := i.injectedErrLocked("RevokeProjectServiceAccountAccessToken"); err != nil {
+		return err
+	}
+	delete(i.accessTokens, tokenKey(t.TypeProjectServiceAccount, tok))
+	return nil
+}
+
 func (i *inMemoryClient) CurrentTokenInfo(ctx context.Context) (*token.TokenConfig, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()

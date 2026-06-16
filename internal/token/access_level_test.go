@@ -89,6 +89,7 @@ func TestValidAccessLevelsFor_Applicability(t *testing.T) {
 		gitlab.TypePersonal,
 		gitlab.TypeUserServiceAccount,
 		gitlab.TypeGroupServiceAccount,
+		gitlab.TypeProjectServiceAccount,
 		gitlab.TypePipelineProjectTrigger,
 		gitlab.TypeProjectDeploy,
 		gitlab.TypeGroupDeploy,

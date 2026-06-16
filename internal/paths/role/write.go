@@ -90,7 +90,7 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 	var skipFields []string
 
 	switch tokenType {
-	case token.TypePersonal, token.TypeUserServiceAccount, token.TypeGroupServiceAccount:
+	case token.TypePersonal, token.TypeUserServiceAccount, token.TypeGroupServiceAccount, token.TypeProjectServiceAccount:
 		skipFields = []string{"config_name", "access_level"}
 	case token.TypeGroup, token.TypeProject:
 		skipFields = []string{"config_name"}

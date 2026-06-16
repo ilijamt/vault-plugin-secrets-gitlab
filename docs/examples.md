@@ -78,6 +78,7 @@ $ vault write gitlab/roles/project name='{{ .role_name }}-{{ .token_type }}-{{ r
 $ vault write gitlab/roles/group name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=group/subgroup scopes="read_api" access_level=developer token_type=group ttl=48h
 $ vault write gitlab/roles/sa name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=user-service-account ttl=24h
 $ vault write gitlab/roles/ga name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=345/service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=group-service-account ttl=24h
+$ vault write gitlab/roles/pa name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path=412/service_account_00b069cb73a15d0a7ba8cd67a653599c scopes="read_api" token_type=project-service-account ttl=24h
 $ vault write gitlab/roles/personal-dynamic-path name='{{ .role_name }}-{{ .token_type }}-{{ randHexString 4 }}' path='ilija-.*' dynamic_path=true scopes="read_api" token_type=personal ttl=48h
 ```
 
@@ -103,6 +104,21 @@ $ curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab/ap
 {
   "id": 61,
   "username": "service_account_group_345_c468757e6df2fc104de54ea470539bb5",
+  "name": "Service account user"
+}
+```
+
+### Project service accounts
+
+Project service accounts are scoped to a single project. Create the service account against the
+project, then point the role's `path` at `{projectId}/{serviceAccountName}`. More information can be
+found on https://docs.gitlab.com/api/service_accounts/#create-a-project-service-account.
+
+```shell
+$ curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab/api/v4/projects/412/service_accounts" | jq .
+{
+  "id": 64,
+  "username": "service_account_project_412_c468757e6df2fc104de54ea470539bb5",
   "name": "Service account user"
 }
 ```

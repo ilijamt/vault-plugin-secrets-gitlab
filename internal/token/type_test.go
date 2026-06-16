@@ -42,6 +42,11 @@ func TestTokenType(t *testing.T) {
 			input:    token.TypeGroupServiceAccount.String(),
 		},
 		{
+			name:     "project-service-account",
+			expected: token.TypeProjectServiceAccount,
+			input:    token.TypeProjectServiceAccount.String(),
+		},
+		{
 			name:     "pipeline-project-trigger",
 			expected: token.TypePipelineProjectTrigger,
 			input:    token.TypePipelineProjectTrigger.String(),

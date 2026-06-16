@@ -109,6 +109,18 @@ func (p *Provider) pathTokenRoleCreate(ctx context.Context, req *logical.Request
 			p.b.Logger().Debug("Creating group service account access token for role", "path", role.Path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
 			token, err = client.CreateGroupServiceAccountAccessToken(ctx, role.Path, groupId, userId, name, expiresAt, role.Scopes)
 		}
+	case t.TypeProjectServiceAccount:
+		var serviceAccount, projectId string
+		{
+			parts := strings.Split(role.Path, "/")
+			projectId, serviceAccount = parts[0], parts[1]
+		}
+
+		var userId int64
+		if userId, err = client.GetUserIdByUsername(ctx, serviceAccount); err == nil {
+			p.b.Logger().Debug("Creating project service account access token for role", "path", role.Path, "projectId", projectId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", role.Scopes)
+			token, err = client.CreateProjectServiceAccountAccessToken(ctx, role.Path, projectId, userId, name, expiresAt, role.Scopes)
+		}
 	case t.TypeProjectDeploy:
 		var projectId int64
 		if projectId, err = client.GetProjectIdByPath(ctx, role.Path); err == nil {

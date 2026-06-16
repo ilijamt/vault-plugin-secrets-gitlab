@@ -142,6 +142,11 @@ func TestValidScopesFor_Applicability(t *testing.T) {
 		_, applicable := token.ValidScopesFor(token.TypePersonal, "17.0")
 		assert.True(t, applicable)
 	})
+	t.Run("project service account applicable", func(t *testing.T) {
+		scopes, applicable := token.ValidScopesFor(token.TypeProjectServiceAccount, "18.0")
+		assert.True(t, applicable)
+		assert.NotEmpty(t, scopes)
+	})
 }
 
 func TestIsScopeAllowed_VersionGating(t *testing.T) {

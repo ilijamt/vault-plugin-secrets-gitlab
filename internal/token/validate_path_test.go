@@ -47,6 +47,14 @@ func TestIsValidPath(t *testing.T) {
 		{"group SA segment starts with invalid", "-group/acct", token.TypeGroupServiceAccount, false},
 		{"group SA segment ends with invalid", "group/acct-", token.TypeGroupServiceAccount, false},
 
+		// TypeProjectServiceAccount: two segments
+		{"project SA valid", "project1/account2", token.TypeProjectServiceAccount, true},
+		{"project SA valid, dot middle", "team.service/acct-2", token.TypeProjectServiceAccount, true},
+		{"project SA too few segments", "project1", token.TypeProjectServiceAccount, false},
+		{"project SA too many segments", "p/a/too/many", token.TypeProjectServiceAccount, false},
+		{"project SA segment starts with invalid", "-project/acct", token.TypeProjectServiceAccount, false},
+		{"project SA segment ends with invalid", "project/acct-", token.TypeProjectServiceAccount, false},
+
 		// TypeProject, TypeGroup, TypeProjectDeploy, TypeGroupDeploy, TypePipelineProjectTrigger types
 		{"one segment", "myproj", token.TypeProject, true},
 		{"two segments", "group/proj", token.TypeGroup, true},

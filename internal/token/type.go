@@ -15,6 +15,7 @@ const (
 	TypeGroup                  = Type("group")
 	TypeUserServiceAccount     = Type("user-service-account")
 	TypeGroupServiceAccount    = Type("group-service-account")
+	TypeProjectServiceAccount  = Type("project-service-account")
 	TypePipelineProjectTrigger = Type("pipeline-project-trigger")
 	TypeProjectDeploy          = Type("project-deploy")
 	TypeGroupDeploy            = Type("group-deploy")
@@ -29,6 +30,7 @@ var (
 		TypeGroup.String(),
 		TypeUserServiceAccount.String(),
 		TypeGroupServiceAccount.String(),
+		TypeProjectServiceAccount.String(),
 		TypePipelineProjectTrigger.String(),
 		TypeProjectDeploy.String(),
 		TypeGroupDeploy.String(),

@@ -27,8 +27,10 @@ type Client interface {
 	GetProjectIdByPath(ctx context.Context, path string) (int64, error)
 	CreateGroupServiceAccountAccessToken(ctx context.Context, group string, groupId string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenGroupServiceAccount, error)
 	CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenUserServiceAccount, error)
+	CreateProjectServiceAccountAccessToken(ctx context.Context, project string, projectId string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenProjectServiceAccount, error)
 	RevokeUserServiceAccountAccessToken(ctx context.Context, token string) error
 	RevokeGroupServiceAccountAccessToken(ctx context.Context, token string) error
+	RevokeProjectServiceAccountAccessToken(ctx context.Context, token string) error
 	CreatePipelineProjectTriggerAccessToken(ctx context.Context, path, name string, projectId int64, description string, expiresAt *time.Time) (*token.TokenPipelineProjectTrigger, error)
 	RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int64, tokenId int64) error
 	CreateProjectDeployToken(ctx context.Context, path string, projectId int64, name string, expiresAt *time.Time, scopes []string) (et *token.TokenProjectDeploy, err error)

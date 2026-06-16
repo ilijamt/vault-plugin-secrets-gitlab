@@ -35,7 +35,11 @@ Format of the path is `{username}` example `service_account_65c74d39b4f71fc3fdc7
 
 #### token_type is group-service-account
 
-Format of the path is `{groupId}/{serviceAccountName}` example `265/service_account_65c74d39b4f71fc3fdc72330fce28c28`.
+Format of the path is `{groupId}/{serviceAccountName}` example `265/service_account_65c74d39b4f71fc3fdc72330fce28c28`. The group may be a top-level group or any subgroup.
+
+#### token_type is project-service-account
+
+Format of the path is `{projectId}/{serviceAccountName}` example `412/service_account_65c74d39b4f71fc3fdc72330fce28c28`.
 
 #### token_type is project-deploy
 
@@ -119,6 +123,7 @@ Can be
 * group
 * user-service-account
 * group-service-account
+* project-service-account
 * pipeline-project-trigger
 * project-deploy
 * group-deploy
