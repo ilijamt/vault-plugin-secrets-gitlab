@@ -5,9 +5,17 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 
+### <!-- 0 -->Features
+
+- *(token)* Add project-service-account token type
+
 ### <!-- 4 -->Documentation
 
 - Updated OpenBao OCI plugin installation instructions
+
+### <!-- 5 -->Tests
+
+- *(integration)* Service-account coverage and multi-version replays
 
 ### <!-- 6 -->CI
 
