@@ -22,17 +22,10 @@ import (
 func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 	httpClient, url := getClient(t, "e2e")
 	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
-	var tokenName = "normal_user_initial_token"
 
-	b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
-		"token":              getGitlabToken(tokenName).Token,
-		"base_url":           url,
-		"auto_rotate_token":  true,
-		"auto_rotate_before": "24h",
-		"type":               gitlabTypes.TypeSelfManaged.String(),
-	})
+	b, l, events, err := getBackendWithEventsAndConfig(ctx,
+		standardConfig(gitlabTypes.TypeSelfManaged, url, getGitlabToken("normal_user_initial_token").Token))
 	require.NoError(t, err)
-	require.NotEmpty(t, events)
 
 	{
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -44,11 +37,7 @@ func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 				"token_type":           token.TypePersonal.String(),
 				"ttl":                  time.Hour * 120,
 				"gitlab_revokes_token": strconv.FormatBool(true),
-				"scopes": strings.Join(
-					[]string{
-						token.ScopeReadApi.String(),
-					},
-					","),
+				"scopes":               strings.Join([]string{token.ScopeReadApi.String()}, ","),
 			},
 		})
 		require.NoError(t, err)
@@ -56,9 +45,10 @@ func TestWithNormalUser_PersonalAT_Fails(t *testing.T) {
 		require.NoError(t, resp.Error())
 	}
 
-	// issue a personal access token
+	// a normal user may not create personal access tokens for other users, so
+	// issuing the token fails with 403 and no token-write event is emitted.
 	{
-		ctxIssueToken, _ := ctxTestTime(ctx, t, tokenName)
+		ctxIssueToken, _ := ctxTestTime(ctx, t, "e2e")
 		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
 			Operation: logical.ReadOperation, Storage: l,
 			Path: fmt.Sprintf("%s/normal-user", tokenPaths.PathTokenRoleStorage),

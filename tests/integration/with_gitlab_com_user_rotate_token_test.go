@@ -19,23 +19,16 @@ import (
 func TestWithGitlabUser_RotateToken(t *testing.T) {
 	httpClient, _ := getClient(t, "saas")
 	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
-	var tokenName = ""
 
-	b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
-		"token":              gitlabComPersonalAccessToken,
-		"base_url":           gitlabComUrl,
-		"auto_rotate_token":  true,
-		"auto_rotate_before": "24h",
-		"type":               gitlabTypes.TypeSaaS.String(),
-	})
+	b, l, events, err := getBackendWithEventsAndConfig(ctx,
+		standardConfig(gitlabTypes.TypeSaaS, gitlabComUrl, gitlabComPersonalAccessToken))
 	require.NoError(t, err)
-	require.NotEmpty(t, events)
 
 	var oldToken, newToken string
 
 	// Rotate the main token
 	{
-		ctxRotate, _ := ctxTestTime(ctx, t, tokenName)
+		ctxRotate, _ := ctxTestTime(ctx, t, "saas")
 		resp, err := b.HandleRequest(ctxRotate, &logical.Request{
 			Operation: logical.UpdateOperation,
 			Path:      fmt.Sprintf("%s/%s/rotate", backend.PathConfigStorage, backend.DefaultConfigName), Storage: l,

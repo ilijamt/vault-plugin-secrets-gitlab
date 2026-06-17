@@ -63,8 +63,6 @@ jobs:
         run: make build
       - name: Test against GitLab ${{ matrix.gitlab-version }}
         run: make test GITLAB_VERSIONS=${{ matrix.gitlab-version }}
-        env:
-          GITLAB_SERVICE_ACCOUNT_URL: ${{ vars.GITLAB_SERVICE_ACCOUNT_URL }}
       - name: Upload coverage data
         uses: actions/upload-artifact@v7
         with:

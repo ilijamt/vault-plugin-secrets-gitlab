@@ -49,7 +49,6 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
-		require.NotEmpty(t, events)
 
 		resp, err = b.Secret(secret.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{Storage: l})
 		require.Error(t, err)
@@ -79,7 +78,6 @@ func TestSecretAccessTokenRevokeToken(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NoError(t, resp.Error())
-		require.NotEmpty(t, events)
 
 		resp, err = b.Secret(secret.SecretAccessTokenType).HandleRevoke(ctx, &logical.Request{
 			Storage: l,

@@ -32,40 +32,24 @@ Integration tests
 =================
 
 Integration tests live in `tests/integration/` and are gated by build tags
-(`paths`, `e2e`, `saas`, `selfhosted`). The `saas` and `selfhosted` suites
-talk to real GitLab instances and need a few environment variables plus
-prepared testdata files that pin the `created_at` timestamp of the token
-used to authenticate.
+(`paths`, `e2e`, `saas`, `serviceaccount`). Each test replays an HTTP cassette
+(`go-vcr`) recorded against a real GitLab instance.
 
-Prepare the testdata before running the suites:
-
-For SaaS (`gitlab.com`):
-
-```shell
-curl --silent --header "PRIVATE-TOKEN: $GITLAB_COM_TOKEN" \
-  "https://gitlab.com/api/v4/personal_access_tokens/self" \
-  | jq -rj '.created_at' > tests/integration/testdata/gitlab-com
-```
-
-For self-hosted:
+Replays are self-contained: they need no setup or extra files. Each test reads
+the deterministic "current time" it needs (for token TTL/expiry/rotation math)
+from its own cassette: the `created_at` of the config token reported by `GET
+/personal_access_tokens/self`, and falls back to the `expires_at` recorded in
+the request body for the direct client tests. Run the suites with:
 
 ```shell
-curl --silent --header "PRIVATE-TOKEN: $GITLAB_SERVICE_ACCOUNT_TOKEN" \
-  "$GITLAB_SERVICE_ACCOUNT_URL/api/v4/personal_access_tokens/self" \
-  | jq -rj '.created_at' > tests/integration/testdata/gitlab-selfhosted
+make test                                 # all versions, all tags
+GITLAB_VERSION=18.11.2 go test -tags "paths e2e serviceaccount" ./tests/integration/...
 ```
 
-The required environment variables are:
-
-- `GITLAB_COM_TOKEN` — personal access token for `gitlab.com` (SaaS suite).
-- `GITLAB_SERVICE_ACCOUNT_URL` — host of the self-hosted GitLab instance
-  (without scheme), e.g. `gitlab.example.com`.
-- `GITLAB_SERVICE_ACCOUNT_TOKEN` — token for the self-hosted instance.
-
-Or, with the env vars exported, run the Makefile targets:
-
-```shell
-make fetch-token-timestamps              # both
-make fetch-token-timestamps-saas         # SaaS only
-make fetch-token-timestamps-selfhosted   # self-hosted only
-```
+Recording new cassettes talks to a real GitLab instance. The `paths`, `e2e` and
+`serviceaccount` suites record against the per-version local stack provisioned by
+`local-env/` (see [`local-env/README.md`](../local-env/README.md)), which also
+writes the per-version token set to `tests/integration/testdata/tokens.<version>.json`.
+That file is a recording-only artifact (git-ignored): replays fall back to a
+placeholder token because the cassette matcher ignores authentication headers.
+The `saas` suite records against `gitlab.com` and needs `GITLAB_COM_TOKEN`.

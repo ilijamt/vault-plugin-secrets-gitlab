@@ -12,11 +12,9 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "gitlab.com/gitlab-org/api/client-go/v2"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
-	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
 	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -24,20 +22,10 @@ import (
 func TestWithNormalUser_GAT(t *testing.T) {
 	httpClient, url := getClient(t, "e2e")
 	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
-	var tokenName = "normal_user_initial_token"
 
-	b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
-		"token":              getGitlabToken(tokenName).Token,
-		"base_url":           url,
-		"auto_rotate_token":  true,
-		"auto_rotate_before": "24h",
-		"type":               gitlabTypes.TypeSelfManaged.String(),
-	})
+	b, l, events, err := getBackendWithEventsAndConfig(ctx,
+		standardConfig(gitlabTypes.TypeSelfManaged, url, getGitlabToken("normal_user_initial_token").Token))
 	require.NoError(t, err)
-	require.NotEmpty(t, events)
-
-	var token string
-	var secret *logical.Secret
 
 	{
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -58,61 +46,10 @@ func TestWithNormalUser_GAT(t *testing.T) {
 		require.NoError(t, resp.Error())
 	}
 
-	// issue a group access token
-	{
-		ctxIssueToken, _ := ctxTestTime(ctx, t, tokenName)
-		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
-			Operation: logical.ReadOperation, Storage: l,
-			Path: fmt.Sprintf("%s/gat", tokenPaths.PathTokenRoleStorage),
-		})
-
-		require.NoError(t, err)
-		require.NotNil(t, resp)
-		require.NoError(t, resp.Error())
-		token = resp.Data["token"].(string)
-		require.NotEmpty(t, token)
-		secret = resp.Secret
-		require.NotNil(t, secret)
-	}
-
-	var c *g.Client
-	c, err = g.NewClient(token, g.WithHTTPClient(httpClient), g.WithBaseURL(url))
-	require.NoError(t, err)
-	require.NotNil(t, c)
-
-	// should have access with token to Gitlab
-	{
-		var pat *g.PersonalAccessToken
-		var r *g.Response
-		pat, r, err = c.PersonalAccessTokens.GetSinglePersonalAccessToken()
-		require.NoError(t, err)
-		require.NotNil(t, pat)
-		require.NotNil(t, r)
-		require.EqualValues(t, r.StatusCode, http.StatusOK)
-	}
-
-	// revoke the token
-	{
-		resp, err := b.HandleRequest(ctx, &logical.Request{
-			Operation: logical.RevokeOperation,
-			Path:      "/",
-			Storage:   l,
-			Secret:    secret,
-		})
-		require.NoError(t, err)
-		require.Nil(t, resp)
-	}
-
-	// no longer has access with token to Gitlab
-	{
-		var pat *g.PersonalAccessToken
-		var r *g.Response
-		pat, r, err = c.PersonalAccessTokens.GetSinglePersonalAccessToken()
-		require.Error(t, err)
-		require.Nil(t, pat)
-		require.NotNil(t, r)
-		require.EqualValues(t, r.StatusCode, http.StatusUnauthorized)
-	}
+	token, secret := issueToken(ctx, t, b, l, "e2e", "gat")
+	requireTokenStatus(t, httpClient, url, token, http.StatusOK)
+	revokeSecret(ctx, t, b, l, secret)
+	requireTokenStatus(t, httpClient, url, token, http.StatusUnauthorized)
 
 	events.expectEvents(t, []expectedEvent{
 		{eventType: "gitlab/config-write"},

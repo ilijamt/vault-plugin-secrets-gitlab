@@ -1,4 +1,4 @@
-//go:build paths || saas || selfhosted || e2e
+//go:build paths || saas || serviceaccount || e2e
 
 package integration_test
 
@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	tagPaths bool
-	tagE2E   bool
+	tagPaths          bool
+	tagE2E            bool
+	tagServiceAccount bool
 )
 
 func TestMain(m *testing.M) {
@@ -24,7 +25,7 @@ func TestMain(m *testing.M) {
 
 func validateIntegrationEnv() string {
 	var missing []string
-	if (tagPaths || tagE2E) && os.Getenv("GITLAB_VERSION") == "" {
+	if (tagPaths || tagE2E || tagServiceAccount) && os.Getenv("GITLAB_VERSION") == "" {
 		missing = append(missing, "GITLAB_VERSION")
 	}
 	if len(missing) == 0 {

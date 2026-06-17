@@ -43,3 +43,8 @@ bin/
 .envrc
 /build/
 /run/
+
+# Recording-only artifact: per-version GitLab token sets written by local-env
+# setup. Replays read the clock from the cassettes themselves, so these are not
+# needed to run the integration tests.
+/tests/integration/testdata/tokens.*.json

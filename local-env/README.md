@@ -28,18 +28,18 @@ The version argument selects which backup tarball to read/write. Use `restore` t
 
 ### Recording cassettes
 
-Tests record HTTP fixtures into `tests/integration/testdata/{paths,e2e}/<version>/`. Tokens for that version live in `tests/integration/testdata/tokens.<version>.json`. To record against a fresh setup:
+Tests record HTTP fixtures into `tests/integration/testdata/{paths,e2e,serviceaccount}/<version>/`. The `serviceaccount` suite (service accounts) records against the local CE instance like `paths`/`e2e`; project service accounts only run on 18.11+ and skip otherwise. `initial-setup.sh` writes the per-version token set used during recording to `tests/integration/testdata/tokens.<version>.json`, a recording-only, git-ignored artifact. Replays do not need it: each test reads its deterministic clock from its own cassette and falls back to a placeholder token (the cassette matcher ignores authentication headers). To record against a fresh setup:
 
 ```bash
 # pinned (17.11.7)
 bash initial-setup.sh 17.11.7
 GITLAB_VERSION=17.11.7 GITLAB_URL=http://localhost:8080 \
-  make test TAGS=paths,e2e GITLAB_VERSIONS=17.11.7
+  make test TAGS=paths,e2e,serviceaccount GITLAB_VERSIONS=17.11.7
 
 # switch to 18.11.2
 bash initial-setup.sh 18.11.2
 GITLAB_VERSION=18.11.2 GITLAB_URL=http://localhost:8080 \
-  make test TAGS=paths,e2e GITLAB_VERSIONS=18.11.2
+  make test TAGS=paths,e2e,serviceaccount GITLAB_VERSIONS=18.11.2
 ```
 
 Plain `make test` (no extra env) replays all per-version cassettes already on disk and produces a merged coverage report under `build/coverage.{out,html}`. Per-version binary coverage is preserved under `build/covdata/<version>/` for inspection via `go tool covdata percent -i=build/covdata/<version>`.

@@ -36,11 +36,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 01 May 2026 22:20:50 GMT
+                - Wed, 17 Jun 2026 08:35:10 GMT
             Etag:
                 - W/"4f53cda18c2baa0c0354bb5f9a3ecbe5"
             Link:
-                - <http://709c6a19016d/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=ilijamt&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://709c6a19016d/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=ilijamt&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
+                - <http://268954cb6a07/api/v4/users?active=false&admins=false&auditors=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&skip_ldap=false&sort=desc&username=ilijamt&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://268954cb6a07/api/v4/users?active=false&admins=false&auditors=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&skip_ldap=false&sort=desc&username=ilijamt&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -56,7 +56,7 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KQJT2Q73YTDHGQTXYEKTDBSV","version":"1"}'
+                - '{"correlation_id":"01KVABGMN05GYGA74P25MGYFSP","version":"1"}'
             X-Next-Page:
                 - ""
             X-Page:
@@ -66,16 +66,16 @@ interactions:
             X-Prev-Page:
                 - ""
             X-Request-Id:
-                - 01KQJT2Q73YTDHGQTXYEKTDBSV
+                - 01KVABGMN05GYGA74P25MGYFSP
             X-Runtime:
-                - "0.015348"
+                - "0.024919"
             X-Total:
                 - "0"
             X-Total-Pages:
                 - "1"
         status: 200 OK
         code: 200
-        duration: 17.314166ms
+        duration: 27.483167ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -111,11 +111,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 01 May 2026 22:20:50 GMT
+                - Wed, 17 Jun 2026 08:35:10 GMT
             Etag:
                 - W/"4f53cda18c2baa0c0354bb5f9a3ecbe5"
             Link:
-                - <http://709c6a19016d/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=demo&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://709c6a19016d/api/v4/users?active=false&admins=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&sort=desc&username=demo&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
+                - <http://268954cb6a07/api/v4/users?active=false&admins=false&auditors=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&skip_ldap=false&sort=desc&username=demo&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://268954cb6a07/api/v4/users?active=false&admins=false&auditors=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&skip_ldap=false&sort=desc&username=demo&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -131,7 +131,7 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KQJT2Q7MGFGJ8P59HGGDVXYC","version":"1"}'
+                - '{"correlation_id":"01KVABGMPRT9B882VDD4D3VBBW","version":"1"}'
             X-Next-Page:
                 - ""
             X-Page:
@@ -141,13 +141,13 @@ interactions:
             X-Prev-Page:
                 - ""
             X-Request-Id:
-                - 01KQJT2Q7MGFGJ8P59HGGDVXYC
+                - 01KVABGMPRT9B882VDD4D3VBBW
             X-Runtime:
-                - "0.015924"
+                - "0.024724"
             X-Total:
                 - "0"
             X-Total-Pages:
                 - "1"
         status: 200 OK
         code: 200
-        duration: 18.00375ms
+        duration: 27.217875ms

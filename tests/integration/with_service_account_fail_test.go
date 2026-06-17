@@ -1,4 +1,4 @@
-//go:build selfhosted
+//go:build serviceaccount
 
 package integration_test
 
@@ -18,24 +18,23 @@ import (
 )
 
 func TestWithServiceAccountUserFail(t *testing.T) {
+	requireServiceAccounts(t)
 	for _, typ := range []gitlabTypes.Type{
 		gitlabTypes.TypeSaaS,
 		gitlabTypes.TypeDedicated,
 	} {
 		t.Run(typ.String(), func(t *testing.T) {
-			t.Setenv("GITLAB_VERSION", selfhostedPinnedVersion)
-			httpClient, _ := getClient(t, "selfhosted")
+			httpClient, url := getClient(t, "serviceaccount")
 			ctx := utils.HttpClientNewContext(t.Context(), httpClient)
 
 			b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
-				"token":              gitlabServiceAccountToken,
-				"base_url":           gitlabServiceAccountUrl,
+				"token":              getGitlabToken("admin_user_root").Token,
+				"base_url":           url,
 				"auto_rotate_token":  true,
 				"auto_rotate_before": "24h",
 				"type":               typ.String(),
 			})
 			require.NoError(t, err)
-			require.NotEmpty(t, events)
 
 			require.Nil(t, b.GetClient(backend.DefaultConfigName))
 			var client glab.Client

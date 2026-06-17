@@ -1,4 +1,4 @@
-//go:build paths || saas || selfhosted || e2e
+//go:build paths || saas || serviceaccount || e2e
 
 package integration_test
 
@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 	"sync"
@@ -15,8 +16,15 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/stretchr/testify/require"
+	g "gitlab.com/gitlab-org/api/client-go/v2"
 	"golang.org/x/mod/semver"
+	"gopkg.in/dnaeon/go-vcr.v4/pkg/cassette"
 
+	gitlab "github.com/ilijamt/vault-plugin-secrets-gitlab"
+	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
+	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
 	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -24,14 +32,21 @@ import (
 var (
 	gitlabComPersonalAccessToken = cmp.Or(os.Getenv("GITLAB_COM_TOKEN"), "glpat-invalid-value")
 	gitlabComUrl                 = cmp.Or(os.Getenv("GITLAB_COM_URL"), "https://gitlab.com")
-	gitlabServiceAccountUrl      = cmp.Or(os.Getenv("GITLAB_SERVICE_ACCOUNT_URL"), "http://localhost:8080")
-	gitlabServiceAccountToken    = cmp.Or(os.Getenv("GITLAB_SERVICE_ACCOUNT_TOKEN"), "REPLACED-TOKEN")
 )
 
-const selfhostedPinnedVersion = "17.11.7"
+// serviceAccountMinVersion is the first GitLab version where service accounts
+// (user, group and project) are available on CE/Free; before 18.11 they were
+// Premium+, so the API 404s on CE.
+const serviceAccountMinVersion = "18.11"
 
-// projectServiceAccountMinVersion is the first GitLab version with the project service account API.
-const projectServiceAccountMinVersion = "18.11"
+// requireServiceAccounts skips the test when GITLAB_VERSION predates CE service
+// account support.
+func requireServiceAccounts(tb testing.TB) {
+	tb.Helper()
+	if !gitlabVersionAtLeast(os.Getenv("GITLAB_VERSION"), serviceAccountMinVersion) {
+		tb.Skipf("service accounts require GitLab CE >= %s", serviceAccountMinVersion)
+	}
+}
 
 // gitlabVersionAtLeast reports whether version >= minVersion, leniently for unparseable versions.
 func gitlabVersionAtLeast(version, minVersion string) bool {
@@ -79,6 +94,22 @@ func sanitizePath(path string) string {
 	return strings.ReplaceAll(builder.String(), "__", "_")
 }
 
+// cassettePath returns the cassette name (without .yaml) for the test; "paths",
+// "e2e" and "serviceaccount" are pinned to a GitLab version, "saas" is not.
+func cassettePath(tb testing.TB, target string) string {
+	tb.Helper()
+	switch target {
+	case "paths", "e2e", "serviceaccount":
+		version := os.Getenv("GITLAB_VERSION")
+		if version == "" {
+			tb.Fatal("GITLAB_VERSION env var must be set for paths/e2e/serviceaccount cassettes; run via 'make test' or export GITLAB_VERSION explicitly")
+		}
+		return fmt.Sprintf("testdata/%s/%s/%s", target, version, sanitizePath(tb.Name()))
+	default:
+		return fmt.Sprintf("testdata/%s/%s", target, sanitizePath(tb.Name()))
+	}
+}
+
 func getCtxGitlabClient(t *testing.T, target string) context.Context {
 	t.Helper()
 	httpClient, _ := getClient(t, target)
@@ -91,40 +122,44 @@ func getCtxGitlabClientWithUrl(t *testing.T, target string) (context.Context, st
 	return utils.HttpClientNewContext(t.Context(), httpClient), url
 }
 
-func parseTimeFromFile(name string) (t time.Time, err error) {
-	var buff []byte
-	if buff, err = os.ReadFile(fmt.Sprintf("./testdata/%s", name)); err != nil {
-		return t, err
+// cassetteTime reads the test's static clock from its own cassette: the config
+// token's created_at (GET /personal_access_tokens/self), else the expires_at in
+// the first recorded request (direct client tests), else the zero time. A
+// missing cassette means we are recording, so it falls back to the wall clock.
+func cassetteTime(tb testing.TB, target string) time.Time {
+	tb.Helper()
+	c, err := cassette.Load(cassettePath(tb, target))
+	if err != nil {
+		return time.Now()
 	}
-	return time.Parse(time.RFC3339, string(buff))
+	for _, i := range c.Interactions {
+		if !strings.HasSuffix(i.Request.URL, "/personal_access_tokens/self") {
+			continue
+		}
+		var body struct {
+			CreatedAt time.Time `json:"created_at"`
+		}
+		if err := json.Unmarshal([]byte(i.Response.Body), &body); err == nil {
+			return body.CreatedAt
+		}
+		return time.Time{}
+	}
+	for _, i := range c.Interactions {
+		var body struct {
+			ExpiresAt string `json:"expires_at"`
+		}
+		if json.Unmarshal([]byte(i.Request.Body), &body) == nil && body.ExpiresAt != "" {
+			if t, err := time.Parse(time.DateOnly, body.ExpiresAt); err == nil {
+				return t
+			}
+		}
+	}
+	return time.Time{}
 }
 
-func ctxTestTime(ctx context.Context, tb testing.TB, tokenName string) (_ context.Context, t time.Time) {
+func ctxTestTime(ctx context.Context, tb testing.TB, target string) (context.Context, time.Time) {
 	tb.Helper()
-	var token = getGitlabToken(tokenName)
-	if token.Empty() {
-		var err error
-		switch tb.Name() {
-		case "TestGitlabClient_InvalidToken":
-			// no token for this test
-		case "TestWithGitlabUser_RotateToken":
-			if t, err = parseTimeFromFile("gitlab-com"); err != nil {
-				panic(err)
-			}
-		case "TestWithServiceAccountUser",
-			"TestWithServiceAccountGroup",
-			"TestWithServiceAccountProject",
-			"TestWithServiceAccountUserFail_dedicated",
-			"TestWithServiceAccountUserFail_saas":
-			if t, err = parseTimeFromFile("gitlab-selfhosted"); err != nil {
-				panic(err)
-			}
-		default:
-			tb.Fatalf("unknown test name %s", tb.Name())
-		}
-	} else {
-		t = token.CreatedAtTime()
-	}
+	t := cassetteTime(tb, target)
 	return utils.WithStaticTime(ctx, t), t
 }
 
@@ -141,44 +176,100 @@ func filterSlice[T any, Slice ~[]T](collection Slice, predicate func(item T, ind
 }
 
 type generatedToken struct {
-	ID        string `json:"id"`
-	Token     string `json:"token"`
-	CreatedAt string `json:"created_at"`
-}
-
-func (g generatedToken) Empty() bool {
-	return generatedToken{} == g
-}
-
-const (
-	gitlabTimeLayout = "2006-01-02 15:04:05.000 -0700 MST"
-)
-
-func (g generatedToken) CreatedAtTime() (t time.Time) {
-	t, _ = time.Parse(gitlabTimeLayout, g.CreatedAt)
-	return t
+	Token string `json:"token"`
 }
 
 type generatedTokens map[string]generatedToken
 
-var loadTokens = sync.OnceValues(func() (t generatedTokens, err error) {
+// placeholderToken is the config token used on replay when no recorded token set
+// is present; the matcher ignores auth headers, so it only needs to be non-empty
+// and (with the name appended) distinct per token so SHAs differ.
+const placeholderToken = "REPLACED-TOKEN"
+
+// loadTokens reads the recording-only token set (testdata/tokens.<version>.json);
+// when it is absent, getGitlabToken falls back to placeholderToken.
+var loadTokens = sync.OnceValues(func() (generatedTokens, error) {
 	version := os.Getenv("GITLAB_VERSION")
 	if version == "" {
-		return t, errors.New("GITLAB_VERSION env var must be set to load tokens; run via 'make test' or export GITLAB_VERSION explicitly")
+		return generatedTokens{}, nil
 	}
-	var payload []byte
-	if payload, err = os.ReadFile(fmt.Sprintf("./testdata/tokens.%s.json", version)); err != nil {
-		return t, err
+	payload, err := os.ReadFile(fmt.Sprintf("./testdata/tokens.%s.json", version))
+	if errors.Is(err, os.ErrNotExist) {
+		return generatedTokens{}, nil
 	}
-
+	if err != nil {
+		return nil, err
+	}
+	var t generatedTokens
 	err = json.Unmarshal(payload, &t)
 	return t, err
 })
 
 func getGitlabToken(name string) generatedToken {
-	var tokens, _ = loadTokens()
-	if token, ok := tokens[name]; ok {
+	tokens, _ := loadTokens()
+	if token, ok := tokens[name]; ok && token.Token != "" {
 		return token
 	}
-	return generatedToken{}
+	return generatedToken{Token: placeholderToken + "-" + name}
+}
+
+// standardConfig is the self-rotating backend config shared by the flow tests.
+func standardConfig(typ gitlabTypes.Type, url, token string) map[string]any {
+	return map[string]any{
+		"token":              token,
+		"base_url":           url,
+		"auto_rotate_token":  true,
+		"auto_rotate_before": "24h",
+		"type":               typ.String(),
+	}
+}
+
+// issueToken reads a token from roleName and returns it with its lease secret.
+// The clock is pinned to the cassette so expiry is deterministic on replay.
+func issueToken(ctx context.Context, tb testing.TB, b *gitlab.Backend, l logical.Storage, target, roleName string) (string, *logical.Secret) {
+	tb.Helper()
+	ctxIssue, _ := ctxTestTime(ctx, tb, target)
+	resp, err := b.HandleRequest(ctxIssue, &logical.Request{
+		Operation: logical.ReadOperation, Storage: l,
+		Path: fmt.Sprintf("%s/%s", tokenPaths.PathTokenRoleStorage, roleName),
+	})
+	require.NoError(tb, err)
+	require.NotNil(tb, resp)
+	require.NoError(tb, resp.Error())
+	token, ok := resp.Data["token"].(string)
+	require.True(tb, ok)
+	require.NotEmpty(tb, token)
+	require.NotNil(tb, resp.Secret)
+	return token, resp.Secret
+}
+
+func revokeSecret(ctx context.Context, tb testing.TB, b *gitlab.Backend, l logical.Storage, secret *logical.Secret) {
+	tb.Helper()
+	resp, err := b.HandleRequest(ctx, &logical.Request{
+		Operation: logical.RevokeOperation,
+		Path:      "/",
+		Storage:   l,
+		Secret:    secret,
+	})
+	require.NoError(tb, err)
+	require.Nil(tb, resp)
+}
+
+// requireTokenStatus asserts GET /personal_access_tokens/self with token yields
+// wantStatus: StatusOK while the token is live, StatusUnauthorized once revoked.
+func requireTokenStatus(tb testing.TB, httpClient *http.Client, url, token string, wantStatus int) {
+	tb.Helper()
+	c, err := g.NewClient(token, g.WithHTTPClient(httpClient), g.WithBaseURL(url))
+	require.NoError(tb, err)
+	require.NotNil(tb, c)
+	pat, r, err := c.PersonalAccessTokens.GetSinglePersonalAccessToken()
+	require.NotNil(tb, r)
+	require.EqualValues(tb, wantStatus, r.StatusCode)
+	if wantStatus == http.StatusOK {
+		require.NoError(tb, err)
+		require.NotNil(tb, pat)
+	} else {
+		require.Error(tb, err)
+		require.Nil(tb, pat)
+	}
 }

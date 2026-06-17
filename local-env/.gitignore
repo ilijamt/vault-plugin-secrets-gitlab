@@ -1,1 +1,6 @@
 /backup*.tar*
+/tf/**/plan
+/tf/**/terraform.tfstate*
+/tf/**/.terraform
+/tf/**/.terraform.lock.hcl
+/tf/**/tokens.json

@@ -224,9 +224,9 @@ func TestPathRoles(t *testing.T) {
 		require.Error(t, resp.Error())
 		var errorMap = utils.CountErrByName(err.(*multierror.Error))
 		assert.EqualValues(t, 4, errorMap[errs.ErrFieldRequired.Error()])
-		// Only token_type is reported as invalid — when the token type is
-		// unknown the validators correctly skip access_level/scopes gating
-		// (they're not meaningfully applicable to an unknown type).
+		// Only token_type is reported as invalid. When the token type is
+		// unknown the validators skip access_level/scopes gating, since
+		// those aren't applicable to an unknown type.
 		assert.EqualValues(t, 1, errorMap[errs.ErrFieldInvalidValue.Error()])
 	})
 
@@ -502,8 +502,6 @@ func TestPathRoles(t *testing.T) {
 		require.Nil(t, resp)
 
 		// check the events
-		require.NotEmpty(t, events)
-
 		events.expectEvents(t, []expectedEvent{
 			{eventType: "gitlab/config-write"},
 			{eventType: "gitlab/role-write"},

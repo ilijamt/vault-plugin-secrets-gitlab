@@ -3,7 +3,7 @@
 set -eu
 
 VERSION="${1:-17.11.7}"
-export GITLAB_IMAGE_TAG="${VERSION}-ce.0"
+export GITLAB_IMAGE_TAG="${VERSION}-ee.0"
 
 BOLD='\033[1m'
 GREEN='\033[0;32m'
@@ -43,7 +43,7 @@ stage "Tearing down existing environment"
 run docker compose kill
 run docker compose down --remove-orphans --volumes
 
-stage "Starting containers for GitLab ${VERSION} (image gitlab/gitlab-ce:${GITLAB_IMAGE_TAG})"
+stage "Starting containers for GitLab ${VERSION} (image gitlab/gitlab-ee:${GITLAB_IMAGE_TAG})"
 run docker compose up -d --wait
 run rm -rf "${TF_DIR}/.terraform" "${TF_DIR}/terraform.tfstate"*
 run docker compose up -d --wait

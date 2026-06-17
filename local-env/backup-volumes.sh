@@ -15,7 +15,7 @@ if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   exit 1
 fi
 
-export GITLAB_IMAGE_TAG="${VERSION}-ce.0"
+export GITLAB_IMAGE_TAG="${VERSION}-ee.0"
 
 BOLD='\033[1m'
 GREEN='\033[0;32m'

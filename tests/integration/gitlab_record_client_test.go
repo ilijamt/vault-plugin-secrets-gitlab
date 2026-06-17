@@ -1,4 +1,4 @@
-//go:build paths || saas || selfhosted || e2e
+//go:build paths || saas || serviceaccount || e2e
 
 package integration_test
 
@@ -29,38 +29,13 @@ func (c *skipEmptyFS) WriteFile(name string, data []byte) error {
 }
 
 // getClient returns an HTTP client backed by a go-vcr recorder for the given
-// target. Cassettes live under tests/integration/testdata/<target>/...
-//
-//   - "paths" and "e2e" require GITLAB_VERSION because cassettes are recorded
-//     against a specific self-hosted GitLab version. Layout:
-//     testdata/paths/<version>/<TestName>.yaml
-//     testdata/e2e/<version>/<TestName>.yaml
-//
-//   - "saas" and "selfhosted" do not pin a version: cassettes target gitlab.com
-//     or a long-lived self-hosted instance and remain valid across patch
-//     versions of GitLab. Layout:
-//     testdata/saas/<TestName>.yaml
-//     testdata/selfhosted/<TestName>.yaml
-//
-// `make test` sets GITLAB_VERSION; running paths/e2e tests directly requires
-// exporting it. Test names are filename-sanitized via sanitizePath.
+// target, with the cassette path resolved by cassettePath.
 func getClient(t *testing.T, target string) (client *http.Client, u string) {
 	t.Helper()
 
 	defaultGitlabHost := "localhost:8080"
 
-	var filename string
-	switch target {
-	case "paths", "e2e":
-		version := os.Getenv("GITLAB_VERSION")
-		if version == "" {
-			t.Fatal("GITLAB_VERSION env var must be set for paths/e2e cassettes; run via 'make test' or export GITLAB_VERSION explicitly")
-		}
-		filename = fmt.Sprintf("testdata/%s/%s/%s", target, version, sanitizePath(t.Name()))
-	default:
-		filename = fmt.Sprintf("testdata/%s/%s", target, sanitizePath(t.Name()))
-	}
-	r, err := recorder.New(filename,
+	r, err := recorder.New(cassettePath(t, target),
 		[]recorder.Option{
 			recorder.WithSkipRequestLatency(os.Getenv("SKIP_REQUEST_LATENCY") != ""),
 			recorder.WithMode(recorder.ModeRecordOnce),

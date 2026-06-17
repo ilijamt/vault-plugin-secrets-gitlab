@@ -33,7 +33,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 01 May 2026 22:20:50 GMT
+                - Wed, 17 Jun 2026 08:35:08 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -47,14 +47,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KQJT2PDZDK5Y8ES5VJKFZEWP","version":"1"}'
+                - '{"correlation_id":"01KVABGKDN3DB6M9VTQBBVPCDP","version":"1"}'
             X-Request-Id:
-                - 01KQJT2PDZDK5Y8ES5VJKFZEWP
+                - 01KVABGKDN3DB6M9VTQBBVPCDP
             X-Runtime:
-                - "0.047601"
+                - "0.018193"
         status: 401 Unauthorized
         code: 401
-        duration: 57.380458ms
+        duration: 43.9485ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -87,7 +87,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 01 May 2026 22:20:50 GMT
+                - Wed, 17 Jun 2026 08:35:08 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -101,14 +101,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KQJT2PFK30PM8ZA8997YV47B","version":"1"}'
+                - '{"correlation_id":"01KVABGKFYB254MM7A82WQB980","version":"1"}'
             X-Request-Id:
-                - 01KQJT2PFK30PM8ZA8997YV47B
+                - 01KVABGKFYB254MM7A82WQB980
             X-Runtime:
-                - "0.008155"
+                - "0.020145"
         status: 401 Unauthorized
         code: 401
-        duration: 11.079917ms
+        duration: 24.222ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -141,7 +141,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 01 May 2026 22:20:50 GMT
+                - Wed, 17 Jun 2026 08:35:08 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -155,14 +155,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KQJT2PFYEM5CCF4VDYBPJZDX","version":"1"}'
+                - '{"correlation_id":"01KVABGKHFJQYJN3BNTRQSV340","version":"1"}'
             X-Request-Id:
-                - 01KQJT2PFYEM5CCF4VDYBPJZDX
+                - 01KVABGKHFJQYJN3BNTRQSV340
             X-Runtime:
-                - "0.011067"
+                - "0.015779"
         status: 401 Unauthorized
         code: 401
-        duration: 14.178792ms
+        duration: 18.732583ms
     - id: 3
       request:
         proto: HTTP/1.1
@@ -195,7 +195,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 01 May 2026 22:20:50 GMT
+                - Wed, 17 Jun 2026 08:35:09 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -209,14 +209,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KQJT2PGDFPYDH9J6YZ9PHBBZ","version":"1"}'
+                - '{"correlation_id":"01KVABGKJPZD63F34ES813JYT7","version":"1"}'
             X-Request-Id:
-                - 01KQJT2PGDFPYDH9J6YZ9PHBBZ
+                - 01KVABGKJPZD63F34ES813JYT7
             X-Runtime:
-                - "0.012704"
+                - "0.013201"
         status: 401 Unauthorized
         code: 401
-        duration: 15.685167ms
+        duration: 15.60075ms
     - id: 4
       request:
         proto: HTTP/1.1
@@ -249,7 +249,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 01 May 2026 22:20:50 GMT
+                - Wed, 17 Jun 2026 08:35:09 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -263,14 +263,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KQJT2PGWWDHSRWX18T79XB4C","version":"1"}'
+                - '{"correlation_id":"01KVABGKKPSMSRZAZVCZMX8TGB","version":"1"}'
             X-Request-Id:
-                - 01KQJT2PGWWDHSRWX18T79XB4C
+                - 01KVABGKKPSMSRZAZVCZMX8TGB
             X-Runtime:
-                - "0.010324"
+                - "0.015678"
         status: 401 Unauthorized
         code: 401
-        duration: 12.67275ms
+        duration: 18.355042ms
     - id: 5
       request:
         proto: HTTP/1.1
@@ -306,7 +306,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 01 May 2026 22:20:50 GMT
+                - Wed, 17 Jun 2026 08:35:09 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -320,22 +320,22 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KQJT2PHANXD2TZS3R0SR7J8K","version":"1"}'
+                - '{"correlation_id":"01KVABGKMXWJV0SW9PADRF0VB2","version":"1"}'
             X-Request-Id:
-                - 01KQJT2PHANXD2TZS3R0SR7J8K
+                - 01KVABGKMXWJV0SW9PADRF0VB2
             X-Runtime:
-                - "0.007277"
+                - "0.010626"
         status: 401 Unauthorized
         code: 401
-        duration: 9.19725ms
+        duration: 12.986583ms
     - id: 6
       request:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 70
+        content_length: 78
         host: localhost:8080
-        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":null}'
+        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2026-06-17"}'
         headers:
             Accept:
                 - application/json
@@ -363,7 +363,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 01 May 2026 22:20:50 GMT
+                - Wed, 17 Jun 2026 08:35:09 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -377,22 +377,22 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KQJT2PHMTZACZJVGR57WNMYK","version":"1"}'
+                - '{"correlation_id":"01KVABGKNRXJDAN421Y23NBSCD","version":"1"}'
             X-Request-Id:
-                - 01KQJT2PHMTZACZJVGR57WNMYK
+                - 01KVABGKNRXJDAN421Y23NBSCD
             X-Runtime:
-                - "0.009616"
+                - "0.008826"
         status: 401 Unauthorized
         code: 401
-        duration: 12.182167ms
+        duration: 11.216709ms
     - id: 7
       request:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 70
+        content_length: 78
         host: localhost:8080
-        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":null}'
+        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2026-06-17"}'
         headers:
             Accept:
                 - application/json
@@ -420,7 +420,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 01 May 2026 22:20:50 GMT
+                - Wed, 17 Jun 2026 08:35:09 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -434,22 +434,22 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KQJT2PJ0J28PMWDBEMC1CGQX","version":"1"}'
+                - '{"correlation_id":"01KVABGKPFHYHQEX8AHWK5FEFM","version":"1"}'
             X-Request-Id:
-                - 01KQJT2PJ0J28PMWDBEMC1CGQX
+                - 01KVABGKPFHYHQEX8AHWK5FEFM
             X-Runtime:
-                - "0.008744"
+                - "0.011696"
         status: 401 Unauthorized
         code: 401
-        duration: 10.742375ms
+        duration: 13.726833ms
     - id: 8
       request:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 52
+        content_length: 60
         host: localhost:8080
-        body: '{"name":"name","expires_at":null,"scopes":["scope"]}'
+        body: '{"name":"name","expires_at":"2026-06-17","scopes":["scope"]}'
         headers:
             Accept:
                 - application/json
@@ -477,7 +477,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Fri, 01 May 2026 22:20:50 GMT
+                - Wed, 17 Jun 2026 08:35:09 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -491,11 +491,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01KQJT2PJBTXHGZMMJH8AMH9AA","version":"1"}'
+                - '{"correlation_id":"01KVABGKQCX9WT2RY13MHVWQ11","version":"1"}'
             X-Request-Id:
-                - 01KQJT2PJBTXHGZMMJH8AMH9AA
+                - 01KVABGKQCX9WT2RY13MHVWQ11
             X-Runtime:
-                - "0.007137"
+                - "0.011672"
         status: 401 Unauthorized
         code: 401
-        duration: 9.266333ms
+        duration: 13.7535ms

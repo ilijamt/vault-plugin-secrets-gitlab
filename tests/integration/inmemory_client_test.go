@@ -1,4 +1,4 @@
-//go:build paths || saas || selfhosted || e2e
+//go:build paths || saas || serviceaccount || e2e
 
 package integration_test
 
@@ -260,38 +260,35 @@ func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Contex
 	if err := i.injectedErrLocked("CreateGroupServiceAccountAccessToken"); err != nil {
 		return nil, err
 	}
-	return nil, nil
+	base := newTokenBase(i.nextID(), groupId, path, name, "glpat", t.TypeGroupServiceAccount, &expiresAt)
+	entryToken := &token.TokenGroupServiceAccount{
+		TokenWithScopes: token.TokenWithScopes{
+			Token:  base,
+			Scopes: scopes,
+		},
+		UserID: userId,
+	}
+	i.accessTokens[tokenKey(t.TypeGroupServiceAccount, base.Token)] = entryToken
+	return entryToken, nil
 }
 
 func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenUserServiceAccount, error) {
 	i.muLock.Lock()
+	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("CreateUserServiceAccountAccessToken"); err != nil {
-		i.muLock.Unlock()
 		return nil, err
 	}
-	i.muLock.Unlock()
-	var tok *token.TokenUserServiceAccount
-	var err error
-	var cpat *token.TokenPersonal
-	if cpat, err = i.CreatePersonalAccessToken(ctx, username, userId, name, expiresAt, scopes); err == nil && cpat != nil {
-		tok = &token.TokenUserServiceAccount{
-			TokenWithScopes: token.TokenWithScopes{
-				Token: token.Token{
-					CreatedAt: cpat.CreatedAt,
-					ExpiresAt: cpat.ExpiresAt,
-					TokenType: t.TypeUserServiceAccount,
-					Token:     cpat.Token.Token,
-					TokenID:   cpat.TokenID,
-					ParentID:  cpat.ParentID,
-					Name:      cpat.Name,
-					Path:      cpat.Path,
-				},
-				Scopes: cpat.Scopes,
-			},
-		}
-
+	base := newTokenBase(i.nextID(), "", username, name, "glpat", t.TypeUserServiceAccount, &expiresAt)
+	entryToken := &token.TokenUserServiceAccount{
+		TokenWithScopes: token.TokenWithScopes{
+			Token:  base,
+			Scopes: scopes,
+		},
 	}
-	return tok, err
+	// Revocation keys service account tokens by their token string, so the
+	// leak-check only balances if creation does the same.
+	i.accessTokens[tokenKey(t.TypeUserServiceAccount, base.Token)] = entryToken
+	return entryToken, nil
 }
 
 func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(ctx context.Context, tok string) error {
@@ -320,7 +317,16 @@ func (i *inMemoryClient) CreateProjectServiceAccountAccessToken(ctx context.Cont
 	if err := i.injectedErrLocked("CreateProjectServiceAccountAccessToken"); err != nil {
 		return nil, err
 	}
-	return nil, nil
+	base := newTokenBase(i.nextID(), projectId, path, name, "glpat", t.TypeProjectServiceAccount, &expiresAt)
+	entryToken := &token.TokenProjectServiceAccount{
+		TokenWithScopes: token.TokenWithScopes{
+			Token:  base,
+			Scopes: scopes,
+		},
+		UserID: userId,
+	}
+	i.accessTokens[tokenKey(t.TypeProjectServiceAccount, base.Token)] = entryToken
+	return entryToken, nil
 }
 
 func (i *inMemoryClient) RevokeProjectServiceAccountAccessToken(ctx context.Context, tok string) error {

@@ -1,4 +1,4 @@
-//go:build paths || saas || selfhosted || e2e
+//go:build paths || saas || serviceaccount || e2e
 
 package integration_test
 
@@ -44,7 +44,7 @@ func (m *mockEventsSender) expectEvents(t *testing.T, expectedEvents []expectedE
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	t.Helper()
-	require.EqualValuesf(t, len(m.eventsProcessed), len(expectedEvents), "Expected events: %v\nEvents processed: %v", expectedEvents, m.eventsProcessed)
+	require.EqualValuesf(t, len(expectedEvents), len(m.eventsProcessed), "Expected events: %v\nEvents processed: %v", expectedEvents, m.eventsProcessed)
 	for i, expected := range expectedEvents {
 		actual := m.eventsProcessed[i]
 		require.EqualValuesf(t, expected.eventType, actual.EventType, "Mismatched event type at index %d. Expected %s, got %s\n%v", i, expected.eventType, actual.EventType, m.eventsProcessed)

@@ -1,4 +1,4 @@
-//go:build paths || saas || selfhosted || e2e
+//go:build paths || saas || serviceaccount || e2e
 
 package integration_test
 
@@ -53,17 +53,26 @@ func writeBackendConfig(ctx context.Context, b *gitlab.Backend, l logical.Storag
 }
 
 func getBackendWithEventsAndConfig(ctx context.Context, config map[string]any) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
-	var b, storage, events, _ = getBackendWithEvents(ctx)
+	b, storage, events, err := getBackendWithEvents(ctx)
+	if err != nil {
+		return b, storage, events, err
+	}
 	return b, storage, events, writeBackendConfig(ctx, b, storage, config)
 }
 
 func getBackendWithEventsAndConfigName(ctx context.Context, config map[string]any, name string) (*gitlab.Backend, logical.Storage, *mockEventsSender, error) {
-	var b, storage, events, _ = getBackendWithEvents(ctx)
+	b, storage, events, err := getBackendWithEvents(ctx)
+	if err != nil {
+		return b, storage, events, err
+	}
 	return b, storage, events, writeBackendConfigWithName(ctx, b, storage, config, name)
 }
 
 func getBackendWithConfig(ctx context.Context, config map[string]any) (*gitlab.Backend, logical.Storage, error) {
-	var b, storage, _, _ = getBackendWithEvents(ctx)
+	b, storage, _, err := getBackendWithEvents(ctx)
+	if err != nil {
+		return b, storage, err
+	}
 	return b, storage, writeBackendConfig(ctx, b, storage, config)
 }
 

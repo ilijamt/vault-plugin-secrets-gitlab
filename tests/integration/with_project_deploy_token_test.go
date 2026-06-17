@@ -4,7 +4,6 @@ package integration_test
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
 	"time"
 
@@ -14,7 +13,6 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
-	tokenPaths "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths/token"
 	token2 "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -22,21 +20,10 @@ import (
 func TestWithProjectDeployToken(t *testing.T) {
 	httpClient, url := getClient(t, "e2e")
 	ctx := utils.HttpClientNewContext(t.Context(), httpClient)
-	var tokenName = "normal_user_initial_token"
 
-	b, l, events, err := getBackendWithEventsAndConfig(ctx, map[string]any{
-		"token":              getGitlabToken(tokenName).Token,
-		"base_url":           url,
-		"auto_rotate_token":  true,
-		"auto_rotate_before": "24h",
-		"type":               gitlabTypes.TypeSelfManaged.String(),
-	})
+	b, l, events, err := getBackendWithEventsAndConfig(ctx,
+		standardConfig(gitlabTypes.TypeSelfManaged, url, getGitlabToken("normal_user_initial_token").Token))
 	require.NoError(t, err)
-	require.NotEmpty(t, events)
-
-	var c *g.Client
-	var token string
-	var secret *logical.Secret
 
 	{
 		resp, err := b.HandleRequest(ctx, &logical.Request{
@@ -46,7 +33,7 @@ func TestWithProjectDeployToken(t *testing.T) {
 				"path":                 "example/example",
 				"name":                 token2.TypeProjectDeploy.String(),
 				"token_type":           token2.TypeProjectDeploy.String(),
-				"gitlab_revokes_token": strconv.FormatBool(false),
+				"gitlab_revokes_token": false,
 				"ttl":                  120 * time.Hour,
 				"scopes":               []string{token2.ScopeReadRepository.String()},
 			},
@@ -56,49 +43,20 @@ func TestWithProjectDeployToken(t *testing.T) {
 		require.NoError(t, resp.Error())
 	}
 
-	{
-		ctxIssueToken, _ := ctxTestTime(ctx, t, tokenName)
-		resp, err := b.HandleRequest(ctxIssueToken, &logical.Request{
-			Operation: logical.ReadOperation, Storage: l,
-			Path: fmt.Sprintf("%s/role", tokenPaths.PathTokenRoleStorage),
-		})
+	_, secret := issueToken(ctx, t, b, l, "e2e", "role")
 
-		require.NoError(t, err)
-		require.NotNil(t, resp)
-		require.NoError(t, resp.Error())
-		token = resp.Data["token"].(string)
-		require.NotEmpty(t, token)
-		secret = resp.Secret
-		require.NotNil(t, secret)
-	}
-
-	c = b.GetClient(backend.DefaultConfigName).GitlabClient(ctx)
+	c := b.GetClient(backend.DefaultConfigName).GitlabClient(ctx)
 	require.NotNil(t, c)
 
-	{
+	liveProjectDeployTokens := func() int {
 		tt, _, err := c.DeployTokens.ListProjectDeployTokens("example/example", &g.ListProjectDeployTokensOptions{})
 		require.NoError(t, err)
-		out := filterSlice(tt, func(item *g.DeployToken, index int64) bool { return !item.Expired && !item.Revoked })
-		require.Len(t, out, 1)
+		return len(filterSlice(tt, func(item *g.DeployToken, index int64) bool { return !item.Expired && !item.Revoked }))
 	}
 
-	{
-		resp, err := b.HandleRequest(ctx, &logical.Request{
-			Operation: logical.RevokeOperation,
-			Path:      "/",
-			Storage:   l,
-			Secret:    secret,
-		})
-		require.NoError(t, err)
-		require.Nil(t, resp)
-	}
-
-	{
-		tt, _, err := c.DeployTokens.ListProjectDeployTokens("example/example", &g.ListProjectDeployTokensOptions{})
-		require.NoError(t, err)
-		out := filterSlice(tt, func(item *g.DeployToken, index int64) bool { return !item.Expired && !item.Revoked })
-		require.Len(t, out, 0)
-	}
+	require.Equal(t, 1, liveProjectDeployTokens())
+	revokeSecret(ctx, t, b, l, secret)
+	require.Equal(t, 0, liveProjectDeployTokens())
 
 	events.expectEvents(t, []expectedEvent{
 		{eventType: "gitlab/config-write"},
