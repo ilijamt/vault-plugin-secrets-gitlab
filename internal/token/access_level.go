@@ -154,10 +154,7 @@ func (i AccessLevel) Value() int {
 	case AccessLevelDeveloperPermissions:
 		return int(g.DeveloperPermissions)
 	case AccessLevelSecurityManagerPermissions:
-		// Beta in GitLab 18.11; not yet exposed as a constant in
-		// gitlab.com/gitlab-org/api/client-go v1.46.0, so the integer is
-		// hardcoded from the GitLab REST API documentation.
-		return 25
+		return int(g.SecurityManagerPermissions)
 	case AccessLevelMaintainerPermissions:
 		return int(g.MaintainerPermissions)
 	case AccessLevelOwnerPermissions:
