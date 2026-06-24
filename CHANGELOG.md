@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 ### <!-- 5 -->Tests
 
 - *(integration)* Service-account coverage and multi-version replays
+- Expanded integration test coverage for 19.1
 
 ### <!-- 6 -->CI
 
