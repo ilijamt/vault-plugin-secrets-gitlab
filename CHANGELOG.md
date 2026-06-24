@@ -33,6 +33,10 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump actions/checkout from 6 to 7 (#350)
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#351)
 
+### Deps
+
+- Updated dependencies in go.mod and go.sum
+
 ## [0.12.1] - 2026-06-08
 
 
