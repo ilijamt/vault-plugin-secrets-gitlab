@@ -31,6 +31,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump golang.org/x/mod from 0.36.0 to 0.37.0 (#348)
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#349)
 - *(deps)* Bump actions/checkout from 6 to 7 (#350)
+- *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#351)
 
 ## [0.12.1] - 2026-06-08
 
