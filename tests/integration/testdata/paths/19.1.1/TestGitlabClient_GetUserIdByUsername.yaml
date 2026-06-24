@@ -1,0 +1,80 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        form:
+            username:
+                - root
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/users?username=root
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        content_length: -1
+        uncompressed: true
+        body: '[{"id":1,"username":"root","public_email":null,"name":"Administrator","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/1f21cd3cd7057258e725d9c8727dc195563fa27035cdf4b12589403b2d776712?s=80\u0026d=identicon","web_url":"http://79b3fc53ae5d/root","created_at":"2026-06-24T22:52:30.325Z","bio":"","location":"","linkedin":"","twitter":"","discord":"","website_url":"","github":"","job_title":"","pronouns":null,"organization":"","bot":false,"work_information":null,"followers":0,"following":0,"is_followed":false,"local_time":null,"last_sign_in_at":null,"confirmed_at":"2026-06-24T22:52:30.228Z","last_activity_on":"2026-06-24","email":"gitlab_admin_350915@example.com","theme_id":3,"color_scheme_id":1,"projects_limit":100000,"current_sign_in_at":null,"identities":[],"can_create_group":true,"can_create_project":true,"two_factor_enabled":false,"external":false,"private_profile":false,"commit_email":"gitlab_admin_350915@example.com","preferred_language":"en","shared_runners_minutes_limit":null,"extra_shared_runners_minutes_limit":null,"scim_identities":[],"is_admin":true,"note":null,"namespace_id":1,"created_by":null,"using_license_seat":false}]'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Type:
+                - application/json
+            Date:
+                - Wed, 24 Jun 2026 22:55:53 GMT
+            Etag:
+                - W/"fc62b232ba75be5f7e7ccbea1325d8fb"
+            Link:
+                - <http://79b3fc53ae5d/api/v4/users?active=false&admins=false&auditors=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&skip_ldap=false&sort=desc&username=root&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://79b3fc53ae5d/api/v4/users?active=false&admins=false&auditors=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&skip_ldap=false&sort=desc&username=root&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
+            Nel:
+                - '{"max_age": 0}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Accept-Encoding
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01KVXXHPCQVJVM8KWG7RJ00K4A","version":"1"}'
+            X-Next-Page:
+                - ""
+            X-Page:
+                - "1"
+            X-Per-Page:
+                - "20"
+            X-Prev-Page:
+                - ""
+            X-Request-Id:
+                - 01KVXXHPCQVJVM8KWG7RJ00K4A
+            X-Runtime:
+                - "0.081043"
+            X-Total:
+                - "1"
+            X-Total-Pages:
+                - "1"
+        status: 200 OK
+        code: 200
+        duration: 83.388083ms

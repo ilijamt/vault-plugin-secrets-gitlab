@@ -18,8 +18,10 @@ The current authentication model requires providing Vault with a Gitlab Token.
 ## GitLab Support
 
 - **GitLab CE/EE (Self-Managed)**
-  - 17.11.7 CE (tested)
-  - 18.11.2 CE (tested)
+  - 17.11.7 (tested)
+  - 18.11.5 (tested)
+  - 19.0.2 (tested)
+  - 19.1.1 (tested)
 - **GitLab.com**
   - Personal access tokens and user service accounts are not supported
 - **GitLab Dedicated**
@@ -61,7 +63,7 @@ Set `token_type` on the role. The `path` format and which fields apply depend on
 | `project-deploy` | A project deploy token | `group/project` (or nested) | yes | n/a | 12.9 |
 | `group-deploy` | A group deploy token | `group` (or `group/subgroup`) | yes | n/a | 12.9 |
 
-² Minimum GitLab version where the feature exists. `all` means it predates every supported version. The plugin itself is tested on 17.11.7 and 18.11.2.
+² Minimum GitLab version where the feature exists. `all` means it predates every supported version. The plugin itself is tested on 17.11.7, 18.11.5, 19.0.2 and 19.1.1.
 
 ### What this plugin does and does not do
 
