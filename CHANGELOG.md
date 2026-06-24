@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file.
 
 - *(token)* Add project-service-account token type
 
+### <!-- 1 -->Bug Fixes
+
+- *(token)* Corrected the SecurityManagerPermissions return value
+
 ### <!-- 4 -->Documentation
 
 - Updated OpenBao OCI plugin installation instructions
