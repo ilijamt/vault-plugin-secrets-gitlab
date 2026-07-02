@@ -38,6 +38,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump actions/checkout from 6 to 7 (#350)
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#351)
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#352)
+- *(deps)* Bump gopkg.in/dnaeon/go-vcr.v4 from 4.0.6 to 4.0.7 (#353)
 
 ### Deps
 
