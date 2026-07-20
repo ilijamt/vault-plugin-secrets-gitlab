@@ -40,6 +40,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#352)
 - *(deps)* Bump gopkg.in/dnaeon/go-vcr.v4 from 4.0.6 to 4.0.7 (#353)
 - *(deps)* Bump golang.org/x/mod from 0.37.0 to 0.38.0 (#355)
+- *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#356)
 
 ### Deps
 
