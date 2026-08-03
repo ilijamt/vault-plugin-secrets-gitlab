@@ -43,6 +43,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#356)
 - *(deps)* Bump actions/stale from 10 to 11 (#358)
 - *(deps)* Bump actions/setup-go from 6 to 7 (#357)
+- *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#359)
 
 ### Deps
 
