@@ -49,6 +49,7 @@ All notable changes to this project will be documented in this file.
 ### Deps
 
 - Updated dependencies in go.mod and go.sum
+- Bumped Go version in go.mod
 
 ## [0.12.1] - 2026-06-08
 
