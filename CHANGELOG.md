@@ -46,6 +46,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#359)
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#361)
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#365)
+- *(deps)* Bump github.com/stretchr/testify (#362)
 
 ### Deps
 
