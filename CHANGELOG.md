@@ -47,6 +47,8 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#361)
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#365)
 - *(deps)* Bump github.com/stretchr/testify (#362)
+- *(deps)* Bump google.golang.org/protobuf from 1.36.11 to 1.36.12 (#364)
+- *(deps)* Bump golang.org/x/mod from 0.38.0 to 0.40.0 (#363)
 
 ### Deps
 
