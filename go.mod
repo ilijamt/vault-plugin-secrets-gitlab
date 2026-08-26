@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/vault/sdk v0.25.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/stretchr/testify v1.12.1
-	gitlab.com/gitlab-org/api/client-go/v2 v2.58.0
+	gitlab.com/gitlab-org/api/client-go/v2 v2.58.2
 	golang.org/x/mod v0.40.0
 	golang.org/x/time v0.15.0
 	google.golang.org/protobuf v1.36.12
