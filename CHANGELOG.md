@@ -50,6 +50,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump google.golang.org/protobuf from 1.36.11 to 1.36.12 (#364)
 - *(deps)* Bump golang.org/x/mod from 0.38.0 to 0.40.0 (#363)
 - *(deps)* Bump anchore/sbom-action from 0.24.0 to 0.24.2 (#367)
+- *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#368)
 
 ### Deps
 
