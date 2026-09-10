@@ -52,6 +52,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump anchore/sbom-action from 0.24.0 to 0.24.2 (#367)
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#368)
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#371)
+- *(deps)* Bump golang.org/x/mod from 0.40.0 to 0.41.0 (#372)
 
 ### Deps
 
