@@ -53,6 +53,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#368)
 - *(deps)* Bump gitlab.com/gitlab-org/api/client-go/v2 (#371)
 - *(deps)* Bump golang.org/x/mod from 0.40.0 to 0.41.0 (#372)
+- *(deps)* Bump google.golang.org/grpc from 1.81.1 to 1.82.1
 
 ### Deps
 
