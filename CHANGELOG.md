@@ -57,6 +57,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump golang.org/x/time from 0.15.0 to 0.16.0 (#370)
 - *(deps)* Bump anchore/sbom-action from 0.24.2 to 0.24.3 (#374)
 - *(deps)* Bump github.com/hashicorp/vault/sdk (#373)
+- *(deps)* Bump golang.org/x/mod from 0.41.0 to 0.42.0 (#375)
 
 ### Deps
 
