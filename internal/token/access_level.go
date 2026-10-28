@@ -7,7 +7,7 @@ import (
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 
-	g "gitlab.com/gitlab-org/api/client-go/v2"
+	g "gitlab.com/gitlab-org/api/client-go/v3"
 )
 
 type AccessLevel string

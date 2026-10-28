@@ -18,7 +18,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	g "gitlab.com/gitlab-org/api/client-go/v2"
+	g "gitlab.com/gitlab-org/api/client-go/v3"
 	"golang.org/x/mod/semver"
 	"gopkg.in/dnaeon/go-vcr.v4/pkg/cassette"
 

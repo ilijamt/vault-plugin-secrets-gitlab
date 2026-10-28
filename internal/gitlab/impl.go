@@ -12,7 +12,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/sdk/helper/logging"
-	g "gitlab.com/gitlab-org/api/client-go/v2"
+	g "gitlab.com/gitlab-org/api/client-go/v3"
 	"golang.org/x/time/rate"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
@@ -67,7 +67,7 @@ func (gc *gitlabClient) CreateGroupDeployToken(ctx context.Context, path string,
 					Name:      name,
 					Token:     dt.Token,
 					TokenType: t.TypeGroupDeploy,
-					CreatedAt: g.Ptr(time.Now()),
+					CreatedAt: new(time.Now()),
 				},
 				Scopes: scopes,
 			},
@@ -100,7 +100,7 @@ func (gc *gitlabClient) CreateProjectDeployToken(ctx context.Context, path strin
 					Name:      name,
 					Token:     dt.Token,
 					TokenType: t.TypeProjectDeploy,
-					CreatedAt: g.Ptr(time.Now()),
+					CreatedAt: new(time.Now()),
 				},
 				Scopes: scopes,
 			},
@@ -156,7 +156,7 @@ func (gc *gitlabClient) CreatePipelineProjectTriggerAccessToken(ctx context.Cont
 				Name:      name,
 				Token:     pt.Token,
 				TokenType: t.TypePipelineProjectTrigger,
-				CreatedAt: g.Ptr(time.Now()),
+				CreatedAt: new(time.Now()),
 				ExpiresAt: expiresAt,
 			},
 		}
@@ -198,7 +198,7 @@ func (gc *gitlabClient) CreateGroupServiceAccountAccessToken(ctx context.Context
 		gc.logger.Debug("Create group service access token", "pat", at, "et", et, "path", path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
 	}()
 	at, _, err = gc.client.Groups.CreateServiceAccountPersonalAccessToken(groupId, userId, &g.CreateServiceAccountPersonalAccessTokenOptions{
-		Name:      g.Ptr(name),
+		Name:      new(name),
 		ExpiresAt: (*g.ISOTime)(&expiresAt),
 		Scopes:    &scopes,
 	}, g.WithContext(ctx))
@@ -229,7 +229,7 @@ func (gc *gitlabClient) CreateProjectServiceAccountAccessToken(ctx context.Conte
 		gc.logger.Debug("Create project service access token", "pat", at, "et", et, "path", path, "projectId", projectId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
 	}()
 	at, _, err = gc.client.Projects.CreateProjectServiceAccountPersonalAccessToken(projectId, userId, &g.CreateProjectServiceAccountPersonalAccessTokenOptions{
-		Name:      g.Ptr(name),
+		Name:      new(name),
 		ExpiresAt: (*g.ISOTime)(&expiresAt),
 		Scopes:    &scopes,
 	}, g.WithContext(ctx))
@@ -429,7 +429,7 @@ func (gc *gitlabClient) GetUserIdByUsername(ctx context.Context, username string
 	}()
 
 	l := &g.ListUsersOptions{
-		Username: g.Ptr(username),
+		Username: new(username),
 	}
 
 	u, _, err := gc.client.Users.ListUsers(l, g.WithContext(ctx))
@@ -449,7 +449,7 @@ func (gc *gitlabClient) CreatePersonalAccessToken(ctx context.Context, username 
 		gc.logger.Debug("Create personal access token", "pat", at, "et", et, "username", username, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
 	}()
 	if at, _, err = gc.client.Users.CreatePersonalAccessToken(userId, &g.CreatePersonalAccessTokenOptions{
-		Name:      g.Ptr(name),
+		Name:      new(name),
 		ExpiresAt: (*g.ISOTime)(&expiresAt),
 		Scopes:    &scopes,
 	}, g.WithContext(ctx)); err == nil {
@@ -480,7 +480,7 @@ func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId stri
 	var al = new(g.AccessLevelValue)
 	*al = g.AccessLevelValue(accessLevel.Value())
 	if at, _, err = gc.client.GroupAccessTokens.CreateGroupAccessToken(groupId, &g.CreateGroupAccessTokenOptions{
-		Name:        g.Ptr(name),
+		Name:        new(name),
 		Scopes:      &scopes,
 		ExpiresAt:   (*g.ISOTime)(&expiresAt),
 		AccessLevel: al,
@@ -513,7 +513,7 @@ func (gc *gitlabClient) CreateProjectAccessToken(ctx context.Context, projectId 
 	var al = new(g.AccessLevelValue)
 	*al = g.AccessLevelValue(accessLevel.Value())
 	if at, _, err = gc.client.ProjectAccessTokens.CreateProjectAccessToken(projectId, &g.CreateProjectAccessTokenOptions{
-		Name:        g.Ptr(name),
+		Name:        new(name),
 		Scopes:      &scopes,
 		ExpiresAt:   (*g.ISOTime)(&expiresAt),
 		AccessLevel: al,

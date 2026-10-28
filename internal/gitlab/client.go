@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	g "gitlab.com/gitlab-org/api/client-go/v2"
+	g "gitlab.com/gitlab-org/api/client-go/v3"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"

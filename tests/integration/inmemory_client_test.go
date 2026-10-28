@@ -14,7 +14,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	g "gitlab.com/gitlab-org/api/client-go/v2"
+	g "gitlab.com/gitlab-org/api/client-go/v3"
 
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
@@ -57,8 +57,8 @@ func newSeededTokenConfig() token.TokenConfig {
 	return token.TokenConfig{
 		TokenWithScopes: token.TokenWithScopes{
 			Token: token.Token{
-				CreatedAt: g.Ptr(now),
-				ExpiresAt: g.Ptr(now),
+				CreatedAt: new(now),
+				ExpiresAt: new(now),
 			},
 		},
 	}
@@ -120,7 +120,7 @@ func newTokenBase(id int64, parentID, path, name, prefix string, typ t.Type, exp
 		Name:      name,
 		Token:     fmt.Sprintf("%s-%s", prefix, uuid.New().String()),
 		TokenType: typ,
-		CreatedAt: g.Ptr(time.Now()),
+		CreatedAt: new(time.Now()),
 		ExpiresAt: expiresAt,
 	}
 }
