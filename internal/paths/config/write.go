@@ -50,6 +50,6 @@ func (p *Provider) pathConfigWrite(ctx context.Context, req *logical.Request, da
 
 	p.b.DeleteClient(name)
 	lrd := config.LogicalResponseData(p.b.Flags().ShowConfigToken)
-	p.b.Logger().Debug("Wrote new config", "lrd", lrd, "warnings", warnings)
+	p.b.Logger().Debug("Wrote new config", "lrd", config.LogicalResponseData(false), "warnings", warnings)
 	return &logical.Response{Data: lrd, Warnings: warnings}, nil
 }

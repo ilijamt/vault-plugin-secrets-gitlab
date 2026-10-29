@@ -23,6 +23,6 @@ func (p *Provider) pathConfigRead(ctx context.Context, req *logical.Request, dat
 	}
 
 	lrd := config.LogicalResponseData(p.b.Flags().ShowConfigToken)
-	p.b.Logger().Debug("Reading configuration info", "info", lrd)
+	p.b.Logger().Debug("Reading configuration info", "info", config.LogicalResponseData(false))
 	return &logical.Response{Data: lrd}, nil
 }

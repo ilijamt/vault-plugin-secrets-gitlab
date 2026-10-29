@@ -127,3 +127,24 @@ func TestTokenVariants(t *testing.T) {
 		})
 	}
 }
+
+func TestTokenLogFields(t *testing.T) {
+	var hash = fmt.Sprintf("%x", sha1.Sum([]byte("secret-token")))
+	assert.Equal(t, hash, modelToken.Hash("secret-token"))
+
+	var tests = []struct {
+		name     string
+		token    string
+		expected []any
+	}{
+		{name: "with value", token: "secret-token", expected: []any{"token_id", int64(7), "token_sha1_hash", hash}},
+		{name: "without value", expected: []any{"token_id", int64(7)}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tk := modelToken.Token{TokenID: 7, Token: tt.token}
+			assert.Equal(t, tt.expected, tk.LogFields())
+		})
+	}
+}

@@ -29,6 +29,18 @@ type gitlabClient struct {
 	logger     hclog.Logger
 }
 
+// tokenLogFields is nil-safe because the deferred log calls also run on failure,
+// when no token was returned.
+func tokenLogFields[T any, P interface {
+	*T
+	LogFields() []any
+}](et P) []any {
+	if et == nil {
+		return nil
+	}
+	return et.LogFields()
+}
+
 func (gc *gitlabClient) GetProjectIdByPath(ctx context.Context, path string) (projectId int64, err error) {
 	defer func() {
 		gc.logger.Debug("Get project id by path", "path", path, "projectId", projectId, "error", err)
@@ -195,7 +207,7 @@ func (gc *gitlabClient) GitlabClient(ctx context.Context) *g.Client {
 func (gc *gitlabClient) CreateGroupServiceAccountAccessToken(ctx context.Context, path string, groupId string, userId int64, name string, expiresAt time.Time, scopes []string) (et *modelToken.TokenGroupServiceAccount, err error) {
 	var at *g.PersonalAccessToken
 	defer func() {
-		gc.logger.Debug("Create group service access token", "pat", at, "et", et, "path", path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
+		gc.logger.With(tokenLogFields(et)...).Debug("Create group service access token", "path", path, "groupId", groupId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
 	}()
 	at, _, err = gc.client.Groups.CreateServiceAccountPersonalAccessToken(groupId, userId, &g.CreateServiceAccountPersonalAccessTokenOptions{
 		Name:      new(name),
@@ -226,7 +238,7 @@ func (gc *gitlabClient) CreateGroupServiceAccountAccessToken(ctx context.Context
 func (gc *gitlabClient) CreateProjectServiceAccountAccessToken(ctx context.Context, path string, projectId string, userId int64, name string, expiresAt time.Time, scopes []string) (et *modelToken.TokenProjectServiceAccount, err error) {
 	var at *g.PersonalAccessToken
 	defer func() {
-		gc.logger.Debug("Create project service access token", "pat", at, "et", et, "path", path, "projectId", projectId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
+		gc.logger.With(tokenLogFields(et)...).Debug("Create project service access token", "path", path, "projectId", projectId, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
 	}()
 	at, _, err = gc.client.Projects.CreateProjectServiceAccountPersonalAccessToken(projectId, userId, &g.CreateProjectServiceAccountPersonalAccessTokenOptions{
 		Name:      new(name),
@@ -256,7 +268,7 @@ func (gc *gitlabClient) CreateProjectServiceAccountAccessToken(ctx context.Conte
 
 func (gc *gitlabClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (et *modelToken.TokenUserServiceAccount, err error) {
 	defer func() {
-		gc.logger.Debug("Create user service access token", "et", et, "username", username, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
+		gc.logger.With(tokenLogFields(et)...).Debug("Create user service access token", "username", username, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
 	}()
 	var etp *modelToken.TokenPersonal
 	etp, err = gc.CreatePersonalAccessToken(ctx, username, userId, name, expiresAt, scopes)
@@ -281,7 +293,9 @@ func (gc *gitlabClient) CreateUserServiceAccountAccessToken(ctx context.Context,
 }
 
 func (gc *gitlabClient) RevokeUserServiceAccountAccessToken(ctx context.Context, token string) (err error) {
-	defer func() { gc.logger.Debug("Revoke user service account token", "token", token, "error", err) }()
+	defer func() {
+		gc.logger.Debug("Revoke user service account token", "token_sha1_hash", modelToken.Hash(token), "error", err)
+	}()
 	if token == "" {
 		err = fmt.Errorf("%w: empty token", errs.ErrNilValue)
 		return err
@@ -299,7 +313,9 @@ func (gc *gitlabClient) RevokeUserServiceAccountAccessToken(ctx context.Context,
 }
 
 func (gc *gitlabClient) RevokeGroupServiceAccountAccessToken(ctx context.Context, token string) (err error) {
-	defer func() { gc.logger.Debug("Revoke group service account token", "token", token, "error", err) }()
+	defer func() {
+		gc.logger.Debug("Revoke group service account token", "token_sha1_hash", modelToken.Hash(token), "error", err)
+	}()
 	if token == "" {
 		err = fmt.Errorf("%w: empty token", errs.ErrNilValue)
 		return err
@@ -317,7 +333,9 @@ func (gc *gitlabClient) RevokeGroupServiceAccountAccessToken(ctx context.Context
 }
 
 func (gc *gitlabClient) RevokeProjectServiceAccountAccessToken(ctx context.Context, token string) (err error) {
-	defer func() { gc.logger.Debug("Revoke project service account token", "token", token, "error", err) }()
+	defer func() {
+		gc.logger.Debug("Revoke project service account token", "token_sha1_hash", modelToken.Hash(token), "error", err)
+	}()
 	if token == "" {
 		err = fmt.Errorf("%w: empty token", errs.ErrNilValue)
 		return err
@@ -336,7 +354,7 @@ func (gc *gitlabClient) RevokeProjectServiceAccountAccessToken(ctx context.Conte
 
 func (gc *gitlabClient) CurrentTokenInfo(ctx context.Context) (et *modelToken.TokenConfig, err error) {
 	var pat *g.PersonalAccessToken
-	defer func() { gc.logger.Debug("Current token info", "token", et, "error", err) }()
+	defer func() { gc.logger.With(tokenLogFields(et)...).Debug("Current token info", "error", err) }()
 	if pat, _, err = gc.client.PersonalAccessTokens.GetSinglePersonalAccessToken(g.WithContext(ctx)); err == nil {
 		et = &modelToken.TokenConfig{
 			TokenWithScopes: modelToken.TokenWithScopes{
@@ -366,7 +384,8 @@ func (gc *gitlabClient) CurrentTokenInfo(ctx context.Context) (et *modelToken.To
 func (gc *gitlabClient) RotateCurrentToken(ctx context.Context) (token *modelToken.TokenConfig, currentEntryToken *modelToken.TokenConfig, err error) {
 	var expiresAt time.Time
 	defer func() {
-		gc.logger.Debug("Rotate current token", "token", token, "currentEntryToken", currentEntryToken, "expiresAt", expiresAt, "error", err)
+		gc.logger.With(tokenLogFields(currentEntryToken)...).Debug("Rotating current token", "expiresAt", expiresAt)
+		gc.logger.With(tokenLogFields(token)...).Debug("Rotated current token", "error", err)
 	}()
 
 	currentEntryToken, err = gc.CurrentTokenInfo(ctx)
@@ -446,7 +465,7 @@ func (gc *gitlabClient) GetUserIdByUsername(ctx context.Context, username string
 func (gc *gitlabClient) CreatePersonalAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (et *modelToken.TokenPersonal, err error) {
 	var at *g.PersonalAccessToken
 	defer func() {
-		gc.logger.Debug("Create personal access token", "pat", at, "et", et, "username", username, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
+		gc.logger.With(tokenLogFields(et)...).Debug("Create personal access token", "username", username, "userId", userId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "error", err)
 	}()
 	if at, _, err = gc.client.Users.CreatePersonalAccessToken(userId, &g.CreatePersonalAccessTokenOptions{
 		Name:      new(name),
@@ -475,7 +494,7 @@ func (gc *gitlabClient) CreatePersonalAccessToken(ctx context.Context, username 
 func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (et *modelToken.TokenGroup, err error) {
 	var at *g.GroupAccessToken
 	defer func() {
-		gc.logger.Debug("Create group access token", "gat", at, "et", et, "groupId", groupId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "accessLevel", accessLevel, "error", err)
+		gc.logger.With(tokenLogFields(et)...).Debug("Create group access token", "groupId", groupId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "accessLevel", accessLevel, "error", err)
 	}()
 	var al = new(g.AccessLevelValue)
 	*al = g.AccessLevelValue(accessLevel.Value())
@@ -508,7 +527,7 @@ func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId stri
 func (gc *gitlabClient) CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (et *modelToken.TokenProject, err error) {
 	var at *g.ProjectAccessToken
 	defer func() {
-		gc.logger.Debug("Create project access token", "gat", at, "et", et, "projectId", projectId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "accessLevel", accessLevel, "error", err)
+		gc.logger.With(tokenLogFields(et)...).Debug("Create project access token", "projectId", projectId, "name", name, "expiresAt", expiresAt, "scopes", scopes, "accessLevel", accessLevel, "error", err)
 	}()
 	var al = new(g.AccessLevelValue)
 	*al = g.AccessLevelValue(accessLevel.Value())

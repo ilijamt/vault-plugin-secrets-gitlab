@@ -21,6 +21,7 @@ const (
 )
 
 type secretBackend interface {
+	backend.Logging
 	backend.ClientReader
 	backend.EventSender
 }
@@ -97,6 +98,7 @@ func revokeAccessToken(b secretBackend, defaultConfigName string) framework.Oper
 		tokenType, _ = token.ParseType(tokenTypeValue)
 
 		if vaultRevokesToken {
+			b.Logger().Debug("Revoking token", "token_id", tokenId, "token_type", tokenTypeValue, "config_name", configName)
 			var client g.Client
 			client, err = b.GetClientByName(ctx, req.Storage, configName)
 			if err != nil {

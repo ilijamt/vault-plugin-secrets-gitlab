@@ -41,6 +41,6 @@ func (p *Provider) pathConfigPatch(ctx context.Context, req *logical.Request, da
 	lrd := config.LogicalResponseData(p.b.Flags().ShowConfigToken)
 	_ = p.b.SendEvent(ctx, eventPatch, changes)
 	p.b.DeleteClient(name)
-	p.b.Logger().Debug("Patched config", "lrd", lrd, "warnings", warnings)
+	p.b.Logger().Debug("Patched config", "lrd", config.LogicalResponseData(false), "warnings", warnings)
 	return &logical.Response{Data: lrd, Warnings: warnings}, nil
 }

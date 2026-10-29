@@ -3,6 +3,7 @@ package secret_test
 import (
 	"context"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
@@ -15,6 +16,8 @@ type mockSecretBackend struct {
 	getClientByName func(ctx context.Context, s logical.Storage, name string) (gitlab.Client, error)
 	sendEvent       func(ctx context.Context, eventType event.EventType, metadata map[string]string) error
 }
+
+func (m *mockSecretBackend) Logger() hclog.Logger { return hclog.NewNullLogger() }
 
 func (m *mockSecretBackend) GetClientByName(ctx context.Context, s logical.Storage, name string) (gitlab.Client, error) {
 	return m.getClientByName(ctx, s, name)

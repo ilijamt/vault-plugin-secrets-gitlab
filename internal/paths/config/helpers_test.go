@@ -19,6 +19,9 @@ import (
 
 // mockConfigBackend is a hand-written mock satisfying the configBackend interface.
 type mockConfigBackend struct {
+	// Logging
+	logger hclog.Logger
+
 	// FlagsProvider
 	flagsVal flags.Flags
 
@@ -43,7 +46,12 @@ type mockConfigBackend struct {
 	sendEvent func(ctx context.Context, eventType event.EventType, metadata map[string]string) error
 }
 
-func (m *mockConfigBackend) Logger() hclog.Logger { return hclog.NewNullLogger() }
+func (m *mockConfigBackend) Logger() hclog.Logger {
+	if m.logger != nil {
+		return m.logger
+	}
+	return hclog.NewNullLogger()
+}
 func (m *mockConfigBackend) LockForKey(_, _ string) *locksutil.LockEntry {
 	return locksutil.CreateLocks()[0]
 }

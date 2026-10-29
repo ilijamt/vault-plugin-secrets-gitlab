@@ -127,4 +127,4 @@ vault read gitlab/token/personal/username
 
 ## Info
 
-Running the logging with `debug` level will show sensitive information in the logs.
+Token values are never written to the logs. At `debug` level a token appears as its `token_id` and `token_sha1_hash`, the same hash Vault returns when it issues the token, so a log line can be matched to a token.
