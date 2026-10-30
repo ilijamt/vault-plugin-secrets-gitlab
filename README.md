@@ -128,3 +128,5 @@ vault read gitlab/token/personal/username
 ## Info
 
 Token values are never written to the logs. At `debug` level a token appears as its `token_id` and `token_sha1_hash`, the same hash Vault returns when it issues the token, so a log line can be matched to a token.
+
+The plugin follows Vault's log level. To see its debug logs, run Vault with `log_level = "debug"` or `-log-level=debug`.

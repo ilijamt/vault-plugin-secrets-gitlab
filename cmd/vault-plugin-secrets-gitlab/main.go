@@ -12,7 +12,12 @@ import (
 )
 
 var (
-	logger = hclog.New(&hclog.LoggerOptions{})
+	// Vault parses this JSON and applies its own log level.
+	logger = hclog.New(&hclog.LoggerOptions{
+		Level:      hclog.Trace,
+		Output:     os.Stderr,
+		JSONFormat: true,
+	})
 )
 
 func main() {
