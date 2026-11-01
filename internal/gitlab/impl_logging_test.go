@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
-	modelToken "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
@@ -100,7 +100,7 @@ func TestClientNeverLogsTokenValues(t *testing.T) {
 			client, logs := newLoggingClient(t, http.StatusOK)
 			require.NoError(t, call(t.Context(), client))
 			assert.NotContains(t, logs.String(), canaryToken)
-			assert.Contains(t, logs.String(), "token_sha1_hash="+modelToken.Hash(canaryToken))
+			assert.Contains(t, logs.String(), "token_sha1_hash="+logging.Hash(canaryToken))
 		})
 
 		t.Run(name+" fails", func(t *testing.T) {

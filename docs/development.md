@@ -53,3 +53,17 @@ writes the per-version token set to `tests/integration/testdata/tokens.<version>
 That file is a recording-only artifact (git-ignored): replays fall back to a
 placeholder token because the cassette matcher ignores authentication headers.
 The `saas` suite records against `gitlab.com` and needs `GITLAB_COM_TOKEN`.
+
+Logging
+=======
+
+Log through `internal/logging`, not the `hclog.Logger` directly. Fields are typed, so keys stay consistent and a token value cannot be logged by accident:
+
+```go
+log := logging.New(b.Logger())
+log.Debug("Revoking token", logging.Fields{TokenID: id, ConfigName: name})
+```
+
+- Pass a token in `Fields.Token`. It is only logged as `token_sha1_hash`.
+- Add a field to `Fields` for anything logged in more than one place. Use `Extra` for one-off values, and never put anything sensitive in it.
+- Unset fields are left out of the line.

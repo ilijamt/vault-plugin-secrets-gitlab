@@ -1,13 +1,12 @@
 package token
 
 import (
-	"crypto/sha1"
-	"fmt"
 	"maps"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
 
@@ -29,21 +28,8 @@ type Token struct {
 	Path               string     `json:"path"`
 }
 
-// Hash returns the hex SHA-1 of a token value, the same value issued tokens
-// report as token_sha1_hash, so a token can be identified without revealing it.
-func Hash(value string) string {
-	return fmt.Sprintf("%x", sha1.Sum([]byte(value)))
-}
-
-// LogFields returns the key/value pairs that identify the token in logs without
-// exposing its value. GitLab only returns the value on creation and rotation,
-// so the hash is left out when it is empty.
-func (t *Token) LogFields() []any {
-	fields := []any{"token_id", t.TokenID}
-	if t.Token != "" {
-		fields = append(fields, "token_sha1_hash", Hash(t.Token))
-	}
-	return fields
+func (t *Token) LogFields() logging.Fields {
+	return logging.Fields{TokenID: t.TokenID, Token: t.Token}
 }
 
 func (t *Token) TTL() time.Duration {
@@ -89,7 +75,7 @@ func (t *Token) Data() map[string]any {
 		"path":            t.Path,
 		"name":            t.Name,
 		"token":           t.Token,
-		"token_sha1_hash": Hash(t.Token),
+		"token_sha1_hash": logging.Hash(t.Token),
 		"token_id":        t.TokenID,
 		"token_type":      t.Type().String(),
 		"parent_id":       t.ParentID,

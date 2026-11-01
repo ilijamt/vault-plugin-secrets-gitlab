@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 )
 
 func (p *Provider) pathConfigPatch(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
@@ -41,6 +42,6 @@ func (p *Provider) pathConfigPatch(ctx context.Context, req *logical.Request, da
 	lrd := config.LogicalResponseData(p.b.Flags().ShowConfigToken)
 	_ = p.b.SendEvent(ctx, eventPatch, changes)
 	p.b.DeleteClient(name)
-	p.b.Logger().Debug("Patched config", "lrd", config.LogicalResponseData(false), "warnings", warnings)
+	logging.New(p.b.Logger()).Debug("Patched config", logging.Fields{Extra: map[string]any{"lrd": config.LogicalResponseData(false), "warnings": warnings}})
 	return &logical.Response{Data: lrd, Warnings: warnings}, nil
 }

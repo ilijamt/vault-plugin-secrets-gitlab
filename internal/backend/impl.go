@@ -15,6 +15,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/event"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model"
 	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
@@ -96,14 +97,14 @@ func (b *Impl) Init(ctx context.Context, conf *logical.BackendConfig, opts ...In
 // periodicFunc dispatches to all registered PeriodicHandlers.
 // Only called when WriteSafeReplicationState() is true.
 func (b *Impl) periodicFunc(ctx context.Context, req *logical.Request) error {
-	b.Logger().Debug("Periodic action executing")
+	logging.New(b.Logger()).Debug("Periodic action executing")
 	if !b.WriteSafeReplicationState() {
 		return nil
 	}
 	var errs error
 	for _, p := range b.pathProviders {
 		if ph, ok := p.(PeriodicHandler); ok {
-			b.Logger().Debug("Periodic handler dispatching", "provider", p.Name())
+			logging.New(b.Logger()).Debug("Periodic handler dispatching", logging.Fields{Extra: map[string]any{"provider": p.Name()}})
 			errs = errors.Join(errs, ph.PeriodicFunc(ctx, req))
 		}
 	}
@@ -112,10 +113,10 @@ func (b *Impl) periodicFunc(ctx context.Context, req *logical.Request) error {
 
 // invalidate dispatches to all registered InvalidateHandlers.
 func (b *Impl) invalidate(ctx context.Context, key string) {
-	b.Logger().Debug("Backend invalidate", "key", key)
+	logging.New(b.Logger()).Debug("Backend invalidate", logging.Fields{Extra: map[string]any{"key": key}})
 	for _, p := range b.pathProviders {
 		if ih, ok := p.(InvalidateHandler); ok {
-			b.Logger().Debug("Invalidate handler dispatching", "provider", p.Name(), "key", key)
+			logging.New(b.Logger()).Debug("Invalidate handler dispatching", logging.Fields{Extra: map[string]any{"provider": p.Name(), "key": key}})
 			ih.Invalidate(ctx, key)
 		}
 	}
@@ -131,17 +132,17 @@ func (b *Impl) GetClient(name string) g.Client {
 func (b *Impl) SetClient(client g.Client, name string) {
 	name = configName(name)
 	if client == nil {
-		b.Logger().Debug("Setting a nil client", "name", name)
+		logging.New(b.Logger()).Debug("Setting a nil client", logging.Fields{Name: name})
 		b.DeleteClient(name)
 		return
 	}
-	b.Logger().Debug("Setting a new client", "name", name)
+	logging.New(b.Logger()).Debug("Setting a new client", logging.Fields{Name: name})
 	b.clients.Store(name, client)
 }
 
 func (b *Impl) DeleteClient(name string) {
 	name = configName(name)
-	b.Logger().Debug("Removing client", "name", name)
+	logging.New(b.Logger()).Debug("Removing client", logging.Fields{Name: name})
 	b.clients.Delete(name)
 }
 
@@ -149,7 +150,7 @@ func (b *Impl) GetClientByName(ctx context.Context, s logical.Storage, name stri
 	name = configName(name)
 
 	if client = b.GetClient(name); client != nil && client.Valid(ctx) {
-		b.Logger().Debug("Returning existing gitlab client")
+		logging.New(b.Logger()).Debug("Returning existing gitlab client")
 		return client, nil
 	}
 
@@ -165,7 +166,7 @@ func (b *Impl) GetClientByName(ctx context.Context, s logical.Storage, name stri
 	var config *modelConfig.EntryConfig
 	config, err = b.GetConfig(ctx, s, name)
 	if err != nil {
-		b.Logger().Error("Failed to retrieve configuration", "error", err.Error())
+		logging.New(b.Logger()).Error("Failed to retrieve configuration", logging.Fields{Err: err})
 		return nil, err
 	}
 

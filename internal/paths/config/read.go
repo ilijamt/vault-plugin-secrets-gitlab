@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 )
 
 func (p *Provider) pathConfigRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
@@ -23,6 +24,6 @@ func (p *Provider) pathConfigRead(ctx context.Context, req *logical.Request, dat
 	}
 
 	lrd := config.LogicalResponseData(p.b.Flags().ShowConfigToken)
-	p.b.Logger().Debug("Reading configuration info", "info", config.LogicalResponseData(false))
+	logging.New(p.b.Logger()).Debug("Reading configuration info", logging.Fields{Extra: map[string]any{"info": config.LogicalResponseData(false)}})
 	return &logical.Response{Data: lrd}, nil
 }

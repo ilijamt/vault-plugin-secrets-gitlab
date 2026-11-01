@@ -16,6 +16,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	gitlabTypes "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab/types"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	modelRole "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/role"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
@@ -198,7 +199,7 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 		"dynamic_path": strconv.FormatBool(role.DynamicPath),
 	})
 
-	p.b.Logger().Debug("Role written", "role", roleName)
+	logging.New(p.b.Logger()).Debug("Role written", logging.Fields{RoleName: roleName})
 
 	return &logical.Response{
 		Data:     role.LogicalResponseData(),

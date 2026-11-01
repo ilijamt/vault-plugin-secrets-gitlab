@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths"
 )
 
@@ -62,6 +63,6 @@ func (p *Provider) pathConfigList(ctx context.Context, req *logical.Request, dat
 	if err != nil {
 		return logical.ErrorResponse("Error listing configs"), err
 	}
-	p.b.Logger().Debug("Available", "configs", configs)
+	logging.New(p.b.Logger()).Debug("Available", logging.Fields{Extra: map[string]any{"configs": configs}})
 	return logical.ListResponse(configs), nil
 }

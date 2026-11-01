@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 )
 
@@ -50,6 +51,6 @@ func (p *Provider) pathConfigWrite(ctx context.Context, req *logical.Request, da
 
 	p.b.DeleteClient(name)
 	lrd := config.LogicalResponseData(p.b.Flags().ShowConfigToken)
-	p.b.Logger().Debug("Wrote new config", "lrd", config.LogicalResponseData(false), "warnings", warnings)
+	logging.New(p.b.Logger()).Debug("Wrote new config", logging.Fields{Extra: map[string]any{"lrd": config.LogicalResponseData(false), "warnings": warnings}})
 	return &logical.Response{Data: lrd, Warnings: warnings}, nil
 }

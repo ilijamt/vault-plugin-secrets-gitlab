@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 )
 
 func (p *Provider) pathRolesDelete(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
@@ -33,7 +34,7 @@ func (p *Provider) pathRolesDelete(ctx context.Context, req *logical.Request, da
 		"role_name": roleName,
 	})
 
-	p.b.Logger().Debug("Role deleted", "role", roleName)
+	logging.New(p.b.Logger()).Debug("Role deleted", logging.Fields{RoleName: roleName})
 
 	return resp, nil
 }

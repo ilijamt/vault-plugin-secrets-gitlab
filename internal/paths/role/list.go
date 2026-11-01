@@ -10,13 +10,14 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths"
 )
 
 func (p *Provider) pathRolesList(ctx context.Context, req *logical.Request, data *framework.FieldData) (l *logical.Response, err error) {
 	var roles []string
 	defer func() {
-		p.b.Logger().Debug("Available", "roles", roles, "err", err)
+		logging.New(p.b.Logger()).Debug("Available", logging.Fields{Err: err, Extra: map[string]any{"roles": roles}})
 	}()
 	l = logical.ErrorResponse("Error listing roles")
 	if roles, err = req.Storage.List(ctx, fmt.Sprintf("%s/", backend.PathRoleStorage)); err == nil {

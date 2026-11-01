@@ -5,6 +5,8 @@ import (
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 )
 
 func (p *Provider) pathRolesRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
@@ -23,7 +25,7 @@ func (p *Provider) pathRolesRead(ctx context.Context, req *logical.Request, data
 		return nil, nil
 	}
 
-	p.b.Logger().Debug("Role read", "role", roleName)
+	logging.New(p.b.Logger()).Debug("Role read", logging.Fields{RoleName: roleName})
 
 	return &logical.Response{
 		Data: role.LogicalResponseData(),

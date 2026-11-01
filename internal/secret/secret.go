@@ -12,6 +12,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	g "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/utils"
 )
@@ -98,7 +99,7 @@ func revokeAccessToken(b secretBackend, defaultConfigName string) framework.Oper
 		tokenType, _ = token.ParseType(tokenTypeValue)
 
 		if vaultRevokesToken {
-			b.Logger().Debug("Revoking token", "token_id", tokenId, "token_type", tokenTypeValue, "config_name", configName)
+			logging.New(b.Logger()).Debug("Revoking token", logging.Fields{TokenID: tokenId, TokenType: tokenTypeValue, ConfigName: configName})
 			var client g.Client
 			client, err = b.GetClientByName(ctx, req.Storage, configName)
 			if err != nil {

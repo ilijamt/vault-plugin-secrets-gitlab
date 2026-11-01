@@ -15,6 +15,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/backend"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/logging"
 	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths"
@@ -50,7 +51,7 @@ func (p *Provider) pathConfigTokenRotate() *framework.Path {
 
 func (p *Provider) checkAndRotateConfigToken(ctx context.Context, request *logical.Request, config *modelConfig.EntryConfig) error {
 	var err error
-	p.b.Logger().Debug("Running check and rotate config token")
+	logging.New(p.b.Logger()).Debug("Running check and rotate config token")
 	if time.Until(config.TokenExpiresAt) <= config.AutoRotateBefore {
 		_, err = p.pathConfigTokenRotateHandler(ctx, request, &framework.FieldData{
 			Raw: map[string]interface{}{
@@ -68,12 +69,12 @@ func (p *Provider) pathConfigTokenRotateHandler(ctx context.Context, request *lo
 	l.Lock()
 	defer l.Unlock()
 
-	p.b.Logger().Debug("Running rotate config token handler", "config_name", name)
+	logging.New(p.b.Logger()).Debug("Running rotate config token handler", logging.Fields{ConfigName: name})
 	var config *modelConfig.EntryConfig
 	var client gitlab.Client
 
 	if config, err = p.b.GetConfig(ctx, request.Storage, name); err != nil {
-		p.b.Logger().Error("Failed to fetch configuration", "error", err.Error())
+		logging.New(p.b.Logger()).Error("Failed to fetch configuration", logging.Fields{Err: err})
 		return nil, err
 	}
 
@@ -89,7 +90,7 @@ func (p *Provider) pathConfigTokenRotateHandler(ctx context.Context, request *lo
 	var entryToken *token.TokenConfig
 	entryToken, _, err = client.RotateCurrentToken(ctx)
 	if err != nil {
-		p.b.Logger().Error("Failed to rotate main token", "err", err)
+		logging.New(p.b.Logger()).Error("Failed to rotate main token", logging.Fields{Err: err})
 		return nil, err
 	}
 
@@ -104,7 +105,7 @@ func (p *Provider) pathConfigTokenRotateHandler(ctx context.Context, request *lo
 	}
 	err = p.b.SaveConfig(ctx, request.Storage, config)
 	if err != nil {
-		p.b.Logger().Error("failed to store configuration for revocation", "err", err)
+		logging.New(p.b.Logger()).Error("failed to store configuration for revocation", logging.Fields{Err: err})
 		return nil, err
 	}
 
@@ -140,7 +141,7 @@ func (p *Provider) PeriodicFunc(ctx context.Context, req *logical.Request) (err 
 			continue
 		}
 		if config != nil && config.AutoRotateToken {
-			p.b.Logger().Debug("Trying to rotate the config", "name", name)
+			logging.New(p.b.Logger()).Debug("Trying to rotate the config", logging.Fields{Name: name})
 			err = errors.Join(err, p.checkAndRotateConfigToken(ctx, req, config))
 		}
 	}
@@ -153,7 +154,7 @@ func (p *Provider) PeriodicFunc(ctx context.Context, req *logical.Request) (err 
 func (p *Provider) Invalidate(ctx context.Context, key string) {
 	if strings.HasPrefix(key, backend.PathConfigStorage+"/") {
 		_, name, _ := strings.Cut(key, "/")
-		p.b.Logger().Warn(fmt.Sprintf("Gitlab config for %s changed, deleting gitlab client", name))
+		logging.New(p.b.Logger()).Warn("Gitlab config changed, deleting gitlab client", logging.Fields{ConfigName: name})
 		p.b.DeleteClient(name)
 	}
 }
