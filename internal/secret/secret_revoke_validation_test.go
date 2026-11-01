@@ -16,7 +16,7 @@ import (
 
 func TestRevokeAccessToken_NilStorage(t *testing.T) {
 	mb := &mockSecretBackend{}
-	s := secret.NewSecret(mb, "default")
+	s := secret.NewSecret(mb)
 
 	resp, err := s.HandleRevoke(t.Context(), &logical.Request{})
 	require.Error(t, err)
@@ -26,7 +26,7 @@ func TestRevokeAccessToken_NilStorage(t *testing.T) {
 
 func TestRevokeAccessToken_NilSecret(t *testing.T) {
 	mb := &mockSecretBackend{}
-	s := secret.NewSecret(mb, "default")
+	s := secret.NewSecret(mb)
 
 	resp, err := s.HandleRevoke(t.Context(), &logical.Request{
 		Storage: &logical.InmemStorage{},
@@ -38,7 +38,7 @@ func TestRevokeAccessToken_NilSecret(t *testing.T) {
 
 func TestRevokeAccessToken_InvalidTokenId(t *testing.T) {
 	mb := &mockSecretBackend{}
-	s := secret.NewSecret(mb, "default")
+	s := secret.NewSecret(mb)
 
 	resp, err := s.HandleRevoke(t.Context(), &logical.Request{
 		Storage: &logical.InmemStorage{},
@@ -61,7 +61,7 @@ func TestRevokeAccessToken_ClientError(t *testing.T) {
 		},
 	}
 
-	s := secret.NewSecret(mb, "default")
+	s := secret.NewSecret(mb)
 
 	resp, err := s.HandleRevoke(t.Context(), &logical.Request{
 		Storage: &logical.InmemStorage{},
@@ -95,7 +95,7 @@ func TestRevokeAccessToken_RevokeError(t *testing.T) {
 		},
 	}
 
-	s := secret.NewSecret(mb, "default")
+	s := secret.NewSecret(mb)
 
 	resp, err := s.HandleRevoke(t.Context(), &logical.Request{
 		Storage: &logical.InmemStorage{},

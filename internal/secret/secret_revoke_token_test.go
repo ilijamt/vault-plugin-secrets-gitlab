@@ -23,7 +23,7 @@ func TestRevokeAccessToken_GitlabRevokesToken(t *testing.T) {
 		},
 	}
 
-	s := secret.NewSecret(mb, "default")
+	s := secret.NewSecret(mb)
 
 	resp, err := s.HandleRevoke(t.Context(), &logical.Request{
 		Storage: &logical.InmemStorage{},
@@ -161,7 +161,7 @@ func TestRevokeAccessToken_VaultRevokes(t *testing.T) {
 				},
 			}
 
-			s := secret.NewSecret(mb, "default")
+			s := secret.NewSecret(mb)
 
 			resp, err := s.HandleRevoke(t.Context(), &logical.Request{
 				Storage: &logical.InmemStorage{},
@@ -187,7 +187,7 @@ func TestRevokeAccessToken_TokenNotFound(t *testing.T) {
 		},
 	}
 
-	s := secret.NewSecret(mb, "default")
+	s := secret.NewSecret(mb)
 
 	resp, err := s.HandleRevoke(t.Context(), &logical.Request{
 		Storage: &logical.InmemStorage{},
@@ -211,7 +211,7 @@ func TestRevokeAccessToken_UsesConfigNameFromSecret(t *testing.T) {
 		},
 	}
 
-	s := secret.NewSecret(mb, "default")
+	s := secret.NewSecret(mb)
 
 	sec := newRevokeSecret(token.TypePersonal, "user1", nil)
 	sec.InternalData["config_name"] = "custom-config"

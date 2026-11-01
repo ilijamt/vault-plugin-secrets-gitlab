@@ -11,7 +11,7 @@ import (
 
 func TestNewSecret(t *testing.T) {
 	mb := &mockSecretBackend{}
-	s := secret.NewSecret(mb, "default")
+	s := secret.NewSecret(mb)
 	require.NotNil(t, s)
 	assert.Equal(t, secret.SecretAccessTokenType, s.Type)
 	assert.NotNil(t, s.Revoke)

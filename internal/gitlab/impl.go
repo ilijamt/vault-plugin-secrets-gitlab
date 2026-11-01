@@ -370,9 +370,7 @@ func (gc *gitlabClient) CurrentTokenInfo(ctx context.Context) (et *modelToken.To
 			},
 			UserID: pat.UserID,
 		}
-		// Set an artificial expiry date one year after creation if none is set.
-		// This addresses issue #178 where a token could be issued without an expiry.
-		// Note: As of GitLab 16.x, all tokens should have an expiry set.
+		// GitLab allows tokens without an expiry when it does not enforce one (#178).
 		if et.ExpiresAt == nil {
 			newDate := pat.CreatedAt.AddDate(1, 0, -2)
 			et.ExpiresAt = &newDate

@@ -37,7 +37,7 @@ func revoke(t *testing.T, data map[string]any, client *stubClient, events *[]map
 			return nil
 		},
 	}
-	_, err := secret.NewSecret(mb, "default").HandleRevoke(t.Context(), &logical.Request{
+	_, err := secret.NewSecret(mb).HandleRevoke(t.Context(), &logical.Request{
 		Storage: &logical.InmemStorage{},
 		Secret:  &logical.Secret{InternalData: data},
 	})
@@ -56,6 +56,7 @@ func TestRevokeAccessToken_InvalidLeaseData(t *testing.T) {
 		{name: "missing parent_id", tokenType: token.TypePersonal, change: func(d map[string]any) { delete(d, "parent_id") }, key: "parent_id"},
 		{name: "missing token_type", tokenType: token.TypePersonal, change: func(d map[string]any) { delete(d, "token_type") }, key: "token_type"},
 		{name: "unknown token_type", tokenType: token.TypePersonal, change: func(d map[string]any) { d["token_type"] = "nope" }, key: "token_type"},
+		{name: "missing config_name", tokenType: token.TypePersonal, change: func(d map[string]any) { delete(d, "config_name") }, key: "config_name"},
 		{name: "wrong type config_name", tokenType: token.TypePersonal, change: func(d map[string]any) { d["config_name"] = 1 }, key: "config_name"},
 		{name: "user service account without token", tokenType: token.TypeUserServiceAccount, change: func(d map[string]any) { delete(d, "token") }, key: "token"},
 		{name: "group service account without token", tokenType: token.TypeGroupServiceAccount, change: func(d map[string]any) { delete(d, "token") }, key: "token"},

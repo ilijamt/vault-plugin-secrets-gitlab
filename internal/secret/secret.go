@@ -59,11 +59,11 @@ var (
 
 // NewSecret creates a framework.Secret for access tokens with the revoke handler
 // wired through the provided secretBackend interface.
-func NewSecret(b secretBackend, defaultConfigName string) *framework.Secret {
+func NewSecret(b secretBackend) *framework.Secret {
 	return &framework.Secret{
 		Type:   SecretAccessTokenType,
 		Fields: FieldSchemaAccessTokens,
-		Revoke: revokeAccessToken(b, defaultConfigName),
+		Revoke: revokeAccessToken(b),
 	}
 }
 
@@ -75,7 +75,7 @@ func leaseValue[T any](secret *logical.Secret, key string) (value T, err error) 
 	return value, nil
 }
 
-func revokeAccessToken(b secretBackend, defaultConfigName string) framework.OperationFunc {
+func revokeAccessToken(b secretBackend) framework.OperationFunc {
 	return func(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
 		var err error
 
@@ -88,17 +88,15 @@ func revokeAccessToken(b secretBackend, defaultConfigName string) framework.Oper
 			return nil, fmt.Errorf("secret: %w", errs.ErrNilValue)
 		}
 
-		var configName = defaultConfigName
-		if _, ok := req.Secret.InternalData["config_name"]; ok {
-			if configName, err = leaseValue[string](secret, "config_name"); err != nil {
-				return nil, err
-			}
-		}
-
 		var tokenId int64
 		tokenId, err = utils.ConvertToInt64(req.Secret.InternalData["token_id"])
 		if err != nil {
 			return nil, fmt.Errorf("token_id: %w", err)
+		}
+
+		var configName string
+		if configName, err = leaseValue[string](secret, "config_name"); err != nil {
+			return nil, err
 		}
 
 		var gitlabRevokesToken bool

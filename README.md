@@ -9,8 +9,6 @@ Vault Plugin for Gitlab Access Token
 This is a standalone backend plugin for use with Hashicorp Vault/OpenBao. It lets you automate the
 creation and revocation of GitLab personal, project, and group access tokens through Vault.
 
-**IMPORTANT**: Upgrading to >= 0.7.x will require you to revoke, remove all the paths, and remove the mount path. This is required because the paths internally have changed to accommodate config per role.
-
 ## Security model
 
 The current authentication model requires providing Vault with a Gitlab Token.

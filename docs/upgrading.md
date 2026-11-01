@@ -3,12 +3,12 @@ Upgrading
 
 ```shell
 $ vault plugin register \
-  -sha256=b5fd0a3481930211a09bb944aa96a18a9eab8e594b6773b25209330d752e5f83 \
+  -sha256=<sha256> \
   -command=gitlab\
-  -version=v0.2.4 \
+  -version=v0.12.1 \
   secret \
   gitlab
-$ vault secrets tune -plugin-version=v0.2.4 gitlab
+$ vault secrets tune -plugin-version=v0.12.1 gitlab
 $ vault plugin reload -plugin gitlab
 $ vault secrets list -detailed -format=json | jq '."gitlab/"'
 {
@@ -25,9 +25,9 @@ $ vault secrets list -detailed -format=json | jq '."gitlab/"'
    "local":false,
    "seal_wrap":false,
    "external_entropy_access":false,
-   "plugin_version":"v0.2.4",
-   "running_plugin_version":"v0.2.4",
-   "running_sha256":"b5fd0a3481930211a09bb944aa96a18a9eab8e594b6773b25209330d752e5f83",
+   "plugin_version":"v0.12.1",
+   "running_plugin_version":"v0.12.1",
+   "running_sha256":"<sha256>",
    "deprecation_status":""
 }
 ```
