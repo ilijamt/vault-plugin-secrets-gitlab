@@ -89,11 +89,12 @@ func (e *EntryConfig) Merge(data *framework.FieldData) (warnings []string, chang
 func (e *EntryConfig) updateAutoRotateBefore(data *framework.FieldData) (warnings []string, err *multierror.Error) {
 	if val, ok := data.GetOk("auto_rotate_before"); ok {
 		atr, _ := utils.ConvertToInt(val)
-		if atr > int(DefaultAutoRotateBeforeMaxTTL.Seconds()) {
+		switch {
+		case atr > int(DefaultAutoRotateBeforeMaxTTL.Seconds()):
 			err = multierror.Append(err, fmt.Errorf("auto_rotate_before can not be bigger than %s: %w", DefaultAutoRotateBeforeMaxTTL, errs.ErrInvalidValue))
-		} else if atr <= int(DefaultAutoRotateBeforeMinTTL.Seconds())-1 {
+		case atr <= int(DefaultAutoRotateBeforeMinTTL.Seconds())-1:
 			err = multierror.Append(err, fmt.Errorf("auto_rotate_before can not be less than %s: %w", DefaultAutoRotateBeforeMinTTL, errs.ErrInvalidValue))
-		} else {
+		default:
 			e.AutoRotateBefore = time.Duration(atr) * time.Second
 		}
 	} else {

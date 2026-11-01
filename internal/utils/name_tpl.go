@@ -6,7 +6,6 @@ import (
 	"strings"
 	"text/template"
 	"time"
-	_ "unsafe"
 
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/errs"
 )

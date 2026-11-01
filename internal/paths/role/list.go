@@ -14,7 +14,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/paths"
 )
 
-func (p *Provider) pathRolesList(ctx context.Context, req *logical.Request, data *framework.FieldData) (l *logical.Response, err error) {
+func (p *Provider) pathRolesList(ctx context.Context, req *logical.Request, _ *framework.FieldData) (l *logical.Response, err error) {
 	var roles []string
 	defer func() {
 		logging.New(p.b.Logger()).Debug("Available", logging.Fields{Err: err, Extra: map[string]any{"roles": roles}})

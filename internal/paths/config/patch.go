@@ -30,7 +30,7 @@ func (p *Provider) pathConfigPatch(ctx context.Context, req *logical.Request, da
 	}
 
 	if _, ok := data.GetOk("token"); ok {
-		if _, err = p.updateConfigClientInfo(ctx, config); err != nil {
+		if err = p.updateConfigClientInfo(ctx, config); err != nil {
 			return nil, err
 		}
 	}

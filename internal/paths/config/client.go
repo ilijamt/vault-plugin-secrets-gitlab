@@ -13,21 +13,22 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go/v3"
 )
 
-func (p *Provider) updateConfigClientInfo(ctx context.Context, config *modelConfig.EntryConfig) (et *token.TokenConfig, err error) {
+func (p *Provider) updateConfigClientInfo(ctx context.Context, config *modelConfig.EntryConfig) (err error) {
 	var httpClient *http.Client
 	var client gitlab.Client
+	var et *token.TokenConfig
 	httpClient, _ = utils.HttpClientFromContext(ctx)
 	if client, _ = gitlab.ClientFromContext(ctx); client == nil {
 		if client, err = gitlab.NewGitlabClient(config, httpClient, p.b.Logger()); err == nil {
 			p.b.SetClient(client, config.Name)
 		} else {
-			return nil, err
+			return err
 		}
 	}
 
 	et, err = client.CurrentTokenInfo(ctx)
 	if err != nil {
-		return et, fmt.Errorf("token cannot be validated: %s", errs.ErrInvalidValue)
+		return fmt.Errorf("token cannot be validated: %w", errs.ErrInvalidValue)
 	}
 
 	config.TokenCreatedAt = *et.CreatedAt
@@ -42,5 +43,5 @@ func (p *Provider) updateConfigClientInfo(ctx context.Context, config *modelConf
 		config.GitlabIsEnterprise = metadata.Enterprise
 	}
 
-	return et, nil
+	return nil
 }

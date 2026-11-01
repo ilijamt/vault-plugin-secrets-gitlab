@@ -28,7 +28,7 @@ func (p *Provider) pathConfigWrite(ctx context.Context, req *logical.Request, da
 	}
 	config.Name = name
 
-	if _, err = p.updateConfigClientInfo(ctx, config); err != nil {
+	if err = p.updateConfigClientInfo(ctx, config); err != nil {
 		return nil, err
 	}
 

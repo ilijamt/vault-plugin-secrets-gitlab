@@ -44,9 +44,10 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 	tokenType, _ = token.ParseType(data.Get("token_type").(string))
 	accessLevel, _ = token.ParseAccessLevel(data.Get("access_level").(string))
 
+	var ttl = data.Get("ttl").(int)
 	var role = modelRole.Role{
 		RoleName:            roleName,
-		TTL:                 time.Duration(data.Get("ttl").(int)) * time.Second,
+		TTL:                 time.Duration(ttl) * time.Second,
 		Path:                data.Get("path").(string),
 		Name:                data.Get("name").(string),
 		Scopes:              data.Get("scopes").([]string),

@@ -58,7 +58,7 @@ func (p *Provider) pathListConfig() *framework.Path {
 	}
 }
 
-func (p *Provider) pathConfigList(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (p *Provider) pathConfigList(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
 	configs, err := req.Storage.List(ctx, fmt.Sprintf("%s/", backend.PathConfigStorage))
 	if err != nil {
 		return logical.ErrorResponse("Error listing configs"), err

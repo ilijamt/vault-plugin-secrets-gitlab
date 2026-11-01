@@ -200,7 +200,7 @@ func (gc *gitlabClient) GetGroupIdByPath(ctx context.Context, path string) (grou
 	return groupId, nil
 }
 
-func (gc *gitlabClient) GitlabClient(ctx context.Context) *g.Client {
+func (gc *gitlabClient) GitlabClient(_ context.Context) *g.Client {
 	return gc.client
 }
 
@@ -453,7 +453,7 @@ func (gc *gitlabClient) GetUserIdByUsername(ctx context.Context, username string
 
 	u, _, err := gc.client.Users.ListUsers(l, g.WithContext(ctx))
 	if err != nil {
-		return 0, fmt.Errorf("%v", err)
+		return 0, fmt.Errorf("%w", err)
 	}
 	if len(u) == 0 {
 		return 0, fmt.Errorf("username '%s' not found: %w", username, errs.ErrInvalidValue)
@@ -602,7 +602,7 @@ func (gc *gitlabClient) RevokeGroupAccessToken(ctx context.Context, tokenId int6
 	return nil
 }
 
-func (gc *gitlabClient) Valid(ctx context.Context) bool {
+func (gc *gitlabClient) Valid(_ context.Context) bool {
 	return gc.client != nil && gc.config != nil
 }
 

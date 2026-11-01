@@ -1,0 +1,71 @@
+version: "2"
+
+run:
+  timeout: 3m
+
+linters:
+  enable:
+    - errorlint
+    - nilerr
+    - bodyclose
+    - durationcheck
+    - forbidigo
+    - gosec
+    - unconvert
+    - unparam
+    - gocritic
+    - revive
+    - misspell
+
+  settings:
+    forbidigo:
+      analyze-types: true
+      forbid:
+        - pattern: ^hclog\.Logger\.(Trace|Debug|Info|Warn|Error)$
+          pkg: ^github\.com/hashicorp/go-hclog$
+          msg: log through internal/logging
+
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - performance
+      disabled-checks:
+        - hugeParam
+        - rangeValCopy
+        - sloppyReassign
+
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+          - errorlint
+          - forbidigo
+          - gosec
+          - unparam
+          - gocritic
+      - path: testdata/
+        linters:
+          - errcheck
+          - gosec
+      - path: ^(internal/logging/|cmd/)
+        linters:
+          - forbidigo
+      # token_sha1_hash is an identifier, not a security control.
+      - path: ^internal/(logging/logging|model/config/entry_config)\.go$
+        linters:
+          - gosec
+        text: G401|G505
+      # False positive on the "token" path constant.
+      - path: ^internal/paths/token/path\.go$
+        linters:
+          - gosec
+        text: G101
+      - linters:
+          - revive
+        text: "^(exported|package-comments|var-naming):"

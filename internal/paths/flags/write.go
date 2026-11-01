@@ -11,7 +11,7 @@ import (
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/flags"
 )
 
-func (p *Provider) pathFlagsUpdate(ctx context.Context, req *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
+func (p *Provider) pathFlagsUpdate(ctx context.Context, _ *logical.Request, data *framework.FieldData) (lResp *logical.Response, err error) {
 	var eventData = make(map[string]string)
 
 	p.b.UpdateFlags(func(f *flags.Flags) {

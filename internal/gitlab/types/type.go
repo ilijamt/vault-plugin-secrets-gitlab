@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	ErrUnknownType = fmt.Errorf("%s: gitlab type", errs.ErrInvalidValue)
+	ErrUnknownType = fmt.Errorf("%w: gitlab type", errs.ErrInvalidValue)
 
 	validGitlabTypes = []string{
 		TypeSaaS.String(),
