@@ -79,6 +79,9 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 	// validate token type
 	if !slices.Contains(token.ValidTokenTypes, tokenType.String()) {
 		err = multierror.Append(err, fmt.Errorf("token_type='%s', should be one of %v: %w", data.Get("token_type").(string), token.ValidTokenTypes, errs.ErrFieldInvalidValue))
+	} else if !token.IsTokenTypeAllowed(tokenType, config.GitlabVersion) {
+		minVersion, _ := token.MinVersionForType(tokenType)
+		err = multierror.Append(err, fmt.Errorf("token_type='%s' requires gitlab >= %s, instance is %s: %w", tokenType, minVersion, config.GitlabVersion, errs.ErrFieldInvalidValue))
 	}
 
 	// version-aware validation tables: empty config.GitlabVersion is lenient

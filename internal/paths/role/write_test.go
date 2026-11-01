@@ -165,6 +165,27 @@ func TestPathRolesWrite_VersionGating(t *testing.T) {
 		require.False(t, resp.IsError())
 	})
 
+	projectServiceAccountRaw := func() map[string]any {
+		raw := personalRaw()
+		raw["token_type"] = token.TypeProjectServiceAccount.String()
+		raw["path"] = "1/service-account"
+		return raw
+	}
+
+	t.Run("project service account rejected on 17.11", func(t *testing.T) {
+		resp, err := writeHandler(configWithVersion("17.11.7-ee"))(t.Context(), newRequest(), newFieldData(projectServiceAccountRaw()))
+		require.Error(t, err)
+		require.NotNil(t, resp)
+		assert.Contains(t, err.Error(), "requires gitlab >= 18.11")
+	})
+
+	t.Run("project service account accepted on 18.11", func(t *testing.T) {
+		resp, err := writeHandler(configWithVersion("18.11.0"))(t.Context(), newRequest(), newFieldData(projectServiceAccountRaw()))
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		assert.False(t, resp.IsError())
+	})
+
 	t.Run("empty version is lenient", func(t *testing.T) {
 		raw := personalRaw()
 		raw["scopes"] = token.ScopeSelfRotate.String()

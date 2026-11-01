@@ -81,3 +81,41 @@ func TestTokenType(t *testing.T) {
 		})
 	}
 }
+
+func TestIsTokenTypeAllowed(t *testing.T) {
+	var tests = []struct {
+		name     string
+		input    token.Type
+		version  string
+		expected bool
+	}{
+		{name: "project service account on minimum", input: token.TypeProjectServiceAccount, version: "18.11.0", expected: true},
+		{name: "project service account on newer", input: token.TypeProjectServiceAccount, version: "19.1.1-ee", expected: true},
+		{name: "project service account on older", input: token.TypeProjectServiceAccount, version: "18.10.9", expected: false},
+		{name: "group service account on 17.11", input: token.TypeGroupServiceAccount, version: "17.11.7", expected: true},
+		{name: "personal has no minimum", input: token.TypePersonal, version: "12.0.0", expected: true},
+		{name: "empty version is lenient", input: token.TypeProjectServiceAccount, version: "", expected: true},
+		{name: "unparseable version is lenient", input: token.TypeProjectServiceAccount, version: "version", expected: true},
+		{name: "unknown type", input: token.TypeUnknown, version: "19.1.1", expected: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, token.IsTokenTypeAllowed(tt.input, tt.version))
+		})
+	}
+}
+
+func TestMinVersionForType(t *testing.T) {
+	minVersion, ok := token.MinVersionForType(token.TypeProjectServiceAccount)
+	assert.True(t, ok)
+	assert.Equal(t, "18.11", minVersion)
+
+	_, ok = token.MinVersionForType(token.TypeUnknown)
+	assert.False(t, ok)
+
+	for _, tokenType := range token.ValidTokenTypes {
+		_, ok = token.MinVersionForType(token.Type(tokenType))
+		assert.True(t, ok, tokenType)
+	}
+}

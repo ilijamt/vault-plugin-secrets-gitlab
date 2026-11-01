@@ -128,6 +128,8 @@ Can be
 * project-deploy
 * group-deploy
 
+Writing a role fails if the configured GitLab version does not support the token type, for example `project-service-account` needs GitLab 18.11 or newer. The check uses the version recorded when the config was written, so write the config again after upgrading GitLab. It is skipped if the version is unknown.
+
 ### gitlab_revokes_token
 
 When set to `true`, Vault will not call the revoke endpoint on GitLab when the lease expires.
