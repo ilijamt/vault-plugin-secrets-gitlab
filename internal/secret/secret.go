@@ -67,6 +67,14 @@ func NewSecret(b secretBackend, defaultConfigName string) *framework.Secret {
 	}
 }
 
+func leaseValue[T any](secret *logical.Secret, key string) (value T, err error) {
+	value, ok := secret.InternalData[key].(T)
+	if !ok {
+		return value, fmt.Errorf("lease %s: %w", key, errs.ErrInvalidValue)
+	}
+	return value, nil
+}
+
 func revokeAccessToken(b secretBackend, defaultConfigName string) framework.OperationFunc {
 	return func(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
 		var err error
@@ -81,8 +89,10 @@ func revokeAccessToken(b secretBackend, defaultConfigName string) framework.Oper
 		}
 
 		var configName = defaultConfigName
-		if val, ok := req.Secret.InternalData["config_name"]; ok {
-			configName = val.(string)
+		if _, ok := req.Secret.InternalData["config_name"]; ok {
+			if configName, err = leaseValue[string](secret, "config_name"); err != nil {
+				return nil, err
+			}
 		}
 
 		var tokenId int64
@@ -91,14 +101,33 @@ func revokeAccessToken(b secretBackend, defaultConfigName string) framework.Oper
 			return nil, fmt.Errorf("token_id: %w", err)
 		}
 
-		var gitlabRevokesToken = req.Secret.InternalData["gitlab_revokes_token"].(bool)
+		var gitlabRevokesToken bool
+		if gitlabRevokesToken, err = leaseValue[bool](secret, "gitlab_revokes_token"); err != nil {
+			return nil, err
+		}
+		var parentId string
+		if parentId, err = leaseValue[string](secret, "parent_id"); err != nil {
+			return nil, err
+		}
+		var tokenTypeValue string
+		if tokenTypeValue, err = leaseValue[string](secret, "token_type"); err != nil {
+			return nil, err
+		}
 		var vaultRevokesToken = !gitlabRevokesToken
-		var parentId = req.Secret.InternalData["parent_id"].(string)
-		var tokenType token.Type
-		var tokenTypeValue = req.Secret.InternalData["token_type"].(string)
-		tokenType, _ = token.ParseType(tokenTypeValue)
 
 		if vaultRevokesToken {
+			var tokenType token.Type
+			if tokenType, err = token.ParseType(tokenTypeValue); err != nil {
+				return nil, fmt.Errorf("lease token_type: %w", err)
+			}
+
+			var tokenValue string
+			if tokenType == token.TypeUserServiceAccount || tokenType == token.TypeGroupServiceAccount || tokenType == token.TypeProjectServiceAccount {
+				if tokenValue, err = leaseValue[string](secret, "token"); err != nil {
+					return nil, err
+				}
+			}
+
 			logging.New(b.Logger()).Debug("Revoking token", logging.Fields{TokenID: tokenId, TokenType: tokenTypeValue, ConfigName: configName})
 			var client g.Client
 			client, err = b.GetClientByName(ctx, req.Storage, configName)
@@ -114,14 +143,11 @@ func revokeAccessToken(b secretBackend, defaultConfigName string) framework.Oper
 			case token.TypeGroup:
 				err = client.RevokeGroupAccessToken(ctx, tokenId, parentId)
 			case token.TypeUserServiceAccount:
-				var token = req.Secret.InternalData["token"].(string)
-				err = client.RevokeUserServiceAccountAccessToken(ctx, token)
+				err = client.RevokeUserServiceAccountAccessToken(ctx, tokenValue)
 			case token.TypeGroupServiceAccount:
-				var token = req.Secret.InternalData["token"].(string)
-				err = client.RevokeGroupServiceAccountAccessToken(ctx, token)
+				err = client.RevokeGroupServiceAccountAccessToken(ctx, tokenValue)
 			case token.TypeProjectServiceAccount:
-				var token = req.Secret.InternalData["token"].(string)
-				err = client.RevokeProjectServiceAccountAccessToken(ctx, token)
+				err = client.RevokeProjectServiceAccountAccessToken(ctx, tokenValue)
 			case token.TypePipelineProjectTrigger:
 				var projectId int64
 				if projectId, err = strconv.ParseInt(parentId, 10, 64); err == nil {
@@ -144,10 +170,12 @@ func revokeAccessToken(b secretBackend, defaultConfigName string) framework.Oper
 			}
 		}
 
+		var path, _ = req.Secret.InternalData["path"].(string)
+		var name, _ = req.Secret.InternalData["name"].(string)
 		_ = b.SendEvent(ctx, eventRevoke, map[string]string{
 			"lease_id":             secret.LeaseID,
-			"path":                 req.Secret.InternalData["path"].(string),
-			"name":                 req.Secret.InternalData["name"].(string),
+			"path":                 path,
+			"name":                 name,
 			"token_id":             strconv.FormatInt(tokenId, 10),
 			"token_type":           tokenTypeValue,
 			"config_name":          configName,
