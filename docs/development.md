@@ -43,7 +43,7 @@ the request body for the direct client tests. Run the suites with:
 
 ```shell
 make test                                 # all versions, all tags
-GITLAB_VERSION=18.11.2 go test -tags "paths e2e serviceaccount" ./tests/integration/...
+GITLAB_VERSION=18.11.14 go test -tags "paths e2e serviceaccount" ./tests/integration/...
 ```
 
 Recording new cassettes talks to a real GitLab instance. The `paths`, `e2e` and

@@ -1,0 +1,501 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/self
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 30
+        body: '{"message":"401 Unauthorized"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "30"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 05 Nov 2026 22:33:22 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01M6PXGS61KKQB2TQSTX219RA7","version":"1"}'
+            X-Request-Id:
+                - 01M6PXGS61KKQB2TQSTX219RA7
+            X-Runtime:
+                - "0.023199"
+        status: 401 Unauthorized
+        code: 401
+        duration: 31.006792ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/self
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 30
+        body: '{"message":"401 Unauthorized"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "30"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 05 Nov 2026 22:33:22 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01M6PXGS7X4MD1A2573RYEA4QZ","version":"1"}'
+            X-Request-Id:
+                - 01M6PXGS7X4MD1A2573RYEA4QZ
+            X-Runtime:
+                - "0.008902"
+        status: 401 Unauthorized
+        code: 401
+        duration: 11.46325ms
+    - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/personal_access_tokens/1
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 30
+        body: '{"message":"401 Unauthorized"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "30"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 05 Nov 2026 22:33:22 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01M6PXGS8MBF7E9E6CXVQJHSV4","version":"1"}'
+            X-Request-Id:
+                - 01M6PXGS8MBF7E9E6CXVQJHSV4
+            X-Runtime:
+                - "0.008783"
+        status: 401 Unauthorized
+        code: 401
+        duration: 10.734875ms
+    - id: 3
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups/group/access_tokens/1
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 30
+        body: '{"message":"401 Unauthorized"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "30"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 05 Nov 2026 22:33:22 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01M6PXGS9BSH0NV5TDBHA224MZ","version":"1"}'
+            X-Request-Id:
+                - 01M6PXGS9BSH0NV5TDBHA224MZ
+            X-Runtime:
+                - "0.040848"
+        status: 401 Unauthorized
+        code: 401
+        duration: 44.63125ms
+    - id: 4
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/projects/project/access_tokens/1
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 30
+        body: '{"message":"401 Unauthorized"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "30"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 05 Nov 2026 22:33:22 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01M6PXGSC7NAE5G9MH4BCJEBV0","version":"1"}'
+            X-Request-Id:
+                - 01M6PXGSC7NAE5G9MH4BCJEBV0
+            X-Runtime:
+                - "0.009617"
+        status: 401 Unauthorized
+        code: 401
+        duration: 11.957584ms
+    - id: 5
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        form:
+            username:
+                - username
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/users?username=username
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 30
+        body: '{"message":"401 Unauthorized"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "30"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 05 Nov 2026 22:33:22 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01M6PXGSD23ZPG8WTRXXNDB9M8","version":"1"}'
+            X-Request-Id:
+                - 01M6PXGSD23ZPG8WTRXXNDB9M8
+            X-Runtime:
+                - "0.009231"
+        status: 401 Unauthorized
+        code: 401
+        duration: 11.400375ms
+    - id: 6
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 78
+        host: localhost:8080
+        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2026-11-05"}'
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/groups/groupId/access_tokens
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 30
+        body: '{"message":"401 Unauthorized"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "30"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 05 Nov 2026 22:33:22 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01M6PXGSDWJMYXFK365QYENZ63","version":"1"}'
+            X-Request-Id:
+                - 01M6PXGSDWJMYXFK365QYENZ63
+            X-Runtime:
+                - "0.010296"
+        status: 401 Unauthorized
+        code: 401
+        duration: 12.306791ms
+    - id: 7
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 78
+        host: localhost:8080
+        body: '{"name":"name","scopes":["scope"],"access_level":-1,"expires_at":"2026-11-05"}'
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/projects/projectId/access_tokens
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 30
+        body: '{"message":"401 Unauthorized"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "30"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 05 Nov 2026 22:33:22 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01M6PXGSEQZ40X3M07JRM0J8V9","version":"1"}'
+            X-Request-Id:
+                - 01M6PXGSEQZ40X3M07JRM0J8V9
+            X-Runtime:
+                - "0.008318"
+        status: 401 Unauthorized
+        code: 401
+        duration: 10.143875ms
+    - id: 8
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 60
+        host: localhost:8080
+        body: '{"name":"name","expires_at":"2026-11-05","scopes":["scope"]}'
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/users/0/personal_access_tokens
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 30
+        body: '{"message":"401 Unauthorized"}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "30"
+            Content-Type:
+                - application/json
+            Date:
+                - Thu, 05 Nov 2026 22:33:22 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01M6PXGSFEMQBRQN74HTJFB67A","version":"1"}'
+            X-Request-Id:
+                - 01M6PXGSFEMQBRQN74HTJFB67A
+            X-Runtime:
+                - "0.008360"
+        status: 401 Unauthorized
+        code: 401
+        duration: 10.176708ms

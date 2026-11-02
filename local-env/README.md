@@ -12,7 +12,7 @@ bash initial-setup.sh
 
 # explicit version
 bash initial-setup.sh 17.11.7
-bash initial-setup.sh 18.11.2
+bash initial-setup.sh 18.11.14
 ```
 
 This kills any existing containers, brings up GitLab on `localhost:8080` for the selected version, creates an admin access token on `root`, runs Terraform (`tf/`) to provision users/groups/projects/tokens, and writes the generated tokens to `../tests/integration/testdata/tokens.<version>.json`. A volume backup at `backup.<version>.tar` is created at the end. Initial setup can take several minutes while GitLab boots.
@@ -36,10 +36,10 @@ bash initial-setup.sh 17.11.7
 GITLAB_VERSION=17.11.7 GITLAB_URL=http://localhost:8080 \
   make test TAGS=paths,e2e,serviceaccount GITLAB_VERSIONS=17.11.7
 
-# switch to 18.11.2
-bash initial-setup.sh 18.11.2
-GITLAB_VERSION=18.11.2 GITLAB_URL=http://localhost:8080 \
-  make test TAGS=paths,e2e,serviceaccount GITLAB_VERSIONS=18.11.2
+# switch to 18.11.14
+bash initial-setup.sh 18.11.14
+GITLAB_VERSION=18.11.14 GITLAB_URL=http://localhost:8080 \
+  make test TAGS=paths,e2e,serviceaccount GITLAB_VERSIONS=18.11.14
 ```
 
 Plain `make test` (no extra env) replays all per-version cassettes already on disk and produces a merged coverage report under `build/coverage.{out,html}`. Per-version binary coverage is preserved under `build/covdata/<version>/` for inspection via `go tool covdata percent -i=build/covdata/<version>`.
@@ -49,7 +49,7 @@ Plain `make test` (no extra env) replays all per-version cassettes already on di
 The Terraform code is split into a shared module and per-version roots:
 
 - `tf/_shared/` — Terraform module containing all the resource definitions (users, groups, projects, access tokens). It does not declare any provider configuration; `path.root` is used for outputs so each caller writes its own `tokens.json` next to itself.
-- `tf/<version>/` — root module per GitLab version. Each one declares its own `required_providers` (`versions.tf`) so the `gitlab` provider can be pinned independently (e.g. `~> 17.10` for `17.11.7`, `~> 18.11` for `18.11.2`) and configures the provider (`main.tf`), then calls `module "shared" { source = "../_shared" }`. Each root keeps its own `.terraform/`, `terraform.tfstate`, and `tokens.json`.
+- `tf/<version>/` — root module per GitLab version. Each one declares its own `required_providers` (`versions.tf`) so the `gitlab` provider can be pinned independently (e.g. `~> 17.10` for `17.11.7`, `~> 18.11` for `18.11.14`) and configures the provider (`main.tf`), then calls `module "shared" { source = "../_shared" }`. Each root keeps its own `.terraform/`, `terraform.tfstate`, and `tokens.json`.
 
 `initial-setup.sh` `cd`s into `tf/<version>/` based on the version arg.
 
