@@ -21,7 +21,6 @@ func TestWithServiceAccountUserFail(t *testing.T) {
 	requireServiceAccounts(t)
 	for _, typ := range []gitlabTypes.Type{
 		gitlabTypes.TypeSaaS,
-		gitlabTypes.TypeDedicated,
 	} {
 		t.Run(typ.String(), func(t *testing.T) {
 			httpClient, url := getClient(t, "serviceaccount")

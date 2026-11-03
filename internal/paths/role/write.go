@@ -174,7 +174,7 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 		}
 	}
 
-	if tokenType == token.TypeUserServiceAccount && (config.Type == gitlabTypes.TypeSaaS || config.Type == gitlabTypes.TypeDedicated) {
+	if config.Type == gitlabTypes.TypeSaaS && (tokenType == token.TypePersonal || tokenType == token.TypeUserServiceAccount) {
 		err = multierror.Append(err, fmt.Errorf("cannot create %s with %s: %w", tokenType, config.Type, errs.ErrInvalidValue))
 	}
 

@@ -22,7 +22,7 @@ The current authentication model requires providing Vault with a Gitlab Token.
 - **GitLab.com**
   - Personal access tokens and user service accounts are not supported
 - **GitLab Dedicated**
-  - Personal access tokens and user service accounts are not supported
+  - All token types are supported, but not tested
 
 ## Quick links
 
@@ -35,14 +35,14 @@ The current authentication model requires providing Vault with a Gitlab Token.
 
 | Token type | Tier | Offering | Status |
 | --- | --- | --- | --- |
-| [Personal Access Tokens](https://docs.gitlab.com/api/personal_access_tokens/) | All tiers | All offerings | GA |
+| [Personal Access Tokens](https://docs.gitlab.com/api/personal_access_tokens/) | All tiers | Self-Managed + Dedicated | GA |
 | [Project Access Tokens](https://docs.gitlab.com/api/project_access_tokens/) | All tiers | All offerings | GA |
 | [Group Access Tokens](https://docs.gitlab.com/api/group_access_tokens/) | All tiers | All offerings | GA |
 | [User/Group/Project Service Account Tokens](https://docs.gitlab.com/api/service_accounts/)¹ | All tiers | All offerings | GA |
 | [Pipeline Project Trigger Tokens](https://docs.gitlab.com/api/pipeline_triggers/) | All tiers | All offerings | GA |
 | [Group/Project Deploy Tokens](https://docs.gitlab.com/user/project/deploy_tokens/) | All tiers | All offerings | GA |
 
-¹ Service accounts on GitLab Free are capped: up to 100 per top-level group on GitLab.com, or 100 per instance on Self-Managed. Premium and Ultimate are unlimited.
+¹ Service accounts on GitLab Free are capped: up to 100 per top-level group on GitLab.com, or 100 per instance on Self-Managed. Premium and Ultimate are unlimited. User service accounts are available on Self-Managed and Dedicated only.
 
 ### What each `token_type` does
 
@@ -72,7 +72,7 @@ Set `token_type` on the role. The `path` format and which fields apply depend on
 | Auto-rotate the config token used to talk to GitLab | yes | set `auto_rotate_token` |
 | Create the service account, user, project, or group | no | must already exist in GitLab |
 | Rotate an already-issued token in place | no | request a new token by reading the role again (you or your automation drive this; Vault does not do it on its own) |
-| Create `user-service-account` on GitLab.com (SaaS) or Dedicated | no | use `group-service-account` or `project-service-account` |
+| Create `personal` or `user-service-account` on GitLab.com (SaaS) | no | use `group-service-account` or `project-service-account` |
 
 ## Getting started
 

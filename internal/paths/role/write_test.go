@@ -336,3 +336,36 @@ func TestPathRolesWrite_ValidationErrors(t *testing.T) {
 		})
 	}
 }
+
+func TestPathRolesWrite_Offerings(t *testing.T) {
+	var tests = []struct {
+		name      string
+		offering  gitlabTypes.Type
+		tokenType token.Type
+		allowed   bool
+	}{
+		{name: "personal on self-managed", offering: gitlabTypes.TypeSelfManaged, tokenType: token.TypePersonal, allowed: true},
+		{name: "personal on dedicated", offering: gitlabTypes.TypeDedicated, tokenType: token.TypePersonal, allowed: true},
+		{name: "personal on saas", offering: gitlabTypes.TypeSaaS, tokenType: token.TypePersonal},
+		{name: "user service account on self-managed", offering: gitlabTypes.TypeSelfManaged, tokenType: token.TypeUserServiceAccount, allowed: true},
+		{name: "user service account on dedicated", offering: gitlabTypes.TypeDedicated, tokenType: token.TypeUserServiceAccount, allowed: true},
+		{name: "user service account on saas", offering: gitlabTypes.TypeSaaS, tokenType: token.TypeUserServiceAccount},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := testConfig()
+			cfg.Type = tt.offering
+			raw := personalRaw()
+			raw["token_type"] = tt.tokenType.String()
+
+			resp, err := writeHandler(&mockRoleBackend{config: cfg})(t.Context(), newRequest(), newFieldData(raw))
+			if tt.allowed {
+				require.NoError(t, err)
+				assert.False(t, resp.IsError())
+				return
+			}
+			require.ErrorContains(t, err, "cannot create "+tt.tokenType.String())
+		})
+	}
+}
