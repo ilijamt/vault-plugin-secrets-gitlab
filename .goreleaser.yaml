@@ -44,14 +44,22 @@ checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
   algorithm: sha256
 changelog:
-  sort: asc
   use: github
+  sort: asc
+  abbrev: 7
+  groups:
+    - title: Features
+      regexp: '^feat'
+      order: 0
+    - title: Bug Fixes
+      regexp: '^fix'
+      order: 1
+    - title: Dependencies
+      regexp: '^(build|chore)\(deps\)'
+      order: 2
+    - title: Other
+      order: 999
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
-      - "merge conflict"
-      - Merge pull request
-      - Merge remote-tracking branch
-      - Merge branch
-      - go mod tidy
+      - '^docs\(changelog\)'
+      - '^Merge'

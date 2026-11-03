@@ -26,6 +26,7 @@ The current authentication model requires providing Vault with a Gitlab Token.
 
 ## Quick links
 
+- Changelog – https://github.com/ilijamt/vault-plugin-secrets-gitlab/releases
 - Vault Website – https://www.vaultproject.io
 - OpenBao Website - https://openbao.org/
 
