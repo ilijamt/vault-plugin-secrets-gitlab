@@ -204,15 +204,16 @@ func (gc *gitlabClient) GitlabClient(_ context.Context) *g.Client {
 	return gc.client
 }
 
-func (gc *gitlabClient) CreateGroupServiceAccountAccessToken(ctx context.Context, path string, groupId string, userId int64, name string, expiresAt time.Time, scopes []string) (et *modelToken.TokenGroupServiceAccount, err error) {
+func (gc *gitlabClient) CreateGroupServiceAccountAccessToken(ctx context.Context, path string, groupId string, userId int64, name, description string, expiresAt time.Time, scopes []string) (et *modelToken.TokenGroupServiceAccount, err error) {
 	var at *g.PersonalAccessToken
 	defer func() {
 		gc.log.With(tokenLogFields(et)).Debug("Create group service access token", logging.Fields{Path: path, GroupID: fmt.Sprint(groupId), UserID: userId, Name: name, ExpiresAt: &expiresAt, Scopes: scopes, Err: err})
 	}()
 	at, _, err = gc.client.Groups.CreateServiceAccountPersonalAccessToken(groupId, userId, &g.CreateServiceAccountPersonalAccessTokenOptions{
-		Name:      new(name),
-		ExpiresAt: (*g.ISOTime)(&expiresAt),
-		Scopes:    &scopes,
+		Name:        new(name),
+		Description: new(description),
+		ExpiresAt:   (*g.ISOTime)(&expiresAt),
+		Scopes:      &scopes,
 	}, g.WithContext(ctx))
 	if err == nil {
 		et = &modelToken.TokenGroupServiceAccount{
@@ -235,15 +236,16 @@ func (gc *gitlabClient) CreateGroupServiceAccountAccessToken(ctx context.Context
 	return et, err
 }
 
-func (gc *gitlabClient) CreateProjectServiceAccountAccessToken(ctx context.Context, path string, projectId string, userId int64, name string, expiresAt time.Time, scopes []string) (et *modelToken.TokenProjectServiceAccount, err error) {
+func (gc *gitlabClient) CreateProjectServiceAccountAccessToken(ctx context.Context, path string, projectId string, userId int64, name, description string, expiresAt time.Time, scopes []string) (et *modelToken.TokenProjectServiceAccount, err error) {
 	var at *g.PersonalAccessToken
 	defer func() {
 		gc.log.With(tokenLogFields(et)).Debug("Create project service access token", logging.Fields{Path: path, ProjectID: fmt.Sprint(projectId), UserID: userId, Name: name, ExpiresAt: &expiresAt, Scopes: scopes, Err: err})
 	}()
 	at, _, err = gc.client.Projects.CreateProjectServiceAccountPersonalAccessToken(projectId, userId, &g.CreateProjectServiceAccountPersonalAccessTokenOptions{
-		Name:      new(name),
-		ExpiresAt: (*g.ISOTime)(&expiresAt),
-		Scopes:    &scopes,
+		Name:        new(name),
+		Description: new(description),
+		ExpiresAt:   (*g.ISOTime)(&expiresAt),
+		Scopes:      &scopes,
 	}, g.WithContext(ctx))
 	if err == nil {
 		et = &modelToken.TokenProjectServiceAccount{
@@ -266,12 +268,12 @@ func (gc *gitlabClient) CreateProjectServiceAccountAccessToken(ctx context.Conte
 	return et, err
 }
 
-func (gc *gitlabClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (et *modelToken.TokenUserServiceAccount, err error) {
+func (gc *gitlabClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name, description string, expiresAt time.Time, scopes []string) (et *modelToken.TokenUserServiceAccount, err error) {
 	defer func() {
 		gc.log.With(tokenLogFields(et)).Debug("Create user service access token", logging.Fields{Username: username, UserID: userId, Name: name, ExpiresAt: &expiresAt, Scopes: scopes, Err: err})
 	}()
 	var etp *modelToken.TokenPersonal
-	etp, err = gc.CreatePersonalAccessToken(ctx, username, userId, name, expiresAt, scopes)
+	etp, err = gc.CreatePersonalAccessToken(ctx, username, userId, name, description, expiresAt, scopes)
 	if err == nil && etp != nil {
 		et = &modelToken.TokenUserServiceAccount{
 			TokenWithScopes: modelToken.TokenWithScopes{
@@ -460,15 +462,16 @@ func (gc *gitlabClient) GetUserIdByUsername(ctx context.Context, username string
 	return userId, nil
 }
 
-func (gc *gitlabClient) CreatePersonalAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (et *modelToken.TokenPersonal, err error) {
+func (gc *gitlabClient) CreatePersonalAccessToken(ctx context.Context, username string, userId int64, name, description string, expiresAt time.Time, scopes []string) (et *modelToken.TokenPersonal, err error) {
 	var at *g.PersonalAccessToken
 	defer func() {
 		gc.log.With(tokenLogFields(et)).Debug("Create personal access token", logging.Fields{Username: username, UserID: userId, Name: name, ExpiresAt: &expiresAt, Scopes: scopes, Err: err})
 	}()
 	if at, _, err = gc.client.Users.CreatePersonalAccessToken(userId, &g.CreatePersonalAccessTokenOptions{
-		Name:      new(name),
-		ExpiresAt: (*g.ISOTime)(&expiresAt),
-		Scopes:    &scopes,
+		Name:        new(name),
+		Description: new(description),
+		ExpiresAt:   (*g.ISOTime)(&expiresAt),
+		Scopes:      &scopes,
 	}, g.WithContext(ctx)); err == nil {
 		et = &modelToken.TokenPersonal{
 			TokenWithScopes: modelToken.TokenWithScopes{
@@ -489,7 +492,7 @@ func (gc *gitlabClient) CreatePersonalAccessToken(ctx context.Context, username 
 	return et, err
 }
 
-func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (et *modelToken.TokenGroup, err error) {
+func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId string, name, description string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (et *modelToken.TokenGroup, err error) {
 	var at *g.GroupAccessToken
 	defer func() {
 		gc.log.With(tokenLogFields(et)).Debug("Create group access token", logging.Fields{GroupID: fmt.Sprint(groupId), Name: name, ExpiresAt: &expiresAt, Scopes: scopes, AccessLevel: accessLevel.String(), Err: err})
@@ -498,6 +501,7 @@ func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId stri
 	*al = g.AccessLevelValue(accessLevel.Value())
 	if at, _, err = gc.client.GroupAccessTokens.CreateGroupAccessToken(groupId, &g.CreateGroupAccessTokenOptions{
 		Name:        new(name),
+		Description: new(description),
 		Scopes:      &scopes,
 		ExpiresAt:   (*g.ISOTime)(&expiresAt),
 		AccessLevel: al,
@@ -522,7 +526,7 @@ func (gc *gitlabClient) CreateGroupAccessToken(ctx context.Context, groupId stri
 	return et, err
 }
 
-func (gc *gitlabClient) CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (et *modelToken.TokenProject, err error) {
+func (gc *gitlabClient) CreateProjectAccessToken(ctx context.Context, projectId string, name, description string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (et *modelToken.TokenProject, err error) {
 	var at *g.ProjectAccessToken
 	defer func() {
 		gc.log.With(tokenLogFields(et)).Debug("Create project access token", logging.Fields{ProjectID: fmt.Sprint(projectId), Name: name, ExpiresAt: &expiresAt, Scopes: scopes, AccessLevel: accessLevel.String(), Err: err})
@@ -531,6 +535,7 @@ func (gc *gitlabClient) CreateProjectAccessToken(ctx context.Context, projectId 
 	*al = g.AccessLevelValue(accessLevel.Value())
 	if at, _, err = gc.client.ProjectAccessTokens.CreateProjectAccessToken(projectId, &g.CreateProjectAccessTokenOptions{
 		Name:        new(name),
+		Description: new(description),
 		Scopes:      &scopes,
 		ExpiresAt:   (*g.ISOTime)(&expiresAt),
 		AccessLevel: al,

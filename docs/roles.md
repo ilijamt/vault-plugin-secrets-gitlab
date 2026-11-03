@@ -7,6 +7,7 @@ Roles
 |:--------------------:|:--------:|:-------------:|:---------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |         path         |   yes    |      n/a      |    no     | Project/Group path to create an access token for. If the token type is set to personal then write the username here. If `dynamic_path` is set to true this needs to be a regex.                                     |
 |         name         |   yes    |      n/a      |    no     | The name of the access token                                                                                                                                                                                        |
+|     description      |    no    |      n/a      |    no     | Template for the description of the access token, see [description](#description) |
 |         ttl          |   yes    |      n/a      |    no     | The TTL of the token                                                                                                                                                                                                |
 |     access_level     |  no/yes  |      n/a      |    no     | Access level of access token (only required for Group and Project access tokens)                                                                                                                                    |
 |        scopes        |    no    |      []       |    no     | List of scopes                                                                                                                                                                                                      |
@@ -97,6 +98,8 @@ Depending on `gitlab_revokes_token` the TTL will change.
 * `true` - 24h <= ttl <= 365 days
 * `false` - 1h <= ttl <= 365 days
 
+The maximum is 365 days, GitLab's default limit. On GitLab Ultimate an administrator can set a lower limit. A role with a longer `ttl` is still accepted, and requesting a token then fails with GitLab's `Expiration date must be before` error.
+
 ### access_level
 
 It's not required if `token_type` is set to `personal`, `pipeline-project-trigger`, `project-deploy`, `group-deploy`.
@@ -113,6 +116,14 @@ Depending on the type of token you have different scopes:
 * Project - https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#scopes-for-a-project-access-token
 * Group - https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html#scopes-for-a-group-access-token
 * Deploy - https://docs.gitlab.com/ee/user/project/deploy_tokens/#scope
+
+### description
+
+Optional template for the token's description in GitLab, using the same syntax and functions as `name`, plus `.mount`. Example: `{{ .mount }}{{ .role_name }} for {{ .path }}`.
+
+If it is not set or renders empty, the default is used: `Issued by Vault: mount=gitlab/ role=ci config=default`. The result is cut to 255 characters, GitLab's limit. Anyone who can list the token in GitLab can read it, so keep it free of anything sensitive.
+
+Personal, project, group and service account tokens use it. Deploy tokens have no description, and pipeline trigger tokens keep using the token name.
 
 ### token_types
 

@@ -25,7 +25,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '{"id":4,"name":"Root token","revoked":false,"created_at":"2026-11-05T22:32:09.402Z","description":null,"scopes":["admin_mode","api","sudo"],"user_id":2,"last_used_at":"2026-11-05T22:33:22.790Z","active":true,"granular":false,"expires_at":"2027-11-04","last_used_ips":["192.168.65.1"]}'
+        body: '{"id":4,"name":"Root token","revoked":false,"created_at":"2026-11-05T23:18:20.027Z","description":null,"scopes":["admin_mode","api","sudo"],"user_id":2,"last_used_at":"2026-11-05T23:19:29.810Z","active":true,"granular":false,"expires_at":"2027-11-04","last_used_ips":["192.168.65.1"]}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -34,9 +34,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:24 GMT
+                - Thu, 05 Nov 2026 23:19:31 GMT
             Etag:
-                - W/"a928ea6446bd1ab686c1b3b5531c91a7"
+                - W/"f5da4ecdf72df7de9f5eda94f1d824f0"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -53,11 +53,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXGV2T0N3TFJ36JCNNDM4B","version":"1"}'
+                - '{"correlation_id":"01M6Q0599R92Y7TQM3ZMC7QRTH","version":"1"}'
             X-Request-Id:
-                - 01M6PXGV2T0N3TFJ36JCNNDM4B
+                - 01M6Q0599R92Y7TQM3ZMC7QRTH
             X-Runtime:
-                - "0.018515"
+                - "0.014569"
         status: 200 OK
         code: 200
-        duration: 21.102958ms
+        duration: 16.943583ms

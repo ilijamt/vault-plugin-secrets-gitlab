@@ -53,27 +53,27 @@ func TestClientNeverLogsTokenValues(t *testing.T) {
 
 	var calls = map[string]func(ctx context.Context, c gitlab.Client) error{
 		"personal": func(ctx context.Context, c gitlab.Client) error {
-			_, err := c.CreatePersonalAccessToken(ctx, "user", 1, "name", expires, scopes)
+			_, err := c.CreatePersonalAccessToken(ctx, "user", 1, "name", "description", expires, scopes)
 			return err
 		},
 		"group": func(ctx context.Context, c gitlab.Client) error {
-			_, err := c.CreateGroupAccessToken(ctx, "1", "name", expires, scopes, token.AccessLevelOwnerPermissions)
+			_, err := c.CreateGroupAccessToken(ctx, "1", "name", "description", expires, scopes, token.AccessLevelOwnerPermissions)
 			return err
 		},
 		"project": func(ctx context.Context, c gitlab.Client) error {
-			_, err := c.CreateProjectAccessToken(ctx, "1", "name", expires, scopes, token.AccessLevelOwnerPermissions)
+			_, err := c.CreateProjectAccessToken(ctx, "1", "name", "description", expires, scopes, token.AccessLevelOwnerPermissions)
 			return err
 		},
 		"user service account": func(ctx context.Context, c gitlab.Client) error {
-			_, err := c.CreateUserServiceAccountAccessToken(ctx, "user", 1, "name", expires, scopes)
+			_, err := c.CreateUserServiceAccountAccessToken(ctx, "user", 1, "name", "description", expires, scopes)
 			return err
 		},
 		"group service account": func(ctx context.Context, c gitlab.Client) error {
-			_, err := c.CreateGroupServiceAccountAccessToken(ctx, "1/sa", "1", 1, "name", expires, scopes)
+			_, err := c.CreateGroupServiceAccountAccessToken(ctx, "1/sa", "1", 1, "name", "description", expires, scopes)
 			return err
 		},
 		"project service account": func(ctx context.Context, c gitlab.Client) error {
-			_, err := c.CreateProjectServiceAccountAccessToken(ctx, "1/sa", "1", 1, "name", expires, scopes)
+			_, err := c.CreateProjectServiceAccountAccessToken(ctx, "1/sa", "1", 1, "name", "description", expires, scopes)
 			return err
 		},
 		"current token info": func(ctx context.Context, c gitlab.Client) error {

@@ -254,7 +254,7 @@ func (i *inMemoryClient) GitlabClient(ctx context.Context) *g.Client {
 	return nil
 }
 
-func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Context, path string, groupId string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenGroupServiceAccount, error) {
+func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Context, path string, groupId string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenGroupServiceAccount, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("CreateGroupServiceAccountAccessToken"); err != nil {
@@ -272,7 +272,7 @@ func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Contex
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenUserServiceAccount, error) {
+func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenUserServiceAccount, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("CreateUserServiceAccountAccessToken"); err != nil {
@@ -311,7 +311,7 @@ func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(ctx context.Contex
 	return nil
 }
 
-func (i *inMemoryClient) CreateProjectServiceAccountAccessToken(ctx context.Context, path string, projectId string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenProjectServiceAccount, error) {
+func (i *inMemoryClient) CreateProjectServiceAccountAccessToken(ctx context.Context, path string, projectId string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenProjectServiceAccount, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("CreateProjectServiceAccountAccessToken"); err != nil {
@@ -360,7 +360,7 @@ func (i *inMemoryClient) Valid(ctx context.Context) bool {
 	return i.valid
 }
 
-func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenPersonal, error) {
+func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenPersonal, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("CreatePersonalAccessToken"); err != nil {
@@ -378,7 +378,7 @@ func (i *inMemoryClient) CreatePersonalAccessToken(ctx context.Context, username
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*token.TokenGroup, error) {
+func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId string, name, description string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*token.TokenGroup, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("CreateGroupAccessToken"); err != nil {
@@ -396,7 +396,7 @@ func (i *inMemoryClient) CreateGroupAccessToken(ctx context.Context, groupId str
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*token.TokenProject, error) {
+func (i *inMemoryClient) CreateProjectAccessToken(ctx context.Context, projectId string, name, description string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*token.TokenProject, error) {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("CreateProjectAccessToken"); err != nil {

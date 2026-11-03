@@ -16,18 +16,18 @@ type Client interface {
 	Metadata(ctx context.Context) (*g.Metadata, error)
 	CurrentTokenInfo(ctx context.Context) (*token.TokenConfig, error)
 	RotateCurrentToken(ctx context.Context) (newToken *token.TokenConfig, oldToken *token.TokenConfig, err error)
-	CreatePersonalAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenPersonal, error)
-	CreateGroupAccessToken(ctx context.Context, groupId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*token.TokenGroup, error)
-	CreateProjectAccessToken(ctx context.Context, projectId string, name string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*token.TokenProject, error)
+	CreatePersonalAccessToken(ctx context.Context, username string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenPersonal, error)
+	CreateGroupAccessToken(ctx context.Context, groupId string, name, description string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*token.TokenGroup, error)
+	CreateProjectAccessToken(ctx context.Context, projectId string, name, description string, expiresAt time.Time, scopes []string, accessLevel t.AccessLevel) (*token.TokenProject, error)
 	RevokePersonalAccessToken(ctx context.Context, tokenId int64) error
 	RevokeProjectAccessToken(ctx context.Context, tokenId int64, projectId string) error
 	RevokeGroupAccessToken(ctx context.Context, tokenId int64, groupId string) error
 	GetUserIdByUsername(ctx context.Context, username string) (int64, error)
 	GetGroupIdByPath(ctx context.Context, path string) (int64, error)
 	GetProjectIdByPath(ctx context.Context, path string) (int64, error)
-	CreateGroupServiceAccountAccessToken(ctx context.Context, group string, groupId string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenGroupServiceAccount, error)
-	CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenUserServiceAccount, error)
-	CreateProjectServiceAccountAccessToken(ctx context.Context, project string, projectId string, userId int64, name string, expiresAt time.Time, scopes []string) (*token.TokenProjectServiceAccount, error)
+	CreateGroupServiceAccountAccessToken(ctx context.Context, group string, groupId string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenGroupServiceAccount, error)
+	CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenUserServiceAccount, error)
+	CreateProjectServiceAccountAccessToken(ctx context.Context, project string, projectId string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenProjectServiceAccount, error)
 	RevokeUserServiceAccountAccessToken(ctx context.Context, token string) error
 	RevokeGroupServiceAccountAccessToken(ctx context.Context, token string) error
 	RevokeProjectServiceAccountAccessToken(ctx context.Context, token string) error

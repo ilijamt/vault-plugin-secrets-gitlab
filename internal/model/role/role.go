@@ -17,6 +17,7 @@ type Role struct {
 	TTL                 time.Duration     `json:"ttl" structs:"ttl" mapstructure:"ttl"`
 	Path                string            `json:"path" structs:"path" mapstructure:"path"`
 	Name                string            `json:"name" structs:"name" mapstructure:"name"`
+	Description         string            `json:"description" structs:"description" mapstructure:"description"`
 	Scopes              []string          `json:"scopes" structs:"scopes" mapstructure:"scopes"`
 	AccessLevel         token.AccessLevel `json:"access_level" structs:"access_level" mapstructure:"access_level,omitempty"`
 	TokenType           token.Type        `json:"token_type" structs:"token_type" mapstructure:"token_type"`
@@ -31,11 +32,16 @@ func (e Role) GetName() string {
 	return e.Name
 }
 
+func (e Role) GetDescription() string {
+	return e.Description
+}
+
 func (e Role) LogicalResponseData() map[string]any {
 	return map[string]any{
 		"role_name":            e.RoleName,
 		"path":                 e.Path,
 		"name":                 e.Name,
+		"description":          e.Description,
 		"scopes":               strings.Join(e.Scopes, ", "),
 		"access_level":         e.AccessLevel.String(),
 		"ttl":                  int64(e.TTL / time.Second),

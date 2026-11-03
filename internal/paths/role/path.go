@@ -49,6 +49,14 @@ var (
 				Name: "Name",
 			},
 		},
+		"description": {
+			Type:        framework.TypeString,
+			Description: "Template for the description of the access token",
+			Required:    false,
+			DisplayAttrs: &framework.DisplayAttributes{
+				Name: "Description",
+			},
+		},
 		"scopes": {
 			Type:        framework.TypeCommaStringSlice,
 			Description: "List of scopes",

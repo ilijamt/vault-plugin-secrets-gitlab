@@ -91,15 +91,15 @@ func TestGitlabClient_InvalidToken(t *testing.T) {
 	_, err = client.GetUserIdByUsername(ctx, "username")
 	require.Error(t, err)
 
-	gatToken, err := client.CreateGroupAccessToken(ctx, "groupId", "name", timeExpiresAt, []string{"scope"}, token2.AccessLevelUnknown)
+	gatToken, err := client.CreateGroupAccessToken(ctx, "groupId", "name", "description", timeExpiresAt, []string{"scope"}, token2.AccessLevelUnknown)
 	require.Error(t, err)
 	require.Nil(t, gatToken)
 
-	prjAtToken, err := client.CreateProjectAccessToken(ctx, "projectId", "name", timeExpiresAt, []string{"scope"}, token2.AccessLevelUnknown)
+	prjAtToken, err := client.CreateProjectAccessToken(ctx, "projectId", "name", "description", timeExpiresAt, []string{"scope"}, token2.AccessLevelUnknown)
 	require.Error(t, err)
 	require.Nil(t, prjAtToken)
 
-	patToken, err := client.CreatePersonalAccessToken(ctx, "username", 0, "name", timeExpiresAt, []string{"scope"})
+	patToken, err := client.CreatePersonalAccessToken(ctx, "username", 0, "name", "description", timeExpiresAt, []string{"scope"})
 	require.Error(t, err)
 	require.Nil(t, patToken)
 }
@@ -273,6 +273,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		ctx,
 		"example",
 		"name",
+		"description",
 		timeExpiresAt,
 		[]string{token2.ScopeReadApi.String()},
 		token2.AccessLevelGuestPermissions,
@@ -287,6 +288,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		ctx,
 		"example/example",
 		"name",
+		"description",
 		timeExpiresAt,
 		[]string{token2.ScopeReadApi.String()},
 		token2.AccessLevelDeveloperPermissions,
@@ -302,6 +304,7 @@ func TestGitlabClient_CreateAccessToken_And_Revoke(t *testing.T) {
 		"normal-user",
 		1,
 		"name",
+		"description",
 		timeExpiresAt,
 		[]string{token2.ScopeReadApi.String()},
 	)

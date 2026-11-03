@@ -33,7 +33,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:27 GMT
+                - Thu, 05 Nov 2026 23:19:32 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -47,11 +47,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXGXSXHBV1JXYGDVQ5JX6A","version":"1"}'
+                - '{"correlation_id":"01M6Q05ATBCV6AT8ZVDKHV48FZ","version":"1"}'
             X-Request-Id:
-                - 01M6PXGXSXHBV1JXYGDVQ5JX6A
+                - 01M6Q05ATBCV6AT8ZVDKHV48FZ
             X-Runtime:
-                - "0.008537"
+                - "0.007308"
         status: 401 Unauthorized
         code: 401
-        duration: 10.815459ms
+        duration: 8.882292ms

@@ -25,7 +25,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '{"id":5,"name":"Initial token","revoked":false,"created_at":"2026-11-05T22:32:09.433Z","description":null,"scopes":["api"],"user_id":2,"last_used_at":"2026-11-05T22:33:26.577Z","active":true,"granular":false,"expires_at":"2027-11-04","last_used_ips":["192.168.65.1"]}'
+        body: '{"id":2,"name":"Initial token","revoked":false,"created_at":"2026-11-05T23:18:20.009Z","description":null,"scopes":["api"],"user_id":2,"last_used_at":"2026-11-05T23:19:32.637Z","active":true,"granular":false,"expires_at":"2027-11-04","last_used_ips":["192.168.65.1"]}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -34,9 +34,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:31 GMT
+                - Thu, 05 Nov 2026 23:19:39 GMT
             Etag:
-                - W/"2e90e31026f27aef8e5a78795dee9c0c"
+                - W/"6ffa550983c661527ac70d257ff99010"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -53,14 +53,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXH280FBA4319C8F60DJHT","version":"1"}'
+                - '{"correlation_id":"01M6Q05GXXP47SVXCG017BHTMH","version":"1"}'
             X-Request-Id:
-                - 01M6PXH280FBA4319C8F60DJHT
+                - 01M6Q05GXXP47SVXCG017BHTMH
             X-Runtime:
-                - "0.010457"
+                - "0.011453"
         status: 200 OK
         code: 200
-        duration: 12.366917ms
+        duration: 13.087625ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -82,7 +82,7 @@ interactions:
         proto_major: 1
         proto_minor: 1
         content_length: 240
-        body: '{"version":"18.11.14-ee","revision":"36cf8f5e8ce","kas":{"enabled":true,"externalUrl":"ws://2f70551938eb/-/kubernetes-agent/","externalK8sProxyUrl":"http://2f70551938eb/-/kubernetes-agent/k8s-proxy/","version":"18.11.14"},"enterprise":true}'
+        body: '{"version":"18.11.14-ee","revision":"36cf8f5e8ce","kas":{"enabled":true,"externalUrl":"ws://fc33c04fec34/-/kubernetes-agent/","externalK8sProxyUrl":"http://fc33c04fec34/-/kubernetes-agent/k8s-proxy/","version":"18.11.14"},"enterprise":true}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -93,9 +93,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:31 GMT
+                - Thu, 05 Nov 2026 23:19:39 GMT
             Etag:
-                - W/"fd0cf3beb7c45c966d974ba7d6efbb44"
+                - W/"088d0e4031048c0c99e316aa55813bd0"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -111,14 +111,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXH28WE8FY0BKRH8VBBHG0","version":"1"}'
+                - '{"correlation_id":"01M6Q05GYTZHQGPGM5PPCY6JJ6","version":"1"}'
             X-Request-Id:
-                - 01M6PXH28WE8FY0BKRH8VBBHG0
+                - 01M6Q05GYTZHQGPGM5PPCY6JJ6
             X-Runtime:
-                - "0.011463"
+                - "0.014183"
         status: 200 OK
         code: 200
-        duration: 13.187125ms
+        duration: 16.019042ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -146,7 +146,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '[{"id":2,"username":"admin-user","public_email":null,"name":"Admin User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/af0325f5b5bc22760340e6e28bbe467949a83cf3a620329417c7718f89e0f7c5?s=80\u0026d=identicon","web_url":"http://2f70551938eb/admin-user","created_at":"2026-11-05T22:32:09.261Z","bio":"","location":"","linkedin":"","twitter":"","discord":"","website_url":"","github":"","job_title":"","pronouns":null,"organization":"","bot":false,"work_information":null,"local_time":null,"last_sign_in_at":null,"confirmed_at":"2026-11-05T22:32:09.239Z","last_activity_on":"2026-11-05","email":"admin@local","theme_id":3,"color_scheme_id":1,"projects_limit":0,"current_sign_in_at":null,"identities":[],"can_create_group":false,"can_create_project":false,"two_factor_enabled":false,"external":false,"private_profile":false,"commit_email":"admin@local","preferred_language":"en","shared_runners_minutes_limit":null,"extra_shared_runners_minutes_limit":null,"scim_identities":[],"is_admin":true,"note":"","namespace_id":6,"created_by":{"id":1,"username":"root","public_email":null,"name":"Administrator","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/69f458ebea4b850978aada4fc6d2e2110296a7ed1ec83efab06935d572333de8?s=80\u0026d=identicon","web_url":"http://2f70551938eb/root"},"using_license_seat":false}]'
+        body: '[{"id":2,"username":"admin-user","public_email":null,"name":"Admin User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/af0325f5b5bc22760340e6e28bbe467949a83cf3a620329417c7718f89e0f7c5?s=80\u0026d=identicon","web_url":"http://fc33c04fec34/admin-user","created_at":"2026-11-05T23:18:19.854Z","bio":"","location":"","linkedin":"","twitter":"","discord":"","website_url":"","github":"","job_title":"","pronouns":null,"organization":"","bot":false,"work_information":null,"local_time":null,"last_sign_in_at":null,"confirmed_at":"2026-11-05T23:18:19.825Z","last_activity_on":"2026-11-05","email":"admin@local","theme_id":3,"color_scheme_id":1,"projects_limit":0,"current_sign_in_at":null,"identities":[],"can_create_group":false,"can_create_project":false,"two_factor_enabled":false,"external":false,"private_profile":false,"commit_email":"admin@local","preferred_language":"en","shared_runners_minutes_limit":null,"extra_shared_runners_minutes_limit":null,"scim_identities":[],"is_admin":true,"note":"","namespace_id":6,"created_by":{"id":1,"username":"root","public_email":null,"name":"Administrator","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/3723121a549ffd282864ac56900f8e530126b6081e48b03f7fef7e46a3706555?s=80\u0026d=identicon","web_url":"http://fc33c04fec34/root"},"using_license_seat":false}]'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -155,11 +155,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:31 GMT
+                - Thu, 05 Nov 2026 23:19:39 GMT
             Etag:
-                - W/"216879e26c4f4e9b4839afcd9718eec5"
+                - W/"56768b3419e3268b9b2c6b0a4a1e0393"
             Link:
-                - <http://2f70551938eb/api/v4/users?active=false&admins=false&auditors=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&skip_ldap=false&sort=desc&username=admin-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://2f70551938eb/api/v4/users?active=false&admins=false&auditors=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&skip_ldap=false&sort=desc&username=admin-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
+                - <http://fc33c04fec34/api/v4/users?active=false&admins=false&auditors=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&skip_ldap=false&sort=desc&username=admin-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="first", <http://fc33c04fec34/api/v4/users?active=false&admins=false&auditors=false&blocked=false&exclude_active=false&exclude_external=false&exclude_humans=false&exclude_internal=false&external=false&humans=false&order_by=id&page=1&per_page=20&skip_ldap=false&sort=desc&username=admin-user&with_custom_attributes=false&without_project_bots=false&without_projects=false>; rel="last"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -176,7 +176,7 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXH29T8JJMS6RAP6NPYDGR","version":"1"}'
+                - '{"correlation_id":"01M6Q05H01EXJQ3XC04CTAQKCF","version":"1"}'
             X-Next-Page:
                 - ""
             X-Page:
@@ -186,24 +186,24 @@ interactions:
             X-Prev-Page:
                 - ""
             X-Request-Id:
-                - 01M6PXH29T8JJMS6RAP6NPYDGR
+                - 01M6Q05H01EXJQ3XC04CTAQKCF
             X-Runtime:
-                - "0.021713"
+                - "0.026479"
             X-Total:
                 - "1"
             X-Total-Pages:
                 - "1"
         status: 200 OK
         code: 200
-        duration: 23.439416ms
+        duration: 28.232875ms
     - id: 3
       request:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 67
+        content_length: 138
         host: localhost:8080
-        body: '{"name":"personal","expires_at":"2026-11-06","scopes":["read_api"]}'
+        body: '{"name":"personal","description":"Issued by Vault: mount= role=admin-user config=default","expires_at":"2026-11-07","scopes":["read_api"]}'
         headers:
             Accept:
                 - application/json
@@ -219,21 +219,21 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 275
-        body: '{"id":43,"name":"personal","revoked":false,"created_at":"2026-11-05T22:33:31.770Z","description":null,"scopes":["read_api"],"user_id":2,"last_used_at":null,"active":true,"granular":false,"expires_at":"2026-11-06","token":"REPLACED-TOKEN"}'
+        content_length: 327
+        body: '{"id":43,"name":"personal","revoked":false,"created_at":"2026-11-05T23:19:39.340Z","description":"Issued by Vault: mount= role=admin-user config=default","scopes":["read_api"],"user_id":2,"last_used_at":null,"active":true,"granular":false,"expires_at":"2026-11-07","token":"REPLACED-TOKEN"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Connection:
                 - keep-alive
             Content-Length:
-                - "275"
+                - "327"
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:31 GMT
+                - Thu, 05 Nov 2026 23:19:39 GMT
             Etag:
-                - W/"8a448edb4e1d42fd85abd8d2977f9410"
+                - W/"a2e3107ec7b2eb949d17be4549eb5e6a"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -249,14 +249,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXH2BDSWD2Y1RQ8XT9TYEF","version":"1"}'
+                - '{"correlation_id":"01M6Q05H1YAM7RAAZ02E5SZ9FQ","version":"1"}'
             X-Request-Id:
-                - 01M6PXH2BDSWD2Y1RQ8XT9TYEF
+                - 01M6Q05H1YAM7RAAZ02E5SZ9FQ
             X-Runtime:
-                - "0.017436"
+                - "0.019043"
         status: 201 Created
         code: 201
-        duration: 19.211375ms
+        duration: 20.747958ms
     - id: 4
       request:
         proto: HTTP/1.1
@@ -281,7 +281,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '{"id":43,"name":"personal","revoked":false,"created_at":"2026-11-05T22:33:31.770Z","description":null,"scopes":["read_api"],"user_id":2,"last_used_at":"2026-11-05T22:33:31.808Z","active":true,"granular":false,"expires_at":"2026-11-06","last_used_ips":["192.168.65.1"]}'
+        body: '{"id":43,"name":"personal","revoked":false,"created_at":"2026-11-05T23:19:39.340Z","description":"Issued by Vault: mount= role=admin-user config=default","scopes":["read_api"],"user_id":2,"last_used_at":"2026-11-05T23:19:39.383Z","active":true,"granular":false,"expires_at":"2026-11-07","last_used_ips":["192.168.65.1"]}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -290,9 +290,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:31 GMT
+                - Thu, 05 Nov 2026 23:19:39 GMT
             Etag:
-                - W/"11c0c56abcbe396d0009f9785c29630b"
+                - W/"249b92824e2df02e16e16900311b427c"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -309,14 +309,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXH2CPH6K95WBQ2PWSSVXV","version":"1"}'
+                - '{"correlation_id":"01M6Q05H3CS6TDJTJ3NZFYM1GT","version":"1"}'
             X-Request-Id:
-                - 01M6PXH2CPH6K95WBQ2PWSSVXV
+                - 01M6Q05H3CS6TDJTJ3NZFYM1GT
             X-Runtime:
-                - "0.013119"
+                - "0.013018"
         status: 200 OK
         code: 200
-        duration: 15.055041ms
+        duration: 14.846167ms
     - id: 5
       request:
         proto: HTTP/1.1
@@ -345,7 +345,7 @@ interactions:
             Connection:
                 - keep-alive
             Date:
-                - Thu, 05 Nov 2026 22:33:31 GMT
+                - Thu, 05 Nov 2026 23:19:39 GMT
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -361,14 +361,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXH2DQS8Z6JTGMHN0RMCG2","version":"1"}'
+                - '{"correlation_id":"01M6Q05H4EPK9M878DZAA0M97F","version":"1"}'
             X-Request-Id:
-                - 01M6PXH2DQS8Z6JTGMHN0RMCG2
+                - 01M6Q05H4EPK9M878DZAA0M97F
             X-Runtime:
-                - "0.012914"
+                - "0.012978"
         status: 204 No Content
         code: 204
-        duration: 14.755ms
+        duration: 14.779875ms
     - id: 6
       request:
         proto: HTTP/1.1
@@ -401,7 +401,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:31 GMT
+                - Thu, 05 Nov 2026 23:19:39 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -413,11 +413,11 @@ interactions:
             Www-Authenticate:
                 - Bearer realm="Protected by OAuth 2.0", error="invalid_token", error_description="Token was revoked. You have to re-authorize from the user."
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXH2EQZHAZTJ525Q0QBE6Q","version":"1"}'
+                - '{"correlation_id":"01M6Q05H5E639478NCWZHYN2AN","version":"1"}'
             X-Request-Id:
-                - 01M6PXH2EQZHAZTJ525Q0QBE6Q
+                - 01M6Q05H5E639478NCWZHYN2AN
             X-Runtime:
-                - "0.009760"
+                - "0.007796"
         status: 401 Unauthorized
         code: 401
-        duration: 12.356625ms
+        duration: 9.483583ms

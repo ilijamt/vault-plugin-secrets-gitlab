@@ -191,3 +191,13 @@ func TestPathTokenRoleCreate_DynamicPath(t *testing.T) {
 		assert.Equal(t, "glpat-test", resp.Data["token"])
 	})
 }
+
+func TestPathTokenRoleCreate_Description(t *testing.T) {
+	client := &mockGitlabClient{createErr: errTest}
+	mb := &mockTokenBackend{role: role(tk.TypePersonal, "user"), client: client}
+
+	_, err := callCreate(t, mb, map[string]any{"role_name": "r"})
+	require.ErrorIs(t, err, errTest)
+	require.Contains(t, client.description, "Issued by Vault:")
+	require.Contains(t, client.description, "config=")
+}

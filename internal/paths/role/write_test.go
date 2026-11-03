@@ -369,3 +369,20 @@ func TestPathRolesWrite_Offerings(t *testing.T) {
 		})
 	}
 }
+
+func TestPathRolesWrite_Description(t *testing.T) {
+	t.Run("stored and returned", func(t *testing.T) {
+		raw := personalRaw()
+		raw["description"] = "{{ .role_name }}"
+		resp, err := writeHandler(&mockRoleBackend{config: testConfig()})(t.Context(), newRequest(), newFieldData(raw))
+		require.NoError(t, err)
+		assert.Equal(t, "{{ .role_name }}", resp.Data["description"])
+	})
+
+	t.Run("invalid template rejected", func(t *testing.T) {
+		raw := personalRaw()
+		raw["description"] = "{{"
+		_, err := writeHandler(&mockRoleBackend{config: testConfig()})(t.Context(), newRequest(), newFieldData(raw))
+		require.ErrorContains(t, err, "for description")
+	})
+}

@@ -45,6 +45,8 @@ type mockGitlabClient struct {
 	token     tk.Token
 	lookupErr error
 	createErr error
+
+	description string
 }
 
 func (m *mockGitlabClient) GetUserIdByUsername(_ context.Context, _ string) (int64, error) {
@@ -57,31 +59,32 @@ func (m *mockGitlabClient) GetGroupIdByPath(_ context.Context, _ string) (int64,
 	return 1, m.lookupErr
 }
 
-func (m *mockGitlabClient) CreateProjectAccessToken(_ context.Context, _ string, _ string, _ time.Time, _ []string, _ tk.AccessLevel) (*mt.TokenProject, error) {
+func (m *mockGitlabClient) CreateProjectAccessToken(_ context.Context, _ string, _ string, _ string, _ time.Time, _ []string, _ tk.AccessLevel) (*mt.TokenProject, error) {
 	if m.createErr != nil || m.token == nil {
 		return nil, m.createErr
 	}
 	return m.token.(*mt.TokenProject), nil
 }
-func (m *mockGitlabClient) CreateGroupAccessToken(_ context.Context, _ string, _ string, _ time.Time, _ []string, _ tk.AccessLevel) (*mt.TokenGroup, error) {
+func (m *mockGitlabClient) CreateGroupAccessToken(_ context.Context, _ string, _ string, _ string, _ time.Time, _ []string, _ tk.AccessLevel) (*mt.TokenGroup, error) {
 	if m.createErr != nil || m.token == nil {
 		return nil, m.createErr
 	}
 	return m.token.(*mt.TokenGroup), nil
 }
-func (m *mockGitlabClient) CreatePersonalAccessToken(_ context.Context, _ string, _ int64, _ string, _ time.Time, _ []string) (*mt.TokenPersonal, error) {
+func (m *mockGitlabClient) CreatePersonalAccessToken(_ context.Context, _ string, _ int64, _ string, description string, _ time.Time, _ []string) (*mt.TokenPersonal, error) {
+	m.description = description
 	if m.createErr != nil || m.token == nil {
 		return nil, m.createErr
 	}
 	return m.token.(*mt.TokenPersonal), nil
 }
-func (m *mockGitlabClient) CreateUserServiceAccountAccessToken(_ context.Context, _ string, _ int64, _ string, _ time.Time, _ []string) (*mt.TokenUserServiceAccount, error) {
+func (m *mockGitlabClient) CreateUserServiceAccountAccessToken(_ context.Context, _ string, _ int64, _ string, _ string, _ time.Time, _ []string) (*mt.TokenUserServiceAccount, error) {
 	if m.createErr != nil || m.token == nil {
 		return nil, m.createErr
 	}
 	return m.token.(*mt.TokenUserServiceAccount), nil
 }
-func (m *mockGitlabClient) CreateGroupServiceAccountAccessToken(_ context.Context, _ string, _ string, _ int64, _ string, _ time.Time, _ []string) (*mt.TokenGroupServiceAccount, error) {
+func (m *mockGitlabClient) CreateGroupServiceAccountAccessToken(_ context.Context, _ string, _ string, _ int64, _ string, _ string, _ time.Time, _ []string) (*mt.TokenGroupServiceAccount, error) {
 	if m.createErr != nil || m.token == nil {
 		return nil, m.createErr
 	}

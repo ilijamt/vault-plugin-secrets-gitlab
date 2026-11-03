@@ -50,6 +50,7 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 		TTL:                 time.Duration(ttl) * time.Second,
 		Path:                data.Get("path").(string),
 		Name:                data.Get("name").(string),
+		Description:         data.Get("description").(string),
 		Scopes:              data.Get("scopes").([]string),
 		DynamicPath:         data.Get("dynamic_path").(bool),
 		AccessLevel:         accessLevel,
@@ -61,6 +62,10 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 	// validate the name of the entry role
 	if e := utils.ValidateTokenNameName(role); e != nil {
 		err = multierror.Append(err, fmt.Errorf("invalid template %s for name: %w", role.Name, e))
+	}
+
+	if e := utils.ValidateTokenDescription(role); e != nil {
+		err = multierror.Append(err, fmt.Errorf("invalid template %s for description: %w", role.Description, e))
 	}
 
 	if role.DynamicPath {
@@ -107,7 +112,7 @@ func (p *Provider) pathRolesWrite(ctx context.Context, req *logical.Request, dat
 	}
 
 	// always skip these fields
-	skipFields = append(skipFields, "dynamic_path")
+	skipFields = append(skipFields, "dynamic_path", "description")
 
 	var invalidScopes []string
 

@@ -25,7 +25,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '{"id":2,"web_url":"http://2f70551938eb/groups/test","name":"test","path":"test","description":"A test group","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"show_diff_preview_in_email":true,"mentions_disabled":null,"lfs_enabled":true,"archived":false,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"test","full_path":"test","created_at":"2026-11-05T22:32:08.872Z","parent_id":null,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"marked_for_deletion_on":null,"ldap_cn":null,"ldap_access":null,"wiki_access_level":"enabled","duo_namespace_access_rules":[],"shared_with_groups":[],"runners_token":"GR1348941vLvsW2sx8nXE6tdJxwxr","enabled_git_access_protocol":"all","prevent_sharing_groups_outside_hierarchy":false,"projects":[],"shared_projects":[],"shared_runners_minutes_limit":null,"extra_shared_runners_minutes_limit":null,"prevent_forking_outside_group":null,"service_access_tokens_expiration_enforced":true,"membership_lock":false}'
+        body: '{"id":5,"web_url":"http://fc33c04fec34/groups/test","name":"test","path":"test","description":"A test group","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"show_diff_preview_in_email":true,"mentions_disabled":null,"lfs_enabled":true,"archived":false,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"test","full_path":"test","created_at":"2026-11-05T23:18:19.693Z","parent_id":null,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"marked_for_deletion_on":null,"ldap_cn":null,"ldap_access":null,"wiki_access_level":"enabled","duo_namespace_access_rules":[],"shared_with_groups":[],"runners_token":"GR1348941FjkuSShwPEHkQxPyS84p","enabled_git_access_protocol":"all","prevent_sharing_groups_outside_hierarchy":false,"projects":[],"shared_projects":[],"shared_runners_minutes_limit":null,"extra_shared_runners_minutes_limit":null,"prevent_forking_outside_group":null,"service_access_tokens_expiration_enforced":true,"membership_lock":false}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -34,9 +34,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:23 GMT
+                - Thu, 05 Nov 2026 23:19:30 GMT
             Etag:
-                - W/"9ef4ae638f4d07a61bb7853d51042142"
+                - W/"bb79ccce5c9c3dcb12847e0997a7d49a"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -53,14 +53,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXGSS4YNE95X7JBJY3FRAF","version":"1"}'
+                - '{"correlation_id":"01M6Q057Z1023MFGMZYGPK48S7","version":"1"}'
             X-Request-Id:
-                - 01M6PXGSS4YNE95X7JBJY3FRAF
+                - 01M6Q057Z1023MFGMZYGPK48S7
             X-Runtime:
-                - "0.138084"
+                - "0.128445"
         status: 200 OK
         code: 200
-        duration: 140.565125ms
+        duration: 130.790708ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -85,7 +85,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '{"id":11,"web_url":"http://2f70551938eb/groups/level-1/level-2/level-3","name":"l3","path":"level-3","description":"Two levels down","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"show_diff_preview_in_email":true,"mentions_disabled":null,"lfs_enabled":true,"archived":false,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"l1 / l2 / l3","full_path":"level-1/level-2/level-3","created_at":"2026-11-05T22:32:20.427Z","parent_id":9,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"marked_for_deletion_on":null,"ldap_cn":null,"ldap_access":null,"wiki_access_level":"enabled","shared_with_groups":[],"runners_token":"GR1348941xhjJSVyFi7E3qcgNTpcN","projects":[],"shared_projects":[],"shared_runners_minutes_limit":null,"extra_shared_runners_minutes_limit":null,"prevent_forking_outside_group":null,"membership_lock":false}'
+        body: '{"id":11,"web_url":"http://fc33c04fec34/groups/level-1/level-2/level-3","name":"l3","path":"level-3","description":"Two levels down","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"show_diff_preview_in_email":true,"mentions_disabled":null,"lfs_enabled":true,"archived":false,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"l1 / l2 / l3","full_path":"level-1/level-2/level-3","created_at":"2026-11-05T23:18:31.153Z","parent_id":10,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"marked_for_deletion_on":null,"ldap_cn":null,"ldap_access":null,"wiki_access_level":"enabled","shared_with_groups":[],"runners_token":"GR13489418MEg6BkZSHsLiwUMkPnT","projects":[],"shared_projects":[],"shared_runners_minutes_limit":null,"extra_shared_runners_minutes_limit":null,"prevent_forking_outside_group":null,"membership_lock":false}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -94,9 +94,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:23 GMT
+                - Thu, 05 Nov 2026 23:19:30 GMT
             Etag:
-                - W/"7b591d69dc9de5e4d6299083c0eed3a6"
+                - W/"f84104f85e6ef4611ba1ca39647869b1"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -113,14 +113,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXGT21ANMA6X24ASBXKKN7","version":"1"}'
+                - '{"correlation_id":"01M6Q0587F0K3EDW8MBK30FVFC","version":"1"}'
             X-Request-Id:
-                - 01M6PXGT21ANMA6X24ASBXKKN7
+                - 01M6Q0587F0K3EDW8MBK30FVFC
             X-Runtime:
-                - "0.227326"
+                - "0.044779"
         status: 200 OK
         code: 200
-        duration: 229.680666ms
+        duration: 47.538458ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -145,7 +145,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '{"id":9,"web_url":"http://2f70551938eb/groups/level-1/level-2","name":"l2","path":"level-2","description":"One level down","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"show_diff_preview_in_email":true,"mentions_disabled":null,"lfs_enabled":true,"archived":false,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"l1 / l2","full_path":"level-1/level-2","created_at":"2026-11-05T22:32:15.163Z","parent_id":4,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"marked_for_deletion_on":null,"ldap_cn":null,"ldap_access":null,"wiki_access_level":"enabled","shared_with_groups":[],"runners_token":"GR1348941zBye8gBUR8PEVrH69vF1","projects":[],"shared_projects":[],"shared_runners_minutes_limit":null,"extra_shared_runners_minutes_limit":null,"prevent_forking_outside_group":null,"membership_lock":false}'
+        body: '{"id":10,"web_url":"http://fc33c04fec34/groups/level-1/level-2","name":"l2","path":"level-2","description":"One level down","visibility":"private","share_with_group_lock":false,"require_two_factor_authentication":false,"two_factor_grace_period":48,"project_creation_level":"developer","auto_devops_enabled":null,"subgroup_creation_level":"maintainer","emails_disabled":false,"emails_enabled":true,"show_diff_preview_in_email":true,"mentions_disabled":null,"lfs_enabled":true,"archived":false,"math_rendering_limits_enabled":true,"lock_math_rendering_limits_enabled":false,"default_branch":null,"default_branch_protection":2,"default_branch_protection_defaults":{"allowed_to_push":[{"access_level":40}],"allow_force_push":false,"allowed_to_merge":[{"access_level":40}],"developer_can_initial_push":false},"avatar_url":null,"request_access_enabled":true,"full_name":"l1 / l2","full_path":"level-1/level-2","created_at":"2026-11-05T23:18:25.916Z","parent_id":4,"organization_id":1,"shared_runners_setting":"enabled","max_artifacts_size":null,"marked_for_deletion_on":null,"ldap_cn":null,"ldap_access":null,"wiki_access_level":"enabled","shared_with_groups":[],"runners_token":"GR1348941breJ88_sWZRg_i9Zs_zt","projects":[],"shared_projects":[],"shared_runners_minutes_limit":null,"extra_shared_runners_minutes_limit":null,"prevent_forking_outside_group":null,"membership_lock":false}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -154,9 +154,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:23 GMT
+                - Thu, 05 Nov 2026 23:19:30 GMT
             Etag:
-                - W/"b3929ec1fc7ee6b0f4da654256b7ef6a"
+                - W/"8d98a502dcf9909ecc5bda9f2afee265"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -173,14 +173,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXGTGG70GEH0C9WHZXSRVV","version":"1"}'
+                - '{"correlation_id":"01M6Q058AJSKX1TNVA49XYBVMT","version":"1"}'
             X-Request-Id:
-                - 01M6PXGTGG70GEH0C9WHZXSRVV
+                - 01M6Q058AJSKX1TNVA49XYBVMT
             X-Runtime:
-                - "0.034806"
+                - "0.047899"
         status: 200 OK
         code: 200
-        duration: 37.388083ms
+        duration: 51.343583ms
     - id: 3
       request:
         proto: HTTP/1.1
@@ -213,7 +213,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:23 GMT
+                - Thu, 05 Nov 2026 23:19:30 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -227,14 +227,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXGTJZEEG6QJYTZM0BNMVD","version":"1"}'
+                - '{"correlation_id":"01M6Q058DWEBNHMACK8RTK002C","version":"1"}'
             X-Request-Id:
-                - 01M6PXGTJZEEG6QJYTZM0BNMVD
+                - 01M6Q058DWEBNHMACK8RTK002C
             X-Runtime:
-                - "0.012295"
+                - "0.015834"
         status: 404 Not Found
         code: 404
-        duration: 14.275ms
+        duration: 18.989792ms
     - id: 4
       request:
         proto: HTTP/1.1
@@ -267,7 +267,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:23 GMT
+                - Thu, 05 Nov 2026 23:19:30 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -281,14 +281,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXGTKYRY9FT9699T1JZC49","version":"1"}'
+                - '{"correlation_id":"01M6Q058F3WCCD22GX9732NC9H","version":"1"}'
             X-Request-Id:
-                - 01M6PXGTKYRY9FT9699T1JZC49
+                - 01M6Q058F3WCCD22GX9732NC9H
             X-Runtime:
-                - "0.011207"
+                - "0.013819"
         status: 404 Not Found
         code: 404
-        duration: 13.179375ms
+        duration: 15.949ms
     - id: 5
       request:
         proto: HTTP/1.1
@@ -321,7 +321,7 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 22:33:23 GMT
+                - Thu, 05 Nov 2026 23:19:30 GMT
             Nel:
                 - '{"max_age": 0}'
             Server:
@@ -335,11 +335,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PXGTMTN25CA38K9G5KS32M","version":"1"}'
+                - '{"correlation_id":"01M6Q058G5JXVX5X7S4TSVFDRH","version":"1"}'
             X-Request-Id:
-                - 01M6PXGTMTN25CA38K9G5KS32M
+                - 01M6Q058G5JXVX5X7S4TSVFDRH
             X-Runtime:
-                - "0.012637"
+                - "0.013134"
         status: 404 Not Found
         code: 404
-        duration: 14.7155ms
+        duration: 15.320333ms

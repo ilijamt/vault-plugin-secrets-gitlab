@@ -67,6 +67,12 @@ func (p *Provider) pathTokenRoleCreate(ctx context.Context, req *logical.Request
 		return nil, fmt.Errorf("error generating token name: %w", err)
 	}
 
+	var description string
+	description, err = utils.TokenDescription(role, req.MountPoint)
+	if err != nil {
+		return nil, fmt.Errorf("error generating token description: %w", err)
+	}
+
 	var client gitlab.Client
 	var gitlabRevokesTokens = role.GitlabRevokesTokens
 	var vaultRevokesTokens = !role.GitlabRevokesTokens
@@ -81,22 +87,22 @@ func (p *Provider) pathTokenRoleCreate(ctx context.Context, req *logical.Request
 	switch role.TokenType {
 	case t.TypeGroup:
 		logging.New(p.b.Logger()).Debug("Creating group access token for role", logging.Fields{Path: role.Path, Name: name, ExpiresAt: &expiresAt, Scopes: role.Scopes, AccessLevel: role.AccessLevel.String()})
-		token, err = client.CreateGroupAccessToken(ctx, role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
+		token, err = client.CreateGroupAccessToken(ctx, role.Path, name, description, expiresAt, role.Scopes, role.AccessLevel)
 	case t.TypeProject:
 		logging.New(p.b.Logger()).Debug("Creating project access token for role", logging.Fields{Path: role.Path, Name: name, ExpiresAt: &expiresAt, Scopes: role.Scopes, AccessLevel: role.AccessLevel.String()})
-		token, err = client.CreateProjectAccessToken(ctx, role.Path, name, expiresAt, role.Scopes, role.AccessLevel)
+		token, err = client.CreateProjectAccessToken(ctx, role.Path, name, description, expiresAt, role.Scopes, role.AccessLevel)
 	case t.TypePersonal:
 		var userId int64
 		userId, err = client.GetUserIdByUsername(ctx, role.Path)
 		if err == nil {
 			logging.New(p.b.Logger()).Debug("Creating personal access token for role", logging.Fields{Path: role.Path, UserID: userId, Name: name, ExpiresAt: &expiresAt, Scopes: role.Scopes})
-			token, err = client.CreatePersonalAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
+			token, err = client.CreatePersonalAccessToken(ctx, role.Path, userId, name, description, expiresAt, role.Scopes)
 		}
 	case t.TypeUserServiceAccount:
 		var userId int64
 		if userId, err = client.GetUserIdByUsername(ctx, role.Path); err == nil {
 			logging.New(p.b.Logger()).Debug("Creating user service account access token for role", logging.Fields{Path: role.Path, UserID: userId, Name: name, ExpiresAt: &expiresAt, Scopes: role.Scopes})
-			token, err = client.CreateUserServiceAccountAccessToken(ctx, role.Path, userId, name, expiresAt, role.Scopes)
+			token, err = client.CreateUserServiceAccountAccessToken(ctx, role.Path, userId, name, description, expiresAt, role.Scopes)
 		}
 	case t.TypeGroupServiceAccount:
 		var serviceAccount, groupId string
@@ -108,7 +114,7 @@ func (p *Provider) pathTokenRoleCreate(ctx context.Context, req *logical.Request
 		var userId int64
 		if userId, err = client.GetUserIdByUsername(ctx, serviceAccount); err == nil {
 			logging.New(p.b.Logger()).Debug("Creating group service account access token for role", logging.Fields{Path: role.Path, GroupID: fmt.Sprint(groupId), UserID: userId, Name: name, ExpiresAt: &expiresAt, Scopes: role.Scopes})
-			token, err = client.CreateGroupServiceAccountAccessToken(ctx, role.Path, groupId, userId, name, expiresAt, role.Scopes)
+			token, err = client.CreateGroupServiceAccountAccessToken(ctx, role.Path, groupId, userId, name, description, expiresAt, role.Scopes)
 		}
 	case t.TypeProjectServiceAccount:
 		var serviceAccount, projectId string
@@ -120,7 +126,7 @@ func (p *Provider) pathTokenRoleCreate(ctx context.Context, req *logical.Request
 		var userId int64
 		if userId, err = client.GetUserIdByUsername(ctx, serviceAccount); err == nil {
 			logging.New(p.b.Logger()).Debug("Creating project service account access token for role", logging.Fields{Path: role.Path, ProjectID: fmt.Sprint(projectId), UserID: userId, Name: name, ExpiresAt: &expiresAt, Scopes: role.Scopes})
-			token, err = client.CreateProjectServiceAccountAccessToken(ctx, role.Path, projectId, userId, name, expiresAt, role.Scopes)
+			token, err = client.CreateProjectServiceAccountAccessToken(ctx, role.Path, projectId, userId, name, description, expiresAt, role.Scopes)
 		}
 	case t.TypeProjectDeploy:
 		var projectId int64
