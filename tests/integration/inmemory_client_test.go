@@ -188,23 +188,23 @@ func (i *inMemoryClient) CreateGroupDeployToken(ctx context.Context, path string
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) RevokeProjectDeployToken(ctx context.Context, projectId, deployTokenId int64) (err error) {
+func (i *inMemoryClient) RevokeProjectDeployToken(ctx context.Context, tokenId int64, projectId string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("RevokeProjectDeployToken"); err != nil {
 		return err
 	}
-	delete(i.accessTokens, tokenKey(t.TypeProjectDeploy, projectId, deployTokenId))
+	delete(i.accessTokens, tokenKey(t.TypeProjectDeploy, projectId, tokenId))
 	return nil
 }
 
-func (i *inMemoryClient) RevokeGroupDeployToken(ctx context.Context, groupId, deployTokenId int64) (err error) {
+func (i *inMemoryClient) RevokeGroupDeployToken(ctx context.Context, tokenId int64, groupId string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("RevokeGroupDeployToken"); err != nil {
 		return err
 	}
-	delete(i.accessTokens, tokenKey(t.TypeGroupDeploy, groupId, deployTokenId))
+	delete(i.accessTokens, tokenKey(t.TypeGroupDeploy, groupId, tokenId))
 	return nil
 }
 
@@ -236,7 +236,7 @@ func (i *inMemoryClient) CreatePipelineProjectTriggerAccessToken(ctx context.Con
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int64, tokenId int64) error {
+func (i *inMemoryClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, tokenId int64, projectId string) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("RevokePipelineProjectTriggerAccessToken"); err != nil {
@@ -268,7 +268,7 @@ func (i *inMemoryClient) CreateGroupServiceAccountAccessToken(ctx context.Contex
 		},
 		UserID: userId,
 	}
-	i.accessTokens[tokenKey(t.TypeGroupServiceAccount, base.Token)] = entryToken
+	i.accessTokens[tokenKey(t.TypeGroupServiceAccount, base.TokenID)] = entryToken
 	return entryToken, nil
 }
 
@@ -285,29 +285,27 @@ func (i *inMemoryClient) CreateUserServiceAccountAccessToken(ctx context.Context
 			Scopes: scopes,
 		},
 	}
-	// Revocation keys service account tokens by their token string, so the
-	// leak-check only balances if creation does the same.
-	i.accessTokens[tokenKey(t.TypeUserServiceAccount, base.Token)] = entryToken
+	i.accessTokens[tokenKey(t.TypeUserServiceAccount, base.TokenID)] = entryToken
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(ctx context.Context, tok string) error {
+func (i *inMemoryClient) RevokeUserServiceAccountAccessToken(ctx context.Context, tokenId int64) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("RevokeUserServiceAccountAccessToken"); err != nil {
 		return err
 	}
-	delete(i.accessTokens, tokenKey(t.TypeUserServiceAccount, tok))
+	delete(i.accessTokens, tokenKey(t.TypeUserServiceAccount, tokenId))
 	return nil
 }
 
-func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(ctx context.Context, tok string) error {
+func (i *inMemoryClient) RevokeGroupServiceAccountAccessToken(ctx context.Context, tokenId int64, groupId string, userId int64) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("RevokeGroupServiceAccountAccessToken"); err != nil {
 		return err
 	}
-	delete(i.accessTokens, tokenKey(t.TypeGroupServiceAccount, tok))
+	delete(i.accessTokens, tokenKey(t.TypeGroupServiceAccount, tokenId))
 	return nil
 }
 
@@ -325,17 +323,17 @@ func (i *inMemoryClient) CreateProjectServiceAccountAccessToken(ctx context.Cont
 		},
 		UserID: userId,
 	}
-	i.accessTokens[tokenKey(t.TypeProjectServiceAccount, base.Token)] = entryToken
+	i.accessTokens[tokenKey(t.TypeProjectServiceAccount, base.TokenID)] = entryToken
 	return entryToken, nil
 }
 
-func (i *inMemoryClient) RevokeProjectServiceAccountAccessToken(ctx context.Context, tok string) error {
+func (i *inMemoryClient) RevokeProjectServiceAccountAccessToken(ctx context.Context, tokenId int64, projectId string, userId int64) error {
 	i.muLock.Lock()
 	defer i.muLock.Unlock()
 	if err := i.injectedErrLocked("RevokeProjectServiceAccountAccessToken"); err != nil {
 		return err
 	}
-	delete(i.accessTokens, tokenKey(t.TypeProjectServiceAccount, tok))
+	delete(i.accessTokens, tokenKey(t.TypeProjectServiceAccount, tokenId))
 	return nil
 }
 

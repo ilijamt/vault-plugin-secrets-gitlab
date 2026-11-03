@@ -90,11 +90,10 @@ func TestRevokeAccessToken_VaultRevokes(t *testing.T) {
 		{
 			name:      "user service account",
 			tokenType: token.TypeUserServiceAccount,
-			parentId:  "user1",
-			extra:     map[string]any{"token": "glpat-secret"},
+			parentId:  "",
 			setupStub: func(c *stubClient) {
-				c.revokeUserServiceAccountAccessToken = func(_ context.Context, tok string) error {
-					require.Equal(t, "glpat-secret", tok)
+				c.revokeUserServiceAccountAccessToken = func(_ context.Context, tokenId int64) error {
+					require.Equal(t, int64(42), tokenId)
 					return nil
 				}
 			},
@@ -103,10 +102,26 @@ func TestRevokeAccessToken_VaultRevokes(t *testing.T) {
 			name:      "group service account",
 			tokenType: token.TypeGroupServiceAccount,
 			parentId:  "grp1",
-			extra:     map[string]any{"token": "glpat-secret"},
+			extra:     map[string]any{"user_id": float64(7)},
 			setupStub: func(c *stubClient) {
-				c.revokeGroupServiceAccountAccessToken = func(_ context.Context, tok string) error {
-					require.Equal(t, "glpat-secret", tok)
+				c.revokeGroupServiceAccountAccessToken = func(_ context.Context, tokenId int64, groupId string, userId int64) error {
+					require.Equal(t, int64(42), tokenId)
+					require.Equal(t, "grp1", groupId)
+					require.Equal(t, int64(7), userId)
+					return nil
+				}
+			},
+		},
+		{
+			name:      "project service account",
+			tokenType: token.TypeProjectServiceAccount,
+			parentId:  "prj1",
+			extra:     map[string]any{"user_id": float64(7)},
+			setupStub: func(c *stubClient) {
+				c.revokeProjectServiceAccountAccessToken = func(_ context.Context, tokenId int64, projectId string, userId int64) error {
+					require.Equal(t, int64(42), tokenId)
+					require.Equal(t, "prj1", projectId)
+					require.Equal(t, int64(7), userId)
 					return nil
 				}
 			},
@@ -116,8 +131,8 @@ func TestRevokeAccessToken_VaultRevokes(t *testing.T) {
 			tokenType: token.TypePipelineProjectTrigger,
 			parentId:  "100",
 			setupStub: func(c *stubClient) {
-				c.revokePipelineProjectTriggerAccessToken = func(_ context.Context, projectId int64, tokenId int64) error {
-					require.Equal(t, int64(100), projectId)
+				c.revokePipelineProjectTriggerAccessToken = func(_ context.Context, tokenId int64, projectId string) error {
+					require.Equal(t, "100", projectId)
 					require.Equal(t, int64(42), tokenId)
 					return nil
 				}
@@ -128,9 +143,9 @@ func TestRevokeAccessToken_VaultRevokes(t *testing.T) {
 			tokenType: token.TypeGroupDeploy,
 			parentId:  "200",
 			setupStub: func(c *stubClient) {
-				c.revokeGroupDeployToken = func(_ context.Context, groupId, deployTokenId int64) error {
-					require.Equal(t, int64(200), groupId)
-					require.Equal(t, int64(42), deployTokenId)
+				c.revokeGroupDeployToken = func(_ context.Context, tokenId int64, groupId string) error {
+					require.Equal(t, "200", groupId)
+					require.Equal(t, int64(42), tokenId)
 					return nil
 				}
 			},
@@ -140,9 +155,9 @@ func TestRevokeAccessToken_VaultRevokes(t *testing.T) {
 			tokenType: token.TypeProjectDeploy,
 			parentId:  "300",
 			setupStub: func(c *stubClient) {
-				c.revokeProjectDeployToken = func(_ context.Context, projectId, deployTokenId int64) error {
-					require.Equal(t, int64(300), projectId)
-					require.Equal(t, int64(42), deployTokenId)
+				c.revokeProjectDeployToken = func(_ context.Context, tokenId int64, projectId string) error {
+					require.Equal(t, "300", projectId)
+					require.Equal(t, int64(42), tokenId)
 					return nil
 				}
 			},

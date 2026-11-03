@@ -119,10 +119,10 @@ func revokeAccessToken(b secretBackend) framework.OperationFunc {
 				return nil, fmt.Errorf("lease token_type: %w", err)
 			}
 
-			var tokenValue string
-			if tokenType == token.TypeUserServiceAccount || tokenType == token.TypeGroupServiceAccount || tokenType == token.TypeProjectServiceAccount {
-				if tokenValue, err = leaseValue[string](secret, "token"); err != nil {
-					return nil, err
+			var userId int64
+			if tokenType == token.TypeGroupServiceAccount || tokenType == token.TypeProjectServiceAccount {
+				if userId, err = utils.ConvertToInt64(req.Secret.InternalData["user_id"]); err != nil {
+					return nil, fmt.Errorf("lease user_id: %w", err)
 				}
 			}
 
@@ -141,26 +141,17 @@ func revokeAccessToken(b secretBackend) framework.OperationFunc {
 			case token.TypeGroup:
 				err = client.RevokeGroupAccessToken(ctx, tokenId, parentId)
 			case token.TypeUserServiceAccount:
-				err = client.RevokeUserServiceAccountAccessToken(ctx, tokenValue)
+				err = client.RevokeUserServiceAccountAccessToken(ctx, tokenId)
 			case token.TypeGroupServiceAccount:
-				err = client.RevokeGroupServiceAccountAccessToken(ctx, tokenValue)
+				err = client.RevokeGroupServiceAccountAccessToken(ctx, tokenId, parentId, userId)
 			case token.TypeProjectServiceAccount:
-				err = client.RevokeProjectServiceAccountAccessToken(ctx, tokenValue)
+				err = client.RevokeProjectServiceAccountAccessToken(ctx, tokenId, parentId, userId)
 			case token.TypePipelineProjectTrigger:
-				var projectId int64
-				if projectId, err = strconv.ParseInt(parentId, 10, 64); err == nil {
-					err = client.RevokePipelineProjectTriggerAccessToken(ctx, projectId, tokenId)
-				}
+				err = client.RevokePipelineProjectTriggerAccessToken(ctx, tokenId, parentId)
 			case token.TypeGroupDeploy:
-				var groupId int64
-				if groupId, err = strconv.ParseInt(parentId, 10, 64); err == nil {
-					err = client.RevokeGroupDeployToken(ctx, groupId, tokenId)
-				}
+				err = client.RevokeGroupDeployToken(ctx, tokenId, parentId)
 			case token.TypeProjectDeploy:
-				var projectId int64
-				if projectId, err = strconv.ParseInt(parentId, 10, 64); err == nil {
-					err = client.RevokeProjectDeployToken(ctx, projectId, tokenId)
-				}
+				err = client.RevokeProjectDeployToken(ctx, tokenId, parentId)
 			}
 
 			if err != nil && !errors.Is(err, errs.ErrAccessTokenNotFound) {

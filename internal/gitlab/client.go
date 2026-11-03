@@ -28,13 +28,13 @@ type Client interface {
 	CreateGroupServiceAccountAccessToken(ctx context.Context, group string, groupId string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenGroupServiceAccount, error)
 	CreateUserServiceAccountAccessToken(ctx context.Context, username string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenUserServiceAccount, error)
 	CreateProjectServiceAccountAccessToken(ctx context.Context, project string, projectId string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenProjectServiceAccount, error)
-	RevokeUserServiceAccountAccessToken(ctx context.Context, token string) error
-	RevokeGroupServiceAccountAccessToken(ctx context.Context, token string) error
-	RevokeProjectServiceAccountAccessToken(ctx context.Context, token string) error
+	RevokeUserServiceAccountAccessToken(ctx context.Context, tokenId int64) error
+	RevokeGroupServiceAccountAccessToken(ctx context.Context, tokenId int64, groupId string, userId int64) error
+	RevokeProjectServiceAccountAccessToken(ctx context.Context, tokenId int64, projectId string, userId int64) error
 	CreatePipelineProjectTriggerAccessToken(ctx context.Context, path, name string, projectId int64, description string, expiresAt *time.Time) (*token.TokenPipelineProjectTrigger, error)
-	RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int64, tokenId int64) error
+	RevokePipelineProjectTriggerAccessToken(ctx context.Context, tokenId int64, projectId string) error
 	CreateProjectDeployToken(ctx context.Context, path string, projectId int64, name string, expiresAt *time.Time, scopes []string) (et *token.TokenProjectDeploy, err error)
-	RevokeProjectDeployToken(ctx context.Context, projectId, deployTokenId int64) (err error)
+	RevokeProjectDeployToken(ctx context.Context, tokenId int64, projectId string) error
 	CreateGroupDeployToken(ctx context.Context, path string, groupId int64, name string, expiresAt *time.Time, scopes []string) (et *token.TokenGroupDeploy, err error)
-	RevokeGroupDeployToken(ctx context.Context, groupId, deployTokenId int64) (err error)
+	RevokeGroupDeployToken(ctx context.Context, tokenId int64, groupId string) error
 }

@@ -37,11 +37,12 @@ type stubClient struct {
 	revokePersonalAccessToken               func(ctx context.Context, tokenId int64) error
 	revokeProjectAccessToken                func(ctx context.Context, tokenId int64, projectId string) error
 	revokeGroupAccessToken                  func(ctx context.Context, tokenId int64, groupId string) error
-	revokeUserServiceAccountAccessToken     func(ctx context.Context, token string) error
-	revokeGroupServiceAccountAccessToken    func(ctx context.Context, token string) error
-	revokePipelineProjectTriggerAccessToken func(ctx context.Context, projectId int64, tokenId int64) error
-	revokeGroupDeployToken                  func(ctx context.Context, groupId, deployTokenId int64) error
-	revokeProjectDeployToken                func(ctx context.Context, projectId, deployTokenId int64) error
+	revokeUserServiceAccountAccessToken     func(ctx context.Context, tokenId int64) error
+	revokeGroupServiceAccountAccessToken    func(ctx context.Context, tokenId int64, groupId string, userId int64) error
+	revokeProjectServiceAccountAccessToken  func(ctx context.Context, tokenId int64, projectId string, userId int64) error
+	revokePipelineProjectTriggerAccessToken func(ctx context.Context, tokenId int64, projectId string) error
+	revokeGroupDeployToken                  func(ctx context.Context, tokenId int64, groupId string) error
+	revokeProjectDeployToken                func(ctx context.Context, tokenId int64, projectId string) error
 }
 
 func (s *stubClient) RevokePersonalAccessToken(ctx context.Context, tokenId int64) error {
@@ -56,24 +57,28 @@ func (s *stubClient) RevokeGroupAccessToken(ctx context.Context, tokenId int64, 
 	return s.revokeGroupAccessToken(ctx, tokenId, groupId)
 }
 
-func (s *stubClient) RevokeUserServiceAccountAccessToken(ctx context.Context, token string) error {
-	return s.revokeUserServiceAccountAccessToken(ctx, token)
+func (s *stubClient) RevokeUserServiceAccountAccessToken(ctx context.Context, tokenId int64) error {
+	return s.revokeUserServiceAccountAccessToken(ctx, tokenId)
 }
 
-func (s *stubClient) RevokeGroupServiceAccountAccessToken(ctx context.Context, token string) error {
-	return s.revokeGroupServiceAccountAccessToken(ctx, token)
+func (s *stubClient) RevokeGroupServiceAccountAccessToken(ctx context.Context, tokenId int64, groupId string, userId int64) error {
+	return s.revokeGroupServiceAccountAccessToken(ctx, tokenId, groupId, userId)
 }
 
-func (s *stubClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, projectId int64, tokenId int64) error {
-	return s.revokePipelineProjectTriggerAccessToken(ctx, projectId, tokenId)
+func (s *stubClient) RevokeProjectServiceAccountAccessToken(ctx context.Context, tokenId int64, projectId string, userId int64) error {
+	return s.revokeProjectServiceAccountAccessToken(ctx, tokenId, projectId, userId)
 }
 
-func (s *stubClient) RevokeGroupDeployToken(ctx context.Context, groupId, deployTokenId int64) error {
-	return s.revokeGroupDeployToken(ctx, groupId, deployTokenId)
+func (s *stubClient) RevokePipelineProjectTriggerAccessToken(ctx context.Context, tokenId int64, projectId string) error {
+	return s.revokePipelineProjectTriggerAccessToken(ctx, tokenId, projectId)
 }
 
-func (s *stubClient) RevokeProjectDeployToken(ctx context.Context, projectId, deployTokenId int64) error {
-	return s.revokeProjectDeployToken(ctx, projectId, deployTokenId)
+func (s *stubClient) RevokeGroupDeployToken(ctx context.Context, tokenId int64, groupId string) error {
+	return s.revokeGroupDeployToken(ctx, tokenId, groupId)
+}
+
+func (s *stubClient) RevokeProjectDeployToken(ctx context.Context, tokenId int64, projectId string) error {
+	return s.revokeProjectDeployToken(ctx, tokenId, projectId)
 }
 
 func newRevokeSecret(tokenType token.Type, parentId string, extra map[string]any) *logical.Secret {

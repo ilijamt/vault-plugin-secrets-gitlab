@@ -84,15 +84,6 @@ func TestClientNeverLogsTokenValues(t *testing.T) {
 			_, _, err := c.RotateCurrentToken(ctx)
 			return err
 		},
-		"revoke user service account": func(ctx context.Context, c gitlab.Client) error {
-			return c.RevokeUserServiceAccountAccessToken(ctx, canaryToken)
-		},
-		"revoke group service account": func(ctx context.Context, c gitlab.Client) error {
-			return c.RevokeGroupServiceAccountAccessToken(ctx, canaryToken)
-		},
-		"revoke project service account": func(ctx context.Context, c gitlab.Client) error {
-			return c.RevokeProjectServiceAccountAccessToken(ctx, canaryToken)
-		},
 	}
 
 	for name, call := range calls {
