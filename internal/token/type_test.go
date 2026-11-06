@@ -91,6 +91,7 @@ func TestIsTokenTypeAllowed(t *testing.T) {
 	}{
 		{name: "project service account on minimum", input: token.TypeProjectServiceAccount, version: "18.11.0", expected: true},
 		{name: "project service account on newer", input: token.TypeProjectServiceAccount, version: "19.1.1-ee", expected: true},
+		{name: "project service account on first ee release", input: token.TypeProjectServiceAccount, version: "18.11.0-ee", expected: true},
 		{name: "project service account on older", input: token.TypeProjectServiceAccount, version: "18.10.9", expected: false},
 		{name: "group service account on 17.11", input: token.TypeGroupServiceAccount, version: "17.11.7", expected: true},
 		{name: "personal has no minimum", input: token.TypePersonal, version: "12.0.0", expected: true},

@@ -37,6 +37,8 @@ func atLeast(version, minVersion string) bool {
 // least MAJOR.MINOR.PATCH. Pre-release and build suffixes pass through
 // unchanged so semver's precedence rules apply.
 func canonicalize(v string) string {
+	// -ee is an edition, not a pre-release, so 18.11.0-ee is not lower than 18.11.0.
+	v = strings.TrimSuffix(v, "-ee")
 	if !strings.HasPrefix(v, "v") {
 		v = "v" + v
 	}
