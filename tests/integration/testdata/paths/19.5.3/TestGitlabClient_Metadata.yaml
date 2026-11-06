@@ -22,7 +22,7 @@ interactions:
         proto_major: 1
         proto_minor: 1
         content_length: 236
-        body: '{"version":"19.5.3-ee","revision":"04dbc712e7a","kas":{"enabled":true,"externalUrl":"ws://4b4243425917/-/kubernetes-agent/","externalK8sProxyUrl":"http://4b4243425917/-/kubernetes-agent/k8s-proxy/","version":"19.5.3"},"enterprise":true}'
+        body: '{"version":"19.5.3-ee","revision":"04dbc712e7a","kas":{"enabled":true,"externalUrl":"ws://a2f09c444071/-/kubernetes-agent/","externalK8sProxyUrl":"http://a2f09c444071/-/kubernetes-agent/k8s-proxy/","version":"19.5.3"},"enterprise":true}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -33,9 +33,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 23:23:54 GMT
+                - Fri, 06 Nov 2026 03:24:55 GMT
             Etag:
-                - W/"c30738146a383991577b42b7a7845433"
+                - W/"e1e680cbb35fd0ba3cda5a85e46c778b"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -51,11 +51,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6Q0DAMFZ9B5D3SJ6Q7KXVNK","version":"1"}'
+                - '{"correlation_id":"01M6QE6MC1K4S4KJ68T4G0XKV8","version":"1"}'
             X-Request-Id:
-                - 01M6Q0DAMFZ9B5D3SJ6Q7KXVNK
+                - 01M6QE6MC1K4S4KJ68T4G0XKV8
             X-Runtime:
-                - "0.033027"
+                - "0.073285"
         status: 200 OK
         code: 200
-        duration: 35.284625ms
+        duration: 75.58275ms

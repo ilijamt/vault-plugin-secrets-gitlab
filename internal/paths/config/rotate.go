@@ -144,6 +144,11 @@ func (p *Provider) PeriodicFunc(ctx context.Context, req *logical.Request) (err 
 			logging.New(p.b.Logger()).Debug("Trying to rotate the config", logging.Fields{Name: name})
 			err = errors.Join(err, p.checkAndRotateConfigToken(ctx, req, config))
 		}
+		if config != nil {
+			if refreshErr := p.refreshConfig(ctx, req, name); refreshErr != nil {
+				logging.New(p.b.Logger()).Debug("Could not refresh GitLab information", logging.Fields{ConfigName: name, Err: refreshErr})
+			}
+		}
 	}
 
 	return err

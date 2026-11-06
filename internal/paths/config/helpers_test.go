@@ -99,6 +99,7 @@ type mockGitlabClient struct {
 	tokenInfo    *modelToken.TokenConfig
 	tokenInfoErr error
 	metadata     *g.Metadata
+	instanceErr  error
 	metadataErr  error
 	rotatedToken *modelToken.TokenConfig
 	rotatedOld   *modelToken.TokenConfig
@@ -111,6 +112,13 @@ func (m *mockGitlabClient) CurrentTokenInfo(_ context.Context) (*modelToken.Toke
 
 func (m *mockGitlabClient) Metadata(_ context.Context) (*g.Metadata, error) {
 	return m.metadata, m.metadataErr
+}
+
+func (m *mockGitlabClient) InstanceInfo(_ context.Context) (*modelConfig.InstanceInfo, error) {
+	if m.instanceErr != nil {
+		return nil, m.instanceErr
+	}
+	return &modelConfig.InstanceInfo{TokenOwnerIsAdmin: true, SettingsKnown: true, MaxTokenLifetimeDays: 30}, nil
 }
 
 func (m *mockGitlabClient) RotateCurrentToken(_ context.Context) (*modelToken.TokenConfig, *modelToken.TokenConfig, error) {

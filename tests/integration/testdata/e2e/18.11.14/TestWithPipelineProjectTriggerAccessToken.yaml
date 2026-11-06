@@ -25,7 +25,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '{"id":6,"name":"Initial token","revoked":false,"created_at":"2026-11-05T23:18:20.727Z","description":null,"scopes":["api"],"user_id":3,"last_used_at":"2026-11-05T23:19:32.702Z","active":true,"granular":false,"expires_at":"2027-11-04","last_used_ips":["192.168.65.1"]}'
+        body: '{"id":2,"name":"Initial token","revoked":false,"created_at":"2026-11-06T03:19:16.546Z","description":null,"scopes":["api"],"user_id":2,"last_used_at":"2026-11-06T03:20:29.290Z","active":true,"granular":false,"expires_at":"2027-11-05","last_used_ips":["192.168.65.1"]}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -34,9 +34,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 23:19:41 GMT
+                - Fri, 06 Nov 2026 03:20:42 GMT
             Etag:
-                - W/"7bdcb259a9fc461554f3cd65e5dd6b3a"
+                - W/"c2366dbe000b7e0b26f6b66bd2f450e9"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -53,14 +53,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6Q05JYE800TJYC07XSYWKPE","version":"1"}'
+                - '{"correlation_id":"01M6QDYWWSGXN7NGV90KPTM9SC","version":"1"}'
             X-Request-Id:
-                - 01M6Q05JYE800TJYC07XSYWKPE
+                - 01M6QDYWWSGXN7NGV90KPTM9SC
             X-Runtime:
-                - "0.012413"
+                - "0.010753"
         status: 200 OK
         code: 200
-        duration: 14.671334ms
+        duration: 12.539083ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -82,7 +82,7 @@ interactions:
         proto_major: 1
         proto_minor: 1
         content_length: 240
-        body: '{"version":"18.11.14-ee","revision":"36cf8f5e8ce","kas":{"enabled":true,"externalUrl":"ws://fc33c04fec34/-/kubernetes-agent/","externalK8sProxyUrl":"http://fc33c04fec34/-/kubernetes-agent/k8s-proxy/","version":"18.11.14"},"enterprise":true}'
+        body: '{"version":"18.11.14-ee","revision":"36cf8f5e8ce","kas":{"enabled":true,"externalUrl":"ws://34dbe29faacc/-/kubernetes-agent/","externalK8sProxyUrl":"http://34dbe29faacc/-/kubernetes-agent/k8s-proxy/","version":"18.11.14"},"enterprise":true}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -93,9 +93,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 23:19:41 GMT
+                - Fri, 06 Nov 2026 03:20:42 GMT
             Etag:
-                - W/"088d0e4031048c0c99e316aa55813bd0"
+                - W/"f71eaa506cf2dd0506cc000432f0377a"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -111,15 +111,129 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6Q05JZD11GQ80PGRD9JQS4B","version":"1"}'
+                - '{"correlation_id":"01M6QDYWXM0DQCW2X5BVQ7YBRG","version":"1"}'
             X-Request-Id:
-                - 01M6Q05JZD11GQ80PGRD9JQS4B
+                - 01M6QDYWXM0DQCW2X5BVQ7YBRG
             X-Runtime:
-                - "0.012685"
+                - "0.013347"
         status: 200 OK
         code: 200
-        duration: 14.352791ms
+        duration: 15.291208ms
     - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/user
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        content_length: -1
+        uncompressed: true
+        body: '{"id":2,"username":"normal-user","public_email":null,"name":"Normal User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/30ee3a8ed91c220db688a3bde115c203763b4281374c40835f69168786a590af?s=80\u0026d=identicon","web_url":"http://34dbe29faacc/normal-user","created_at":"2026-11-06T03:19:16.440Z","bio":"","location":"","linkedin":"","twitter":"","discord":"","website_url":"","github":"","job_title":"","pronouns":null,"organization":"","bot":false,"work_information":null,"local_time":null,"last_sign_in_at":null,"confirmed_at":"2026-11-06T03:19:16.410Z","last_activity_on":"2026-11-06","email":"normal@local","theme_id":3,"color_scheme_id":1,"projects_limit":0,"current_sign_in_at":null,"identities":[],"can_create_group":false,"can_create_project":false,"two_factor_enabled":false,"external":false,"private_profile":false,"commit_email":"normal@local","preferred_language":"en","shared_runners_minutes_limit":null,"extra_shared_runners_minutes_limit":null,"scim_identities":[]}'
+        headers:
+            Cache-Control:
+                - max-age=0, private, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 06 Nov 2026 03:20:42 GMT
+            Etag:
+                - W/"e9bf3e2227934d26f7b280829a6d0ed8"
+            Nel:
+                - '{"max_age": 0}'
+            Referrer-Policy:
+                - strict-origin-when-cross-origin
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Accept-Encoding
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01M6QDYWYM1QXB7T0V3ECZEKQA","version":"1"}'
+            X-Request-Id:
+                - 01M6QDYWYM1QXB7T0V3ECZEKQA
+            X-Runtime:
+                - "0.020199"
+        status: 200 OK
+        code: 200
+        duration: 22.457166ms
+    - id: 3
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        host: localhost:8080
+        headers:
+            Accept:
+                - application/json
+            Private-Token:
+                - REPLACED-TOKEN
+            User-Agent:
+                - go-gitlab
+        url: http://localhost:8080/api/v4/application/settings
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 2
+        body: '{}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "27"
+            Content-Type:
+                - application/json
+            Date:
+                - Fri, 06 Nov 2026 03:20:42 GMT
+            Nel:
+                - '{"max_age": 0}'
+            Server:
+                - nginx
+            Strict-Transport-Security:
+                - max-age=63072000
+            Vary:
+                - Origin
+            X-Content-Type-Options:
+                - nosniff
+            X-Frame-Options:
+                - SAMEORIGIN
+            X-Gitlab-Meta:
+                - '{"correlation_id":"01M6QDYX05FYSM5WTBG27A7Q1V","version":"1"}'
+            X-Request-Id:
+                - 01M6QDYX05FYSM5WTBG27A7Q1V
+            X-Runtime:
+                - "0.009969"
+        status: 403 Forbidden
+        code: 403
+        duration: 11.82525ms
+    - id: 4
       request:
         proto: HTTP/1.1
         proto_major: 1
@@ -143,7 +257,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '{"id":2,"description":"An example project","name":"example","name_with_namespace":"example / example","path":"example","path_with_namespace":"example/example","created_at":"2026-11-05T23:18:25.175Z","default_branch":"main","tag_list":[],"topics":[],"ssh_url_to_repo":"ssh://git@fc33c04fec34:2224/example/example.git","http_url_to_repo":"http://fc33c04fec34/example/example.git","web_url":"http://fc33c04fec34/example/example","readme_url":null,"forks_count":0,"avatar_url":null,"star_count":0,"last_activity_at":"2026-11-05T23:18:25.135Z","visibility":"private","namespace":{"id":3,"name":"example","path":"example","kind":"group","full_path":"example","parent_id":null,"avatar_url":null,"web_url":"http://fc33c04fec34/groups/example"},"_links":{"self":"http://fc33c04fec34/api/v4/projects/2","issues":"http://fc33c04fec34/api/v4/projects/2/issues","merge_requests":"http://fc33c04fec34/api/v4/projects/2/merge_requests","repo_branches":"http://fc33c04fec34/api/v4/projects/2/repository/branches","labels":"http://fc33c04fec34/api/v4/projects/2/labels","events":"http://fc33c04fec34/api/v4/projects/2/events","members":"http://fc33c04fec34/api/v4/projects/2/members","cluster_agents":"http://fc33c04fec34/api/v4/projects/2/cluster_agents"},"marked_for_deletion_at":null,"marked_for_deletion_on":null,"packages_enabled":true,"empty_repo":true,"archived":false,"resolve_outdated_diff_discussions":false,"container_expiration_policy":{"cadence":"1d","enabled":false,"keep_n":10,"older_than":"90d","name_regex":".*","name_regex_keep":null,"next_run_at":"2026-11-06T23:18:25.191Z"},"repository_object_format":"sha1","issues_enabled":true,"merge_requests_enabled":true,"wiki_enabled":true,"jobs_enabled":true,"snippets_enabled":true,"container_registry_enabled":true,"service_desk_enabled":false,"service_desk_address":null,"can_create_merge_request_in":true,"issues_access_level":"enabled","repository_access_level":"enabled","merge_requests_access_level":"enabled","forking_access_level":"enabled","wiki_access_level":"enabled","builds_access_level":"enabled","snippets_access_level":"enabled","pages_access_level":"private","analytics_access_level":"enabled","container_registry_access_level":"enabled","security_and_compliance_access_level":"private","releases_access_level":"enabled","environments_access_level":"enabled","feature_flags_access_level":"enabled","infrastructure_access_level":"enabled","monitor_access_level":"enabled","model_experiments_access_level":"enabled","model_registry_access_level":"enabled","package_registry_access_level":"enabled","emails_disabled":false,"emails_enabled":true,"show_diff_preview_in_email":true,"shared_runners_enabled":true,"lfs_enabled":true,"creator_id":1,"import_url":null,"import_type":null,"import_status":"none","import_error":null,"open_issues_count":0,"description_html":"\u003cp data-sourcepos=\"1:1-1:18\" dir=\"auto\"\u003eAn example project\u003c/p\u003e","updated_at":"2026-11-05T23:18:25.175Z","ci_default_git_depth":20,"ci_delete_pipelines_in_seconds":null,"ci_forward_deployment_enabled":true,"ci_forward_deployment_rollback_allowed":true,"ci_job_token_scope_enabled":false,"ci_separated_caches":true,"ci_allow_fork_pipelines_to_run_in_parent_project":true,"ci_id_token_sub_claim_components":["project_path","ref_type","ref"],"build_git_strategy":"fetch","keep_latest_artifact":true,"restrict_user_defined_variables":false,"ci_pipeline_variables_minimum_override_role":"developer","runner_token_expiration_interval":null,"group_runners_enabled":true,"resource_group_default_process_mode":"unordered","auto_cancel_pending_pipelines":"enabled","build_timeout":3600,"auto_devops_enabled":true,"auto_devops_deploy_strategy":"continuous","ci_push_repository_for_job_token_allowed":false,"protect_merge_request_pipelines":true,"ci_display_pipeline_variables":false,"runners_token":"GR1348941iNgBLF95wLTkGDEaxpsr","ci_config_path":null,"public_jobs":true,"shared_with_groups":[],"only_allow_merge_if_pipeline_succeeds":false,"allow_merge_on_skipped_pipeline":null,"request_access_enabled":true,"only_allow_merge_if_all_discussions_are_resolved":false,"remove_source_branch_after_merge":true,"printing_merge_request_link_enabled":true,"merge_method":"merge","squash_option":"default_off","enforce_auth_checks_on_uploads":true,"suggestion_commit_message":null,"merge_commit_template":null,"squash_commit_template":null,"issue_branch_template":null,"warn_about_potentially_unwanted_characters":true,"autoclose_referenced_issues":true,"max_artifacts_size":null,"requirements_enabled":false,"requirements_access_level":"enabled","security_and_compliance_enabled":true,"compliance_frameworks":[],"permissions":{"project_access":null,"group_access":{"access_level":50,"notification_level":3}}}'
+        body: '{"id":1,"description":"An example project","name":"example","name_with_namespace":"example / example","path":"example","path_with_namespace":"example/example","created_at":"2026-11-06T03:19:21.712Z","default_branch":"main","tag_list":[],"topics":[],"ssh_url_to_repo":"ssh://git@34dbe29faacc:2224/example/example.git","http_url_to_repo":"http://34dbe29faacc/example/example.git","web_url":"http://34dbe29faacc/example/example","readme_url":null,"forks_count":0,"avatar_url":null,"star_count":0,"last_activity_at":"2026-11-06T03:19:21.686Z","visibility":"private","namespace":{"id":3,"name":"example","path":"example","kind":"group","full_path":"example","parent_id":null,"avatar_url":null,"web_url":"http://34dbe29faacc/groups/example"},"_links":{"self":"http://34dbe29faacc/api/v4/projects/1","issues":"http://34dbe29faacc/api/v4/projects/1/issues","merge_requests":"http://34dbe29faacc/api/v4/projects/1/merge_requests","repo_branches":"http://34dbe29faacc/api/v4/projects/1/repository/branches","labels":"http://34dbe29faacc/api/v4/projects/1/labels","events":"http://34dbe29faacc/api/v4/projects/1/events","members":"http://34dbe29faacc/api/v4/projects/1/members","cluster_agents":"http://34dbe29faacc/api/v4/projects/1/cluster_agents"},"marked_for_deletion_at":null,"marked_for_deletion_on":null,"packages_enabled":true,"empty_repo":true,"archived":false,"resolve_outdated_diff_discussions":false,"container_expiration_policy":{"cadence":"1d","enabled":false,"keep_n":10,"older_than":"90d","name_regex":".*","name_regex_keep":null,"next_run_at":"2026-11-07T03:19:21.726Z"},"repository_object_format":"sha1","issues_enabled":true,"merge_requests_enabled":true,"wiki_enabled":true,"jobs_enabled":true,"snippets_enabled":true,"container_registry_enabled":true,"service_desk_enabled":false,"service_desk_address":null,"can_create_merge_request_in":true,"issues_access_level":"enabled","repository_access_level":"enabled","merge_requests_access_level":"enabled","forking_access_level":"enabled","wiki_access_level":"enabled","builds_access_level":"enabled","snippets_access_level":"enabled","pages_access_level":"private","analytics_access_level":"enabled","container_registry_access_level":"enabled","security_and_compliance_access_level":"private","releases_access_level":"enabled","environments_access_level":"enabled","feature_flags_access_level":"enabled","infrastructure_access_level":"enabled","monitor_access_level":"enabled","model_experiments_access_level":"enabled","model_registry_access_level":"enabled","package_registry_access_level":"enabled","emails_disabled":false,"emails_enabled":true,"show_diff_preview_in_email":true,"shared_runners_enabled":true,"lfs_enabled":true,"creator_id":1,"import_url":null,"import_type":null,"import_status":"none","import_error":null,"open_issues_count":0,"description_html":"\u003cp data-sourcepos=\"1:1-1:18\" dir=\"auto\"\u003eAn example project\u003c/p\u003e","updated_at":"2026-11-06T03:19:21.712Z","ci_default_git_depth":20,"ci_delete_pipelines_in_seconds":null,"ci_forward_deployment_enabled":true,"ci_forward_deployment_rollback_allowed":true,"ci_job_token_scope_enabled":false,"ci_separated_caches":true,"ci_allow_fork_pipelines_to_run_in_parent_project":true,"ci_id_token_sub_claim_components":["project_path","ref_type","ref"],"build_git_strategy":"fetch","keep_latest_artifact":true,"restrict_user_defined_variables":false,"ci_pipeline_variables_minimum_override_role":"developer","runner_token_expiration_interval":null,"group_runners_enabled":true,"resource_group_default_process_mode":"unordered","auto_cancel_pending_pipelines":"enabled","build_timeout":3600,"auto_devops_enabled":true,"auto_devops_deploy_strategy":"continuous","ci_push_repository_for_job_token_allowed":false,"protect_merge_request_pipelines":true,"ci_display_pipeline_variables":false,"runners_token":"GR1348941ZpDvGKz1vETw3jyy-k7j","ci_config_path":null,"public_jobs":true,"shared_with_groups":[],"only_allow_merge_if_pipeline_succeeds":false,"allow_merge_on_skipped_pipeline":null,"request_access_enabled":true,"only_allow_merge_if_all_discussions_are_resolved":false,"remove_source_branch_after_merge":true,"printing_merge_request_link_enabled":true,"merge_method":"merge","squash_option":"default_off","enforce_auth_checks_on_uploads":true,"suggestion_commit_message":null,"merge_commit_template":null,"squash_commit_template":null,"issue_branch_template":null,"warn_about_potentially_unwanted_characters":true,"autoclose_referenced_issues":true,"max_artifacts_size":null,"requirements_enabled":false,"requirements_access_level":"enabled","security_and_compliance_enabled":true,"compliance_frameworks":[],"permissions":{"project_access":null,"group_access":{"access_level":50,"notification_level":3}}}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -152,9 +266,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 23:19:41 GMT
+                - Fri, 06 Nov 2026 03:20:42 GMT
             Etag:
-                - W/"dcb9e90295f2453dcb5eaeae5ca651d4"
+                - W/"a2a35678a2d842fafce06ce36e87bbe1"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -171,15 +285,15 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6Q05K0FY7C9YT0J2FKTN0MW","version":"1"}'
+                - '{"correlation_id":"01M6QDYX13S961EW7D3HFM4050","version":"1"}'
             X-Request-Id:
-                - 01M6Q05K0FY7C9YT0J2FKTN0MW
+                - 01M6QDYX13S961EW7D3HFM4050
             X-Runtime:
-                - "0.054901"
+                - "0.062086"
         status: 200 OK
         code: 200
-        duration: 56.810459ms
-    - id: 3
+        duration: 64.172458ms
+    - id: 5
       request:
         proto: HTTP/1.1
         proto_major: 1
@@ -196,14 +310,14 @@ interactions:
                 - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
-        url: http://localhost:8080/api/v4/projects/2/triggers
+        url: http://localhost:8080/api/v4/projects/1/triggers
         method: POST
       response:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
         content_length: 494
-        body: '{"id":1,"token":"REPLACED-TOKEN","description":"pipeline-project-trigger","created_at":"2026-11-05T23:19:41.489Z","updated_at":"2026-11-05T23:19:41.489Z","last_used":null,"expires_at":null,"owner":{"id":3,"username":"normal-user","public_email":null,"name":"Normal User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/30ee3a8ed91c220db688a3bde115c203763b4281374c40835f69168786a590af?s=80\u0026d=identicon","web_url":"http://fc33c04fec34/normal-user"}}'
+        body: '{"id":1,"token":"REPLACED-TOKEN","description":"pipeline-project-trigger","created_at":"2026-11-06T03:20:42.449Z","updated_at":"2026-11-06T03:20:42.449Z","last_used":null,"expires_at":null,"owner":{"id":2,"username":"normal-user","public_email":null,"name":"Normal User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/30ee3a8ed91c220db688a3bde115c203763b4281374c40835f69168786a590af?s=80\u0026d=identicon","web_url":"http://34dbe29faacc/normal-user"}}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -214,9 +328,9 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 23:19:41 GMT
+                - Fri, 06 Nov 2026 03:20:42 GMT
             Etag:
-                - W/"7ca08a14030d413ce193322111e31964"
+                - W/"63b8eb37fada1286e65eb8dfcffaa564"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -232,15 +346,15 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6Q05K4939Z4ECB8TFB6B8P9","version":"1"}'
+                - '{"correlation_id":"01M6QDYX5BB81BCDKS7TFH788E","version":"1"}'
             X-Request-Id:
-                - 01M6Q05K4939Z4ECB8TFB6B8P9
+                - 01M6QDYX5BB81BCDKS7TFH788E
             X-Runtime:
-                - "0.047170"
+                - "0.046142"
         status: 201 Created
         code: 201
-        duration: 49.260917ms
-    - id: 4
+        duration: 48.2305ms
+    - id: 6
       request:
         proto: HTTP/1.1
         proto_major: 1
@@ -264,7 +378,7 @@ interactions:
             - chunked
         content_length: -1
         uncompressed: true
-        body: '[{"id":1,"token":"REPLACED-TOKEN","description":"pipeline-project-trigger","created_at":"2026-11-05T23:19:41.489Z","updated_at":"2026-11-05T23:19:41.489Z","last_used":null,"expires_at":null,"owner":{"id":3,"username":"normal-user","public_email":null,"name":"Normal User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/30ee3a8ed91c220db688a3bde115c203763b4281374c40835f69168786a590af?s=80\u0026d=identicon","web_url":"http://fc33c04fec34/normal-user"}}]'
+        body: '[{"id":1,"token":"REPLACED-TOKEN","description":"pipeline-project-trigger","created_at":"2026-11-06T03:20:42.449Z","updated_at":"2026-11-06T03:20:42.449Z","last_used":null,"expires_at":null,"owner":{"id":2,"username":"normal-user","public_email":null,"name":"Normal User","state":"active","locked":false,"avatar_url":"https://www.gravatar.com/avatar/30ee3a8ed91c220db688a3bde115c203763b4281374c40835f69168786a590af?s=80\u0026d=identicon","web_url":"http://34dbe29faacc/normal-user"}}]'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
@@ -273,11 +387,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 23:19:41 GMT
+                - Fri, 06 Nov 2026 03:20:42 GMT
             Etag:
-                - W/"41fc68a119684df62e50ca591f7047cf"
+                - W/"605dfc4974e48fa3040f291b3bc00220"
             Link:
-                - <http://fc33c04fec34/api/v4/projects/example%2Fexample/triggers?id=example%2Fexample&page=1&per_page=20>; rel="first", <http://fc33c04fec34/api/v4/projects/example%2Fexample/triggers?id=example%2Fexample&page=1&per_page=20>; rel="last"
+                - <http://34dbe29faacc/api/v4/projects/example%2Fexample/triggers?id=example%2Fexample&page=1&per_page=20>; rel="first", <http://34dbe29faacc/api/v4/projects/example%2Fexample/triggers?id=example%2Fexample&page=1&per_page=20>; rel="last"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -294,7 +408,7 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6Q05K7GZJTNDECRPNTRAF22","version":"1"}'
+                - '{"correlation_id":"01M6QDYX8G6G7ZXG40Y85E49F4","version":"1"}'
             X-Next-Page:
                 - ""
             X-Page:
@@ -304,17 +418,17 @@ interactions:
             X-Prev-Page:
                 - ""
             X-Request-Id:
-                - 01M6Q05K7GZJTNDECRPNTRAF22
+                - 01M6QDYX8G6G7ZXG40Y85E49F4
             X-Runtime:
-                - "0.028922"
+                - "0.027892"
             X-Total:
                 - "1"
             X-Total-Pages:
                 - "1"
         status: 200 OK
         code: 200
-        duration: 30.86525ms
-    - id: 5
+        duration: 30.142584ms
+    - id: 7
       request:
         proto: HTTP/1.1
         proto_major: 1
@@ -328,7 +442,7 @@ interactions:
                 - REPLACED-TOKEN
             User-Agent:
                 - go-gitlab
-        url: http://localhost:8080/api/v4/projects/2/triggers/1
+        url: http://localhost:8080/api/v4/projects/1/triggers/1
         method: DELETE
       response:
         proto: HTTP/1.1
@@ -342,7 +456,7 @@ interactions:
             Connection:
                 - keep-alive
             Date:
-                - Thu, 05 Nov 2026 23:19:41 GMT
+                - Fri, 06 Nov 2026 03:20:42 GMT
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -358,15 +472,15 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6Q05K9H1VKCCSWQ5BKP5SS5","version":"1"}'
+                - '{"correlation_id":"01M6QDYXAHJ3X01KGVCTDT68FH","version":"1"}'
             X-Request-Id:
-                - 01M6Q05K9H1VKCCSWQ5BKP5SS5
+                - 01M6QDYXAHJ3X01KGVCTDT68FH
             X-Runtime:
-                - "0.081449"
+                - "0.028622"
         status: 204 No Content
         code: 204
-        duration: 83.584667ms
-    - id: 6
+        duration: 30.949125ms
+    - id: 8
       request:
         proto: HTTP/1.1
         proto_major: 1
@@ -398,11 +512,11 @@ interactions:
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 23:19:41 GMT
+                - Fri, 06 Nov 2026 03:20:42 GMT
             Etag:
                 - W/"4f53cda18c2baa0c0354bb5f9a3ecbe5"
             Link:
-                - <http://fc33c04fec34/api/v4/projects/example%2Fexample/triggers?id=example%2Fexample&page=1&per_page=20>; rel="first", <http://fc33c04fec34/api/v4/projects/example%2Fexample/triggers?id=example%2Fexample&page=1&per_page=20>; rel="last"
+                - <http://34dbe29faacc/api/v4/projects/example%2Fexample/triggers?id=example%2Fexample&page=1&per_page=20>; rel="first", <http://34dbe29faacc/api/v4/projects/example%2Fexample/triggers?id=example%2Fexample&page=1&per_page=20>; rel="last"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -418,7 +532,7 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6Q05KEWM7WAY8YBV66Z2HXS","version":"1"}'
+                - '{"correlation_id":"01M6QDYXCJMMBY7W21AW15Q0YR","version":"1"}'
             X-Next-Page:
                 - ""
             X-Page:
@@ -428,13 +542,13 @@ interactions:
             X-Prev-Page:
                 - ""
             X-Request-Id:
-                - 01M6Q05KEWM7WAY8YBV66Z2HXS
+                - 01M6QDYXCJMMBY7W21AW15Q0YR
             X-Runtime:
-                - "0.033427"
+                - "0.023745"
             X-Total:
                 - "0"
             X-Total-Pages:
                 - "1"
         status: 200 OK
         code: 200
-        duration: 35.932083ms
+        duration: 26.0215ms

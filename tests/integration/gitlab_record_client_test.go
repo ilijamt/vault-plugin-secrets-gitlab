@@ -5,10 +5,12 @@ package integration_test
 import (
 	"bytes"
 	"cmp"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 	"testing"
 
 	"gopkg.in/dnaeon/go-vcr.v4/pkg/cassette"
@@ -16,6 +18,15 @@ import (
 )
 
 var tokenFieldRegex = regexp.MustCompile(`"token":"[^"]*"`)
+
+var settingsAllowlist = []string{
+	"disable_personal_access_tokens",
+	"enforce_granular_tokens",
+	"granular_tokens_enforced_after",
+	"max_personal_access_token_lifetime",
+	"require_personal_access_token_expiry",
+	"service_access_tokens_expiration_enforced",
+}
 
 type skipEmptyFS struct {
 	cassette.FS
@@ -26,6 +37,27 @@ func (c *skipEmptyFS) WriteFile(name string, data []byte) error {
 		return nil
 	}
 	return c.FS.WriteFile(name, data)
+}
+
+// allowlistSettings keeps credentials in the settings response out of cassettes.
+func allowlistSettings(i *cassette.Interaction) error {
+	var settings map[string]any
+	if err := json.Unmarshal([]byte(i.Response.Body), &settings); err != nil {
+		return nil
+	}
+	kept := make(map[string]any, len(settingsAllowlist))
+	for _, key := range settingsAllowlist {
+		if value, ok := settings[key]; ok {
+			kept[key] = value
+		}
+	}
+	body, err := json.Marshal(kept)
+	if err != nil {
+		return err
+	}
+	i.Response.Body = string(body)
+	i.Response.ContentLength = int64(len(body))
+	return nil
 }
 
 // getClient returns an HTTP client backed by a go-vcr recorder for the given
@@ -52,6 +84,9 @@ func getClient(t *testing.T, target string) (client *http.Client, u string) {
 			recorder.WithHook(func(i *cassette.Interaction) error {
 				i.Request.Headers.Set("Private-Token", "REPLACED-TOKEN")
 				i.Response.Body = tokenFieldRegex.ReplaceAllString(i.Response.Body, `"token":"REPLACED-TOKEN"`)
+				if strings.HasSuffix(i.Request.URL, "/application/settings") {
+					return allowlistSettings(i)
+				}
 				return nil
 			}, recorder.BeforeSaveHook),
 		}...,

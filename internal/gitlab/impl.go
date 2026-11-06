@@ -154,6 +154,49 @@ func (gc *gitlabClient) Metadata(ctx context.Context) (metadata *g.Metadata, err
 	return metadata, err
 }
 
+// InstanceInfo decodes only named settings because the full response holds secrets.
+func (gc *gitlabClient) InstanceInfo(ctx context.Context) (info *modelConfig.InstanceInfo, err error) {
+	defer func() {
+		gc.log.Debug("Fetch instance info", logging.Fields{Err: err})
+	}()
+
+	user, _, err := gc.client.Users.CurrentUser(g.WithContext(ctx))
+	if err != nil {
+		return nil, err
+	}
+	info = &modelConfig.InstanceInfo{TokenOwnerIsAdmin: user.IsAdmin}
+
+	req, err := gc.client.NewRequest(http.MethodGet, "application/settings", nil, []g.RequestOptionFunc{g.WithContext(ctx)})
+	if err != nil {
+		return nil, err
+	}
+
+	var settings struct {
+		EnforceGranularTokens                 bool   `json:"enforce_granular_tokens"`
+		GranularTokensEnforcedAfter           string `json:"granular_tokens_enforced_after"`
+		MaxPersonalAccessTokenLifetime        int64  `json:"max_personal_access_token_lifetime"`
+		RequirePersonalAccessTokenExpiry      bool   `json:"require_personal_access_token_expiry"`
+		ServiceAccessTokensExpirationEnforced bool   `json:"service_access_tokens_expiration_enforced"`
+		DisablePersonalAccessTokens           *bool  `json:"disable_personal_access_tokens"`
+	}
+	resp, err := gc.client.Do(req, &settings)
+	if resp != nil && resp.StatusCode == http.StatusForbidden {
+		return info, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	info.SettingsKnown = true
+	info.EnforceGranularTokens = settings.EnforceGranularTokens
+	info.GranularTokensEnforcedAfter = settings.GranularTokensEnforcedAfter
+	info.MaxTokenLifetimeDays = settings.MaxPersonalAccessTokenLifetime
+	info.RequireTokenExpiry = settings.RequirePersonalAccessTokenExpiry
+	info.ServiceTokenExpiryEnforced = settings.ServiceAccessTokensExpirationEnforced
+	info.PersonalTokensDisabled = settings.DisablePersonalAccessTokens
+	return info, nil
+}
+
 func (gc *gitlabClient) CreatePipelineProjectTriggerAccessToken(ctx context.Context, path, name string, projectId int64, description string, expiresAt *time.Time) (et *modelToken.TokenPipelineProjectTrigger, err error) {
 	var pt *g.PipelineTrigger
 	defer func() {

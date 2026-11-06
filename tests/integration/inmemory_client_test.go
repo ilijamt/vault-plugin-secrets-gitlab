@@ -17,6 +17,7 @@ import (
 	g "gitlab.com/gitlab-org/api/client-go/v3"
 
 	glab "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/gitlab"
+	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
@@ -206,6 +207,10 @@ func (i *inMemoryClient) RevokeGroupDeployToken(ctx context.Context, tokenId int
 	}
 	delete(i.accessTokens, tokenKey(t.TypeGroupDeploy, groupId, tokenId))
 	return nil
+}
+
+func (i *inMemoryClient) InstanceInfo(ctx context.Context) (*modelConfig.InstanceInfo, error) {
+	return &modelConfig.InstanceInfo{TokenOwnerIsAdmin: true, SettingsKnown: true}, nil
 }
 
 func (i *inMemoryClient) Metadata(ctx context.Context) (*g.Metadata, error) {

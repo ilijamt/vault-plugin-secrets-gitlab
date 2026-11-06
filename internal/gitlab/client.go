@@ -6,6 +6,7 @@ import (
 
 	g "gitlab.com/gitlab-org/api/client-go/v3"
 
+	modelConfig "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/config"
 	"github.com/ilijamt/vault-plugin-secrets-gitlab/internal/model/token"
 	t "github.com/ilijamt/vault-plugin-secrets-gitlab/internal/token"
 )
@@ -14,6 +15,7 @@ type Client interface {
 	GitlabClient(ctx context.Context) *g.Client
 	Valid(ctx context.Context) bool
 	Metadata(ctx context.Context) (*g.Metadata, error)
+	InstanceInfo(ctx context.Context) (*modelConfig.InstanceInfo, error)
 	CurrentTokenInfo(ctx context.Context) (*token.TokenConfig, error)
 	RotateCurrentToken(ctx context.Context) (newToken *token.TokenConfig, oldToken *token.TokenConfig, err error)
 	CreatePersonalAccessToken(ctx context.Context, username string, userId int64, name, description string, expiresAt time.Time, scopes []string) (*token.TokenPersonal, error)

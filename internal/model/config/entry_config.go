@@ -18,6 +18,17 @@ import (
 
 var _ model.Named = (*EntryConfig)(nil)
 
+type InstanceInfo struct {
+	TokenOwnerIsAdmin           bool   `json:"token_owner_is_admin" structs:"token_owner_is_admin" mapstructure:"token_owner_is_admin"`
+	SettingsKnown               bool   `json:"settings_known" structs:"settings_known" mapstructure:"settings_known"`
+	EnforceGranularTokens       bool   `json:"enforce_granular_tokens" structs:"enforce_granular_tokens" mapstructure:"enforce_granular_tokens"`
+	GranularTokensEnforcedAfter string `json:"granular_tokens_enforced_after" structs:"granular_tokens_enforced_after" mapstructure:"granular_tokens_enforced_after"`
+	MaxTokenLifetimeDays        int64  `json:"max_token_lifetime_days" structs:"max_token_lifetime_days" mapstructure:"max_token_lifetime_days"`
+	RequireTokenExpiry          bool   `json:"require_token_expiry" structs:"require_token_expiry" mapstructure:"require_token_expiry"`
+	ServiceTokenExpiryEnforced  bool   `json:"service_token_expiry_enforced" structs:"service_token_expiry_enforced" mapstructure:"service_token_expiry_enforced"`
+	PersonalTokensDisabled      *bool  `json:"personal_tokens_disabled" structs:"personal_tokens_disabled" mapstructure:"personal_tokens_disabled"`
+}
+
 type EntryConfig struct {
 	TokenId            int64            `json:"token_id" yaml:"token_id" mapstructure:"token_id"`
 	BaseURL            string           `json:"base_url" structs:"base_url" mapstructure:"base_url"`
@@ -32,6 +43,8 @@ type EntryConfig struct {
 	GitlabVersion      string           `json:"gitlab_version" structs:"gitlab_version" mapstructure:"gitlab_version"`
 	GitlabRevision     string           `json:"gitlab_revision" structs:"gitlab_revision" mapstructure:"gitlab_revision"`
 	GitlabIsEnterprise bool             `json:"gitlab_is_enterprise" structs:"gitlab_is_enterprise" mapstructure:"gitlab_is_enterprise"`
+	GitlabInstance     InstanceInfo     `json:"gitlab_instance" structs:"gitlab_instance" mapstructure:"gitlab_instance"`
+	GitlabRefreshedAt  time.Time        `json:"gitlab_refreshed_at" structs:"gitlab_refreshed_at" mapstructure:"gitlab_refreshed_at"`
 }
 
 func (e *EntryConfig) GetName() string { return e.Name }
@@ -148,12 +161,16 @@ func (e *EntryConfig) UpdateFromFieldData(data *framework.FieldData) (warnings [
 }
 
 func (e *EntryConfig) LogicalResponseData(includeToken bool) (data map[string]any) {
-	var tokenExpiresAt, tokenCreatedAt = "", ""
+	var tokenExpiresAt, tokenCreatedAt, refreshedAt = "", "", ""
 	if !e.TokenExpiresAt.IsZero() {
 		tokenExpiresAt = e.TokenExpiresAt.Format(time.RFC3339)
 	}
 	if !e.TokenCreatedAt.IsZero() {
 		tokenCreatedAt = e.TokenCreatedAt.Format(time.RFC3339)
+	}
+
+	if !e.GitlabRefreshedAt.IsZero() {
+		refreshedAt = e.GitlabRefreshedAt.Format(time.RFC3339)
 	}
 
 	data = map[string]any{
@@ -164,6 +181,8 @@ func (e *EntryConfig) LogicalResponseData(includeToken bool) (data map[string]an
 		"gitlab_version":       e.GitlabVersion,
 		"gitlab_revision":      e.GitlabRevision,
 		"gitlab_is_enterprise": e.GitlabIsEnterprise,
+		"gitlab_instance":      e.GitlabInstance,
+		"last_refreshed_at":    refreshedAt,
 		"token_created_at":     tokenCreatedAt,
 		"token_expires_at":     tokenExpiresAt,
 		"token_sha1_hash":      fmt.Sprintf("%x", sha1.Sum([]byte(e.Token))),

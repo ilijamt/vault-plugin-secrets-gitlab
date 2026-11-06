@@ -24,21 +24,21 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 297
-        body: '{"id":34,"name":"name","revoked":false,"created_at":"2026-11-05T23:15:22.783Z","description":"description","scopes":["read_api"],"user_id":34,"last_used_at":null,"active":true,"expires_at":"2026-11-06","access_level":10,"resource_type":"group","resource_id":2,"token":"REPLACED-TOKEN"}'
+        content_length: 298
+        body: '{"id":34,"name":"name","revoked":false,"created_at":"2026-11-06T03:16:05.389Z","description":"description","scopes":["read_api"],"user_id":34,"last_used_at":null,"active":false,"expires_at":"2026-11-06","access_level":10,"resource_type":"group","resource_id":2,"token":"REPLACED-TOKEN"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Connection:
                 - keep-alive
             Content-Length:
-                - "297"
+                - "298"
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 23:15:22 GMT
+                - Fri, 06 Nov 2026 03:16:05 GMT
             Etag:
-                - W/"98350c92652b94ef01e5734d2f104a79"
+                - W/"ad7edf4d243202d3d4f2af8f2acc3f8f"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -54,14 +54,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PZXP5B6XZHFH8TNVTYA85R","version":"1"}'
+                - '{"correlation_id":"01M6QDPEATVFX6E652Y99K34W9","version":"1"}'
             X-Request-Id:
-                - 01M6PZXP5B6XZHFH8TNVTYA85R
+                - 01M6QDPEATVFX6E652Y99K34W9
             X-Runtime:
-                - "0.377585"
+                - "0.316948"
         status: 201 Created
         code: 201
-        duration: 388.399375ms
+        duration: 320.260833ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -90,7 +90,7 @@ interactions:
             Connection:
                 - keep-alive
             Date:
-                - Thu, 05 Nov 2026 23:15:23 GMT
+                - Fri, 06 Nov 2026 03:16:05 GMT
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -106,14 +106,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PZXPXP61VYV7935VKG700Z","version":"1"}'
+                - '{"correlation_id":"01M6QDPEYZEWRCC1CQQCP9N6Y8","version":"1"}'
             X-Request-Id:
-                - 01M6PZXPXP61VYV7935VKG700Z
+                - 01M6QDPEYZEWRCC1CQQCP9N6Y8
             X-Runtime:
-                - "0.243895"
+                - "0.145331"
         status: 204 No Content
         code: 204
-        duration: 252.922583ms
+        duration: 151.114041ms
     - id: 2
       request:
         proto: HTTP/1.1
@@ -137,21 +137,21 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 299
-        body: '{"id":35,"name":"name","revoked":false,"created_at":"2026-11-05T23:15:24.053Z","description":"description","scopes":["read_api"],"user_id":35,"last_used_at":null,"active":true,"expires_at":"2026-11-06","access_level":30,"resource_type":"project","resource_id":1,"token":"REPLACED-TOKEN"}'
+        content_length: 300
+        body: '{"id":35,"name":"name","revoked":false,"created_at":"2026-11-06T03:16:06.344Z","description":"description","scopes":["read_api"],"user_id":35,"last_used_at":null,"active":false,"expires_at":"2026-11-06","access_level":30,"resource_type":"project","resource_id":1,"token":"REPLACED-TOKEN"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Connection:
                 - keep-alive
             Content-Length:
-                - "299"
+                - "300"
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 23:15:24 GMT
+                - Fri, 06 Nov 2026 03:16:06 GMT
             Etag:
-                - W/"8a2ac3ec48e4380b3bce3f0b1fa871f6"
+                - W/"c0af77934f4b1dbaf64021e8ccc16b0b"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -167,14 +167,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PZXQDHSB5FBGEPGADV1J2V","version":"1"}'
+                - '{"correlation_id":"01M6QDPF8HKX58KFYF8APHKQHB","version":"1"}'
             X-Request-Id:
-                - 01M6PZXQDHSB5FBGEPGADV1J2V
+                - 01M6QDPF8HKX58KFYF8APHKQHB
             X-Runtime:
-                - "0.365025"
+                - "0.320373"
         status: 201 Created
         code: 201
-        duration: 369.095167ms
+        duration: 324.579959ms
     - id: 3
       request:
         proto: HTTP/1.1
@@ -203,7 +203,7 @@ interactions:
             Connection:
                 - keep-alive
             Date:
-                - Thu, 05 Nov 2026 23:15:24 GMT
+                - Fri, 06 Nov 2026 03:16:07 GMT
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -219,14 +219,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PZXR4RC95AP5T1DRWXP54S","version":"1"}'
+                - '{"correlation_id":"01M6QDPFWY89GHX4XPXGAKAF1M","version":"1"}'
             X-Request-Id:
-                - 01M6PZXR4RC95AP5T1DRWXP54S
+                - 01M6QDPFWY89GHX4XPXGAKAF1M
             X-Runtime:
-                - "0.150111"
+                - "0.376748"
         status: 204 No Content
         code: 204
-        duration: 158.256875ms
+        duration: 391.071917ms
     - id: 4
       request:
         proto: HTTP/1.1
@@ -250,21 +250,21 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 238
-        body: '{"id":36,"name":"name","revoked":false,"created_at":"2026-11-05T23:15:24.805Z","description":"description","scopes":["read_api"],"user_id":1,"last_used_at":null,"active":true,"expires_at":"2026-11-06","token":"REPLACED-TOKEN"}'
+        content_length: 239
+        body: '{"id":36,"name":"name","revoked":false,"created_at":"2026-11-06T03:16:07.536Z","description":"description","scopes":["read_api"],"user_id":1,"last_used_at":null,"active":false,"expires_at":"2026-11-06","token":"REPLACED-TOKEN"}'
         headers:
             Cache-Control:
                 - max-age=0, private, must-revalidate
             Connection:
                 - keep-alive
             Content-Length:
-                - "238"
+                - "239"
             Content-Type:
                 - application/json
             Date:
-                - Thu, 05 Nov 2026 23:15:24 GMT
+                - Fri, 06 Nov 2026 03:16:07 GMT
             Etag:
-                - W/"a77b68762ca3cd694fe55aff156b1933"
+                - W/"ec583abcb258c4d4cbf21ae2103d08a5"
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -280,14 +280,14 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PZXREQ76EWBK0Y21QPK7SG","version":"1"}'
+                - '{"correlation_id":"01M6QDPGNHV3HNMFSTJK4N3CMH","version":"1"}'
             X-Request-Id:
-                - 01M6PZXREQ76EWBK0Y21QPK7SG
+                - 01M6QDPGNHV3HNMFSTJK4N3CMH
             X-Runtime:
-                - "0.064503"
+                - "0.163326"
         status: 201 Created
         code: 201
-        duration: 68.638166ms
+        duration: 172.553083ms
     - id: 5
       request:
         proto: HTTP/1.1
@@ -316,7 +316,7 @@ interactions:
             Connection:
                 - keep-alive
             Date:
-                - Thu, 05 Nov 2026 23:15:24 GMT
+                - Fri, 06 Nov 2026 03:16:07 GMT
             Nel:
                 - '{"max_age": 0}'
             Referrer-Policy:
@@ -332,11 +332,11 @@ interactions:
             X-Frame-Options:
                 - SAMEORIGIN
             X-Gitlab-Meta:
-                - '{"correlation_id":"01M6PZXRK3BVPVHSK6VPYKP905","version":"1"}'
+                - '{"correlation_id":"01M6QDPH0BQ3PDPR46PQ4VJ4VP","version":"1"}'
             X-Request-Id:
-                - 01M6PZXRK3BVPVHSK6VPYKP905
+                - 01M6QDPH0BQ3PDPR46PQ4VJ4VP
             X-Runtime:
-                - "0.031098"
+                - "0.125675"
         status: 204 No Content
         code: 204
-        duration: 34.454875ms
+        duration: 129.38175ms
